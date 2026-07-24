@@ -19,6 +19,15 @@
       "artifact": "docs-inputs",
       "mount": "packages/inputs",
       "optional": true
+    },
+    {
+      "name": "use-everywhere",
+      "repo": "rxova/use-everywhere",
+      "ref": "main",
+      "base": "/packages/use-everywhere/",
+      "artifact": "docs-use-everywhere",
+      "mount": "packages/use-everywhere",
+      "optional": true
     }
   ]
 }
