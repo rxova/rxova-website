@@ -7,7 +7,7 @@ const authorEmail = 'rxova@proton.me'
 type Link = { label: string; href: string; external?: boolean }
 type Project = {
   name: string
-  kicker: string
+  packages: string[]
   tagline: string
   blurb: string
   tags: string[]
@@ -17,7 +17,7 @@ type Project = {
 const projects: Project[] = [
   {
     name: 'Journey',
-    kicker: '@rxova/journey',
+    packages: ['@rxova/journey-core', '@rxova/journey-react', '@rxova/journey-devtools-bridge'],
     tagline: 'Declarative journey graphs for non-linear UI flows.',
     blurb:
       'Model multi-step, branching flows as a graph instead of a tangle of booleans and effects. Core is framework-agnostic; React bindings and a Chrome DevTools bridge come in the box.',
@@ -34,7 +34,12 @@ const projects: Project[] = [
   },
   {
     name: 'rxova inputs',
-    kicker: 'react inputs',
+    packages: [
+      '@rxova/react-inputs',
+      '@rxova/react-intl-currency-input',
+      '@rxova/react-otp-input',
+      '@rxova/react-rating-input',
+    ],
     tagline: 'Small, correct, dependency-light React inputs.',
     blurb:
       'A family of focused input components — localized currency, OTP slots, and feedback stars — each zero-to-few dependencies, accessible, and free of the usual cursor and locale bugs.',
@@ -46,7 +51,7 @@ const projects: Project[] = [
   },
   {
     name: 'use-everywhere',
-    kicker: 'cross-context state',
+    packages: ['@use-everywhere/core', 'use-everywhere'],
     tagline: 'State and messages that exist in every tab, window, and worker.',
     blurb:
       'Share state and messages across every tab, window, and worker — a framework-agnostic core plus React bindings, one small API.',
@@ -133,10 +138,12 @@ const year = new Date().getFullYear()
         {
           projects.map((p) => (
             <article class="project">
-              <div class="project-head">
-                <span class="kicker">{p.kicker}</span>
-                <h2>{p.name}</h2>
-              </div>
+              <h2 class="project-title">{p.name}</h2>
+              <ul class="packages" aria-label={`${p.name} packages`}>
+                {p.packages.map((pkg) => (
+                  <li class="pkg">{pkg}</li>
+                ))}
+              </ul>
               <p class="tagline">{p.tagline}</p>
               <p class="blurb">{p.blurb}</p>
               <ul class="tags" aria-label={`${p.name} tech`}>
@@ -216,29 +223,30 @@ const year = new Date().getFullYear()
         border-top: 1px solid var(--rule);
       }
 
-      .project-head {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        flex-wrap: wrap;
-        margin-bottom: 0.6rem;
+      .project-title {
+        font-size: 1.5rem;
+        letter-spacing: -0.02em;
+        font-weight: 640;
+        margin-bottom: 0.7rem;
       }
 
-      .kicker {
+      .packages {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 0.95rem;
+      }
+
+      .pkg {
         font-family: var(--mono);
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         line-height: 1.4;
         color: var(--faint);
         background: var(--tag-bg);
         padding: 0.15rem 0.5rem;
         border-radius: 5px;
         letter-spacing: -0.01em;
-      }
-
-      .project h2 {
-        font-size: 1.5rem;
-        letter-spacing: -0.02em;
-        font-weight: 640;
       }
 
       .tagline {
