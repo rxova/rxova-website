@@ -10,6 +10,7 @@ type Project = {
   kicker: string;
   tagline: string;
   blurb: string;
+  tags: string[];
   links: Link[];
 };
 
@@ -20,6 +21,7 @@ const projects: Project[] = [
     tagline: "Declarative journey graphs for non-linear UI flows.",
     blurb:
       "Model multi-step, branching flows as a graph instead of a tangle of booleans and effects. Core is framework-agnostic; React bindings and a Chrome DevTools bridge come in the box.",
+    tags: ["JS Core", "React", "TypeScript", "Chrome Extension"],
     links: [
       { label: "Docs", href: "/packages/journey/" },
       { label: "GitHub", href: "https://github.com/rxova/journey", external: true },
@@ -36,6 +38,7 @@ const projects: Project[] = [
     tagline: "Small, correct, dependency-light React inputs.",
     blurb:
       "A family of focused input components — localized currency, OTP slots, and feedback stars — each zero-to-few dependencies, accessible, and free of the usual cursor and locale bugs.",
+    tags: ["React", "TypeScript", "Zero-dependency", "Accessible"],
     links: [
       { label: "Docs", href: "/packages/inputs/" },
       { label: "GitHub", href: "https://github.com/rxova/inputs", external: true },
@@ -47,6 +50,7 @@ const projects: Project[] = [
     tagline: "State and messages that exist in every tab, window, and worker.",
     blurb:
       "Share state and messages across every tab, window, and worker — a framework-agnostic core plus React bindings, one small API.",
+    tags: ["JS Core", "React", "TypeScript", "Cross-tab"],
     links: [
       { label: "Docs", href: "/packages/use-everywhere/" },
       {
@@ -100,7 +104,19 @@ const year = new Date().getFullYear();
   </head>
   <body>
     <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme">
-      <span aria-hidden="true">☾</span>
+      <span class="icon" aria-hidden="true"
+        ><svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="24"
+          height="24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg
+        ></span
+      >
     </button>
     <main>
       <header class="intro">
@@ -128,6 +144,11 @@ const year = new Date().getFullYear();
               </div>
               <p class="tagline">{p.tagline}</p>
               <p class="blurb">{p.blurb}</p>
+              <ul class="tags" aria-label={`${p.name} tech`}>
+                {p.tags.map((t) => (
+                  <li class="tag">{t}</li>
+                ))}
+              </ul>
               <nav class="links" aria-label={`${p.name} links`}>
                 {p.links.map((l) => (
                   <a
@@ -151,11 +172,13 @@ const year = new Date().getFullYear();
       <footer class="foot">
         <span>© {year} rxova</span>
         <span class="dot" aria-hidden="true">·</span>
-        <a href={authorGithub} target="_blank" rel="noopener noreferrer"
-          >GitHub</a
-        >
+        <a href={authorGithub} target="_blank" rel="noopener noreferrer">GitHub</a>
         <span class="dot" aria-hidden="true">·</span>
         <a href={`mailto:${authorEmail}`}>Email</a>
+        <span class="dot" aria-hidden="true">·</span>
+        <a href="/privacy">Privacy</a>
+        <span class="dot" aria-hidden="true">·</span>
+        <a href="/terms">Terms</a>
       </footer>
     </main>
 
@@ -202,8 +225,8 @@ const year = new Date().getFullYear();
 
       .project-head {
         display: flex;
-        align-items: baseline;
-        gap: 0.75rem;
+        align-items: center;
+        gap: 0.6rem;
         flex-wrap: wrap;
         margin-bottom: 0.6rem;
       }
@@ -211,6 +234,7 @@ const year = new Date().getFullYear();
       .kicker {
         font-family: var(--mono);
         font-size: 0.78rem;
+        line-height: 1.4;
         color: var(--faint);
         background: var(--tag-bg);
         padding: 0.15rem 0.5rem;
@@ -233,6 +257,23 @@ const year = new Date().getFullYear();
         color: var(--muted);
         max-width: 38rem;
         margin-bottom: 1.1rem;
+      }
+
+      .tags {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .tag {
+        font-size: 0.72rem;
+        color: var(--muted);
+        border: 1px solid var(--rule);
+        padding: 0.12rem 0.55rem;
+        border-radius: 999px;
+        letter-spacing: 0.01em;
       }
 
       .links {
@@ -303,11 +344,20 @@ const year = new Date().getFullYear();
         border-radius: 8px;
         background: var(--card);
         color: var(--fg);
-        font-size: 1rem;
-        line-height: 1;
         cursor: pointer;
         z-index: 3;
         transition: border-color 0.15s ease, background-color 0.2s ease;
+      }
+
+      .theme-toggle .icon {
+        display: grid;
+        place-items: center;
+      }
+
+      .theme-toggle svg {
+        width: 1.15rem;
+        height: 1.15rem;
+        display: block;
       }
 
       .theme-toggle:hover {
@@ -324,8 +374,14 @@ const year = new Date().getFullYear();
       (function () {
         var root = document.documentElement;
         var btn = document.getElementById("theme-toggle");
-        var glyph = btn.firstElementChild;
+        var glyph = btn.querySelector(".icon");
         var media = window.matchMedia("(prefers-color-scheme: dark)");
+
+        // Lucide icons (ISC licensed).
+        var ICON_MOON =
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+        var ICON_SUN =
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
 
         function current() {
           return (
@@ -335,7 +391,8 @@ const year = new Date().getFullYear();
         }
         function render() {
           var dark = current() === "dark";
-          glyph.textContent = dark ? "☀" : "☾";
+          // Show the icon of the theme you'd switch TO.
+          glyph.innerHTML = dark ? ICON_SUN : ICON_MOON;
           btn.setAttribute(
             "aria-label",
             dark ? "Switch to light theme" : "Switch to dark theme"
