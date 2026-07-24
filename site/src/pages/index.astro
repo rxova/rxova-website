@@ -1,0 +1,289 @@
+---
+import "../styles/global.css";
+
+// TODO(you): tweak the intro voice + your name. Kept neutral so nothing is
+// asserted that you didn't write.
+const authorGithub = "https://github.com/rxova";
+const authorEmail = "jonakrusze@gmail.com";
+
+type Link = { label: string; href: string; external?: boolean };
+type Project = {
+  name: string;
+  kicker: string;
+  tagline: string;
+  blurb: string;
+  links: Link[];
+};
+
+const projects: Project[] = [
+  {
+    name: "Journey",
+    kicker: "@rxova/journey",
+    tagline: "Declarative journey graphs for non-linear UI flows.",
+    blurb:
+      "Model multi-step, branching flows as a graph instead of a tangle of booleans and effects. Core is framework-agnostic; React bindings and a Chrome DevTools bridge come in the box.",
+    links: [
+      { label: "Docs", href: "/packages/journey/" },
+      { label: "GitHub", href: "https://github.com/rxova/journey", external: true },
+      {
+        label: "npm",
+        href: "https://www.npmjs.com/package/@rxova/journey-core",
+        external: true,
+      },
+    ],
+  },
+  {
+    name: "rxova inputs",
+    kicker: "react inputs",
+    tagline: "Small, correct, dependency-light React inputs.",
+    blurb:
+      "A family of focused input components — localized currency, OTP slots, and feedback stars — each zero-to-few dependencies, accessible, and free of the usual cursor and locale bugs.",
+    links: [
+      { label: "Docs", href: "/packages/inputs/" },
+      { label: "GitHub", href: "https://github.com/rxova/inputs", external: true },
+    ],
+  },
+  {
+    name: "use-everywhere",
+    kicker: "react state",
+    // TODO(you): confirm this tagline matches the project's own wording.
+    tagline: "Reach your React state from anywhere, without prop-drilling.",
+    blurb:
+      "A tiny primitive for sharing state and hooks across a tree without ceremony. Core plus React bindings.",
+    links: [
+      {
+        label: "Docs",
+        href: "https://rxova.github.io/use-everywhere",
+        external: true,
+      },
+      {
+        label: "GitHub",
+        href: "https://github.com/rxova/use-everywhere",
+        external: true,
+      },
+      {
+        label: "npm",
+        href: "https://www.npmjs.com/package/use-everywhere",
+        external: true,
+      },
+    ],
+  },
+];
+
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
+    <title>rxova — open-source React libraries</title>
+    <meta
+      name="description"
+      content="rxova — open-source React libraries: Journey, rxova inputs, and use-everywhere."
+    />
+    <meta property="og:title" content="rxova" />
+    <meta
+      property="og:description"
+      content="Open-source React libraries: Journey, rxova inputs, and use-everywhere."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://rxova.org/" />
+    <meta property="og:image" content="https://rxova.org/rxova-logo-1024.png" />
+  </head>
+  <body>
+    <main>
+      <header class="intro">
+        <img
+          class="mark"
+          src="/rxova-logo-256.png"
+          alt="rxova"
+          width="48"
+          height="48"
+        />
+        <h1>hi — I build open-source React libraries.</h1>
+        <p class="lede">
+          I'm the maintainer behind <strong>rxova</strong>. I like small,
+          correct tools that do one thing well and get out of the way. Here's
+          what I'm working on.
+        </p>
+      </header>
+
+      <section class="projects" aria-label="Projects">
+        {
+          projects.map((p) => (
+            <article class="project">
+              <div class="project-head">
+                <span class="kicker">{p.kicker}</span>
+                <h2>{p.name}</h2>
+              </div>
+              <p class="tagline">{p.tagline}</p>
+              <p class="blurb">{p.blurb}</p>
+              <nav class="links" aria-label={`${p.name} links`}>
+                {p.links.map((l) => (
+                  <a
+                    href={l.href}
+                    {...(l.external
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
+                  >
+                    {l.label}
+                    <span aria-hidden="true" class="arrow">
+                      {l.external ? "↗" : "→"}
+                    </span>
+                  </a>
+                ))}
+              </nav>
+            </article>
+          ))
+        }
+      </section>
+
+      <footer class="foot">
+        <span>© {year} rxova</span>
+        <span class="dot" aria-hidden="true">·</span>
+        <a href={authorGithub} target="_blank" rel="noopener noreferrer"
+          >GitHub</a
+        >
+        <span class="dot" aria-hidden="true">·</span>
+        <a href={`mailto:${authorEmail}`}>Email</a>
+      </footer>
+    </main>
+
+    <style>
+      main {
+        max-width: var(--max);
+        margin: 0 auto;
+        padding: clamp(3rem, 10vh, 7rem) 1.5rem 4rem;
+      }
+
+      .intro .mark {
+        display: block;
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+      }
+
+      .intro h1 {
+        font-size: clamp(1.7rem, 4.5vw, 2.4rem);
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        font-weight: 650;
+        margin-bottom: 1.1rem;
+      }
+
+      .lede {
+        color: var(--muted);
+        font-size: 1.15rem;
+        max-width: 34rem;
+      }
+
+      .projects {
+        margin-top: clamp(3rem, 8vh, 5rem);
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .project {
+        padding: 2.25rem 0;
+        border-top: 1px solid var(--rule);
+      }
+
+      .project-head {
+        display: flex;
+        align-items: baseline;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.6rem;
+      }
+
+      .kicker {
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        color: var(--faint);
+        background: var(--tag-bg);
+        padding: 0.15rem 0.5rem;
+        border-radius: 5px;
+        letter-spacing: -0.01em;
+      }
+
+      .project h2 {
+        font-size: 1.5rem;
+        letter-spacing: -0.02em;
+        font-weight: 640;
+      }
+
+      .tagline {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .blurb {
+        color: var(--muted);
+        max-width: 38rem;
+        margin-bottom: 1.1rem;
+      }
+
+      .links {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .links a {
+        text-decoration: none;
+        font-weight: 550;
+        font-size: 0.97rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        border-bottom: 1px solid transparent;
+        transition: border-color 0.15s ease;
+      }
+
+      .links a:hover {
+        border-bottom-color: var(--fg);
+      }
+
+      .arrow {
+        color: var(--faint);
+        font-size: 0.85em;
+        transition: transform 0.15s ease;
+      }
+
+      .links a:hover .arrow {
+        transform: translate(1px, -1px);
+      }
+
+      .foot {
+        margin-top: clamp(3rem, 8vh, 5rem);
+        padding-top: 1.75rem;
+        border-top: 1px solid var(--rule);
+        color: var(--faint);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+      }
+
+      .foot a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+
+      .foot a:hover {
+        color: var(--fg);
+      }
+
+      .dot {
+        color: var(--rule);
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "rxova-website",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.9.0",
+  "description": "Landing page for rxova open-source projects + docs aggregator for rxova.org",
+  "scripts": {
+    "dev": "pnpm -C site dev",
+    "build": "pnpm -C site build",
+    "preview": "pnpm -C site preview",
+    "check": "pnpm -C site check",
+    "assemble": "node scripts/assemble.mjs"
+  }
+}

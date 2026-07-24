@@ -1,0 +1,152 @@
+name: Deploy rxova.org
+
+# Builds the Astro landing + each project's docs, assembles them into one tree,
+# and publishes to GitHub Pages. See sources.json and build/PLAN.md.
+#
+# The rxova.org custom domain is claimed only once vars.PAGES_CUSTOM_DOMAIN is
+# set (Phase 3). Until then this deploys to the repo's default Pages URL
+# (https://rxova.github.io/rxova-website/) — useful as a structural smoke test,
+# though asset paths assume the domain root, so do visual QA locally.
+
+on:
+  repository_dispatch:
+    types: [docs-journey, docs-inputs]
+  workflow_dispatch:
+    inputs:
+      journey_ref:
+        description: journey ref to build (default main)
+        required: false
+      inputs_ref:
+        description: inputs ref to build (default main)
+        required: false
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "24"
+
+jobs:
+  build-landing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -C site build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: landing
+          path: site/dist
+          if-no-files-found: error
+
+  build-journey:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: rxova/journey
+          ref: ${{ github.event.client_payload.ref || github.event.inputs.journey_ref || 'main' }}
+          path: journey
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: journey/pnpm-lock.yaml
+      - name: Install (monorepo root)
+        working-directory: journey
+        run: pnpm install --frozen-lockfile
+      - name: Build docs at /packages/journey/
+        working-directory: journey
+        env:
+          DOCS_URL: https://rxova.org
+          DOCS_BASE_URL: /packages/journey/
+        run: |
+          pnpm run docs:api:check
+          pnpm run docs:check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docs-journey
+          path: journey/apps/docs/build
+          if-no-files-found: error
+
+  build-inputs:
+    runs-on: ubuntu-latest
+    # Enabled once the unified inputs monorepo exists: set repo variable
+    # INPUTS_ENABLED=true. Until then the job is skipped and assemble treats
+    # inputs as optional. See build/INPUTS-CONTRACT.md.
+    if: vars.INPUTS_ENABLED == 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.INPUTS_REPO || 'rxova/inputs' }}
+          ref: ${{ github.event.client_payload.ref || github.event.inputs.inputs_ref || 'main' }}
+          path: inputs
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: inputs/pnpm-lock.yaml
+      - name: Install
+        working-directory: inputs
+        run: pnpm install --frozen-lockfile
+      - name: Build docs at /packages/inputs/ (contract: docs:aggregate -> .docs-dist/)
+        working-directory: inputs
+        env:
+          DOCS_BASE_URL: /packages/inputs/
+        run: pnpm run docs:aggregate
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docs-inputs
+          path: inputs/.docs-dist
+          if-no-files-found: error
+
+  assemble-deploy:
+    needs: [build-landing, build-journey, build-inputs]
+    # Landing + journey are required; inputs is optional (its job may be skipped).
+    if: >-
+      always() &&
+      needs.build-landing.result == 'success' &&
+      needs.build-journey.result == 'success' &&
+      (needs.build-inputs.result == 'success' || needs.build-inputs.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Assemble _site
+        run: node scripts/assemble.mjs artifacts _site
+      - name: Add .nojekyll + CNAME
+        run: |
+          touch _site/.nojekyll
+          if [ -n "${{ vars.PAGES_CUSTOM_DOMAIN }}" ]; then
+            echo "${{ vars.PAGES_CUSTOM_DOMAIN }}" > _site/CNAME
+            echo "Custom domain -> ${{ vars.PAGES_CUSTOM_DOMAIN }}"
+          else
+            echo "No PAGES_CUSTOM_DOMAIN set; serving at the default Pages URL."
+          fi
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v5

@@ -1,0 +1,24 @@
+{
+  "$comment": "Source of truth for what the aggregator assembles into rxova.org. The Astro landing is built locally in this repo (site/); each 'source' is an external project whose docs are checked out, built with its 'base' baseUrl, uploaded as 'artifact', and copied into '_site/<mount>' by scripts/assemble.mjs.",
+  "landing": { "artifact": "landing", "mount": "." },
+  "sources": [
+    {
+      "name": "journey",
+      "repo": "rxova/journey",
+      "ref": "main",
+      "base": "/packages/journey/",
+      "artifact": "docs-journey",
+      "mount": "packages/journey",
+      "optional": false
+    },
+    {
+      "name": "inputs",
+      "repo": "rxova/inputs",
+      "ref": "main",
+      "base": "/packages/inputs/",
+      "artifact": "docs-inputs",
+      "mount": "packages/inputs",
+      "optional": true
+    }
+  ]
+}

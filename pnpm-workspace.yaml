@@ -1,0 +1,10 @@
+packages:
+  - site
+
+# esbuild + sharp ship prebuilt binaries via install scripts; Astro/Vite need them.
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+allowBuilds:
+  esbuild: true
+  sharp: true
