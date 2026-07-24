@@ -369,13 +369,22 @@ const year = new Date().getFullYear();
         // Cursor-following glow (skipped for reduced-motion users).
         if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
           var raf = 0;
+          var main = document.querySelector("main");
           window.addEventListener(
             "pointermove",
             function (e) {
               if (raf) return;
+              var x = e.clientX,
+                y = e.clientY;
               raf = requestAnimationFrame(function () {
-                root.style.setProperty("--mx", e.clientX + "px");
-                root.style.setProperty("--my", e.clientY + "px");
+                root.style.setProperty("--mx", x + "px");
+                root.style.setProperty("--my", y + "px");
+                // Fade the glow out over the centred text column; it only shows
+                // in the empty side margins.
+                var r = main.getBoundingClientRect();
+                var overText =
+                  x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+                root.style.setProperty("--glow-o", overText ? "0" : "1");
                 raf = 0;
               });
             },

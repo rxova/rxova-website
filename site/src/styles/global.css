@@ -79,11 +79,12 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background: radial-gradient(
-    480px circle at var(--mx, 50%) var(--my, 28%),
-    color-mix(in srgb, var(--accent) 9%, transparent),
-    transparent 62%
+    420px circle at var(--mx, 50%) var(--my, 28%),
+    color-mix(in srgb, var(--accent) 5%, transparent),
+    transparent 60%
   );
-  transition: opacity 0.3s ease;
+  opacity: var(--glow-o, 1);
+  transition: opacity 0.35s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -93,9 +94,9 @@ body::before {
   body::before {
     /* Keep a static wash, but don't chase the cursor. */
     background: radial-gradient(
-      480px circle at 50% 28%,
-      color-mix(in srgb, var(--accent) 7%, transparent),
-      transparent 62%
+      420px circle at 50% 28%,
+      color-mix(in srgb, var(--accent) 4%, transparent),
+      transparent 60%
     );
   }
 }
