@@ -17,6 +17,8 @@
   --accent: #14140f;
   --card: #fbfaf7;
   --tag-bg: #f0ede6;
+  /* Soft brand-indigo glow — visible against the white background. */
+  --glow-tint: rgba(96, 78, 240, 0.14);
 }
 
 /* Dark theme tokens, shared by the explicit override and the system default. */
@@ -30,6 +32,7 @@
   --accent: #f2efe8;
   --card: #17150f;
   --tag-bg: #201e18;
+  --glow-tint: rgba(242, 239, 232, 0.06);
 }
 
 /* Follow the OS only when the user hasn't chosen a theme. */
@@ -44,6 +47,7 @@
     --accent: #f2efe8;
     --card: #17150f;
     --tag-bg: #201e18;
+    --glow-tint: rgba(242, 239, 232, 0.06);
   }
 }
 
@@ -79,9 +83,9 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background: radial-gradient(
-    420px circle at var(--mx, 50%) var(--my, 28%),
-    color-mix(in srgb, var(--accent) 5%, transparent),
-    transparent 60%
+    460px circle at var(--mx, 50%) var(--my, 28%),
+    var(--glow-tint),
+    transparent 62%
   );
   opacity: var(--glow-o, 1);
   transition: opacity 0.35s ease;
@@ -94,9 +98,9 @@ body::before {
   body::before {
     /* Keep a static wash, but don't chase the cursor. */
     background: radial-gradient(
-      420px circle at 50% 28%,
-      color-mix(in srgb, var(--accent) 4%, transparent),
-      transparent 60%
+      460px circle at 50% 28%,
+      var(--glow-tint),
+      transparent 62%
     );
   }
 }
