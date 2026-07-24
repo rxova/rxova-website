@@ -1,0 +1,33 @@
+name: Setup pnpm
+description: Enable Corepack, pin pnpm, and configure Node.js with dependency caching.
+
+inputs:
+  node-version:
+    description: Node.js version to install.
+    required: false
+    default: '24'
+
+runs:
+  using: composite
+  steps:
+    - name: Enable Corepack
+      shell: bash
+      run: corepack enable
+
+    - name: Pin pnpm
+      shell: bash
+      # Pinned to the packageManager field so CI and local installs agree.
+      run: corepack prepare pnpm@11.9.0 --activate
+
+    - name: Setup Node
+      uses: actions/setup-node@v7
+      with:
+        node-version: ${{ inputs['node-version'] }}
+        cache: pnpm
+        cache-dependency-path: pnpm-lock.yaml
+
+    - name: Report versions
+      shell: bash
+      run: |
+        node --version
+        pnpm --version

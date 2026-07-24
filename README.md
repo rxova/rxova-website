@@ -18,13 +18,13 @@ rxova.org/packages/inputs/      -> rxova/inputs   docs      (built with base /pa
 
 ## Layout
 
-| Path                        | What                                                          |
-| --------------------------- | ------------------------------------------------------------ |
-| `site/`                     | Astro landing page (builds to `site/dist`)                   |
-| `scripts/assemble.mjs`      | Copies build artifacts into the final `_site/` tree          |
-| `sources.json`              | Which projects get mounted, and where                        |
-| `.github/workflows/deploy.yml` | build → assemble → GitHub Pages deploy                    |
-| `build/`                    | Private planning docs (git-ignored)                          |
+| Path                           | What                                                |
+| ------------------------------ | --------------------------------------------------- |
+| `site/`                        | Astro landing page (builds to `site/dist`)          |
+| `scripts/assemble.mjs`         | Copies build artifacts into the final `_site/` tree |
+| `sources.json`                 | Which projects get mounted, and where               |
+| `.github/workflows/deploy.yml` | build → assemble → GitHub Pages deploy              |
+| `build/`                       | Private planning docs (git-ignored)                 |
 
 ## Develop the landing
 
@@ -57,6 +57,7 @@ Deploys to **GitHub Pages**. Enable Pages for this repo with **Source: GitHub Ac
 ### Required GitHub config (Settings → Secrets and variables → Actions)
 
 **Variables:**
+
 - `PAGES_CUSTOM_DOMAIN` — set to `rxova.org` at cutover; leave unset before (serves at default URL).
 - `JOURNEY_ENABLED=true` — turn on the journey docs build (Phase 3). Off → landing-only.
 - `INPUTS_ENABLED=true` (+ optional `INPUTS_REPO`) — turn on the inputs docs build (Phase 2).

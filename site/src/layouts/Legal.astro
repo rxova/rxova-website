@@ -1,6 +1,6 @@
 ---
-import "../styles/global.css";
-const { title } = Astro.props;
+import '../styles/global.css'
+const { title } = Astro.props
 ---
 
 <!doctype html>
@@ -12,13 +12,14 @@ const { title } = Astro.props;
     <title>{title} — rxova</title>
     <meta name="robots" content="noindex" />
     <script is:inline>
-      (function () {
+      ;(function () {
         try {
-          var t = localStorage.getItem("theme");
-          if (t === "light" || t === "dark")
-            document.documentElement.setAttribute("data-theme", t);
-        } catch (e) {}
-      })();
+          const t = localStorage.getItem('theme')
+          if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t)
+        } catch {
+          /* localStorage may be unavailable */
+        }
+      })()
     </script>
   </head>
   <body>
@@ -117,13 +118,6 @@ const { title } = Astro.props;
       }
       .dot {
         color: var(--rule);
-      }
-    </style>
-
-    <!-- Legal pages are static reading; no cursor-following glow here. -->
-    <style is:global>
-      body::before {
-        display: none;
       }
     </style>
   </body>

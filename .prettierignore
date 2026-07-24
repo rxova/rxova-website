@@ -1,0 +1,7 @@
+node_modules/
+dist/
+_site/
+.astro/
+artifacts/
+build/
+pnpm-lock.yaml

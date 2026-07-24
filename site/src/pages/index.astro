@@ -1,73 +1,73 @@
 ---
-import "../styles/global.css";
+import '../styles/global.css'
 
-const authorGithub = "https://github.com/rxova";
-const authorEmail = "rxova@proton.me";
+const authorGithub = 'https://github.com/rxova'
+const authorEmail = 'rxova@proton.me'
 
-type Link = { label: string; href: string; external?: boolean };
+type Link = { label: string; href: string; external?: boolean }
 type Project = {
-  name: string;
-  kicker: string;
-  tagline: string;
-  blurb: string;
-  tags: string[];
-  links: Link[];
-};
+  name: string
+  kicker: string
+  tagline: string
+  blurb: string
+  tags: string[]
+  links: Link[]
+}
 
 const projects: Project[] = [
   {
-    name: "Journey",
-    kicker: "@rxova/journey",
-    tagline: "Declarative journey graphs for non-linear UI flows.",
+    name: 'Journey',
+    kicker: '@rxova/journey',
+    tagline: 'Declarative journey graphs for non-linear UI flows.',
     blurb:
-      "Model multi-step, branching flows as a graph instead of a tangle of booleans and effects. Core is framework-agnostic; React bindings and a Chrome DevTools bridge come in the box.",
-    tags: ["JS Core", "React", "TypeScript", "Chrome Extension"],
+      'Model multi-step, branching flows as a graph instead of a tangle of booleans and effects. Core is framework-agnostic; React bindings and a Chrome DevTools bridge come in the box.',
+    tags: ['JS Core', 'React', 'TypeScript', 'Chrome Extension'],
     links: [
-      { label: "Docs", href: "/packages/journey/" },
-      { label: "GitHub", href: "https://github.com/rxova/journey", external: true },
+      { label: 'Docs', href: '/packages/journey/' },
+      { label: 'GitHub', href: 'https://github.com/rxova/journey', external: true },
       {
-        label: "npm",
-        href: "https://www.npmjs.com/package/@rxova/journey-core",
+        label: 'npm',
+        href: 'https://www.npmjs.com/package/@rxova/journey-core',
         external: true,
       },
     ],
   },
   {
-    name: "rxova inputs",
-    kicker: "react inputs",
-    tagline: "Small, correct, dependency-light React inputs.",
+    name: 'rxova inputs',
+    kicker: 'react inputs',
+    tagline: 'Small, correct, dependency-light React inputs.',
     blurb:
-      "A family of focused input components — localized currency, OTP slots, and feedback stars — each zero-to-few dependencies, accessible, and free of the usual cursor and locale bugs.",
-    tags: ["React", "TypeScript", "Zero-dependency", "Accessible"],
+      'A family of focused input components — localized currency, OTP slots, and feedback stars — each zero-to-few dependencies, accessible, and free of the usual cursor and locale bugs.',
+    tags: ['React', 'TypeScript', 'Zero-dependency', 'Accessible'],
     links: [
-      { label: "Docs", href: "/packages/inputs/" },
-      { label: "GitHub", href: "https://github.com/rxova/inputs", external: true },
+      { label: 'Docs', href: '/packages/inputs/' },
+      { label: 'GitHub', href: 'https://github.com/rxova/inputs', external: true },
     ],
   },
   {
-    name: "use-everywhere",
-    kicker: "cross-context state",
-    tagline: "State and messages that exist in every tab, window, and worker.",
+    name: 'use-everywhere',
+    kicker: 'cross-context state',
+    tagline: 'State and messages that exist in every tab, window, and worker.',
     blurb:
-      "Share state and messages across every tab, window, and worker — a framework-agnostic core plus React bindings, one small API.",
-    tags: ["JS Core", "React", "TypeScript", "Cross-tab"],
+      'Share state and messages across every tab, window, and worker — a framework-agnostic core plus React bindings, one small API.',
+    tags: ['JS Core', 'React', 'TypeScript', 'Cross-tab'],
     links: [
-      { label: "Docs", href: "/packages/use-everywhere/" },
+      { label: 'Docs', href: '/packages/use-everywhere/' },
       {
-        label: "GitHub",
-        href: "https://github.com/rxova/use-everywhere",
+        label: 'GitHub',
+        href: 'https://github.com/rxova/use-everywhere',
         external: true,
       },
       {
-        label: "npm",
-        href: "https://www.npmjs.com/package/use-everywhere",
+        label: 'npm',
+        href: 'https://www.npmjs.com/package/use-everywhere',
         external: true,
       },
     ],
   },
-];
+]
 
-const year = new Date().getFullYear();
+const year = new Date().getFullYear()
 ---
 
 <!doctype html>
@@ -93,13 +93,14 @@ const year = new Date().getFullYear();
     <script is:inline>
       // Apply the saved theme before paint to avoid a flash. No choice saved =>
       // fall through to the CSS prefers-color-scheme default.
-      (function () {
+      ;(function () {
         try {
-          var t = localStorage.getItem("theme");
-          if (t === "light" || t === "dark")
-            document.documentElement.setAttribute("data-theme", t);
-        } catch (e) {}
-      })();
+          const t = localStorage.getItem('theme')
+          if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t)
+        } catch {
+          /* localStorage may be unavailable */
+        }
+      })()
     </script>
   </head>
   <body>
@@ -120,17 +121,11 @@ const year = new Date().getFullYear();
     </button>
     <main>
       <header class="intro">
-        <img
-          class="mark"
-          src="/rxova-logo-256.png"
-          alt="rxova"
-          width="48"
-          height="48"
-        />
+        <img class="mark" src="/rxova-logo-256.png" alt="rxova" width="48" height="48" />
         <h1>Building open-source React libraries the way they should be.</h1>
         <p class="lede">
-          <strong>rxova</strong> is a small family of React tools — each does one
-          thing well, stays dependency-light, and gets out of your way.
+          <strong>rxova</strong> is a small family of React tools — each does one thing well, stays dependency-light,
+          and gets out of your way.
         </p>
       </header>
 
@@ -153,13 +148,11 @@ const year = new Date().getFullYear();
                 {p.links.map((l) => (
                   <a
                     href={l.href}
-                    {...(l.external
-                      ? { target: "_blank", rel: "noopener noreferrer" }
-                      : {})}
+                    {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                   >
                     {l.label}
                     <span aria-hidden="true" class="arrow">
-                      {l.external ? "↗" : "→"}
+                      {l.external ? '↗' : '→'}
                     </span>
                   </a>
                 ))}
@@ -346,7 +339,9 @@ const year = new Date().getFullYear();
         color: var(--fg);
         cursor: pointer;
         z-index: 3;
-        transition: border-color 0.15s ease, background-color 0.2s ease;
+        transition:
+          border-color 0.15s ease,
+          background-color 0.2s ease;
       }
 
       .theme-toggle .icon {
@@ -371,76 +366,46 @@ const year = new Date().getFullYear();
     </style>
 
     <script is:inline>
-      (function () {
-        var root = document.documentElement;
-        var btn = document.getElementById("theme-toggle");
-        var glyph = btn.querySelector(".icon");
-        var media = window.matchMedia("(prefers-color-scheme: dark)");
+      ;(function () {
+        const root = document.documentElement
+        const btn = document.getElementById('theme-toggle')
+        const glyph = btn.querySelector('.icon')
+        const media = window.matchMedia('(prefers-color-scheme: dark)')
 
         // Lucide icons (ISC licensed).
-        var ICON_MOON =
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
-        var ICON_SUN =
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+        const ICON_MOON =
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>'
+        const ICON_SUN =
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>'
 
         function current() {
-          return (
-            root.getAttribute("data-theme") ||
-            (media.matches ? "dark" : "light")
-          );
+          return root.getAttribute('data-theme') || (media.matches ? 'dark' : 'light')
         }
         function render() {
-          var dark = current() === "dark";
+          const dark = current() === 'dark'
           // Show the icon of the theme you'd switch TO.
-          glyph.innerHTML = dark ? ICON_SUN : ICON_MOON;
-          btn.setAttribute(
-            "aria-label",
-            dark ? "Switch to light theme" : "Switch to dark theme"
-          );
+          glyph.innerHTML = dark ? ICON_SUN : ICON_MOON
+          btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme')
         }
         function apply(t) {
-          root.setAttribute("data-theme", t);
+          root.setAttribute('data-theme', t)
           try {
-            localStorage.setItem("theme", t);
-          } catch (e) {}
-          render();
+            localStorage.setItem('theme', t)
+          } catch {
+            /* localStorage may be unavailable */
+          }
+          render()
         }
 
-        btn.addEventListener("click", function () {
-          apply(current() === "dark" ? "light" : "dark");
-        });
+        btn.addEventListener('click', function () {
+          apply(current() === 'dark' ? 'light' : 'dark')
+        })
         // Track the OS preference while the user hasn't overridden it.
-        media.addEventListener("change", function () {
-          if (!root.getAttribute("data-theme")) render();
-        });
-        render();
-
-        // Cursor-following glow (skipped for reduced-motion users).
-        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-          var raf = 0;
-          var main = document.querySelector("main");
-          window.addEventListener(
-            "pointermove",
-            function (e) {
-              if (raf) return;
-              var x = e.clientX,
-                y = e.clientY;
-              raf = requestAnimationFrame(function () {
-                root.style.setProperty("--mx", x + "px");
-                root.style.setProperty("--my", y + "px");
-                // Fade the glow out over the centred text column; it only shows
-                // in the empty side margins.
-                var r = main.getBoundingClientRect();
-                var overText =
-                  x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-                root.style.setProperty("--glow-o", overText ? "0" : "1");
-                raf = 0;
-              });
-            },
-            { passive: true }
-          );
-        }
-      })();
+        media.addEventListener('change', function () {
+          if (!root.getAttribute('data-theme')) render()
+        })
+        render()
+      })()
     </script>
   </body>
 </html>
