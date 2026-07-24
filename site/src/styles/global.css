@@ -1,6 +1,14 @@
 :root {
-  color-scheme: light dark;
+  --max: 44rem;
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
 
+/* Light theme (default, and explicit override). */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
   --bg: #ffffff;
   --fg: #14140f;
   --muted: #605c54;
@@ -9,15 +17,25 @@
   --accent: #14140f;
   --card: #fbfaf7;
   --tag-bg: #f0ede6;
-
-  --max: 44rem;
-  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
+/* Dark theme tokens, shared by the explicit override and the system default. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #100f0d;
+  --fg: #f2efe8;
+  --muted: #a8a294;
+  --faint: #7b766c;
+  --rule: #262420;
+  --accent: #f2efe8;
+  --card: #17150f;
+  --tag-bg: #201e18;
+}
+
+/* Follow the OS only when the user hasn't chosen a theme. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
+    color-scheme: dark;
     --bg: #100f0d;
     --fg: #f2efe8;
     --muted: #a8a294;
@@ -41,6 +59,7 @@ html {
 }
 
 body {
+  position: relative;
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font);
@@ -48,6 +67,37 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Subtle glow that follows the cursor. Uses the accent colour so it reads on
+   both themes; falls back to a fixed spot before the pointer moves. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    480px circle at var(--mx, 50%) var(--my, 28%),
+    color-mix(in srgb, var(--accent) 9%, transparent),
+    transparent 62%
+  );
+  transition: opacity 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  body::before {
+    /* Keep a static wash, but don't chase the cursor. */
+    background: radial-gradient(
+      480px circle at 50% 28%,
+      color-mix(in srgb, var(--accent) 7%, transparent),
+      transparent 62%
+    );
+  }
 }
 
 a {

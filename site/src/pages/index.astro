@@ -4,7 +4,7 @@ import "../styles/global.css";
 // TODO(you): tweak the intro voice + your name. Kept neutral so nothing is
 // asserted that you didn't write.
 const authorGithub = "https://github.com/rxova";
-const authorEmail = "jonakrusze@gmail.com";
+const authorEmail = "rxova@proton.me";
 
 type Link = { label: string; href: string; external?: boolean };
 type Project = {
@@ -93,8 +93,22 @@ const year = new Date().getFullYear();
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://rxova.org/" />
     <meta property="og:image" content="https://rxova.org/rxova-logo-1024.png" />
+    <script is:inline>
+      // Apply the saved theme before paint to avoid a flash. No choice saved =>
+      // fall through to the CSS prefers-color-scheme default.
+      (function () {
+        try {
+          var t = localStorage.getItem("theme");
+          if (t === "light" || t === "dark")
+            document.documentElement.setAttribute("data-theme", t);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+      <span aria-hidden="true">☾</span>
+    </button>
     <main>
       <header class="intro">
         <img
@@ -284,6 +298,91 @@ const year = new Date().getFullYear();
       .dot {
         color: var(--rule);
       }
+
+      .theme-toggle {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        width: 2.25rem;
+        height: 2.25rem;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        background: var(--card);
+        color: var(--fg);
+        font-size: 1rem;
+        line-height: 1;
+        cursor: pointer;
+        z-index: 3;
+        transition: border-color 0.15s ease, background-color 0.2s ease;
+      }
+
+      .theme-toggle:hover {
+        border-color: var(--faint);
+      }
+
+      .theme-toggle:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
     </style>
+
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        var btn = document.getElementById("theme-toggle");
+        var glyph = btn.firstElementChild;
+        var media = window.matchMedia("(prefers-color-scheme: dark)");
+
+        function current() {
+          return (
+            root.getAttribute("data-theme") ||
+            (media.matches ? "dark" : "light")
+          );
+        }
+        function render() {
+          var dark = current() === "dark";
+          glyph.textContent = dark ? "☀" : "☾";
+          btn.setAttribute(
+            "aria-label",
+            dark ? "Switch to light theme" : "Switch to dark theme"
+          );
+        }
+        function apply(t) {
+          root.setAttribute("data-theme", t);
+          try {
+            localStorage.setItem("theme", t);
+          } catch (e) {}
+          render();
+        }
+
+        btn.addEventListener("click", function () {
+          apply(current() === "dark" ? "light" : "dark");
+        });
+        // Track the OS preference while the user hasn't overridden it.
+        media.addEventListener("change", function () {
+          if (!root.getAttribute("data-theme")) render();
+        });
+        render();
+
+        // Cursor-following glow (skipped for reduced-motion users).
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          var raf = 0;
+          window.addEventListener(
+            "pointermove",
+            function (e) {
+              if (raf) return;
+              raf = requestAnimationFrame(function () {
+                root.style.setProperty("--mx", e.clientX + "px");
+                root.style.setProperty("--my", e.clientY + "px");
+                raf = 0;
+              });
+            },
+            { passive: true }
+          );
+        }
+      })();
+    </script>
   </body>
 </html>
