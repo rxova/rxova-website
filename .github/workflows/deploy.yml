@@ -68,8 +68,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-          cache-dependency-path: journey/pnpm-lock.yaml
+          # No pnpm cache here: the project lives in the ./journey subdir, so
+          # setup-node can't resolve the store path from the workspace root.
       - name: Install (monorepo root)
         working-directory: journey
         run: pnpm install --frozen-lockfile
@@ -103,8 +103,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-          cache-dependency-path: inputs/pnpm-lock.yaml
+          # No pnpm cache here: the project lives in the ./inputs subdir.
       - name: Install
         working-directory: inputs
         run: pnpm install --frozen-lockfile
