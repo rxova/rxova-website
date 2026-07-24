@@ -119,5 +119,12 @@ const { title } = Astro.props;
         color: var(--rule);
       }
     </style>
+
+    <!-- Legal pages are static reading; no cursor-following glow here. -->
+    <style is:global>
+      body::before {
+        display: none;
+      }
+    </style>
   </body>
 </html>
