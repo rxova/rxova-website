@@ -56,8 +56,10 @@ Deploys to **GitHub Pages**. Enable Pages for this repo with **Source: GitHub Ac
 
 ### Required GitHub config (Settings → Secrets and variables → Actions)
 
-**Variables:** `PAGES_CUSTOM_DOMAIN` (set to `rxova.org` at cutover; leave unset before). To turn
-on inputs: `INPUTS_ENABLED=true` (and optionally `INPUTS_REPO`).
+**Variables:**
+- `PAGES_CUSTOM_DOMAIN` — set to `rxova.org` at cutover; leave unset before (serves at default URL).
+- `JOURNEY_ENABLED=true` — turn on the journey docs build (Phase 3). Off → landing-only.
+- `INPUTS_ENABLED=true` (+ optional `INPUTS_REPO`) — turn on the inputs docs build (Phase 2).
 
 Each **source repo** needs a secret `AGGREGATOR_DISPATCH_TOKEN` (a fine-grained PAT with
 Contents: write on `rxova/rxova-website`) to fire the rebuild.

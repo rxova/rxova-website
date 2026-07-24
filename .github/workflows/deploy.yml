@@ -55,6 +55,9 @@ jobs:
 
   build-journey:
     runs-on: ubuntu-latest
+    # Enabled at Phase 3 (journey migrates last): set repo variable
+    # JOURNEY_ENABLED=true. Until then the site ships landing-only.
+    if: vars.JOURNEY_ENABLED == 'true'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -118,11 +121,12 @@ jobs:
 
   assemble-deploy:
     needs: [build-landing, build-journey, build-inputs]
-    # Landing + journey are required; inputs is optional (its job may be skipped).
+    # Only the landing is required. journey and inputs are each gated (JOURNEY_ENABLED /
+    # INPUTS_ENABLED); a skipped build just means that section isn't in the site yet.
     if: >-
       always() &&
       needs.build-landing.result == 'success' &&
-      needs.build-journey.result == 'success' &&
+      (needs.build-journey.result == 'success' || needs.build-journey.result == 'skipped') &&
       (needs.build-inputs.result == 'success' || needs.build-inputs.result == 'skipped')
     runs-on: ubuntu-latest
     environment:

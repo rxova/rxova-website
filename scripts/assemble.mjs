@@ -64,12 +64,10 @@ async function main() {
     const dest = join(outDir, s.mount);
     const ok = await copyInto(src, dest, { label: s.name });
     if (!ok) {
-      if (s.optional) {
-        console.log(`  – ${s.name}: artifact absent (optional), skipping`);
-      } else {
-        console.error(`ERROR: required source "${s.name}" artifact missing at ${src}`);
-        process.exit(1);
-      }
+      // A missing artifact means that source's build job was gated off or didn't
+      // run — that's fine here. Whether the site *should* include it is enforced
+      // at the workflow level (job gates + assemble-deploy `needs`), not here.
+      console.log(`  – ${s.name}: artifact absent, skipping`);
     }
   }
 
