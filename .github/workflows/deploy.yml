@@ -108,7 +108,7 @@ jobs:
       - name: Install
         working-directory: inputs
         run: pnpm install --frozen-lockfile
-      - name: Build docs at /packages/inputs/ (contract: docs:aggregate -> .docs-dist/)
+      - name: "Build docs at /packages/inputs/ (contract: docs:aggregate -> .docs-dist/)"
         working-directory: inputs
         env:
           DOCS_BASE_URL: /packages/inputs/
