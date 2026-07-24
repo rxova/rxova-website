@@ -11,7 +11,7 @@ stitches everything into one tree, and deploys to GitHub Pages.
 ```
 rxova.org/                      -> site/  (Astro landing)
 rxova.org/packages/journey/     -> rxova/journey  apps/docs (built with base /packages/journey/)
-rxova.org/packages/inputs/      -> rxova/inputs   docs      (built with base /packages/inputs/)
+rxova.org/packages/react-inputs/ -> rxova/react-inputs   docs   (built with base /packages/react-inputs/)
 ```
 
 `use-everywhere` is not mounted here yet — the landing links out to its existing docs.

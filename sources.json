@@ -12,12 +12,12 @@
       "optional": false
     },
     {
-      "name": "inputs",
-      "repo": "rxova/inputs",
+      "name": "react-inputs",
+      "repo": "rxova/react-inputs",
       "ref": "main",
-      "base": "/packages/inputs/",
-      "artifact": "docs-inputs",
-      "mount": "packages/inputs",
+      "base": "/packages/react-inputs/",
+      "artifact": "docs-react-inputs",
+      "mount": "packages/react-inputs",
       "optional": true
     },
     {

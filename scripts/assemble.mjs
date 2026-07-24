@@ -7,7 +7,7 @@
 // name — one folder per artifact):
 //   artifacts/landing/        <- Astro `site/dist` (the landing page)
 //   artifacts/docs-journey/   <- journey `apps/docs/build`, built with base /packages/journey/
-//   artifacts/docs-inputs/    <- inputs docs, built with base /packages/inputs/ (optional)
+//   artifacts/docs-react-inputs/ <- react-inputs docs, built with base /packages/react-inputs/ (optional)
 //
 // Mounts are data-driven from sources.json so adding a project is a config change,
 // not a code change. Each source's uploaded artifact must already be laid out to
