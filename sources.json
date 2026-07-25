@@ -49,11 +49,13 @@
     {
       "id": "use-everywhere",
       "enabled": true,
+      "$comment": "Astro/Starlight emits dist/, not build/. The docs render mermaid to static SVG at build time via rehype-mermaid, which drives headless chromium — so the browser has to be installed here as well as in the project's own CI, or the diagrams degrade and the build produces nothing to upload.",
       "build": [
         "pnpm --filter @use-everywhere/core --filter use-everywhere build",
+        "pnpm --filter @use-everywhere/docs exec playwright install --with-deps chromium",
         "pnpm --filter @use-everywhere/docs build"
       ],
-      "output": "apps/docs/build",
+      "output": "apps/docs/dist",
       "landing": {
         "blurb": "Share state and messages across every tab, window, and worker — a framework-agnostic core plus React bindings, one small API.",
         "tags": ["JS Core", "React", "TypeScript", "Cross-tab"]
