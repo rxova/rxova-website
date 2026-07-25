@@ -1,33 +1,63 @@
 {
-  "$comment": "Source of truth for what the aggregator assembles into rxova.org. The Astro landing is built locally in this repo (site/); each 'source' is an external project whose docs are checked out, built with its 'base' baseUrl, uploaded as 'artifact', and copied into '_site/<mount>' by scripts/assemble.mjs.",
+  "$comment": [
+    "Single source of truth for what rxova.org is assembled from. Adding a project is ONE entry here",
+    "plus a matching entry in @rxova/brand's PROJECTS (which the docs sites need for the project",
+    "switcher). Nothing in .github/workflows changes: deploy.yml builds its matrix from this file.",
+    "",
+    "Paths are DERIVED from `id` by scripts/registry.mjs and must not be written here:",
+    "  id: \"foo\"  ->  base /packages/foo/ · mount packages/foo · artifact docs-foo · checkout dir foo",
+    "",
+    "`enabled` gates the project everywhere at once — CI build, mount, and the landing's Docs link.",
+    "It lives in git rather than in a repo variable so the site's contents are reviewable in a PR",
+    "and visible in `git log`, instead of being invisible state in the repo settings.",
+    "",
+    "`build` runs in the project's checkout with DOCS_BASE_URL set to its derived base; the commands",
+    "are interpolated into the workflow's `run:`, so they carry the same trust as deploy.yml itself.",
+    "`output` is the directory that build produces, relative to the project's repo root, already laid",
+    "out to match its base URL — the aggregator only relocates it, it never rewrites asset paths."
+  ],
+
   "landing": { "artifact": "landing", "mount": "." },
+
+  "defaults": {
+    "ref": "main",
+    "install": "pnpm install --frozen-lockfile"
+  },
+
   "sources": [
     {
-      "name": "journey",
-      "repo": "rxova/journey",
-      "ref": "main",
-      "base": "/packages/journey/",
-      "artifact": "docs-journey",
-      "mount": "packages/journey",
-      "optional": false
+      "id": "journey",
+      "enabled": true,
+      "build": ["pnpm run docs:api:check", "pnpm run docs:check"],
+      "output": "apps/docs/build",
+      "landing": {
+        "blurb": "Model multi-step, branching flows as a graph instead of a tangle of booleans and effects. Core is framework-agnostic; React bindings and a Chrome DevTools bridge come in the box.",
+        "tags": ["JS Core", "React", "TypeScript", "Chrome Extension"]
+      }
     },
     {
-      "name": "react-inputs",
-      "repo": "rxova/react-inputs",
-      "ref": "main",
-      "base": "/packages/react-inputs/",
-      "artifact": "docs-react-inputs",
-      "mount": "packages/react-inputs",
-      "optional": true
+      "id": "react-inputs",
+      "enabled": true,
+      "$comment": "turbo build (@rxova/docs) builds prerequisite packages first via dependsOn; DOCS_URL/DOCS_BASE_URL are in turbo's cache key upstream.",
+      "build": ["pnpm docs:build"],
+      "output": "apps/docs/build",
+      "landing": {
+        "blurb": "A family of focused input components — localized currency, OTP slots, and feedback stars — each zero-to-few dependencies, accessible, and free of the usual cursor and locale bugs.",
+        "tags": ["React", "TypeScript", "Zero-dependency", "Accessible"]
+      }
     },
     {
-      "name": "use-everywhere",
-      "repo": "rxova/use-everywhere",
-      "ref": "main",
-      "base": "/packages/use-everywhere/",
-      "artifact": "docs-use-everywhere",
-      "mount": "packages/use-everywhere",
-      "optional": true
+      "id": "use-everywhere",
+      "enabled": true,
+      "build": [
+        "pnpm --filter @use-everywhere/core --filter use-everywhere build",
+        "pnpm --filter @use-everywhere/docs build"
+      ],
+      "output": "apps/docs/build",
+      "landing": {
+        "blurb": "Share state and messages across every tab, window, and worker — a framework-agnostic core plus React bindings, one small API.",
+        "tags": ["JS Core", "React", "TypeScript", "Cross-tab"]
+      }
     }
   ]
 }

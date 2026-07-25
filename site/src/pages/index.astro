@@ -1,76 +1,12 @@
 ---
 import '../styles/global.css'
+// The project list is assembled from @rxova/brand (product metadata, shared with
+// the docs sites) and sources.json (landing copy + what is actually deployed).
+// See src/lib/projects.ts — it fails the build if the two disagree.
+import { landingProjects, projectListSentence } from '../lib/projects'
 
 const authorGithub = 'https://github.com/rxova'
 const authorEmail = 'rxova@proton.me'
-
-type Link = { label: string; href: string; external?: boolean }
-type Project = {
-  name: string
-  packages: string[]
-  tagline: string
-  blurb: string
-  tags: string[]
-  links: Link[]
-}
-
-const projects: Project[] = [
-  {
-    name: 'Journey',
-    packages: ['@rxova/journey-core', '@rxova/journey-react', '@rxova/journey-devtools-bridge'],
-    tagline: 'Declarative journey graphs for non-linear UI flows.',
-    blurb:
-      'Model multi-step, branching flows as a graph instead of a tangle of booleans and effects. Core is framework-agnostic; React bindings and a Chrome DevTools bridge come in the box.',
-    tags: ['JS Core', 'React', 'TypeScript', 'Chrome Extension'],
-    links: [
-      { label: 'Docs', href: '/packages/journey/' },
-      { label: 'GitHub', href: 'https://github.com/rxova/journey', external: true },
-      {
-        label: 'npm',
-        href: 'https://www.npmjs.com/package/@rxova/journey-core',
-        external: true,
-      },
-    ],
-  },
-  {
-    name: 'react-inputs',
-    packages: [
-      '@rxova/react-inputs',
-      '@rxova/react-intl-currency-input',
-      '@rxova/react-otp-input',
-      '@rxova/react-rating-input',
-    ],
-    tagline: 'Small, correct, dependency-light React inputs.',
-    blurb:
-      'A family of focused input components — localized currency, OTP slots, and feedback stars — each zero-to-few dependencies, accessible, and free of the usual cursor and locale bugs.',
-    tags: ['React', 'TypeScript', 'Zero-dependency', 'Accessible'],
-    links: [
-      { label: 'Docs', href: '/packages/react-inputs/' },
-      { label: 'GitHub', href: 'https://github.com/rxova/react-inputs', external: true },
-    ],
-  },
-  {
-    name: 'use-everywhere',
-    packages: ['@use-everywhere/core', 'use-everywhere'],
-    tagline: 'State and messages that exist in every tab, window, and worker.',
-    blurb:
-      'Share state and messages across every tab, window, and worker — a framework-agnostic core plus React bindings, one small API.',
-    tags: ['JS Core', 'React', 'TypeScript', 'Cross-tab'],
-    links: [
-      { label: 'Docs', href: '/packages/use-everywhere/' },
-      {
-        label: 'GitHub',
-        href: 'https://github.com/rxova/use-everywhere',
-        external: true,
-      },
-      {
-        label: 'npm',
-        href: 'https://www.npmjs.com/package/use-everywhere',
-        external: true,
-      },
-    ],
-  },
-]
 
 const year = new Date().getFullYear()
 ---
@@ -83,14 +19,17 @@ const year = new Date().getFullYear()
     <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
     <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
     <title>rxova — open-source React libraries</title>
+    <!-- Project names come from the registry, so adding a project updates the
+         meta descriptions too. They used to be hand-written and were the easiest
+         thing to forget. -->
     <meta
       name="description"
-      content="rxova — open-source React libraries: Journey, react-inputs, and use-everywhere."
+      content={`rxova — open-source React libraries: ${projectListSentence}.`}
     />
     <meta property="og:title" content="rxova" />
     <meta
       property="og:description"
-      content="Open-source React libraries: Journey, react-inputs, and use-everywhere."
+      content={`Open-source React libraries: ${projectListSentence}.`}
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://rxova.org/" />
@@ -144,22 +83,22 @@ const year = new Date().getFullYear()
 
       <section class="projects" aria-label="Projects">
         {
-          projects.map((p) => (
+          landingProjects.map((p) => (
             <article class="project">
-              <h2 class="project-title">{p.name}</h2>
-              <ul class="packages" aria-label={`${p.name} packages`}>
+              <h2 class="project-title">{p.label}</h2>
+              <ul class="packages" aria-label={`${p.label} packages`}>
                 {p.packages.map((pkg) => (
                   <li class="pkg">{pkg}</li>
                 ))}
               </ul>
               <p class="tagline">{p.tagline}</p>
               <p class="blurb">{p.blurb}</p>
-              <ul class="tags" aria-label={`${p.name} tech`}>
+              <ul class="tags" aria-label={`${p.label} tech`}>
                 {p.tags.map((t) => (
                   <li class="tag">{t}</li>
                 ))}
               </ul>
-              <nav class="links" aria-label={`${p.name} links`}>
+              <nav class="links" aria-label={`${p.label} links`}>
                 {p.links.map((l) => (
                   <a
                     href={l.href}

@@ -60,4 +60,8 @@ jobs:
       - run: pnpm run format:check
       - run: pnpm run lint
       - run: pnpm run typecheck
+      # Structural check on sources.json. The cross-check against @rxova/brand's
+      # PROJECTS runs inside `build` below, where Vite can load the package's
+      # TypeScript source — see site/src/lib/projects.ts.
+      - run: pnpm run check:registry
       - run: pnpm run build
