@@ -21,10 +21,10 @@ importers:
         specifier: ^10.7.0
         version: 10.7.0(jiti@2.6.1)
       eslint-plugin-astro:
-        specifier: ^1.3.0
+        specifier: ^1.7.0
         version: 1.7.0(eslint@10.7.0(jiti@2.6.1))
       globals:
-        specifier: ^17.6.0
+        specifier: ^17.7.0
         version: 17.7.0
       husky:
         specifier: ^9.1.7
@@ -36,7 +36,7 @@ importers:
         specifier: ^3.9.6
         version: 3.9.6
       prettier-plugin-astro:
-        specifier: ^0.14.0
+        specifier: ^0.14.1
         version: 0.14.1
       typescript:
         specifier: 6.0.3
@@ -48,8 +48,8 @@ importers:
   site:
     dependencies:
       '@rxova/brand':
-        specifier: ^0.1.0
-        version: 0.1.0(astro@5.18.2(@types/node@26.1.1)(jiti@2.6.1)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0))
+        specifier: ^0.1.1
+        version: 0.1.1(astro@5.18.2(@types/node@26.1.1)(jiti@2.6.1)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0))
       astro:
         specifier: ^5.6.0
         version: 5.18.2(@types/node@26.1.1)(jiti@2.6.1)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0)
@@ -71,6 +71,9 @@ packages:
 
   '@astrojs/compiler@2.13.1':
     resolution: {integrity: sha512-f3FN83d2G/v32ipNClRKgYv30onQlMZX1vCeZMjPsMMPl1mDpmbl0+N5BYo4S/ofzqJyS5hvwacEo0CCVDn/Qg==}
+
+  '@astrojs/compiler@3.0.1':
+    resolution: {integrity: sha512-z97oYbdebO5aoWzuJ/8q5hLK232+17KcLZ7cJ8BCWk6+qNzVxn/gftC0KzMBUTD8WAaBkPpNSQK6PXLnNrZ0CA==}
 
   '@astrojs/internal-helpers@0.7.6':
     resolution: {integrity: sha512-GOle7smBWKfMSP8osUIGOlB5kaHdQLV3foCsf+5Q9Wsuu+C6Fs3Ez/ttXmhjZ1HkSgsogcM1RXSjjOVieHq16Q==}
@@ -934,8 +937,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@rxova/brand@0.1.0':
-    resolution: {integrity: sha512-15akdKlFZvs5DOpDYh9lKaRoQjYqYjD/Km5RkCQ51Qusb9a2je8MreGj0S74SSg6h6CJf+eAnsb8x0MKHokujQ==}
+  '@rxova/brand@0.1.1':
+    resolution: {integrity: sha512-LiI6BoTK/xrEX+GlkDySrz/XOODhNkmSFyHcdLrpSSJh+weoyXRyUF0hERDB8epG/M4g5Z9kkdL7UjHS+vgP6Q==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
       '@astrojs/starlight': '>=0.36.0'
@@ -1432,8 +1435,8 @@ packages:
   es-module-lexer@1.7.0:
     resolution: {integrity: sha512-jEQoCwk8hyb2AZziIOLhDqpm5+2ww5uIE6lkO/6jcOCusfk6LhMHpXXfBLXTZ7Ydyt0j4VoUQv6uGNYbdW+kBA==}
 
-  es-toolkit@1.49.0:
-    resolution: {integrity: sha512-G5iZ6Pc/FNRY/soKZHC+TxGDD83rHUDXxzaWhGCX44vAv/tMs56WMusnm/KMNK+luUPsgA9U28cGr4RDlSzL2g==}
+  es-toolkit@1.50.0:
+    resolution: {integrity: sha512-OyZKhUVvEep9ITEiwHn8GKnMRQIVqoSIX7WnRbkWgJkllCujilqP2rD0u979tkl8wqyc8ICwlc1UBVv/Sl1G6w==}
 
   esbuild@0.25.12:
     resolution: {integrity: sha512-bbPBYYrtZbkt6Os6FiTLCTFxvq4tt3JKall1vRwshA3fdVztsLAatFaZobhkBC8/BrPetoa0oksYoKXoG4ryJg==}
@@ -2080,6 +2083,10 @@ packages:
 
   postcss@8.5.22:
     resolution: {integrity: sha512-KBDEIpLrvpv16pp3K0Fw+UCoZfopFjjgeB+0tA/aaThfEE74kKDLrgg603YvOWJyg3+WYtyq3xYsQWsIyZlPqQ==}
+    engines: {node: ^10 || ^12 || >=14}
+
+  postcss@8.5.23:
+    resolution: {integrity: sha512-g50586zr4bZmwFiTlflMu8E0bDTb5I5gertgwAKmsdUlTQIhZtunzUlD1WSzwcVWPoAVpsrA6vlfCD7oXvRwgg==}
     engines: {node: ^10 || ^12 || >=14}
 
   prelude-ls@1.2.1:
@@ -2738,6 +2745,8 @@ snapshots:
 
   '@astrojs/compiler@2.13.1': {}
 
+  '@astrojs/compiler@3.0.1': {}
+
   '@astrojs/internal-helpers@0.7.6': {}
 
   '@astrojs/language-server@2.16.13(prettier-plugin-astro@0.14.1)(prettier@3.9.6)(typescript@6.0.3)':
@@ -2864,7 +2873,7 @@ snapshots:
   '@commitlint/ensure@21.2.0':
     dependencies:
       '@commitlint/types': 21.2.0
-      es-toolkit: 1.49.0
+      es-toolkit: 1.50.0
 
   '@commitlint/execute-rule@21.0.1': {}
 
@@ -2893,7 +2902,7 @@ snapshots:
       '@commitlint/types': 21.2.0
       cosmiconfig: 9.0.2(typescript@6.0.3)
       cosmiconfig-typescript-loader: 6.3.0(@types/node@26.1.1)(cosmiconfig@9.0.2(typescript@6.0.3))(typescript@6.0.3)
-      es-toolkit: 1.49.0
+      es-toolkit: 1.50.0
       is-plain-obj: 4.1.0
       picocolors: 1.1.1
     transitivePeerDependencies:
@@ -2922,7 +2931,7 @@ snapshots:
     dependencies:
       '@commitlint/config-validator': 21.2.0
       '@commitlint/types': 21.2.0
-      es-toolkit: 1.49.0
+      es-toolkit: 1.50.0
       global-directory: 5.0.0
       resolve-from: 5.0.0
 
@@ -3390,7 +3399,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.62.2':
     optional: true
 
-  '@rxova/brand@0.1.0(astro@5.18.2(@types/node@26.1.1)(jiti@2.6.1)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0))':
+  '@rxova/brand@0.1.1(astro@5.18.2(@types/node@26.1.1)(jiti@2.6.1)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0))':
     dependencies:
       '@fontsource/ibm-plex-mono': 5.3.0
       '@fontsource/space-grotesk': 5.3.0
@@ -3665,10 +3674,10 @@ snapshots:
 
   astro-eslint-parser@1.4.0:
     dependencies:
-      '@astrojs/compiler': 2.13.1
+      '@astrojs/compiler': 3.0.1
       '@typescript-eslint/scope-manager': 8.65.0
       '@typescript-eslint/types': 8.65.0
-      astrojs-compiler-sync: 1.1.1(@astrojs/compiler@2.13.1)
+      astrojs-compiler-sync: 1.1.1(@astrojs/compiler@3.0.1)
       debug: 4.4.3
       entities: 7.0.1
       eslint-scope: 8.4.0
@@ -3782,9 +3791,9 @@ snapshots:
       - uploadthing
       - yaml
 
-  astrojs-compiler-sync@1.1.1(@astrojs/compiler@2.13.1):
+  astrojs-compiler-sync@1.1.1(@astrojs/compiler@3.0.1):
     dependencies:
-      '@astrojs/compiler': 2.13.1
+      '@astrojs/compiler': 3.0.1
       synckit: 0.11.13
 
   axobject-query@4.1.0: {}
@@ -4013,7 +4022,7 @@ snapshots:
 
   es-module-lexer@1.7.0: {}
 
-  es-toolkit@1.49.0: {}
+  es-toolkit@1.50.0: {}
 
   esbuild@0.25.12:
     optionalDependencies:
@@ -4093,7 +4102,7 @@ snapshots:
       eslint: 10.7.0(jiti@2.6.1)
       eslint-compat-utils: 0.6.5(eslint@10.7.0(jiti@2.6.1))
       globals: 16.5.0
-      postcss: 8.5.22
+      postcss: 8.5.23
       postcss-selector-parser: 7.1.4
     transitivePeerDependencies:
       - supports-color
@@ -4923,6 +4932,12 @@ snapshots:
       util-deprecate: 1.0.2
 
   postcss@8.5.22:
+    dependencies:
+      nanoid: 3.3.16
+      picocolors: 1.1.1
+      source-map-js: 1.2.1
+
+  postcss@8.5.23:
     dependencies:
       nanoid: 3.3.16
       picocolors: 1.1.1
