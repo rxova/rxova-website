@@ -16,3 +16,6 @@ build/
 .env
 .env.*
 !.env.example
+
+# synced from @rxova/brand at build time
+site/public/og/

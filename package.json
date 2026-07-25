@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "assemble": "node scripts/assemble.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "sync:og": "node scripts/sync-brand-og.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.1",

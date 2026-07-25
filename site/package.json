@@ -4,12 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prebuild": "node ../scripts/sync-brand-og.mjs",
+    "predev": "node ../scripts/sync-brand-og.mjs",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check"
   },
   "dependencies": {
+    "@rxova/brand": "^0.1.0",
     "astro": "^5.6.0"
   },
   "devDependencies": {
