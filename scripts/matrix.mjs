@@ -98,7 +98,8 @@ function main() {
     install: s.install,
     // One `run:` block per project; the workflow interpolates this verbatim.
     build: s.build.join('\n'),
-    output: s.output,
+    // Newline-separated candidates; the workflow picks the first that exists.
+    output: s.output.join('\n'),
     base: s.base,
     artifact: s.artifact,
   }))

@@ -118,10 +118,50 @@ jobs:
         # From sources.json, which is version-controlled and reviewed in the same
         # PR as this file — same trust boundary, not user input.
         run: ${{ matrix.build }}
+
+      # Docs frameworks disagree about where a build lands: Docusaurus emits
+      # `build/`, Astro/Starlight emits `dist/`. sources.json lists candidates
+      # rather than one path, so a project can migrate between them without a
+      # change here. Resolving it in its own step also means a project that
+      # built nothing fails with an explanation instead of upload-artifact's
+      # "No files were found with the provided path".
+      - name: Locate docs output
+        id: docs_output
+        working-directory: ${{ matrix.workdir }}
+        env:
+          PROJECT: ${{ matrix.id }}
+          CANDIDATES: ${{ matrix.output }}
+        run: |
+          resolved=""
+          while IFS= read -r dir; do
+            [ -z "$dir" ] && continue
+            if [ -d "$dir" ] && [ -n "$(ls -A "$dir" 2>/dev/null)" ]; then
+              resolved="$dir"
+              break
+            fi
+            echo "  – $dir: absent or empty"
+          done <<< "$CANDIDATES"
+
+          if [ -z "$resolved" ]; then
+            echo "::error::No docs output for '$PROJECT'. Tried: $(echo "$CANDIDATES" | tr '\n' ' ')"
+            echo "Directories present under apps/docs:"
+            ls -la apps/docs 2>/dev/null || echo "  (no apps/docs directory)"
+            echo
+            echo "If the docs build now lands somewhere else, add \"output\" to this"
+            echo "project's entry in sources.json (a string, or a list of candidates)."
+            exit 1
+          fi
+
+          echo "✓ $PROJECT docs output: $resolved"
+          if [ ! -f "$resolved/index.html" ]; then
+            echo "::warning::$resolved has no index.html at its root — ${{ matrix.base }} may 404."
+          fi
+          echo "dir=$resolved" >> "$GITHUB_OUTPUT"
+
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: ${{ matrix.workdir }}/${{ matrix.output }}
+          path: ${{ matrix.workdir }}/${{ steps.docs_output.outputs.dir }}
           if-no-files-found: error
 
   assemble-deploy:
