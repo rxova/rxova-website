@@ -10,4 +10,20 @@ export default defineConfig({
   // CloudFront directory-index function used for the docs subpaths.
   build: { format: 'directory' },
   trailingSlash: 'ignore',
+  vite: {
+    ssr: {
+      // @rxova/brand ships TypeScript source with no build step. Vite externalises
+      // node_modules for SSR by default, which would hand `src/sites.ts` to Node —
+      // and Node refuses to strip types under node_modules ("Stripping types is
+      // currently unsupported for files under node_modules"). Inlining the package
+      // routes it through esbuild instead, which transpiles it fine.
+      noExternal: ['@rxova/brand'],
+    },
+    server: {
+      // src/lib/projects.ts imports the repo-root sources.json, which is outside
+      // the Astro project root. The production build resolves it fine; the dev
+      // server refuses to serve files outside its allowlist without this.
+      fs: { allow: ['..'] },
+    },
+  },
 })

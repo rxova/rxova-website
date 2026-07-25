@@ -9,13 +9,16 @@
 //   artifacts/docs-journey/   <- journey `apps/docs/build`, built with base /packages/journey/
 //   artifacts/docs-react-inputs/ <- react-inputs docs, built with base /packages/react-inputs/ (optional)
 //
-// Mounts are data-driven from sources.json so adding a project is a config change,
-// not a code change. Each source's uploaded artifact must already be laid out to
-// match its `base` URL (the aggregator only relocates it under `mount`).
+// Mounts are data-driven from sources.json (via scripts/registry.mjs) so adding a
+// project is a config change, not a code change. Each source's uploaded artifact
+// must already be laid out to match its `base` URL — the aggregator only relocates
+// it under `mount`, it never rewrites asset paths.
 
-import { cp, mkdir, readFile, access, rm } from 'node:fs/promises'
+import { cp, mkdir, access, rm } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { loadRegistry, enabledSources } from './registry.mjs'
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
 const [, , artifactsDir = 'artifacts', outDir = '_site'] = process.argv
@@ -39,7 +42,7 @@ async function copyInto(src, dest, { label }) {
 }
 
 async function main() {
-  const config = JSON.parse(await readFile(join(repoRoot, 'sources.json'), 'utf8'))
+  const config = loadRegistry(join(repoRoot, 'sources.json'))
 
   // Fresh output tree.
   await rm(outDir, { recursive: true, force: true })
@@ -58,17 +61,27 @@ async function main() {
     process.exit(1)
   }
 
-  // 2. Each external docs source under its mount.
-  for (const s of config.sources ?? []) {
+  // 2. Each enabled docs source under its mount.
+  //
+  // Disabled projects are simply absent from this list, so there is nothing to
+  // tolerate: an enabled project whose artifact never arrived means its build
+  // job failed to upload, and deploying anyway would quietly publish a site with
+  // that project's docs missing and its landing link 404ing. Fail instead.
+  //
+  // This is stricter than it used to be, and can afford to be: gating now lives
+  // in sources.json where this script can read it, rather than in repo variables
+  // that only the workflow could see.
+  const missing = []
+  for (const s of enabledSources(config)) {
     const src = join(artifactsDir, s.artifact)
-    const dest = join(outDir, s.mount)
-    const ok = await copyInto(src, dest, { label: s.name })
-    if (!ok) {
-      // A missing artifact means that source's build job was gated off or didn't
-      // run — that's fine here. Whether the site *should* include it is enforced
-      // at the workflow level (job gates + assemble-deploy `needs`), not here.
-      console.log(`  – ${s.name}: artifact absent, skipping`)
-    }
+    const ok = await copyInto(src, join(outDir, s.mount), { label: s.id })
+    if (!ok) missing.push(`${s.id} (expected ${src})`)
+  }
+
+  if (missing.length > 0) {
+    console.error(`ERROR: enabled project(s) with no artifact:\n  - ${missing.join('\n  - ')}`)
+    console.error('Either the build job failed, or the project should be disabled in sources.json.')
+    process.exit(1)
   }
 
   console.log('Done.')
