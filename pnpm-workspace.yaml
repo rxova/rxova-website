@@ -8,3 +8,9 @@ onlyBuiltDependencies:
 allowBuilds:
   esbuild: true
   sharp: true
+# The release-age quarantine exists to blunt supply-chain attacks on packages we
+# don't control. @rxova/brand is ours, published from rxova/brand with OIDC
+# provenance, so waiting it out only delays our own design changes. Excluded by
+# name rather than by version so every release doesn't need a new line here.
+minimumReleaseAgeExclude:
+  - '@rxova/brand'
