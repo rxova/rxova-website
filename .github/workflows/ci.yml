@@ -29,6 +29,26 @@ jobs:
           configFile: commitlint.config.cjs
           commitDepth: 0
 
+      # The step above lints the branch's commits, but none of them is what
+      # lands: a squash merge composes a new message from the PR title and
+      # description at merge time. Unlinted, that message's first contact with
+      # CI is the push to main, where it can no longer be edited. Lint it here,
+      # while it is still a PR field someone can fix.
+      #
+      # Title and body go through env, never through ${{ }} interpolation into
+      # the script — a backtick or $( in a PR title would otherwise execute.
+      - name: Lint prospective squash-merge message
+        if: github.event_name == 'pull_request'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          printf '%s\n\n%s\n' "$PR_TITLE" "$PR_BODY" |
+            npx --yes \
+              -p @commitlint/cli@21.2.1 \
+              -p @commitlint/config-conventional@21.2.0 \
+              commitlint --config commitlint.config.cjs
+
   static:
     name: format · lint · types · build
     needs: commitlint
