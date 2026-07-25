@@ -1,97 +1,13 @@
-:root {
-  --max: 44rem;
-  --font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
-}
+/**
+ * The landing's design comes from @rxova/brand, the single source of truth for
+ * every rxova.org surface. This file used to hold the tokens; they moved into
+ * the package verbatim, so the palette is unchanged.
+ *
+ * astro.css brings the tokens, the reset and base element styling, plus aliases
+ * from the short names this site's scoped styles were written against (--bg,
+ * --fg, --rule, ...) onto their --rx-* equivalents — so the ~250 lines of
+ * scoped CSS in index.astro keep working untouched.
+ */
 
-/* Light theme (default, and explicit override). */
-:root,
-:root[data-theme='light'] {
-  color-scheme: light;
-  --bg: #ffffff;
-  --fg: #14140f;
-  --muted: #605c54;
-  --faint: #8b867c;
-  --rule: #e7e3db;
-  --accent: #14140f;
-  --card: #fbfaf7;
-  --tag-bg: #f0ede6;
-  /* Soft brand-indigo glow — visible against the white background. */
-  --glow-tint: rgba(96, 78, 240, 0.14);
-}
-
-/* Dark theme tokens, shared by the explicit override and the system default. */
-:root[data-theme='dark'] {
-  color-scheme: dark;
-  --bg: #100f0d;
-  --fg: #f2efe8;
-  --muted: #a8a294;
-  --faint: #7b766c;
-  --rule: #262420;
-  --accent: #f2efe8;
-  --card: #17150f;
-  --tag-bg: #201e18;
-  --glow-tint: rgba(242, 239, 232, 0.06);
-}
-
-/* Follow the OS only when the user hasn't chosen a theme. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    color-scheme: dark;
-    --bg: #100f0d;
-    --fg: #f2efe8;
-    --muted: #a8a294;
-    --faint: #7b766c;
-    --rule: #262420;
-    --accent: #f2efe8;
-    --card: #17150f;
-    --tag-bg: #201e18;
-    --glow-tint: rgba(242, 239, 232, 0.06);
-  }
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  -webkit-text-size-adjust: 100%;
-  scroll-behavior: smooth;
-}
-
-body {
-  position: relative;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font);
-  font-size: 1.0625rem;
-  line-height: 1.65;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
-
-a {
-  color: inherit;
-}
-
-a:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-  border-radius: 2px;
-}
-
-img {
-  max-width: 100%;
-  height: auto;
-}
+@import '@rxova/brand/fonts.css';
+@import '@rxova/brand/astro.css';

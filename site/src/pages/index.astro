@@ -94,13 +94,21 @@ const year = new Date().getFullYear()
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://rxova.org/" />
-    <meta property="og:image" content="https://rxova.org/rxova-logo-1024.png" />
+    <!-- A proper 1200x630 card. The square 1024px logo this used to point at
+         gets centre-cropped by Slack and Twitter into an unreadable smear. -->
+    <meta property="og:image" content="https://rxova.org/og/rxova.png" />
+    <meta name="twitter:card" content="summary_large_image" />
     <script is:inline>
       // Apply the saved theme before paint to avoid a flash. No choice saved =>
       // fall through to the CSS prefers-color-scheme default.
+      //
+      // The key is Starlight's, not ours: the docs sites at /packages/* are
+      // Starlight and write their choice to `starlight-theme`. Same origin plus
+      // the same key means picking dark here keeps you in dark all the way into
+      // a project's docs, and back.
       ;(function () {
         try {
-          const t = localStorage.getItem('theme')
+          const t = localStorage.getItem('starlight-theme')
           if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t)
         } catch {
           /* localStorage may be unavailable */
@@ -398,7 +406,8 @@ const year = new Date().getFullYear()
         function apply(t) {
           root.setAttribute('data-theme', t)
           try {
-            localStorage.setItem('theme', t)
+            // Starlight's key — see the pre-paint script in <head>.
+            localStorage.setItem('starlight-theme', t)
           } catch {
             /* localStorage may be unavailable */
           }
