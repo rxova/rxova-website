@@ -21,7 +21,6 @@ import { fileURLToPath } from 'node:url'
 import { loadRegistry, enabledSources } from './registry.mjs'
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
-const [, , artifactsDir = 'artifacts', outDir = '_site'] = process.argv
 
 async function exists(p) {
   try {
@@ -41,9 +40,14 @@ async function copyInto(src, dest, { label }) {
   return true
 }
 
-async function main() {
-  const config = loadRegistry(join(repoRoot, 'sources.json'))
-
+/**
+ * Copy the landing and every enabled project's artifact into one tree.
+ *
+ * Throws rather than exiting so the CLI below owns the exit code and the tests
+ * can assert on the failures — which are the point of this script: a missing
+ * artifact must stop the deploy, not quietly publish a site with a hole in it.
+ */
+export async function assemble(config, artifactsDir, outDir) {
   // Fresh output tree.
   await rm(outDir, { recursive: true, force: true })
   await mkdir(outDir, { recursive: true })
@@ -57,8 +61,7 @@ async function main() {
     label: 'landing',
   })
   if (!landingOk) {
-    console.error(`ERROR: landing artifact missing at ${landingSrc}`)
-    process.exit(1)
+    throw new Error(`landing artifact missing at ${landingSrc}`)
   }
 
   // 2. Each enabled docs source under its mount.
@@ -79,15 +82,20 @@ async function main() {
   }
 
   if (missing.length > 0) {
-    console.error(`ERROR: enabled project(s) with no artifact:\n  - ${missing.join('\n  - ')}`)
-    console.error('Either the build job failed, or the project should be disabled in sources.json.')
-    process.exit(1)
+    throw new Error(
+      `enabled project(s) with no artifact:\n  - ${missing.join('\n  - ')}\n` +
+        'Either the build job failed, or the project should be disabled in sources.json.',
+    )
   }
 
   console.log('Done.')
 }
 
-main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+// Only run as a CLI; the tests import `assemble` above.
+if (import.meta.filename === process.argv[1]) {
+  const [, , artifactsDir = 'artifacts', outDir = '_site'] = process.argv
+  assemble(loadRegistry(join(repoRoot, 'sources.json')), artifactsDir, outDir).catch((err) => {
+    console.error(`ERROR: ${err.message}`)
+    process.exit(1)
+  })
+}

@@ -22,12 +22,19 @@ Which projects are mounted is `sources.json` — see [Adding a project](#adding-
 | Path                           | What                                                |
 | ------------------------------ | --------------------------------------------------- |
 | `site/`                        | Astro landing page (builds to `site/dist`)          |
-| `scripts/assemble.mjs`         | Copies build artifacts into the final `_site/` tree |
 | `scripts/registry.mjs`         | Reads/validates `sources.json`; derives every path  |
 | `scripts/matrix.mjs`           | Turns the registry into the deploy build matrix     |
+| `scripts/resolve-output.mjs`   | Finds the directory a project's docs build produced |
+| `scripts/assemble.mjs`         | Copies build artifacts into the final `_site/` tree |
+| `scripts/*.test.mjs`           | Tests for all of the above — `pnpm test`            |
 | `sources.json`                 | **The project registry** — one entry per project    |
 | `.github/workflows/deploy.yml` | build → assemble → GitHub Pages deploy              |
 | `build/`                       | Private planning docs (git-ignored)                 |
+
+Every question the deploy asks about a project — where it lives, at which ref, how it
+builds, where its build lands, where it mounts — is answered by `sources.json` through
+`scripts/registry.mjs`. `deploy.yml` holds no per-project knowledge and does not change
+when a project is added, migrated, enabled or disabled.
 
 ## Develop the landing
 
@@ -87,9 +94,23 @@ live somewhere non-standard.
 `enabled: false` keeps a project listed on the landing but drops its Docs link and skips its
 build — use it for a project whose docs aren't ready yet.
 
-Run `pnpm check:registry` to validate the file and `pnpm matrix` to see the build matrix it
-produces. Both run in CI, along with a build-time check that `sources.json` and the brand
-package describe the same set of projects — they cannot silently drift apart.
+### Checking your entry
+
+```sh
+pnpm check:registry   # validate sources.json
+pnpm matrix           # print the build matrix it produces
+pnpm test             # the registry, matrix, output resolution and assembly
+```
+
+All three run in CI, along with a build-time check that `sources.json` and the brand package
+describe the same set of projects — they cannot silently drift apart.
+
+`pnpm test` is worth its own note. The registry pipeline otherwise only runs during a
+deploy, where its mistakes are already live and often quiet: a dispatch that builds the
+wrong ref, an artifact copied to a mount that disagrees with the base URL the docs were
+built with, a project whose docs are silently absent from the published tree. The tests in
+`scripts/*.test.mjs` cover those paths against real directories on disk, so a regression
+fails on the pull request instead of on rxova.org.
 
 ## Migrating a project's docs to Astro
 
@@ -97,9 +118,13 @@ package describe the same set of projects — they cannot silently drift apart.
 will follow. Two things change when a project migrates, and only one of them is automatic.
 
 **The output directory — handled for you.** Docusaurus emits `build/`, Astro emits `dist/`.
-`sources.json` no longer pins one path, so nothing here needs editing. The first migration
-did break the deploy this way (`No files were found with the provided path:
-use-everywhere/apps/docs/build`) before the candidate list existed.
+`sources.json` no longer pins one path: `scripts/resolve-output.mjs` runs on the runner after
+the build and picks whichever candidate the build actually filled in, preferring `dist/`. So
+nothing here needs editing. The first migration did break the deploy this way (`No files were
+found with the provided path: use-everywhere/apps/docs/build`) before that existed.
+
+A build that produced nothing now fails at that step with the candidates it tried, what is
+actually on disk, and the knob to turn — rather than at upload, with a path and no context.
 
 **Mermaid diagrams — needs one line.** If the docs render mermaid through `rehype-mermaid`,
 it drives headless chromium at build time, and the browser must be installed in _this_ repo's

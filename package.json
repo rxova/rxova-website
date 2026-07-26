@@ -10,6 +10,7 @@
     "build": "pnpm -C site build",
     "preview": "pnpm -C site preview",
     "typecheck": "pnpm -C site check",
+    "test": "node --test \"scripts/**/*.test.mjs\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
