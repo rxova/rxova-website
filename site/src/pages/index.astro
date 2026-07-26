@@ -336,6 +336,23 @@ const year = new Date().getFullYear()
         function current() {
           return root.getAttribute('data-theme') || (media.matches ? 'dark' : 'light')
         }
+        function stored() {
+          try {
+            const t = localStorage.getItem('starlight-theme')
+            return t === 'light' || t === 'dark' ? t : null
+          } catch {
+            /* localStorage may be unavailable */
+            return null
+          }
+        }
+        // Re-read the saved choice and reflect it in the DOM. Same job as the
+        // pre-paint script in <head>, minus the write.
+        function sync() {
+          const t = stored()
+          if (t) root.setAttribute('data-theme', t)
+          else root.removeAttribute('data-theme')
+          render()
+        }
         function render() {
           const dark = current() === 'dark'
           // Show the icon of the theme you'd switch TO.
@@ -359,6 +376,14 @@ const year = new Date().getFullYear()
         // Track the OS preference while the user hasn't overridden it.
         media.addEventListener('change', function () {
           if (!root.getAttribute('data-theme')) render()
+        })
+        // Going to a docs site and pressing Back restores this document from the
+        // bfcache: the DOM is reused as it was, so neither the pre-paint script
+        // nor this one runs again, and the page keeps the theme it had when you
+        // left — even though the docs site wrote a new one to `starlight-theme`
+        // in the meantime. `pageshow` is the only notification of that restore.
+        window.addEventListener('pageshow', function (e) {
+          if (e.persisted) sync()
         })
         render()
       })()
