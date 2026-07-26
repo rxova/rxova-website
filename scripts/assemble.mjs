@@ -3,16 +3,19 @@
 //
 // Usage: node scripts/assemble.mjs [artifactsDir=artifacts] [outDir=_site]
 //
-// Layout of `artifactsDir` (as produced by actions/download-artifact@v4 with no
-// name — one folder per artifact):
-//   artifacts/landing/        <- Astro `site/dist` (the landing page)
-//   artifacts/docs-journey/   <- journey `apps/docs/build`, built with base /packages/journey/
-//   artifacts/docs-react-inputs/ <- react-inputs docs, built with base /packages/react-inputs/ (optional)
+// Layout of `artifactsDir` — one folder per artifact:
+//   artifacts/landing/           <- Astro `site/dist`, downloaded from this run
+//   artifacts/docs-journey/      <- journey docs, extracted from release content-journey
+//   artifacts/docs-react-inputs/ <- react-inputs docs, from release content-react-inputs
+//
+// The landing is a workflow artifact; the docs folders are put there by
+// scripts/fetch-docs.mjs, which pulls each enabled project's persisted dist from
+// its content release. Either way the folder names are the sources' `artifact`.
 //
 // Mounts are data-driven from sources.json (via scripts/registry.mjs) so adding a
-// project is a config change, not a code change. Each source's uploaded artifact
-// must already be laid out to match its `base` URL — the aggregator only relocates
-// it under `mount`, it never rewrites asset paths.
+// project is a config change, not a code change. Each project's persisted dist was
+// already built to match its `base` URL — the aggregator only relocates it under
+// `mount`, it never rewrites asset paths.
 
 import { cp, mkdir, access, rm } from 'node:fs/promises'
 import { join, dirname } from 'node:path'

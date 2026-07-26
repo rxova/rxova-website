@@ -5,36 +5,42 @@ publishes the whole site.
 
 `rxova.org` is one static site on **GitHub Pages** (its DNS lives in AWS Route 53, but
 serving is GitHub Pages). This repo is the only thing that publishes it. It builds the Astro
-landing at `/`, checks out each project and builds its docs (Astro/Starlight or Docusaurus)
-under a subpath, stitches everything into one tree, and deploys to GitHub Pages.
+landing at `/`, gathers each project's already-built docs from its content release, stitches
+everything into one tree under a subpath, and deploys to GitHub Pages.
+
+It does **not** build anyone's docs. Each project builds its own docs in its own CI and sends
+them here already built; this repo validates and publishes them. See
+[docs/INPUTS-CONTRACT.md](docs/INPUTS-CONTRACT.md).
 
 ```
-rxova.org/                      -> site/  (Astro landing)
-rxova.org/packages/journey/     -> rxova/journey  apps/docs (built with base /packages/journey/)
-rxova.org/packages/react-inputs/ -> rxova/react-inputs   docs   (built with base /packages/react-inputs/)
-rxova.org/packages/use-everywhere/ -> rxova/use-everywhere docs  (built with base /packages/use-everywhere/)
+rxova.org/                         -> site/  (Astro landing, built here)
+rxova.org/packages/journey/        -> rxova/journey        docs (built there, persisted as content-journey)
+rxova.org/packages/react-inputs/   -> rxova/react-inputs   docs (built there, persisted as content-react-inputs)
+rxova.org/packages/use-everywhere/ -> rxova/use-everywhere docs (built there, persisted as content-use-everywhere)
 ```
 
 Which projects are mounted is `sources.json` — see [Adding a project](#adding-a-project).
 
 ## Layout
 
-| Path                           | What                                                |
-| ------------------------------ | --------------------------------------------------- |
-| `site/`                        | Astro landing page (builds to `site/dist`)          |
-| `scripts/registry.mjs`         | Reads/validates `sources.json`; derives every path  |
-| `scripts/matrix.mjs`           | Turns the registry into the deploy build matrix     |
-| `scripts/resolve-output.mjs`   | Finds the directory a project's docs build produced |
-| `scripts/assemble.mjs`         | Copies build artifacts into the final `_site/` tree |
-| `scripts/*.test.mjs`           | Tests for all of the above — `pnpm test`            |
-| `sources.json`                 | **The project registry** — one entry per project    |
-| `.github/workflows/deploy.yml` | build → assemble → GitHub Pages deploy              |
-| `build/`                       | Private planning docs (git-ignored)                 |
+| Path                           | What                                                    |
+| ------------------------------ | ------------------------------------------------------- |
+| `site/`                        | Astro landing page (builds to `site/dist`)              |
+| `scripts/registry.mjs`         | Reads/validates `sources.json`; derives every path      |
+| `scripts/ingest.mjs`           | Gate 2: validates a sender's dispatch and its dist      |
+| `scripts/fetch-docs.mjs`       | Deploy-time: pulls persisted docs from content releases |
+| `scripts/assemble.mjs`         | Copies the gathered docs into the final `_site/` tree   |
+| `scripts/*.test.mjs`           | Tests for all of the above — `pnpm test`                |
+| `sources.json`                 | **The project registry** — one entry per project        |
+| `docs/INPUTS-CONTRACT.md`      | What a source repo must send (gate 1)                   |
+| `.github/workflows/ingest.yml` | validate → persist → deploy, on a docs dispatch         |
+| `.github/workflows/deploy.yml` | build landing → gather → assemble → Pages deploy        |
+| `build/`                       | Private planning docs (git-ignored)                     |
 
-Every question the deploy asks about a project — where it lives, at which ref, how it
-builds, where its build lands, where it mounts — is answered by `sources.json` through
-`scripts/registry.mjs`. `deploy.yml` holds no per-project knowledge and does not change
-when a project is added, migrated, enabled or disabled.
+Every question the deploy asks about a project — where it lives, whether it is on, where it
+mounts, which release holds its docs — is answered by `sources.json` through
+`scripts/registry.mjs`. Neither `deploy.yml` nor `ingest.yml` holds per-project knowledge or
+changes when a project is added, enabled or disabled.
 
 ## Develop the landing
 
@@ -47,23 +53,41 @@ pnpm preview
 
 ## How a project's docs reach rxova.org
 
-The source repos never touch the bucket. On push to their `main`, they send a
-`repository_dispatch` event to this repo; this repo's workflow then checks them out, builds
-their docs with the right `baseUrl`, and deploys the combined site. See
-[`build/INPUTS-CONTRACT.md`](build/INPUTS-CONTRACT.md) for what a docs repo must expose.
+Two gates, and the aggregator builds nothing.
 
-The dispatch payload is:
+1. **Gate 1 — the source repo sends** (its own CI). On push to `main` it builds its docs for
+   base `/packages/<id>/`, uploads them as an artifact named `docs-dist`, and fires a `docs`
+   `repository_dispatch` naming the run that holds them. Full spec:
+   [docs/INPUTS-CONTRACT.md](docs/INPUTS-CONTRACT.md).
 
-```jsonc
-{
-  "event_type": "docs",
-  "client_payload": { "project": "use-everywhere", "ref": "<sha>" },
-}
-```
+   ```jsonc
+   {
+     "event_type": "docs",
+     "client_payload": {
+       "schema": 1,
+       "project": "use-everywhere",
+       "ref": "main",
+       "sha": "<sha>",
+       "run_id": "<the run holding docs-dist>",
+       "base": "/packages/use-everywhere/", // optional; validated if present
+       "framework": "astro", //              optional
+     },
+   }
+   ```
 
-Every _enabled_ project is rebuilt on every run — GitHub Pages publishes a whole tree, so a
-partial build would drop the other projects' docs from the site. Only the dispatching project
-is built at the ref it sent; the rest build their `sources.json` ref.
+2. **Gate 2 — this repo validates and persists** (`ingest.yml` + `scripts/ingest.mjs`). It
+   checks the metadata (known & enabled project, base matches the mount, ref/sha/run_id are
+   what they claim), downloads the `docs-dist` artifact from that run, checks it is a real
+   docs tree (`index.html` at its root), then stores it as the project's canonical release
+   asset (`docs-<id>.tgz` on tag `content-<id>`) and redeploys.
+
+A rejection at either gate fails the ingest and **leaves the live site untouched** — a bad
+push can't take rxova.org down, it just doesn't publish.
+
+At deploy time `scripts/fetch-docs.mjs` pulls every _enabled_ project's persisted docs from
+its content release and assembles the whole tree (Pages publishes a whole tree, so every
+mounted project must be present). Only the project that just changed is re-persisted; the rest
+are served from their last persisted dist — nothing is rebuilt here.
 
 ## Adding a project
 
@@ -78,71 +102,49 @@ Two entries, no workflow changes.
    {
      "id": "foo", // must match the brand PROJECTS id
      "enabled": true,
-     "build": ["pnpm docs:build"],
      "landing": { "blurb": "…", "tags": ["React", "TypeScript"] },
    }
    ```
 
-Everything else is derived from `id`: the docs build at `/packages/foo/`, mount at
-`_site/packages/foo`, upload as artifact `docs-foo`, and appear on the landing with Docs,
-GitHub and npm links. The deploy workflow picks the project up automatically.
+Everything else is derived from `id`: docs mount at `_site/packages/foo`, persist to release
+`content-foo` as `docs-foo.tgz`, and the project appears on the landing with Docs, GitHub and
+npm links. Then wire the new repo's sender per
+[docs/INPUTS-CONTRACT.md](docs/INPUTS-CONTRACT.md).
 
-`output` is optional — `apps/docs/dist` (Astro/Starlight) then `apps/docs/build` (Docusaurus)
-are tried in order and whichever the build produced is uploaded. Set it only for docs that
-live somewhere non-standard.
+There is no `build`/`install`/`output` here — the aggregator never builds the project. How the
+docs are built is entirely the source repo's business.
 
-`enabled: false` keeps a project listed on the landing but drops its Docs link and skips its
-build — use it for a project whose docs aren't ready yet.
+`enabled: false` keeps a project listed on the landing but drops its Docs link and makes gate 2
+reject its dispatch — use it for a project whose docs aren't ready yet.
 
 ### Checking your entry
 
 ```sh
 pnpm check:registry   # validate sources.json
-pnpm matrix           # print the build matrix it produces
-pnpm test             # the registry, matrix, output resolution and assembly
+pnpm test             # the registry, the ingest gates, the fetch plan, and assembly
 ```
 
-All three run in CI, along with a build-time check that `sources.json` and the brand package
+Both run in CI, along with a build-time check that `sources.json` and the brand package
 describe the same set of projects — they cannot silently drift apart.
 
-`pnpm test` is worth its own note. The registry pipeline otherwise only runs during a
-deploy, where its mistakes are already live and often quiet: a dispatch that builds the
-wrong ref, an artifact copied to a mount that disagrees with the base URL the docs were
-built with, a project whose docs are silently absent from the published tree. The tests in
-`scripts/*.test.mjs` cover those paths against real directories on disk, so a regression
-fails on the pull request instead of on rxova.org.
+`pnpm test` is worth its own note. This machinery otherwise only runs during an ingest or a
+deploy, where its mistakes are already live and often quiet: a dispatch accepted for the wrong
+project, a dist mounted where the base URL disagrees with it, a project whose docs are silently
+absent from the published tree. The tests in `scripts/*.test.mjs` cover those paths — including
+gate 2's rejections and `checkDist` against real directories on disk — so a regression fails on
+the pull request instead of on rxova.org.
 
-## Migrating a project's docs to Astro
+## How docs are built (it isn't here)
 
-`use-everywhere` has moved from Docusaurus to Astro/Starlight; `journey` and `react-inputs`
-will follow. Two things change when a project migrates, and only one of them is automatic.
+Each project builds its own docs in its own CI, however suits it — Astro/Starlight, Docusaurus,
+mermaid via headless chromium, whatever monorepo filter chain it needs. None of that is this
+repo's concern any more: the aggregator only ever receives an already-built tree.
 
-**The output directory — handled for you.** Docusaurus emits `build/`, Astro emits `dist/`.
-`sources.json` no longer pins one path: `scripts/resolve-output.mjs` runs on the runner after
-the build and picks whichever candidate the build actually filled in, preferring `dist/`. So
-nothing here needs editing. The first migration did break the deploy this way (`No files were
-found with the provided path: use-everywhere/apps/docs/build`) before that existed.
-
-A build that produced nothing now fails at that step with the candidates it tried, what is
-actually on disk, and the knob to turn — rather than at upload, with a path and no context.
-
-**Mermaid diagrams — needs one line.** If the docs render mermaid through `rehype-mermaid`,
-it drives headless chromium at build time, and the browser must be installed in _this_ repo's
-build too — not just in the project's own CI. Without it the build produces nothing to upload
-and the deploy fails. Add the install between the library build and the docs build:
-
-```jsonc
-"build": [
-  "pnpm --filter @scope/core build",
-  "pnpm --filter @scope/docs exec playwright install --with-deps chromium",
-  "pnpm --filter @scope/docs build",
-]
-```
-
-Unchanged by a migration: the `DOCS_URL` / `DOCS_BASE_URL` contract. Astro reads them the same
-way Docusaurus did — `base: process.env.DOCS_BASE_URL ?? '/'` — and the docs must still build
-at `/packages/<id>/`, because the aggregator only relocates the tree and never rewrites asset
-paths.
+The one invariant a source repo must hold: build for base `/packages/<id>/` (the house
+convention is `base: process.env.DOCS_BASE_URL ?? '/'`), because the aggregator relocates the
+tree without rewriting asset paths. A build made for the wrong base is rejected at gate 2 (if it
+sends `base`) or shows up as a page with every asset 404ing. See
+[docs/INPUTS-CONTRACT.md](docs/INPUTS-CONTRACT.md).
 
 ## Deploy
 
@@ -167,5 +169,11 @@ Per-project gating used to live here as `JOURNEY_ENABLED` / `INPUTS_ENABLED` /
 projects the site ships is reviewable in a PR instead of being invisible repo state. Those
 three variables are no longer read and can be deleted.
 
+**Secrets:**
+
+- `SOURCE_ARTIFACTS_TOKEN` (this repo) — a fine-grained PAT with **Actions: read** on the
+  source repos, used by `ingest.yml` to download a sender's `docs-dist` artifact from its run.
+
 Each **source repo** needs a secret `AGGREGATOR_DISPATCH_TOKEN` (a fine-grained PAT with
-Contents: write on `rxova/rxova-website`) to fire the rebuild.
+**Contents: write** on `rxova/rxova-website`) to fire the `docs` dispatch. See
+[docs/INPUTS-CONTRACT.md](docs/INPUTS-CONTRACT.md#tokens).

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Fail CI when sources.json is malformed, before a bad entry reaches a deploy.
 //
-// This is the structural half of the registry check: ids, build commands,
-// output paths, ref syntax, duplicate ids — everything `loadRegistry` enforces.
+// This is the structural half of the registry check: id syntax, duplicate ids,
+// derived paths that agree with themselves — everything `loadRegistry` enforces.
 //
 // The other half — that sources.json and @rxova/brand's PROJECTS describe the
 // same set of projects — is asserted inside the Astro build instead, by

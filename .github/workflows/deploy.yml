@@ -1,35 +1,29 @@
 name: Deploy rxova.org
 
-# Builds the Astro landing + each project's docs, assembles them into one tree,
-# and publishes to GitHub Pages. See sources.json and build/PLAN.md.
+# Builds this repo's Astro landing, gathers every enabled project's docs from its
+# content release, assembles them into one tree, and publishes to GitHub Pages.
 #
-# Adding a project should NOT require editing this file. Which projects exist,
-# where they come from, how they build and whether they are enabled all live in
-# sources.json; the `matrix` job below turns that into the docs build matrix.
-# The only thing that cannot be data-driven is the `on:` block — GitHub does not
-# allow expressions there — which is why dispatches use a single `docs` type
-# carrying the project name in its payload rather than a type per project.
+# Nothing foreign is built here. Docs are built by their own repos and sent here
+# already built, then validated and persisted as release assets by ingest.yml (see
+# that workflow and docs/INPUTS-CONTRACT.md). This workflow only ever moves
+# already-built trees: it fetches each project's persisted dist and lays it out.
+#
+# Adding a project should NOT require editing this file. Which projects exist and
+# whether they are enabled live in sources.json; scripts/fetch-docs.mjs turns that
+# into the set of release assets to download.
 
 on:
-  repository_dispatch:
-    # `docs` is the contract: client_payload { project: "<id>", ref: "<sha>" }.
-    # The docs-<id> types are the previous per-project contract, kept so the
-    # sibling repos can migrate one at a time. Once all of them send `docs`,
-    # these three can be deleted and this list never grows again.
-    types: [docs, docs-journey, docs-react-inputs, docs-use-everywhere]
+  # Called by ingest.yml right after it persists a new dist, so a docs push shows
+  # up on the live site without a second dispatch or a token that can re-trigger.
+  workflow_call:
+  # Manual full redeploy from whatever is currently persisted.
   workflow_dispatch:
-    inputs:
-      project:
-        description: 'Project id to build at a specific ref (blank = all at their default ref)'
-        required: false
-      ref:
-        description: 'Ref for that project (default: its ref in sources.json)'
-        required: false
+  # Landing / site changes in this repo.
   push:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: read # read the content-<id> releases
   pages: write
   id-token: write
 
@@ -39,33 +33,8 @@ concurrency:
 
 env:
   NODE_VERSION: '24'
-  DOCS_URL: https://rxova.org
 
 jobs:
-  # Resolve sources.json into a build matrix. Runs first and is cheap; a
-  # malformed registry or a dispatch naming an unknown project fails here,
-  # before any repo is checked out.
-  matrix:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.gen.outputs.matrix }}
-      count: ${{ steps.gen.outputs.count }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - id: gen
-        # Event data goes through env, never through ${{ }} interpolation into a
-        # script — a dispatch payload is attacker-shaped input and would
-        # otherwise be evaluated as shell.
-        env:
-          EVENT_ACTION: ${{ github.event.action }}
-          CLIENT_PAYLOAD: ${{ toJSON(github.event.client_payload) }}
-          INPUT_PROJECT: ${{ github.event.inputs.project }}
-          INPUT_REF: ${{ github.event.inputs.ref }}
-        run: node scripts/matrix.mjs
-
   build-landing:
     runs-on: ubuntu-latest
     steps:
@@ -83,84 +52,8 @@ jobs:
           path: site/dist
           if-no-files-found: error
 
-  # One job per enabled project, generated from sources.json. This replaced three
-  # near-identical hand-written jobs that differed only in the values now supplied
-  # by the matrix.
-  build-docs:
-    needs: matrix
-    if: needs.matrix.outputs.count != '0'
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.matrix.outputs.matrix) }}
-    name: docs (${{ matrix.id }})
-    steps:
-      # This repo, alongside the project's checkout, for scripts/resolve-output.mjs.
-      # It reads sources.json itself rather than having the candidate list marshalled
-      # through the matrix, so where a docs build lands stays a question answered in
-      # exactly one place.
-      - uses: actions/checkout@v7
-        with:
-          path: .aggregator
-      - uses: actions/checkout@v7
-        with:
-          repository: ${{ matrix.repo }}
-          ref: ${{ matrix.ref }}
-          path: ${{ matrix.workdir }}
-      - run: corepack enable
-      # Not the setup-pnpm composite: that resolves from this workspace's root,
-      # which here holds two checkouts and no lockfile of its own.
-      - uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          # No dependency cache: the project lives in a subdir, so setup-node
-          # cannot resolve the store path from this workspace's root — it failed
-          # on cache save when it tried. `package-manager-cache: false` says so
-          # explicitly, since setup-node v5 began caching on its own whenever
-          # package.json declares a packageManager.
-          package-manager-cache: false
-      - name: Install
-        working-directory: ${{ matrix.workdir }}
-        run: ${{ matrix.install }}
-      - name: Build docs at ${{ matrix.base }}
-        working-directory: ${{ matrix.workdir }}
-        env:
-          DOCS_URL: ${{ env.DOCS_URL }}
-          DOCS_BASE_URL: ${{ matrix.base }}
-        # From sources.json, which is version-controlled and reviewed in the same
-        # PR as this file — same trust boundary, not user input.
-        run: ${{ matrix.build }}
-
-      # Docs frameworks disagree about where a build lands: Docusaurus emits
-      # `build/`, Astro/Starlight emits `dist/`. sources.json lists candidates
-      # rather than one path, so a project can migrate between them without a
-      # change here. Resolving it in its own step also means a project that
-      # built nothing fails with an explanation naming the knob to turn, rather
-      # than upload-artifact's "No files were found with the provided path".
-      - name: Locate docs output
-        id: docs_output
-        env:
-          PROJECT: ${{ matrix.id }}
-          WORKDIR: ${{ matrix.workdir }}
-        run: node .aggregator/scripts/resolve-output.mjs "$PROJECT" "$WORKDIR"
-
-      - uses: actions/upload-artifact@v7
-        with:
-          name: ${{ matrix.artifact }}
-          path: ${{ steps.docs_output.outputs.dir }}
-          if-no-files-found: error
-
   assemble-deploy:
-    needs: [matrix, build-landing, build-docs]
-    # Only the landing is required. build-docs is skipped when sources.json has
-    # nothing enabled, which is a landing-only deploy and fine. A *failed* docs
-    # build is not fine and blocks the deploy — assemble.mjs would refuse anyway,
-    # since an enabled project with no artifact means a section silently missing
-    # from the site.
-    if: >-
-      always() &&
-      needs.build-landing.result == 'success' &&
-      (needs.build-docs.result == 'success' || needs.build-docs.result == 'skipped')
+    needs: build-landing
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -170,11 +63,25 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - uses: actions/download-artifact@v8
+
+      - name: Download the landing build
+        uses: actions/download-artifact@v8
         with:
-          path: artifacts
+          name: landing
+          path: artifacts/landing
+
+      # Every enabled project's persisted docs, pulled from its content-<id>
+      # release into artifacts/docs-<id> — exactly where assemble.mjs reads them.
+      # A missing release fails here, naming the project, rather than silently
+      # publishing a site with a hole in it.
+      - name: Gather persisted docs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/fetch-docs.mjs artifacts
+
       - name: Assemble _site
         run: node scripts/assemble.mjs artifacts _site
+
       - name: Add .nojekyll + CNAME
         env:
           CUSTOM_DOMAIN: ${{ vars.PAGES_CUSTOM_DOMAIN }}

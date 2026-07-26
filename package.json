@@ -17,7 +17,6 @@
     "format:check": "prettier --check .",
     "assemble": "node scripts/assemble.mjs",
     "check:registry": "node scripts/check-registry.mjs",
-    "matrix": "node scripts/matrix.mjs --print",
     "prepare": "husky",
     "sync:og": "node scripts/sync-brand-og.mjs"
   },

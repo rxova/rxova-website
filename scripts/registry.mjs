@@ -2,10 +2,11 @@
 // derives the paths, and refuses to return anything malformed.
 //
 // Everything that needs to know "what projects make up rxova.org" goes through
-// here — `assemble.mjs` (which copies artifacts into the final tree) and
-// `matrix.mjs` (which generates the deploy workflow's build matrix). Neither
-// re-reads the JSON itself, so there is no second place for the shape of an
-// entry to be understood slightly differently.
+// here — `assemble.mjs` (which copies artifacts into the final tree), `ingest.mjs`
+// (which validates and persists a project's freshly-built docs) and
+// `fetch-docs.mjs` (which pulls those persisted docs back at deploy time). None
+// of them re-reads the JSON itself, so there is no second place for the shape of
+// an entry to be understood slightly differently.
 //
 // The landing page does NOT use this module: it consumes `sources.json` through
 // a Vite JSON import (see site/src/lib/projects.ts) because Astro builds it in a
@@ -16,15 +17,23 @@
 //
 // A source declares its `id` and the registry derives every path from it:
 //
-//   id: "journey"  ->  base:     /packages/journey/     (URL the docs build at)
-//                      mount:    packages/journey       (path in the deployed tree)
-//                      artifact: docs-journey           (CI artifact name)
-//                      workdir:  journey                (checkout dir in CI)
+//   id: "journey"  ->  base:    /packages/journey/   (URL the docs are built for)
+//                      mount:   packages/journey     (path in the deployed tree)
+//                      artifact:docs-journey         (where a build lands under artifacts/)
+//                      release: content-journey      (tag of its persisted-docs release)
+//                               docs-journey.tgz     (the asset in that release)
 //
-// These four used to be written out per project, which meant four chances to
-// typo a mount that silently disagrees with the baseUrl the docs were built
-// with — a class of bug whose symptom is a live page with every stylesheet 404ing.
+// These used to be written out per project, which meant several chances to typo a
+// mount that silently disagrees with the base URL the docs were built with — a
+// class of bug whose symptom is a live page with every stylesheet 404ing.
 // Deriving them makes that disagreement unrepresentable.
+//
+// ## The aggregator no longer builds anything
+//
+// Docs are built by their own repos and sent here already built (see
+// docs/INPUTS-CONTRACT.md and .github/workflows/ingest.yml). So a source entry
+// carries no `build`, `install` or `output`: this repo never checks a project out
+// and never runs its toolchain. It only ever moves already-built trees around.
 
 import { readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
@@ -39,17 +48,11 @@ const ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/
 
 /**
  * Git refs reach us from a `repository_dispatch` payload, i.e. from outside this
- * repo. They are interpolated into workflow YAML, so constrain them to what a
+ * repo. They end up in release notes and log lines, so constrain them to what a
  * branch name or SHA can actually contain rather than trusting the sender.
+ * Exported for ingest.mjs, which validates the ref a source repo sends.
  */
-const REF_PATTERN = /^[A-Za-z0-9._/-]+$/
-
-/**
- * Where a docs build lands, in preference order. Both house frameworks are
- * covered, so a project can migrate from one to the other without touching this
- * repo: whichever directory the build actually produced is the one uploaded.
- */
-export const DEFAULT_OUTPUT_CANDIDATES = ['apps/docs/dist', 'apps/docs/build']
+export const REF_PATTERN = /^[A-Za-z0-9._/-]+$/
 
 class RegistryError extends Error {
   constructor(message) {
@@ -58,35 +61,11 @@ class RegistryError extends Error {
   }
 }
 
-/** Accept a string, a list, or nothing (meaning the house defaults). */
-function normaliseOutput(id, value) {
-  if (value === undefined) return [...DEFAULT_OUTPUT_CANDIDATES]
-
-  const list = Array.isArray(value) ? value : [value]
-  if (list.length === 0) {
-    throw new RegistryError(`"${id}" has an empty "output" list; omit it to use the defaults`)
-  }
-
-  for (const dir of list) {
-    if (typeof dir !== 'string' || dir.length === 0) {
-      throw new RegistryError(`"${id}" has a non-string entry in "output"`)
-    }
-    // These are joined onto a checkout path and handed to upload-artifact, so
-    // keep them strictly inside the project.
-    if (dir.startsWith('/') || dir.split('/').includes('..')) {
-      throw new RegistryError(
-        `"${id}" output ${JSON.stringify(dir)} must be a relative path inside the repo`,
-      )
-    }
-  }
-  return list
-}
-
 /**
- * Resolve one raw entry into its full form: defaults applied, paths derived.
+ * Resolve one raw entry into its full form: paths derived, nothing trusted.
  * Exported for tests and for anything that wants the derivation without the file.
  */
-export function resolveSource(raw, defaults = {}) {
+export function resolveSource(raw) {
   const id = raw?.id
   if (typeof id !== 'string' || !ID_PATTERN.test(id)) {
     throw new RegistryError(
@@ -94,38 +73,21 @@ export function resolveSource(raw, defaults = {}) {
     )
   }
 
-  const build = Array.isArray(raw.build) ? raw.build : raw.build ? [raw.build] : []
-  if (build.length === 0) {
-    throw new RegistryError(`"${id}" needs a "build" command (string or array of strings)`)
-  }
-  // `output` is a list of candidates, tried in order, first non-empty one wins.
-  // A docs framework migration changes where the build lands — Docusaurus emits
-  // `build/`, Astro/Starlight emits `dist/` — and when use-everywhere moved, the
-  // deploy failed at upload with "No files were found with the provided path".
-  // Listing both means the remaining migrations need no change here at all.
-  const output = normaliseOutput(id, raw.output)
-
-  const ref = raw.ref ?? defaults.ref ?? 'main'
-  if (!REF_PATTERN.test(ref)) {
-    throw new RegistryError(`"${id}" has an invalid ref ${JSON.stringify(ref)}`)
-  }
-
   return {
     id,
     // Absent `enabled` means disabled. A project you forgot to flip on is a
     // missing docs section; one you forgot to flip off is a broken deploy.
     enabled: raw.enabled === true,
+    // Where this project's docs are built and ingested from. Derived, but
+    // overridable for the odd project that does not live at rxova/<id>.
     repo: raw.repo ?? `rxova/${id}`,
-    ref,
-    install: raw.install ?? defaults.install ?? 'pnpm install --frozen-lockfile',
-    build,
-    output,
 
-    // Derived — see the header comment. Never write these in sources.json.
+    // Derived from `id` — see the header comment. Never write these in sources.json.
     base: `/packages/${id}/`,
     mount: `packages/${id}`,
     artifact: `docs-${id}`,
-    workdir: id,
+    releaseTag: `content-${id}`,
+    releaseAsset: `docs-${id}.tgz`,
 
     // Landing-page copy. The landing reads this itself; kept here so a
     // structural check can see it, and so one entry describes one project.
@@ -142,8 +104,7 @@ export function loadRegistry(file = SOURCES_FILE) {
     throw new RegistryError(`could not be read or parsed — ${err.message}`)
   }
 
-  const defaults = raw.defaults ?? {}
-  const sources = (raw.sources ?? []).map((s) => resolveSource(s, defaults))
+  const sources = (raw.sources ?? []).map((s) => resolveSource(s))
 
   const seen = new Set()
   for (const s of sources) {
