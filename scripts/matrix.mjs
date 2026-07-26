@@ -37,7 +37,7 @@ const REF_PATTERN = /^[A-Za-z0-9._/-]+$/
  * The legacy `docs-<id>` types are still honoured so the sibling repos can
  * migrate one at a time instead of in a flag day.
  */
-function resolveOverride(env) {
+export function resolveOverride(env) {
   const inputProject = env.INPUT_PROJECT?.trim()
   if (inputProject) return { project: inputProject, ref: env.INPUT_REF?.trim() || null }
 
@@ -65,10 +65,14 @@ function resolveOverride(env) {
   return { project: null, ref: null }
 }
 
-function main() {
-  const registry = loadRegistry()
+/**
+ * Turn the registry plus an optional {project, ref} override into the matrix's
+ * `include` list. Pure — no env, no filesystem — so the rules below (a ref only
+ * applies to the project that asked for it; an unknown or disabled project is an
+ * error, not a silent full rebuild) are testable without a workflow run.
+ */
+export function buildMatrix(registry, { project = null, ref = null } = {}) {
   const enabled = enabledSources(registry)
-  const { project, ref } = resolveOverride(process.env)
 
   if (project) {
     const known = registry.sources.some((s) => s.id === project)
@@ -90,7 +94,10 @@ function main() {
     }
   }
 
-  const include = enabled.map((s) => ({
+  // `output` is deliberately absent: where a docs build lands is resolved on the
+  // runner by scripts/resolve-output.mjs, which reads sources.json directly. The
+  // matrix carries only what the workflow cannot look up for itself.
+  return enabled.map((s) => ({
     id: s.id,
     repo: s.repo,
     ref: project === s.id && ref ? ref : s.ref,
@@ -98,18 +105,20 @@ function main() {
     install: s.install,
     // One `run:` block per project; the workflow interpolates this verbatim.
     build: s.build.join('\n'),
-    output: s.output,
     base: s.base,
     artifact: s.artifact,
   }))
+}
 
+function main() {
+  const registry = loadRegistry()
+  const include = buildMatrix(registry, resolveOverride(process.env))
   const matrix = JSON.stringify({ include })
 
   for (const line of include) {
     console.log(`  • ${line.id.padEnd(16)} ${line.repo}@${line.ref} -> ${line.base}`)
   }
-  const skipped = registry.sources.filter((s) => !s.enabled)
-  for (const s of skipped) {
+  for (const s of registry.sources.filter((s) => !s.enabled)) {
     console.log(`  – ${s.id.padEnd(16)} disabled in sources.json, not built`)
   }
 
@@ -121,9 +130,12 @@ function main() {
   appendFileSync(process.env.GITHUB_OUTPUT, `matrix=${matrix}\ncount=${include.length}\n`)
 }
 
-try {
-  main()
-} catch (err) {
-  console.error(`ERROR: ${err.message}`)
-  process.exit(1)
+// Only run as a CLI; the tests import the functions above.
+if (import.meta.filename === process.argv[1]) {
+  try {
+    main()
+  } catch (err) {
+    console.error(`ERROR: ${err.message}`)
+    process.exit(1)
+  }
 }

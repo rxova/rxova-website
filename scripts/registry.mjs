@@ -44,11 +44,42 @@ const ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/
  */
 const REF_PATTERN = /^[A-Za-z0-9._/-]+$/
 
+/**
+ * Where a docs build lands, in preference order. Both house frameworks are
+ * covered, so a project can migrate from one to the other without touching this
+ * repo: whichever directory the build actually produced is the one uploaded.
+ */
+export const DEFAULT_OUTPUT_CANDIDATES = ['apps/docs/dist', 'apps/docs/build']
+
 class RegistryError extends Error {
   constructor(message) {
     super(`sources.json: ${message}`)
     this.name = 'RegistryError'
   }
+}
+
+/** Accept a string, a list, or nothing (meaning the house defaults). */
+function normaliseOutput(id, value) {
+  if (value === undefined) return [...DEFAULT_OUTPUT_CANDIDATES]
+
+  const list = Array.isArray(value) ? value : [value]
+  if (list.length === 0) {
+    throw new RegistryError(`"${id}" has an empty "output" list; omit it to use the defaults`)
+  }
+
+  for (const dir of list) {
+    if (typeof dir !== 'string' || dir.length === 0) {
+      throw new RegistryError(`"${id}" has a non-string entry in "output"`)
+    }
+    // These are joined onto a checkout path and handed to upload-artifact, so
+    // keep them strictly inside the project.
+    if (dir.startsWith('/') || dir.split('/').includes('..')) {
+      throw new RegistryError(
+        `"${id}" output ${JSON.stringify(dir)} must be a relative path inside the repo`,
+      )
+    }
+  }
+  return list
 }
 
 /**
@@ -67,9 +98,12 @@ export function resolveSource(raw, defaults = {}) {
   if (build.length === 0) {
     throw new RegistryError(`"${id}" needs a "build" command (string or array of strings)`)
   }
-  if (typeof raw.output !== 'string' || raw.output.length === 0) {
-    throw new RegistryError(`"${id}" needs an "output" directory, relative to its repo root`)
-  }
+  // `output` is a list of candidates, tried in order, first non-empty one wins.
+  // A docs framework migration changes where the build lands — Docusaurus emits
+  // `build/`, Astro/Starlight emits `dist/` — and when use-everywhere moved, the
+  // deploy failed at upload with "No files were found with the provided path".
+  // Listing both means the remaining migrations need no change here at all.
+  const output = normaliseOutput(id, raw.output)
 
   const ref = raw.ref ?? defaults.ref ?? 'main'
   if (!REF_PATTERN.test(ref)) {
@@ -85,7 +119,7 @@ export function resolveSource(raw, defaults = {}) {
     ref,
     install: raw.install ?? defaults.install ?? 'pnpm install --frozen-lockfile',
     build,
-    output: raw.output,
+    output,
 
     // Derived — see the header comment. Never write these in sources.json.
     base: `/packages/${id}/`,
