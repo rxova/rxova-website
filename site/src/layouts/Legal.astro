@@ -12,13 +12,31 @@ const { title } = Astro.props
     <title>{title} — rxova</title>
     <meta name="robots" content="noindex" />
     <script is:inline>
+      // Keep in step with the landing page: the key is Starlight's, shared with
+      // the docs sites at /packages/*. This used to read `theme`, which nothing
+      // on the origin ever writes — so /privacy and /terms silently ignored the
+      // visitor's choice and always rendered the prefers-color-scheme default.
       ;(function () {
-        try {
-          const t = localStorage.getItem('theme')
-          if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t)
-        } catch {
-          /* localStorage may be unavailable */
+        function stored() {
+          try {
+            const t = localStorage.getItem('starlight-theme')
+            return t === 'light' || t === 'dark' ? t : null
+          } catch {
+            /* localStorage may be unavailable */
+            return null
+          }
         }
+        function sync() {
+          const t = stored()
+          if (t) document.documentElement.setAttribute('data-theme', t)
+          else document.documentElement.removeAttribute('data-theme')
+        }
+        sync()
+        // Back/forward can restore this document from the bfcache without
+        // re-running this script; see the landing page for the long version.
+        window.addEventListener('pageshow', function (e) {
+          if (e.persisted) sync()
+        })
       })()
     </script>
   </head>
