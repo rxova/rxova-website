@@ -3,7 +3,13 @@ name: CI
 on:
   push:
     branches: [main]
+  # `edited` is here because of what the commitlint job below lints: the PR
+  # title and description, which is the message a squash merge composes. Those
+  # are the only inputs to a check that no push can change — without `edited`,
+  # fixing the title the job just rejected leaves the red X in place and the
+  # only way to re-run it is a no-op commit.
   pull_request:
+    types: [opened, synchronize, reopened, edited]
 
 permissions:
   contents: read
