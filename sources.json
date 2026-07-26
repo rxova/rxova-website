@@ -37,7 +37,8 @@
     {
       "id": "journey",
       "enabled": true,
-      "build": ["pnpm run docs:api:check", "pnpm run docs:check"],
+      "$comment": "docs:build is journey's Astro build (turbo --filter @rxova/journey-docs); the Docusaurus-era docs:check no longer exists.",
+      "build": ["pnpm run docs:api:check", "pnpm run docs:build"],
       "landing": {
         "blurb": "Model multi-step, branching flows as a graph instead of a tangle of booleans and effects. Core is framework-agnostic; React bindings and a Chrome DevTools bridge come in the box.",
         "tags": ["JS Core", "React", "TypeScript", "Chrome Extension"]
