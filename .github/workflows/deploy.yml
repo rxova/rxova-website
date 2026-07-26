@@ -51,8 +51,8 @@ jobs:
       matrix: ${{ steps.gen.outputs.matrix }}
       count: ${{ steps.gen.outputs.count }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
       - id: gen
@@ -69,16 +69,15 @@ jobs:
   build-landing:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: corepack enable
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      # Same corepack + pinned pnpm + cached setup-node as CI uses, so the two
+      # workflows cannot drift to different Node or pnpm versions.
+      - uses: ./.github/actions/setup-pnpm
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm -C site build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: landing
           path: site/dist
@@ -100,20 +99,26 @@ jobs:
       # It reads sources.json itself rather than having the candidate list marshalled
       # through the matrix, so where a docs build lands stays a question answered in
       # exactly one place.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: .aggregator
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: ${{ matrix.repo }}
           ref: ${{ matrix.ref }}
           path: ${{ matrix.workdir }}
       - run: corepack enable
-      - uses: actions/setup-node@v4
+      # Not the setup-pnpm composite: that resolves from this workspace's root,
+      # which here holds two checkouts and no lockfile of its own.
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-          # No pnpm cache: the project lives in a subdir, so setup-node cannot
-          # resolve the store path from this workspace's root.
+          # No dependency cache: the project lives in a subdir, so setup-node
+          # cannot resolve the store path from this workspace's root — it failed
+          # on cache save when it tried. `package-manager-cache: false` says so
+          # explicitly, since setup-node v5 began caching on its own whenever
+          # package.json declares a packageManager.
+          package-manager-cache: false
       - name: Install
         working-directory: ${{ matrix.workdir }}
         run: ${{ matrix.install }}
@@ -139,7 +144,7 @@ jobs:
           WORKDIR: ${{ matrix.workdir }}
         run: node .aggregator/scripts/resolve-output.mjs "$PROJECT" "$WORKDIR"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
           path: ${{ steps.docs_output.outputs.dir }}
@@ -161,11 +166,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
       - name: Assemble _site
