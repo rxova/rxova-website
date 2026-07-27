@@ -138,8 +138,15 @@ rxova/brand
 ```
 
 Slugs come from the filename with the date prefix stripped; `pubDate` / `date` in
-frontmatter is what actually orders things. The date prefix keeps the directory sorted
-in an editor, nothing more.
+frontmatter is what actually orders things. The prefix keeps the directory sorted in
+an editor, nothing more — which is why it takes an optional `THHMM`
+(`2026-07-27T1430-some-slug.md`) for a day with several entries. `T` rather than a
+dash because `2026-07-27-2024-retrospective.md` would otherwise be ambiguous.
+
+Brand's validator enforces agreement in both directions: a filename time that
+contradicts the frontmatter fails, and so does a frontmatter time with no time in the
+filename — the second is what keeps the directory sorting the way the site does.
+Entries with no time fall back to sorting by slug, which is arbitrary but fixed.
 
 `content/` is CC-BY-4.0 rather than the repo's MIT. MIT is a code licence and reads
 oddly applied to an article ("the Software"); CC-BY is the answer people expect when

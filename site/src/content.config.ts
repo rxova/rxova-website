@@ -25,15 +25,18 @@ import { postBase, updateBase, authorBase } from './external/packages/content-sc
 const CONTENT = './src/external/content'
 
 /**
- * `2026-07-27-some-slug.md` -> `some-slug`.
+ * `2026-07-27-some-slug.md` or `2026-07-27T1430-some-slug.md` -> `some-slug`.
  *
- * The date prefix exists to keep the directory sorted in an editor; `pubDate` is
- * what actually orders the site. Stripping it here keeps that cosmetic choice out
- * of the URL, so re-dating a draft does not break its link. Brand's validator
- * enforces that the prefix and the frontmatter date agree.
+ * The prefix exists to keep the directory sorted in an editor; the frontmatter is
+ * what actually orders the site. Stripping it here keeps that cosmetic choice out of
+ * the URL, so re-dating a draft never breaks its link.
+ *
+ * The optional `THHMM` is for a day with several entries. Brand's validator enforces
+ * that the prefix and the frontmatter agree in both directions, so the two can never
+ * describe different moments.
  */
 const slugFromFilename = ({ entry }: { entry: string }): string =>
-  entry.replace(/\.md$/, '').replace(/^\d{4}-\d{2}-\d{2}-/, '')
+  entry.replace(/\.md$/, '').replace(/^\d{4}-\d{2}-\d{2}(?:T\d{4})?-/, '')
 
 const blog = defineCollection({
   loader: glob({ base: `${CONTENT}/posts`, pattern: '**/*.md', generateId: slugFromFilename }),
