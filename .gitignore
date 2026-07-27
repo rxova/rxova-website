@@ -6,6 +6,7 @@ dist/
 _site/
 .astro/
 artifacts/
+coverage/
 
 # planning / private docs stash
 build/
