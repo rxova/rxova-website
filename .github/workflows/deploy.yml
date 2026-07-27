@@ -21,6 +21,12 @@ on:
   # Landing / site changes in this repo.
   push:
     branches: [main]
+  # A post or update merged in rxova/brand — see its publish-content.yml
+  # and docs/CONTENT-ARCHITECTURE.md here. Unlike a docs push this carries no
+  # artifact and no release: /blog and /updates are built by this repo's own
+  # Astro build from a checkout of that repo, not mounted like /packages/*.
+  repository_dispatch:
+    types: [content]
 
 permissions:
   contents: read # read the content-<id> releases
@@ -45,6 +51,24 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - run: pnpm install --frozen-lockfile
+
+      # The blog and updates markdown, plus the schema that validates it. Both
+      # come out of the same checkout on purpose: the fields the collections
+      # accept and the fields brand's pre-merge validator enforces are then always
+      # the same commit, so there is no package to publish and nothing to keep in
+      # step. See docs/CONTENT-ARCHITECTURE.md.
+      #
+      # brand is private, hence a PAT — GITHUB_TOKEN is scoped to this repository.
+      # `site/src/external` is where content.config.ts looks, and it is gitignored
+      # here.
+      - name: Check out the content
+        uses: actions/checkout@v7
+        with:
+          repository: rxova/brand
+          path: site/src/external
+          token: ${{ secrets.BRAND_READ_TOKEN }}
+          persist-credentials: false
+
       - run: pnpm -C site build
       - uses: actions/upload-artifact@v7
         with:

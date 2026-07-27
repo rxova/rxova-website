@@ -1,0 +1,68 @@
+---
+import { render } from 'astro:content'
+
+import Content from '../../layouts/Content.astro'
+import UpdatesStream, { type StreamItem } from '../../components/UpdatesStream.astro'
+import { getUpdates, resolveAuthors, usedRepos, usedTags } from '../../lib/content'
+
+const entries = await getUpdates()
+
+const items: StreamItem[] = await Promise.all(
+  entries.map(async (entry) => ({
+    entry,
+    Body: (await render(entry)).Content,
+    authorNames: (await resolveAuthors(entry.data.authors)).map((a) => a.name),
+  })),
+)
+
+// Only offer a filter for something that is actually in the stream. The tag enum
+// and the REPOS registry are both wider than what has been written about.
+const repos = usedRepos(entries).map((r) => ({ id: r.id as string, label: r.label }))
+const tags = usedTags(entries)
+---
+
+<Content
+  title="Updates — rxova"
+  description="What is moving across the rxova projects — releases, fixes and infrastructure, filterable by repo and tag."
+  path="/updates"
+>
+  <header class="head">
+    <h1>Updates</h1>
+    <p class="lede">
+      What is moving across the projects. Each entry links out to the release it came from — the
+      per-project changelogs stay canonical for exactly what changed, and the <a href="/blog"
+        >blog</a
+      > covers why.
+    </p>
+  </header>
+
+  {
+    items.length === 0 ? (
+      <p class="empty">Nothing logged yet.</p>
+    ) : (
+      <UpdatesStream items={items} repos={repos} tags={tags} />
+    )
+  }
+</Content>
+
+<style>
+  .head {
+    margin-bottom: clamp(2rem, 6vh, 3rem);
+  }
+  .head h1 {
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+    letter-spacing: -0.02em;
+    font-weight: 660;
+    margin-bottom: 0.6rem;
+  }
+  .lede {
+    color: var(--muted);
+    max-width: 56ch;
+  }
+  .lede a {
+    color: var(--fg);
+  }
+  .empty {
+    color: var(--faint);
+  }
+</style>

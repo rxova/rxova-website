@@ -1,5 +1,13 @@
 {
   "extends": "astro/tsconfigs/strict",
   "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"]
+  // `src/external` is a checkout of rxova/brand — its whole repo, not just the
+  // content. Left in `include`, `astro check` would typecheck that repo's own
+  // scripts and preview app under *this* project's compiler options, and report
+  // failures nobody here can act on.
+  //
+  // The two modules this site actually imports out of it (the content schema and
+  // the REPOS registry) are still checked: TypeScript follows imports regardless
+  // of `exclude`, which only governs which files are roots.
+  "exclude": ["dist", "src/external"]
 }

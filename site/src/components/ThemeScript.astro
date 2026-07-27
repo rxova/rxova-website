@@ -1,0 +1,46 @@
+---
+/**
+ * The pre-paint theme script. Goes in `<head>`, before anything renders.
+ *
+ * This was copy-pasted between the landing page and the legal layout, and it had
+ * already drifted: the copy in Legal.astro read `theme`, a key nothing on this
+ * origin ever writes, so /privacy and /terms silently ignored the visitor's choice
+ * and always rendered the prefers-color-scheme default. Adding /blog and
+ * /changelog would have made four copies of a script whose whole job is to be
+ * identical everywhere, so it lives here now.
+ *
+ * The key is Starlight's, not ours. The docs sites at /packages/* are Starlight
+ * and write their choice to `starlight-theme`; same origin plus the same key means
+ * picking dark here keeps you in dark all the way into a project's docs, and back.
+ *
+ * No saved choice => no attribute => the CSS prefers-color-scheme default wins.
+ */
+---
+
+<script is:inline>
+  ;(function () {
+    function stored() {
+      try {
+        const t = localStorage.getItem('starlight-theme')
+        return t === 'light' || t === 'dark' ? t : null
+      } catch {
+        /* localStorage may be unavailable */
+        return null
+      }
+    }
+    function sync() {
+      const t = stored()
+      if (t) document.documentElement.setAttribute('data-theme', t)
+      else document.documentElement.removeAttribute('data-theme')
+    }
+    sync()
+    // Going to a docs site and pressing Back restores this document from the
+    // bfcache: the DOM is reused as it was and this script does not run again, so
+    // the page would keep the theme it had when you left — even though the docs
+    // site may have written a new one to `starlight-theme` in the meantime.
+    // `pageshow` is the only notification of that restore.
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) sync()
+    })
+  })()
+</script>

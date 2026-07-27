@@ -1,0 +1,185 @@
+---
+/**
+ * The shell for /blog and /updates: head, chrome, prose styles.
+ *
+ * Separate from Legal.astro rather than folded into it — the legal pages are
+ * `noindex`, have no nav and no social card, and are deliberately a dead end.
+ * These pages are the opposite of that in every respect. What the two genuinely
+ * share (the pre-paint theme script) is a component now.
+ */
+import '../styles/global.css'
+import ThemeScript from '../components/ThemeScript.astro'
+import ThemeToggle from '../components/ThemeToggle.astro'
+import SiteHeader from '../components/SiteHeader.astro'
+
+interface Props {
+  title: string
+  description: string
+  /** Canonical path, e.g. `/blog/why-rxova-has-a-blog`. */
+  path: string
+  ogType?: 'website' | 'article'
+}
+
+const { title, description, path, ogType = 'website' } = Astro.props
+const canonical = `https://rxova.org${path}`
+const year = new Date().getFullYear()
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
+    <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
+    <link rel="canonical" href={canonical} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content="https://rxova.org/og/rxova.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <ThemeScript />
+  </head>
+  <body>
+    <ThemeToggle />
+    <main>
+      <SiteHeader path={path} />
+
+      <slot />
+
+      <footer class="foot">
+        <span>© {year} rxova</span>
+        <span class="dot" aria-hidden="true">·</span>
+        <a href="/">Projects</a>
+        <span class="dot" aria-hidden="true">·</span>
+        <a href="/blog">Blog</a>
+        <span class="dot" aria-hidden="true">·</span>
+        <a href="/updates">Updates</a>
+        <span class="dot" aria-hidden="true">·</span>
+        <a href="/privacy">Privacy</a>
+        <span class="dot" aria-hidden="true">·</span>
+        <a href="/terms">Terms</a>
+      </footer>
+    </main>
+
+    <style>
+      main {
+        max-width: var(--max);
+        margin: 0 auto;
+        padding: clamp(2rem, 6vh, 3.5rem) 1.5rem 4rem;
+      }
+
+      .foot {
+        margin-top: clamp(3rem, 8vh, 5rem);
+        padding-top: 1.75rem;
+        border-top: 1px solid var(--rule);
+        color: var(--faint);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+      }
+      .foot a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .foot a:hover {
+        color: var(--fg);
+      }
+      .dot {
+        color: var(--rule);
+      }
+    </style>
+
+    <!-- Prose styling for rendered markdown. Global rather than scoped: the
+         markup comes from <Content /> at build time, so it carries none of
+         Astro's scoping attributes. Kept here so both /blog and /updates read
+         the same. -->
+    <style is:global>
+      .prose {
+        color: var(--muted);
+        line-height: 1.7;
+      }
+      .prose > * + * {
+        margin-top: 1.1rem;
+      }
+      .prose h2 {
+        color: var(--fg);
+        font-size: 1.25rem;
+        font-weight: 640;
+        letter-spacing: -0.01em;
+        margin-top: 2.5rem;
+      }
+      .prose h3 {
+        color: var(--fg);
+        font-size: 1.05rem;
+        font-weight: 620;
+        margin-top: 2rem;
+      }
+      .prose a {
+        color: var(--fg);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .prose strong {
+        color: var(--fg);
+        font-weight: 620;
+      }
+      .prose ul,
+      .prose ol {
+        margin-left: 1.2rem;
+      }
+      .prose li + li {
+        margin-top: 0.35rem;
+      }
+      .prose code {
+        font-family: var(--mono);
+        font-size: 0.88em;
+        background: var(--tag-bg);
+        padding: 0.05rem 0.35rem;
+        border-radius: 4px;
+      }
+      .prose pre {
+        background: var(--card);
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+        padding: 1rem 1.1rem;
+        /* Long lines scroll inside the block; the page itself never does. */
+        overflow-x: auto;
+      }
+      .prose pre code {
+        background: none;
+        padding: 0;
+      }
+      .prose blockquote {
+        border-left: 2px solid var(--rule);
+        padding-left: 1rem;
+        color: var(--faint);
+      }
+      .prose img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+      }
+      .prose table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+      }
+      .prose th,
+      .prose td {
+        border-bottom: 1px solid var(--rule);
+        padding: 0.5rem 0.6rem;
+        text-align: left;
+      }
+      .prose th {
+        color: var(--fg);
+        font-weight: 620;
+      }
+    </style>
+  </body>
+</html>

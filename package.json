@@ -18,7 +18,8 @@
     "assemble": "node scripts/assemble.mjs",
     "check:registry": "node scripts/check-registry.mjs",
     "prepare": "husky",
-    "sync:og": "node scripts/sync-brand-og.mjs"
+    "sync:og": "node scripts/sync-brand-og.mjs",
+    "content:sync": "node scripts/sync-content.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.1",
