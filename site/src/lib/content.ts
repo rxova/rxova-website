@@ -25,6 +25,23 @@ export type UpdateEntry = CollectionEntry<'updates'>
 export type Author = CollectionEntry<'authors'>
 
 /**
+ * Newest first, with a deterministic tiebreak.
+ *
+ * More than one entry a day is normal, and a bare `2026-07-27` parses to midnight
+ * for all of them — so sorting on the date alone leaves ties in whatever order the
+ * glob loader happened to read the directory. That is filesystem order: stable on
+ * one machine, not guaranteed to match on another, which means the index could
+ * order itself differently in CI than it did locally.
+ *
+ * So ties fall back to the slug, ascending. Arbitrary, but *fixed* — and an author
+ * who cares about the order within a day can say so by giving the frontmatter a
+ * time (`2026-07-27T14:30:00Z`), which sorts properly and wins over this.
+ */
+function newestFirst<T extends { id: string }>(entries: T[], date: (e: T) => Date): T[] {
+  return entries.sort((a, b) => date(b).valueOf() - date(a).valueOf() || a.id.localeCompare(b.id))
+}
+
+/**
  * Posts, newest first, drafts excluded in production.
  *
  * Drafts still render under `pnpm dev` so a post can be previewed exactly as it
@@ -32,13 +49,12 @@ export type Author = CollectionEntry<'authors'>
  */
 export async function getPosts(): Promise<Post[]> {
   const posts = await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft)
-  return posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  return newestFirst(posts, (p) => p.data.pubDate)
 }
 
 /** Updates, newest first. */
 export async function getUpdates(): Promise<UpdateEntry[]> {
-  const entries = await getCollection('updates')
-  return entries.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  return newestFirst(await getCollection('updates'), (e) => e.data.date)
 }
 
 /**
