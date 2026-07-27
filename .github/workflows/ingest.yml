@@ -1,0 +1,97 @@
+name: Ingest docs
+
+# Gate 2 of the docs pipeline. A source repo builds its own docs and uploads them,
+# then fires a `docs` repository_dispatch naming the run that holds them (gate 1 —
+# see docs/INPUTS-CONTRACT.md). This workflow validates that dispatch and the dist
+# it points at, persists the dist as the project's canonical release asset, and
+# redeploys. The aggregator never checks a project out and never builds it.
+#
+# Two gates, both in scripts/ingest.mjs so they are unit-tested:
+#   2a  the dispatch metadata — known & enabled project, base matches the mount,
+#       ref/sha/run_id are what they claim to be
+#   2b  the downloaded dist — a non-empty tree with an index.html at its root
+#
+# The `on:` block never grows as projects are added: every sender uses the single
+# `docs` type and names itself in client_payload.project.
+
+on:
+  repository_dispatch:
+    # client_payload: { schema, project, ref, sha, run_id, base?, framework? }
+    types: [docs]
+
+permissions:
+  contents: write # create / update the content-<id> release
+  actions: read # read the source repo's run to download its dist
+  pages: write # for the deploy this calls
+  id-token: write
+
+# One ingest per project at a time; different projects ingest in parallel. The
+# project name only forms a concurrency-group string here — it is never evaluated.
+concurrency: ingest-${{ github.event.client_payload.project }}
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      # Gate 2a. Event data goes through env, never through ${{ }} interpolation
+      # into a script — a dispatch payload is attacker-shaped input and would
+      # otherwise be evaluated as shell.
+      - id: validate
+        name: Validate dispatch (gate 2a)
+        env:
+          CLIENT_PAYLOAD: ${{ toJSON(github.event.client_payload) }}
+        run: node scripts/ingest.mjs
+
+      # The sender's dist, fetched from its own workflow run. Cross-repo artifact
+      # download needs a token with actions:read on the source repo; the dispatch
+      # itself is authenticated separately by the sender's dispatch token.
+      - name: Download the sender's dist
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ steps.validate.outputs.artifact_name }}
+          repository: ${{ steps.validate.outputs.repo }}
+          run-id: ${{ steps.validate.outputs.run_id }}
+          github-token: ${{ secrets.SOURCE_ARTIFACTS_TOKEN }}
+          path: incoming
+
+      # Gate 2b. Only now, with the tree on disk, is it trusted.
+      - name: Validate dist (gate 2b)
+        run: node scripts/ingest.mjs --check-dist incoming
+
+      # Persist as the project's canonical asset. Replace the asset in place if the
+      # release exists, create the release the first time a project is ingested.
+      - name: Persist ${{ steps.validate.outputs.release_asset }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.validate.outputs.release_tag }}
+          ASSET: ${{ steps.validate.outputs.release_asset }}
+          PROJECT: ${{ steps.validate.outputs.project }}
+          REF: ${{ steps.validate.outputs.ref }}
+          SHA: ${{ steps.validate.outputs.sha }}
+          FRAMEWORK: ${{ steps.validate.outputs.framework }}
+          SOURCE_REPO: ${{ steps.validate.outputs.repo }}
+          RUN_ID: ${{ steps.validate.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          tar -czf "$ASSET" -C incoming .
+          notes=$(printf 'project: %s\nref: %s\nsha: %s\nframework: %s\nsource run: %s/%s/actions/runs/%s\ningested by: %s/%s/actions/runs/%s' \
+            "$PROJECT" "$REF" "$SHA" "$FRAMEWORK" \
+            "$GITHUB_SERVER_URL" "$SOURCE_REPO" "$RUN_ID" \
+            "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID")
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ASSET" --clobber
+            gh release edit "$TAG" --notes "$notes"
+          else
+            gh release create "$TAG" "$ASSET" --title "Docs content: $PROJECT" --notes "$notes"
+          fi
+
+  # Redeploy from the freshly-persisted content. Runs in the same run rather than
+  # via a re-dispatch, so no token that can re-trigger workflows is needed.
+  deploy:
+    needs: ingest
+    uses: ./.github/workflows/deploy.yml
