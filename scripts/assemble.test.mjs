@@ -4,7 +4,7 @@
 // section missing and its landing link 404ing. That refusal is what these tests
 // mostly cover — the happy path is a `cp -r`.
 
-import { describe, it, beforeEach, after } from 'node:test'
+import { describe, it, beforeEach, afterAll } from 'vitest'
 import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -19,7 +19,7 @@ beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), 'rxova-assemble-'))
   roots.push(root)
 })
-after(() => {
+afterAll(() => {
   for (const dir of roots) rmSync(dir, { recursive: true, force: true })
 })
 

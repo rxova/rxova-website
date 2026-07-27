@@ -5,7 +5,7 @@
 // or the site 404s) and the validation (what it refuses, so a bad entry fails in
 // `pnpm test` and `pnpm check:registry` rather than mid-deploy).
 
-import { describe, it } from 'node:test'
+import { describe, it } from 'vitest'
 import assert from 'node:assert/strict'
 import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'

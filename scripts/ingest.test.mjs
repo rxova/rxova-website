@@ -6,7 +6,7 @@
 // They run in `pnpm test`, so a regression fails on the pull request rather than
 // on the next ingest — which is the only other place this code ever runs.
 
-import { describe, it } from 'node:test'
+import { describe, it } from 'vitest'
 import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'

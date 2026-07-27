@@ -18,28 +18,16 @@ import { getCollection, getEntry, type CollectionEntry } from 'astro:content'
 // build fine over there and fail here.
 import { REPOS, type RepoId } from '../external/packages/brand/src/sites.ts'
 
+// The pure half — ordering, bylines, dates, facets — lives next door so it can be
+// imported (and tested) without booting Astro for `astro:content`.
+import { newestFirst, usedValues, byline, formatDate, isoDate } from './entries'
+
 export { REPOS, type RepoId }
+export { byline, formatDate, isoDate }
 
 export type Post = CollectionEntry<'blog'>
 export type UpdateEntry = CollectionEntry<'updates'>
 export type Author = CollectionEntry<'authors'>
-
-/**
- * Newest first, with a deterministic tiebreak.
- *
- * More than one entry a day is normal, and a bare `2026-07-27` parses to midnight
- * for all of them — so sorting on the date alone leaves ties in whatever order the
- * glob loader happened to read the directory. That is filesystem order: stable on
- * one machine, not guaranteed to match on another, which means the index could
- * order itself differently in CI than it did locally.
- *
- * So ties fall back to the slug, ascending. Arbitrary, but *fixed* — and an author
- * who cares about the order within a day can say so by giving the frontmatter a
- * time (`2026-07-27T14:30:00Z`), which sorts properly and wins over this.
- */
-function newestFirst<T extends { id: string }>(entries: T[], date: (e: T) => Date): T[] {
-  return entries.sort((a, b) => date(b).valueOf() - date(a).valueOf() || a.id.localeCompare(b.id))
-}
 
 /**
  * Posts, newest first, drafts excluded in production.
@@ -76,13 +64,6 @@ export async function resolveAuthors(
   )
 }
 
-/** "Rxova" · "Rxova and Ada" · "Rxova, Ada, and Grace" */
-export function byline(names: readonly string[]): string {
-  if (names.length <= 1) return names[0] ?? ''
-  if (names.length === 2) return `${names[0]} and ${names[1]}`
-  return `${names.slice(0, -1).join(', ')}, and ${names[names.length - 1]}`
-}
-
 const REPO_LABELS = new Map(REPOS.map((r) => [r.id as string, r.label]))
 
 export function repoLabel(id: string): string {
@@ -91,23 +72,11 @@ export function repoLabel(id: string): string {
 
 /** Only the repos some entry actually mentions — an empty filter chip is noise. */
 export function usedRepos(entries: readonly UpdateEntry[]): typeof REPOS {
-  const used = new Set(entries.flatMap((e) => e.data.repos as string[]))
+  const used = new Set(usedValues(entries, (e) => e.data.repos as string[]))
   return REPOS.filter((r) => used.has(r.id)) as unknown as typeof REPOS
 }
 
 /** Same, for tags. The enum is the vocabulary; this is what is in use. */
 export function usedTags(entries: readonly UpdateEntry[]): string[] {
-  const used = new Set(entries.flatMap((e) => e.data.tags as string[]))
-  return [...used].sort()
-}
-
-const DATE = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'long', day: 'numeric' })
-
-export function formatDate(d: Date): string {
-  return DATE.format(d)
-}
-
-/** `2026-07-27`, for `<time datetime>`. */
-export function isoDate(d: Date): string {
-  return d.toISOString().slice(0, 10)
+  return usedValues(entries, (e) => e.data.tags as string[]).sort()
 }

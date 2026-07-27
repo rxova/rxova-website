@@ -10,7 +10,7 @@
     "build": "pnpm -C site build",
     "preview": "pnpm -C site preview",
     "typecheck": "pnpm -C site check",
-    "test": "node --test \"scripts/**/*.test.mjs\"",
+    "test": "vitest run",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -19,12 +19,14 @@
     "check:registry": "node scripts/check-registry.mjs",
     "prepare": "husky",
     "sync:og": "node scripts/sync-brand-og.mjs",
-    "content:sync": "node scripts/sync-content.mjs"
+    "content:sync": "node scripts/sync-content.mjs",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.1",
     "@commitlint/config-conventional": "^21.2.0",
     "@eslint/js": "^10.0.1",
+    "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^10.7.0",
     "eslint-plugin-astro": "^1.7.0",
     "globals": "^17.7.0",
@@ -33,7 +35,8 @@
     "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "6.0.3",
-    "typescript-eslint": "^8.65.0"
+    "typescript-eslint": "^8.65.0",
+    "vitest": "^4.1.10"
   },
   "lint-staged": {
     "*.{ts,tsx,astro,mjs,js}": [
