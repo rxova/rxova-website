@@ -64,25 +64,13 @@ jobs:
       - uses: ./.github/actions/setup-pnpm
       - run: pnpm install --frozen-lockfile
 
-      # The same checkout deploy.yml does, for the same reason: `astro check` and
-      # `astro build` below resolve the content collections *and the schema they
-      # import* out of `site/src/external`. Without it both fail on an unresolvable
-      # import, which is not a useful signal about this repo's code.
-      #
-      # CI must build what deploys. Skipping it here and only checking out at deploy
-      # time would mean a change that breaks against real content passes CI and fails
-      # the deploy — which is precisely how this step came to be missing.
-      #
-      # brand is private, so this needs the PAT. A pull request from a fork gets no
-      # secrets and will fail here; outside contributors cannot build the site today
-      # regardless, and that changes when the content moves to a public repo.
-      - name: Check out the content
-        uses: actions/checkout@v7
-        with:
-          repository: rxova/brand
-          path: site/src/external
-          token: ${{ secrets.BRAND_READ_TOKEN }}
-          persist-credentials: false
+      # CI must build what deploys, so it reads the same persisted content — from
+      # this repo's own release, with the built-in token. No checkout of brand, so
+      # a pull request from a fork builds like any other.
+      - name: Fetch the content
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/fetch-content.mjs
 
       - run: pnpm run format:check
       - run: pnpm run lint

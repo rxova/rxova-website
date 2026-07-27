@@ -19,7 +19,7 @@
     "check:registry": "node scripts/check-registry.mjs",
     "prepare": "husky",
     "sync:og": "node scripts/sync-brand-og.mjs",
-    "content:sync": "node scripts/sync-content.mjs",
+    "content:sync": "node scripts/fetch-content.mjs",
     "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {

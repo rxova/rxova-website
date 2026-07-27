@@ -4,15 +4,16 @@ How **rxova.org/blog** and **rxova.org/updates** are put together, and why that
 way rather than the several other ways they could have been.
 
 The short version: both are markdown in the **brand monorepo**, alongside the schema
-that validates them. This repo checks that repo out at build time and renders it. No
-ingest, no npm package, no release round-trip per post.
+that validates them. Brand packages both and ships them here; this repo persists what
+arrives and renders it. No npm package, and nothing reaches across repos at build
+time.
 
 ## The two repos
 
-| Repo                  | Owns                                                        | Builds?         |
-| --------------------- | ----------------------------------------------------------- | --------------- |
-| `rxova/brand`         | `content/`, `packages/content-schema`, the `REPOS` registry | validates only  |
-| `rxova/rxova-website` | rendering `/blog` and `/updates`                            | **the content** |
+| Repo                  | Owns                                                        | Builds?                       |
+| --------------------- | ----------------------------------------------------------- | ----------------------------- |
+| `rxova/brand`         | `content/`, `packages/content-schema`, the `REPOS` registry | packages, never builds a site |
+| `rxova/rxova-website` | rendering `/blog` and `/updates`                            | **the content**               |
 
 The toolchain lives where the rendering lives. Brand holds prose and a schema; it
 never builds a site.
@@ -86,29 +87,48 @@ on purpose. Rejected.
 
 ## The build
 
-On a merge to `rxova/brand`:
+Brand never builds a site; it packages prose and sends it. This repo never reaches
+into brand; it reads what was sent.
 
-1. Brand's `publish-content.yml` fires a `repository_dispatch` at this repo, path-
-   filtered to `content/**` so a token or component change does not redeploy the site.
-2. `deploy.yml`'s `build-landing` job checks out this repo, then checks out brand into
-   `site/src/external`, then runs `pnpm -C site build`.
-3. `assemble.mjs` copies `site/dist` to the root of `_site`, unchanged. `/blog` and
-   `/updates` are already inside it.
-4. Deploy to Pages.
+On a merge to `rxova/brand` touching `content/`:
 
-```yaml
-- uses: actions/checkout@v7
-  with:
-    repository: rxova/brand
-    path: site/src/external
-    token: ${{ secrets.BRAND_READ_TOKEN }} # brand is private
-```
+1. Brand's `publish-content.yml` validates the tree, tars `content/` plus
+   `packages/content-schema/src` and `packages/brand/src/sites.ts`, uploads that as
+   the artifact `content-dist`, and dispatches here with its `run_id`.
+2. This repo's `ingest-content.yml` downloads that artifact, checks it is the shape
+   the build needs, and persists it as the rolling release **`content-prose`**.
+3. It then calls `deploy.yml`, which runs `scripts/fetch-content.mjs` to unpack the
+   release into `site/src/external`, builds, and publishes.
 
-The checkout lands under `site/src/` so that `astro:assets` resolves images relative
-to their markdown and Vite's fs allowlist covers it. The path is gitignored here.
+`ci.yml` runs the same fetch, so **CI builds what deploys**.
 
-For local work, `pnpm content:sync` clones or pulls brand into that same path so
-`pnpm dev` renders real content.
+### Why a round trip rather than a checkout
+
+The first version had this repo `actions/checkout` brand directly. It worked, and it
+cost three things:
+
+- **A read token for a private repo**, held in two workflows here.
+- **Fork pull requests could not build at all.** They get no secrets, so the checkout
+  failed and CI was red for anyone outside the org — on a repo whose whole point is
+  that outside authors will eventually write for it.
+- **Two mental models.** Docs were shipped in; prose was reached out for.
+
+Reading from a release in _this_ repo needs only the built-in `GITHUB_TOKEN`. The one
+cross-repo credential left is the `actions:read` token the ingest uses to pull the
+artifact, and that is the same secret the docs ingest already uses.
+
+The cost: CI and deploy build against the **last published** content rather than
+brand's current `main`. That is what actually deploys, and brand's own validator is
+the gate on the content itself, so the trade is worth it.
+
+### Fail loudly
+
+A missing `content-prose` release stops the build, naming the workflow to re-run. It
+does not fall back to whatever is on disk: a silently stale blog is worse than a red
+deploy, because nothing about the rendered site would tell you it had stopped
+updating. `ingest-content.yml` takes the same line — it refuses an artifact missing
+the schema, or one with no markdown at all, rather than persisting something every
+later deploy would choke on.
 
 ### Importing the schema
 
@@ -365,6 +385,6 @@ if the post count justifies them.
 
 - Blog and Updates links in `@rxova/brand`'s `ProjectSwitcher`, so docs pages at
   `/packages/*` link back. Separate brand release; not a phase 1 blocker.
-- `BRAND_READ_TOKEN` in this repo's secrets — the last step, and the only one that
-  needs the owner.
+- `SOURCE_ARTIFACTS_TOKEN` must reach `rxova/brand` with `actions:read`. It already
+  exists for the docs ingest; brand may need adding to its scope.
 - The initial update tag vocabulary.

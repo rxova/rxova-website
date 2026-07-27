@@ -1,0 +1,142 @@
+name: Ingest content
+
+# Gate 2 for prose: accept what rxova/brand sent, and persist it.
+#
+# Brand packages `content/` plus the schema that validates it and uploads it as an
+# artifact, then dispatches here (see its publish-content.yml). This workflow
+# downloads that artifact, checks it is the shape the site expects, and stores it
+# as a release in *this* repo — after which deploy.yml and ci.yml can read it with
+# the built-in GITHUB_TOKEN and no cross-repo access at all.
+#
+# That round trip is the point. The website used to check brand out directly, which
+# meant holding a read token for a private repo in two workflows, and meant a pull
+# request from a fork — which gets no secrets — could not build the site.
+#
+# This is deliberately NOT the docs ingest (ingest.yml). Docs are per-project trees
+# mounted at /packages/<id>/ and derived from sources.json; prose is one tree that
+# this repo's own Astro build renders into /blog and /updates. Threading it through
+# the registry would have meant an escape hatch for a mount that does not exist.
+
+on:
+  repository_dispatch:
+    types: [content]
+  workflow_dispatch:
+
+permissions:
+  contents: write # write the content-prose release
+  actions: read
+
+concurrency:
+  group: ingest-content
+  cancel-in-progress: false
+
+env:
+  CONTENT_RELEASE: content-prose
+  CONTENT_ASSET: content-dist.tgz
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    outputs:
+      persisted: ${{ steps.persist.outcome == 'success' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # The payload comes from outside this repo, so nothing in it is trusted:
+      # `run_id` is used to fetch an artifact and `sha`/`ref` end up in release
+      # notes. Constrain them to what they can actually be.
+      - name: Validate the dispatch payload
+        id: validate
+        env:
+          SCHEMA: ${{ github.event.client_payload.schema }}
+          RUN_ID: ${{ github.event.client_payload.run_id }}
+          SHA: ${{ github.event.client_payload.sha }}
+          REF: ${{ github.event.client_payload.ref }}
+        run: |
+          if [ "${SCHEMA:-1}" != "1" ]; then
+            echo "::error::unsupported payload schema '$SCHEMA'; this workflow speaks 1"
+            exit 1
+          fi
+          case "$RUN_ID" in
+            ''|*[!0-9]*) echo "::error::run_id must be digits, got '$RUN_ID'"; exit 1 ;;
+          esac
+          case "$SHA" in
+            ''|*[!0-9a-fA-F]*) echo "::error::sha must be hex, got '$SHA'"; exit 1 ;;
+          esac
+          case "$REF" in
+            *[!A-Za-z0-9._/-]*) echo "::error::ref has characters a ref cannot"; exit 1 ;;
+          esac
+          {
+            echo "run_id=$RUN_ID"
+            echo "sha=$SHA"
+            echo "ref=${REF:-main}"
+          } >> "$GITHUB_OUTPUT"
+
+      # Cross-repo artifact download needs a token with actions:read on brand. This
+      # is the same secret the docs ingest already uses for the project repos.
+      - name: Download the content artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: content-dist
+          path: incoming
+          repository: rxova/brand
+          run-id: ${{ steps.validate.outputs.run_id }}
+          github-token: ${{ secrets.SOURCE_ARTIFACTS_TOKEN }}
+
+      # Fail loudly rather than persist something the build cannot use. A bad
+      # artifact stored here would fail every deploy afterwards, with the cause one
+      # repo and several hours away.
+      - name: Check the tarball is the shape the site expects
+        run: |
+          test -f "incoming/$CONTENT_ASSET" || {
+            echo "::error::artifact did not contain $CONTENT_ASSET"; exit 1; }
+
+          mkdir -p unpacked
+          tar -xzf "incoming/$CONTENT_ASSET" -C unpacked
+
+          missing=0
+          for p in content/posts content/updates content/authors \
+                   packages/content-schema/src/index.ts packages/brand/src/sites.ts; do
+            if [ ! -e "unpacked/$p" ]; then
+              echo "::error::missing from the artifact: $p"
+              missing=1
+            fi
+          done
+          [ "$missing" = "0" ] || exit 1
+
+          count=$(find unpacked/content/posts unpacked/content/updates -name '*.md' | wc -l)
+          if [ "$count" -eq 0 ]; then
+            echo "::error::no markdown at all — refusing to publish an empty blog"
+            exit 1
+          fi
+          echo "Accepted $count entr(ies)."
+
+      # One rolling release rather than one per push: the site only ever wants the
+      # latest, and `gh release upload --clobber` replaces the asset in place.
+      - name: Persist it
+        id: persist
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ steps.validate.outputs.sha }}
+          REF: ${{ steps.validate.outputs.ref }}
+        run: |
+          if ! gh release view "$CONTENT_RELEASE" >/dev/null 2>&1; then
+            gh release create "$CONTENT_RELEASE" \
+              --title "Content (rolling)" \
+              --notes "The latest prose from rxova/brand. Replaced on every publish." \
+              --latest=false
+          fi
+          gh release upload "$CONTENT_RELEASE" "incoming/$CONTENT_ASSET" --clobber
+          gh release edit "$CONTENT_RELEASE" \
+            --notes "The latest prose from rxova/brand. Replaced on every publish.
+
+          Ingested from \`$REF\` at \`$SHA\`."
+
+  # Publish immediately, so a merged post is live without a second trigger.
+  deploy:
+    needs: ingest
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

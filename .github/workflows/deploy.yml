@@ -21,12 +21,8 @@ on:
   # Landing / site changes in this repo.
   push:
     branches: [main]
-  # A post or update merged in rxova/brand — see its publish-content.yml
-  # and docs/CONTENT-ARCHITECTURE.md here. Unlike a docs push this carries no
-  # artifact and no release: /blog and /updates are built by this repo's own
-  # Astro build from a checkout of that repo, not mounted like /packages/*.
-  repository_dispatch:
-    types: [content]
+  # Called by ingest-content.yml once it has persisted new prose, the same way
+  # ingest.yml calls this for docs.
 
 permissions:
   contents: read # read the content-<id> releases
@@ -52,22 +48,16 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       - run: pnpm install --frozen-lockfile
 
-      # The blog and updates markdown, plus the schema that validates it. Both
-      # come out of the same checkout on purpose: the fields the collections
-      # accept and the fields brand's pre-merge validator enforces are then always
-      # the same commit, so there is no package to publish and nothing to keep in
-      # step. See docs/CONTENT-ARCHITECTURE.md.
+      # The prose and the schema that validates it, out of this repo's own
+      # content-prose release — written by ingest-content.yml from the artifact
+      # rxova/brand uploads. `gh` uses the built-in token; no cross-repo access.
       #
-      # brand is private, hence a PAT — GITHUB_TOKEN is scoped to this repository.
-      # `site/src/external` is where content.config.ts looks, and it is gitignored
-      # here.
-      - name: Check out the content
-        uses: actions/checkout@v7
-        with:
-          repository: rxova/brand
-          path: site/src/external
-          token: ${{ secrets.BRAND_READ_TOKEN }}
-          persist-credentials: false
+      # A missing release fails here, naming what to re-run, rather than building a
+      # site with no blog. See docs/CONTENT-ARCHITECTURE.md.
+      - name: Fetch the content
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/fetch-content.mjs
 
       - run: pnpm -C site build
       - uses: actions/upload-artifact@v7
