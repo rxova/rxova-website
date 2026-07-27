@@ -47,6 +47,22 @@ export const SOURCES_FILE = join(repoRoot, 'sources.json')
 const ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/
 
 /**
+ * What a source is, which decides where it mounts.
+ *
+ * `package` — a project's docs, at `/packages/<id>/`. The default, and what every
+ * entry was before this existed.
+ * `site`    — a standalone surface of rxova.org, at `/<id>/`. Used by `blog` and
+ * `updates`, which are built in the brand monorepo and shipped here like any other
+ * dist, but are not packages and have no npm or docs of their own.
+ *
+ * Note this is still a *derivation*, not an override: a source says what it is and
+ * the paths follow. `sources.json` never writes a mount, so a mount cannot disagree
+ * with the base URL its tree was built against — the property that made these
+ * derived in the first place.
+ */
+const KINDS = ['package', 'site']
+
+/**
  * Git refs reach us from a `repository_dispatch` payload, i.e. from outside this
  * repo. They end up in release notes and log lines, so constrain them to what a
  * branch name or SHA can actually contain rather than trusting the sender.
@@ -73,6 +89,16 @@ export function resolveSource(raw) {
     )
   }
 
+  // Absent means `package`, so every entry written before kinds existed keeps its
+  // meaning. An unknown kind is refused rather than silently treated as a package,
+  // which would mount a surface at a path nothing links to.
+  const kind = raw.kind ?? 'package'
+  if (!KINDS.includes(kind)) {
+    throw new RegistryError(
+      `"${id}" has kind ${JSON.stringify(kind)}; expected one of ${KINDS.join(', ')}`,
+    )
+  }
+
   return {
     id,
     // Absent `enabled` means disabled. A project you forgot to flip on is a
@@ -82,9 +108,12 @@ export function resolveSource(raw) {
     // overridable for the odd project that does not live at rxova/<id>.
     repo: raw.repo ?? `rxova/${id}`,
 
-    // Derived from `id` — see the header comment. Never write these in sources.json.
-    base: `/packages/${id}/`,
-    mount: `packages/${id}`,
+    kind,
+
+    // Derived from `id` and `kind` — see the header comment. Never write these in
+    // sources.json.
+    base: kind === 'site' ? `/${id}/` : `/packages/${id}/`,
+    mount: kind === 'site' ? id : `packages/${id}`,
     artifact: `docs-${id}`,
     releaseTag: `content-${id}`,
     releaseAsset: `docs-${id}.tgz`,

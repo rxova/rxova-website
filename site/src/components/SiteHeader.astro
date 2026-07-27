@@ -11,6 +11,8 @@
  * chrome comes from @rxova/brand over npm. Cross-linking to them is the project
  * switcher's job.
  */
+import { siteSurfaces } from '../lib/projects'
+
 interface Props {
   /** Current path, so the active item can be marked. */
   path: string
@@ -18,11 +20,10 @@ interface Props {
 
 const { path } = Astro.props
 
-const items = [
-  { label: 'Projects', href: '/' },
-  { label: 'Blog', href: '/blog' },
-  { label: 'Updates', href: '/updates' },
-]
+// Projects is always here; the rest are whatever is actually mounted. A surface
+// that has not shipped its first build yet is absent from the menu rather than
+// linking to a 404 — see `siteSurfaces`.
+const items = [{ label: 'Projects', href: '/' }, ...siteSurfaces]
 
 /** `/` matches only itself; everything else matches its whole subtree. */
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href))

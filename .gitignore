@@ -20,9 +20,3 @@ build/
 
 # synced from @rxova/brand at build time
 site/public/og/
-
-# brand checkout: content/ (posts, changelog, authors) plus the schema that
-# validates it. Fetched by `pnpm content:sync` locally and by deploy.yml in CI.
-# No trailing slash: locally this is often a symlink to a brand working copy,
-# and a trailing slash only ever matches a real directory.
-site/src/external

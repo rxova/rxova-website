@@ -131,10 +131,52 @@ describe('the real sources.json', () => {
     }
   })
 
-  it('gives every project a landing blurb and tags', () => {
-    for (const s of registry.sources) {
+  // Only the packages get landing cards. `kind: "site"` entries are surfaces of
+  // rxova.org — /blog, /updates — with no npm package and nothing to describe on
+  // the home page, so they carry no landing copy and the landing filters them out.
+  it('gives every package a landing blurb and tags', () => {
+    for (const s of registry.sources.filter((s) => s.kind === 'package')) {
       assert.ok(s.landing.blurb, `${s.id} has no landing.blurb`)
       assert.ok(s.landing.tags?.length, `${s.id} has no landing.tags`)
+    }
+  })
+
+  it('mounts the site surfaces at the root, not under /packages', () => {
+    for (const s of registry.sources.filter((s) => s.kind === 'site')) {
+      assert.equal(s.base, `/${s.id}/`)
+      assert.equal(s.mount, s.id)
+    }
+  })
+})
+
+describe('kinds', () => {
+  it('defaults to package, so entries written before kinds kept their meaning', () => {
+    const s = resolveSource({ id: 'foo' })
+    assert.equal(s.kind, 'package')
+    assert.equal(s.base, '/packages/foo/')
+  })
+
+  it('derives a root mount for a site', () => {
+    const s = resolveSource({ id: 'blog', kind: 'site' })
+    assert.equal(s.kind, 'site')
+    assert.equal(s.base, '/blog/')
+    assert.equal(s.mount, 'blog')
+    // The artifact and release names stay uniform, so ingest and fetch-docs need
+    // to know nothing about kinds.
+    assert.equal(s.artifact, 'docs-blog')
+    assert.equal(s.releaseTag, 'content-blog')
+  })
+
+  // Silently treating an unknown kind as a package would mount a surface at a path
+  // nothing links to, which is a 404 nobody goes looking for.
+  it('refuses a kind it does not know', () => {
+    assert.throws(() => resolveSource({ id: 'foo', kind: 'website' }), /expected one of/)
+  })
+
+  it('keeps base and mount in agreement for every kind', () => {
+    for (const kind of ['package', 'site']) {
+      const s = resolveSource({ id: 'foo', kind })
+      assert.equal(s.base, `/${s.mount}/`)
     }
   })
 })

@@ -3,7 +3,7 @@ import '../styles/global.css'
 // The project list is assembled from @rxova/brand (product metadata, shared with
 // the docs sites) and sources.json (landing copy + what is actually deployed).
 // See src/lib/projects.ts — it fails the build if the two disagree.
-import { landingProjects, projectListSentence } from '../lib/projects'
+import { landingProjects, projectListSentence, siteSurfaces } from '../lib/projects'
 import ThemeScript from '../components/ThemeScript.astro'
 import ThemeToggle from '../components/ThemeToggle.astro'
 import SiteHeader from '../components/SiteHeader.astro'
@@ -97,10 +97,16 @@ const year = new Date().getFullYear()
         <span class="dot" aria-hidden="true">·</span>
         <a href={`mailto:${authorEmail}`}>Email</a>
         <span class="dot" aria-hidden="true">·</span>
-        <a href="/blog">Blog</a>
-        <span class="dot" aria-hidden="true">·</span>
-        <a href="/updates">Updates</a>
-        <span class="dot" aria-hidden="true">·</span>
+        {
+          siteSurfaces.map((s) => (
+            <>
+              <a href={s.href}>{s.label}</a>
+              <span class="dot" aria-hidden="true">
+                ·
+              </span>
+            </>
+          ))
+        }
         <a href="/privacy">Privacy</a>
         <span class="dot" aria-hidden="true">·</span>
         <a href="/terms">Terms</a>

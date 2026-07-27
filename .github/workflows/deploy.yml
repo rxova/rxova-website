@@ -21,8 +21,6 @@ on:
   # Landing / site changes in this repo.
   push:
     branches: [main]
-  # Called by ingest-content.yml once it has persisted new prose, the same way
-  # ingest.yml calls this for docs.
 
 permissions:
   contents: read # read the content-<id> releases
@@ -47,17 +45,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - run: pnpm install --frozen-lockfile
-
-      # The prose and the schema that validates it, out of this repo's own
-      # content-prose release — written by ingest-content.yml from the artifact
-      # rxova/brand uploads. `gh` uses the built-in token; no cross-repo access.
-      #
-      # A missing release fails here, naming what to re-run, rather than building a
-      # site with no blog. See docs/CONTENT-ARCHITECTURE.md.
-      - name: Fetch the content
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: node scripts/fetch-content.mjs
 
       - run: pnpm -C site build
       - uses: actions/upload-artifact@v7

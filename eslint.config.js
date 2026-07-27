@@ -13,10 +13,6 @@ export default defineConfig(
     'artifacts/',
     'build/',
     'coverage/',
-    // A checkout of rxova/brand, placed here by deploy.yml and `pnpm content:sync`.
-    // It is another repo with its own lint config and its own CI; linting it here
-    // reports 62 errors nobody in this repo can act on.
-    'site/src/external/',
   ]),
   js.configs.recommended,
   {

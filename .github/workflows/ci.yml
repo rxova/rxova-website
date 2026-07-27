@@ -64,14 +64,6 @@ jobs:
       - uses: ./.github/actions/setup-pnpm
       - run: pnpm install --frozen-lockfile
 
-      # CI must build what deploys, so it reads the same persisted content — from
-      # this repo's own release, with the built-in token. No checkout of brand, so
-      # a pull request from a fork builds like any other.
-      - name: Fetch the content
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: node scripts/fetch-content.mjs
-
       - run: pnpm run format:check
       - run: pnpm run lint
       - run: pnpm run typecheck

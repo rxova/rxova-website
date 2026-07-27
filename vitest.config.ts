@@ -13,11 +13,7 @@ import { defineConfig } from 'vitest/config'
  */
 export default defineConfig({
   test: {
-    include: ['scripts/**/*.test.mjs', 'site/src/**/*.test.ts'],
-    // `site/src/external` is a checkout of rxova/brand. Without this, its suite
-    // runs here too — brand's tests reported as this repo's, passing or failing on
-    // code this repo does not own.
-    exclude: ['**/node_modules/**', 'site/src/external/**'],
+    include: ['scripts/**/*.test.mjs'],
     environment: 'node',
 
     coverage: {
@@ -49,7 +45,7 @@ export default defineConfig({
        * than branches, and `astro check` plus the build are what guard them.
        */
       all: true,
-      include: ['site/src/lib/entries.ts', 'scripts/*.mjs'],
+      include: ['scripts/*.mjs'],
       exclude: ['**/*.test.*'],
       // thresholds: {
       //   perFile: true,

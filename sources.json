@@ -6,10 +6,10 @@
     "this file.",
     "",
     "Paths are DERIVED from `id` by scripts/registry.mjs and must not be written here:",
-    "  id: \"foo\"  ->  base /packages/foo/ · mount packages/foo · artifact docs-foo",
+    "  id: \"foo\"  ->  base /packages/foo/ \u00b7 mount packages/foo \u00b7 artifact docs-foo",
     "              ->  persisted docs at release content-foo, asset docs-foo.tgz",
     "",
-    "`enabled` gates the project everywhere at once — its ingest is accepted, it is mounted, and",
+    "`enabled` gates the project everywhere at once \u2014 its ingest is accepted, it is mounted, and",
     "the landing shows its Docs link. It lives in git rather than a repo variable so the site's",
     "contents are reviewable in a PR and visible in `git log`, not invisible state in repo settings.",
     "",
@@ -19,12 +19,13 @@
     "fetched back at deploy time by scripts/fetch-docs.mjs. A source entry only says which project",
     "exists, whether it is on, and how it is described on the landing.",
     "",
-    "`repo` defaults to rxova/<id> — the repo whose CI ingests this project's docs. Set it only",
+    "`repo` defaults to rxova/<id> \u2014 the repo whose CI ingests this project's docs. Set it only",
     "for a project that does not live at that path."
   ],
-
-  "landing": { "artifact": "landing", "mount": "." },
-
+  "landing": {
+    "artifact": "landing",
+    "mount": "."
+  },
   "sources": [
     {
       "id": "journey",
@@ -38,7 +39,7 @@
       "id": "react-inputs",
       "enabled": true,
       "landing": {
-        "blurb": "A family of focused input components — localized currency, OTP slots, and feedback stars — each zero-to-few dependencies, accessible, and free of the usual cursor and locale bugs.",
+        "blurb": "A family of focused input components \u2014 localized currency, OTP slots, and feedback stars \u2014 each zero-to-few dependencies, accessible, and free of the usual cursor and locale bugs.",
         "tags": ["React", "TypeScript", "Zero-dependency", "Accessible"]
       }
     },
@@ -46,9 +47,21 @@
       "id": "use-everywhere",
       "enabled": true,
       "landing": {
-        "blurb": "Share state and messages across every tab, window, and worker — a framework-agnostic core plus React bindings, one small API.",
+        "blurb": "Share state and messages across every tab, window, and worker \u2014 a framework-agnostic core plus React bindings, one small API.",
         "tags": ["JS Core", "React", "TypeScript", "Cross-tab"]
       }
+    },
+    {
+      "id": "blog",
+      "kind": "site",
+      "enabled": false,
+      "repo": "rxova/brand"
+    },
+    {
+      "id": "updates",
+      "kind": "site",
+      "enabled": false,
+      "repo": "rxova/brand"
     }
   ]
 }
