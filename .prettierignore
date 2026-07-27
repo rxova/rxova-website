@@ -5,3 +5,7 @@ _site/
 artifacts/
 build/
 pnpm-lock.yaml
+coverage/
+
+# A checkout of rxova/brand — formatted by that repo, under its own config.
+site/src/external/
