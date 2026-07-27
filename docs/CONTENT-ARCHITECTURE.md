@@ -137,16 +137,30 @@ rxova/brand
   packages/content-schema/  <- workspace-private, never published
 ```
 
-Slugs come from the filename with the date prefix stripped; `pubDate` / `date` in
-frontmatter is what actually orders things. The prefix keeps the directory sorted in
-an editor, nothing more — which is why it takes an optional `THHMM`
-(`2026-07-27T1430-some-slug.md`) for a day with several entries. `T` rather than a
-dash because `2026-07-27-2024-retrospective.md` would otherwise be ambiguous.
+Slugs come from the filename with the timestamp prefix stripped; `pubDate` / `date`
+in frontmatter is what actually orders things. The prefix keeps the directory sorted
+in an editor, nothing more — and it is a **full UTC timestamp to the second**
+(`2026-07-27T143005-some-slug.md`), one form, always.
 
-Brand's validator enforces agreement in both directions: a filename time that
-contradicts the frontmatter fails, and so does a frontmatter time with no time in the
-filename — the second is what keeps the directory sorting the way the site does.
-Entries with no time fall back to sorting by slug, which is arbitrary but fixed.
+An optional time was tried first and rejected: it moves the problem rather than
+solving it, since you then have to remember which form a given entry used, and a
+frontmatter-only time silently breaks the one thing the prefix is for.
+
+**Not literally `toISOString()`**, much as that would be convenient, because
+`2026-07-27T14:30:05.000Z` contains colons and Windows will not have a colon in a
+filename — a repo containing one cannot be cloned there at all. So the time is
+compact, which is ISO 8601's own _basic_ format, and `new Date()` happens not to
+accept it. `parseEntryFilename` and `stampToISO` in the schema package close that
+gap: reconstructing the colons is one regex and needs no library, but it needed
+writing once rather than in each repo that reads these names. `T` separates the time
+because `2026-07-27-143005-retrospective` would otherwise be ambiguous.
+
+Both repos parse filenames through that shared function, so they cannot disagree
+about what a name means — the same reason the schema itself is shared.
+
+Brand's validator enforces that the prefix and the frontmatter are the same instant.
+Entries landing on the same second fall back to sorting by slug: arbitrary, but fixed,
+so CI and a local build cannot disagree.
 
 `content/` is CC-BY-4.0 rather than the repo's MIT. MIT is a code licence and reads
 oddly applied to an article ("the Software"); CC-BY is the answer people expect when

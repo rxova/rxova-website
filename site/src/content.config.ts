@@ -20,23 +20,38 @@
 import { defineCollection, reference, z } from 'astro:content'
 import { glob } from 'astro/loaders'
 
-import { postBase, updateBase, authorBase } from './external/packages/content-schema/src/index'
+import {
+  postBase,
+  updateBase,
+  authorBase,
+  parseEntryFilename,
+} from './external/packages/content-schema/src/index'
 
 const CONTENT = './src/external/content'
 
 /**
- * `2026-07-27-some-slug.md` or `2026-07-27T1430-some-slug.md` -> `some-slug`.
+ * `2026-07-27T143005-some-slug.md` -> `some-slug`.
  *
- * The prefix exists to keep the directory sorted in an editor; the frontmatter is
- * what actually orders the site. Stripping it here keeps that cosmetic choice out of
- * the URL, so re-dating a draft never breaks its link.
+ * The filename carries a full UTC timestamp so the directory sorts in an editor the
+ * way the site sorts; the frontmatter is what actually orders the site. Stripping the
+ * prefix here keeps it out of the URL, so re-dating an entry never breaks its link.
  *
- * The optional `THHMM` is for a day with several entries. Brand's validator enforces
- * that the prefix and the frontmatter agree in both directions, so the two can never
- * describe different moments.
+ * The parser comes from the schema package rather than a regex written here, for the
+ * same reason the schema does: brand's validator uses the same function, so the two
+ * repos cannot disagree about what a filename means. It rejects anything malformed,
+ * but that has already failed brand's pre-merge gate — so this throws rather than
+ * quietly publishing an entry at a URL nobody intended.
  */
-const slugFromFilename = ({ entry }: { entry: string }): string =>
-  entry.replace(/\.md$/, '').replace(/^\d{4}-\d{2}-\d{2}(?:T\d{4})?-/, '')
+const slugFromFilename = ({ entry }: { entry: string }): string => {
+  const parsed = parseEntryFilename(entry)
+  if (!parsed) {
+    throw new Error(
+      `[content] "${entry}" is not a valid entry filename — ` +
+        'expected YYYY-MM-DDTHHMMSS-<slug>.md',
+    )
+  }
+  return parsed.slug
+}
 
 const blog = defineCollection({
   loader: glob({ base: `${CONTENT}/posts`, pattern: '**/*.md', generateId: slugFromFilename }),
