@@ -42,11 +42,18 @@ export interface LandingProject extends Project {
 
 interface RawSource {
   id: string
+  kind?: string
   enabled?: boolean
   landing?: { blurb?: string; tags?: string[] }
 }
 
-const rawSources: RawSource[] = sources.sources ?? []
+// Only the packages. `sources.json` also carries `kind: "site"` entries — /blog and
+// /updates, built in the brand monorepo and mounted like any other dist — and those
+// are surfaces of rxova.org rather than projects: no npm package, no docs, no
+// landing card, and deliberately absent from @rxova/brand's PROJECTS.
+const rawSources: RawSource[] = (sources.sources ?? []).filter(
+  (s: RawSource) => (s.kind ?? 'package') === 'package',
+)
 
 function fail(message: string): never {
   throw new Error(
@@ -102,6 +109,27 @@ function build(): LandingProject[] {
 }
 
 export const landingProjects: readonly LandingProject[] = build()
+
+/**
+ * The standalone surfaces of rxova.org that are actually deployed.
+ *
+ * `/blog` and `/updates` are built in the brand monorepo and mounted here like any
+ * other dist, so until their first artifact arrives they do not exist. Reading the
+ * same `enabled` flag the mount does means the menu cannot advertise a 404 — the
+ * flag gates the link and the mount together, which is the whole reason it lives in
+ * git rather than in a repo variable.
+ */
+export interface SiteSurface {
+  id: string
+  label: string
+  href: string
+}
+
+const LABELS: Record<string, string> = { blog: 'Blog', updates: 'Updates' }
+
+export const siteSurfaces: readonly SiteSurface[] = ((sources.sources ?? []) as RawSource[])
+  .filter((s) => s.kind === 'site' && s.enabled === true)
+  .map((s) => ({ id: s.id, label: LABELS[s.id] ?? s.id, href: `/${s.id}` }))
 
 /** "Journey, react-inputs, and use-everywhere" — for the page's meta descriptions. */
 export const projectListSentence: string = (() => {

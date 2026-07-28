@@ -1,0 +1,96 @@
+---
+/**
+ * The site menu, on every surface this repo renders.
+ *
+ * The landing used to carry two small text links under its lede, which read as
+ * afterthoughts rather than navigation — and meant the landing and the content
+ * pages had different chrome. One component instead, so adding a fourth surface
+ * is one line here rather than an edit in three files that will fall out of step.
+ *
+ * Not shared with the docs sites at /packages/*: those are Starlight, and their
+ * chrome comes from @rxova/brand over npm. Cross-linking to them is the project
+ * switcher's job.
+ */
+import { siteSurfaces } from '../lib/projects'
+
+interface Props {
+  /** Current path, so the active item can be marked. */
+  path: string
+}
+
+const { path } = Astro.props
+
+// Projects is always here; the rest are whatever is actually mounted. A surface
+// that has not shipped its first build yet is absent from the menu rather than
+// linking to a 404 — see `siteSurfaces`.
+const items = [{ label: 'Projects', href: '/' }, ...siteSurfaces]
+
+/** `/` matches only itself; everything else matches its whole subtree. */
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href))
+---
+
+<header class="site">
+  <a class="brand" href="/">
+    <img src="/rxova-logo-256.png" alt="" width="28" height="28" />
+    <span>rxova</span>
+  </a>
+  <nav aria-label="Sections">
+    {
+      items.map((item) => (
+        <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+</header>
+
+<style>
+  .site {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-bottom: 1.25rem;
+    margin-bottom: clamp(2rem, 6vh, 3rem);
+    border-bottom: 1px solid var(--rule);
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--fg);
+    text-decoration: none;
+    font-weight: 640;
+    letter-spacing: -0.01em;
+  }
+  .brand img {
+    display: block;
+    border-radius: 6px;
+  }
+  nav {
+    display: flex;
+    gap: 1.4rem;
+  }
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+  }
+  nav a:hover {
+    color: var(--fg);
+  }
+  /* The current section is marked for everyone, not only for assistive tech —
+     aria-current on its own is invisible. */
+  nav a[aria-current='page'] {
+    color: var(--fg);
+    text-decoration: underline;
+    text-underline-offset: 5px;
+  }
+  nav a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+</style>

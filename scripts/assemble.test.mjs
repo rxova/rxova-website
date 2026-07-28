@@ -4,7 +4,7 @@
 // section missing and its landing link 404ing. That refusal is what these tests
 // mostly cover — the happy path is a `cp -r`.
 
-import { describe, it, beforeEach, after } from 'node:test'
+import { describe, it, beforeEach, afterAll } from 'vitest'
 import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -19,13 +19,17 @@ beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), 'rxova-assemble-'))
   roots.push(root)
 })
-after(() => {
+afterAll(() => {
   for (const dir of roots) rmSync(dir, { recursive: true, force: true })
 })
 
 const registry = (...raw) => ({
   landing: { artifact: 'landing', mount: '.' },
-  sources: raw.map((r) => resolveSource({ build: 'b', enabled: true, ...r })),
+  // `landing` copy is required of a package by the shared schema, so the fixture
+  // carries it; these tests are about mounting, not about the home page.
+  sources: raw.map((r) =>
+    resolveSource({ enabled: true, landing: { blurb: 'b', tags: ['t'] }, ...r }),
+  ),
 })
 
 /** Write an artifact directory as download-artifact would leave it. */

@@ -22,7 +22,9 @@
 import { appendFileSync, statSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { loadRegistry, REF_PATTERN } from './registry.mjs'
+import { dispatchPayload } from '@rxova/website-schemas'
+
+import { loadRegistry } from './registry.mjs'
 
 /** The payload shape this aggregator understands. Bump when the contract changes. */
 export const SUPPORTED_SCHEMA = 1
@@ -37,9 +39,6 @@ export const KNOWN_FRAMEWORKS = ['astro', 'docusaurus', 'other']
  */
 export const DIST_ARTIFACT_NAME = 'docs-dist'
 
-const SHA_PATTERN = /^[0-9a-f]{7,40}$/
-const RUN_ID_PATTERN = /^[0-9]+$/
-
 export class IngestError extends Error {}
 
 /**
@@ -48,20 +47,26 @@ export class IngestError extends Error {}
  * so every rejection below is testable without a workflow run.
  */
 export function validateDispatch(registry, payload) {
-  if (payload == null || typeof payload !== 'object' || Array.isArray(payload)) {
-    throw new IngestError('client_payload must be an object')
-  }
-
-  if (payload.schema !== SUPPORTED_SCHEMA) {
+  // Field shapes come from `@rxova/website-schemas`, the contract the senders are
+  // written against — so `run_id` being digits, `ref` being a ref, `sha` being hex
+  // and `version` being semver are stated once, in the package both sides import,
+  // rather than as regexes here that can drift from what brand actually sends.
+  //
+  // What stays below is everything the schema cannot know: whether this repo has
+  // heard of the project, whether it is enabled, and whether the base the sender
+  // built for is the base we will mount it at.
+  const parsed = dispatchPayload.safeParse(payload)
+  if (!parsed.success) {
     throw new IngestError(
-      `unsupported schema ${JSON.stringify(payload.schema)} — this aggregator speaks schema ${SUPPORTED_SCHEMA}`,
+      'client_payload is invalid:\n' +
+        parsed.error.issues
+          .map((i) => `  ${i.path.length ? i.path.join('.') : '(payload)'} — ${i.message}`)
+          .join('\n'),
     )
   }
 
-  const id = payload.project
-  if (typeof id !== 'string' || id.length === 0) {
-    throw new IngestError('client_payload.project is required')
-  }
+  const { project: id, sha, ref } = parsed.data
+  const runId = String(parsed.data.run_id)
 
   const source = registry.sources.find((s) => s.id === id)
   if (!source) {
@@ -76,36 +81,19 @@ export function validateDispatch(registry, payload) {
     )
   }
 
-  const sha = payload.sha == null ? '' : String(payload.sha)
-  if (!SHA_PATTERN.test(sha)) {
-    throw new IngestError(`client_payload.sha ${JSON.stringify(payload.sha)} is not a commit sha`)
-  }
-
-  const ref = payload.ref == null ? '' : String(payload.ref)
-  if (!REF_PATTERN.test(ref)) {
-    throw new IngestError(
-      `client_payload.ref ${JSON.stringify(payload.ref)} has unexpected characters`,
-    )
-  }
-
-  const runId = payload.run_id == null ? '' : String(payload.run_id)
-  if (!RUN_ID_PATTERN.test(runId)) {
-    throw new IngestError(`client_payload.run_id ${JSON.stringify(payload.run_id)} is not a run id`)
-  }
-
   // Compliance: the base the docs were built for must be the one we mount them at.
   // The aggregator only relocates the tree — it never rewrites asset paths — so a
   // mismatch here is a live page with every asset 404ing. `base` is optional in
   // the payload, but if present it must agree.
-  if (payload.base !== undefined && payload.base !== source.base) {
+  if (parsed.data.base !== undefined && parsed.data.base !== source.base) {
     throw new IngestError(
-      `project "${id}" says it built for base ${JSON.stringify(payload.base)}, but it mounts at ${source.base}`,
+      `project "${id}" says it built for base ${JSON.stringify(parsed.data.base)}, but it mounts at ${source.base}`,
     )
   }
 
-  if (payload.framework !== undefined && !KNOWN_FRAMEWORKS.includes(payload.framework)) {
+  if (parsed.data.framework !== undefined && !KNOWN_FRAMEWORKS.includes(parsed.data.framework)) {
     throw new IngestError(
-      `unknown framework ${JSON.stringify(payload.framework)} — known: ${KNOWN_FRAMEWORKS.join(', ')}`,
+      `unknown framework ${JSON.stringify(parsed.data.framework)} — known: ${KNOWN_FRAMEWORKS.join(', ')}`,
     )
   }
 

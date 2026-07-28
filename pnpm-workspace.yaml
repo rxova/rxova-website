@@ -14,3 +14,4 @@ allowBuilds:
 # name rather than by version so every release doesn't need a new line here.
 minimumReleaseAgeExclude:
   - '@rxova/brand'
+  - '@rxova/website-schemas@0.2.0'

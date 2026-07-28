@@ -3,7 +3,7 @@
 // only enabled projects are fetched, and each lands where assemble.mjs will read
 // it (artifacts/<artifact>), from the release the ingest side persisted it to.
 
-import { describe, it } from 'node:test'
+import { describe, it } from 'vitest'
 import assert from 'node:assert/strict'
 
 import { fetchPlan } from './fetch-docs.mjs'

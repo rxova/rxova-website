@@ -5,7 +5,15 @@ import tseslint from 'typescript-eslint'
 import astro from 'eslint-plugin-astro'
 
 export default defineConfig(
-  globalIgnores(['**/node_modules/', '**/dist/', '_site/', '**/.astro/', 'artifacts/', 'build/']),
+  globalIgnores([
+    '**/node_modules/',
+    '**/dist/',
+    '_site/',
+    '**/.astro/',
+    'artifacts/',
+    'build/',
+    'coverage/',
+  ]),
   js.configs.recommended,
   {
     files: ['**/*.{ts,tsx,mjs,js}'],
