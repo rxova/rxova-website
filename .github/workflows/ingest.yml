@@ -34,9 +34,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      # Not a bare setup-node: ingest.mjs imports @rxova/website-schemas — the
+      # dispatch contract shared with the sending repos — so the workspace has to be
+      # installed. It used to get away with plain node because the payload validation
+      # was hand-rolled regexes with no dependencies.
+      - uses: ./.github/actions/setup-pnpm
         with:
           node-version: '24'
+      - run: pnpm install --frozen-lockfile
 
       # Gate 2a. Event data goes through env, never through ${{ }} interpolation
       # into a script — a dispatch payload is attacker-shaped input and would

@@ -61,9 +61,14 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      # The same pinned pnpm as the build job, not a bare setup-node: the scripts
+      # below import @rxova/website-schemas — the contract shared with rxova/brand —
+      # so this job needs the workspace installed. It used to get away with plain
+      # node because registry.mjs had no dependencies at all.
+      - uses: ./.github/actions/setup-pnpm
         with:
           node-version: ${{ env.NODE_VERSION }}
+      - run: pnpm install --frozen-lockfile
 
       - name: Download the landing build
         uses: actions/download-artifact@v8
