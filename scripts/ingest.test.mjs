@@ -76,18 +76,19 @@ describe('validateDispatch — rejections', () => {
     )
 
   it('rejects a payload that is not an object', () => {
-    assert.throws(() => validateDispatch(registry, null), /must be an object/)
-    assert.throws(() => validateDispatch(registry, []), /must be an object/)
+    assert.throws(() => validateDispatch(registry, null), /client_payload is invalid/)
+    assert.throws(() => validateDispatch(registry, []), /client_payload is invalid/)
   })
 
   it('rejects an unsupported schema, so a sender on a newer contract fails loudly', () => {
-    rejects({ schema: 2 }, /unsupported schema/)
-    rejects({ schema: undefined }, /unsupported schema/)
+    // The schema field is a literal in the shared contract, so a sender on a
+    // newer one is refused by the parse rather than by a hand-written check.
+    rejects({ schema: 2 }, /schema —/)
   })
 
   it('rejects an unknown project rather than ingesting docs nothing links to', () => {
     rejects({ project: 'nope' }, /unknown project "nope"/)
-    rejects({ project: '' }, /project is required/)
+    rejects({ project: '' }, /project —/)
   })
 
   it('rejects a project that is disabled in sources.json', () => {
@@ -96,16 +97,25 @@ describe('validateDispatch — rejections', () => {
 
   it('rejects a base that disagrees with the mount — the classic 404-everything bug', () => {
     rejects({ base: '/packages/journeys/' }, /built for base/)
-    rejects({ base: '/' }, /built for base/)
+    // `/` is refused a step earlier, by the shared contract: no source mounts at
+    // the root, so it is not a mount path at all rather than merely the wrong one.
+    rejects({ base: '/' }, /base —/)
+    rejects({ base: '/../../var/www/' }, /base —/)
   })
 
   it('rejects a sha, ref or run id that is not what it claims to be', () => {
-    rejects({ sha: 'not-a-sha' }, /is not a commit sha/)
-    rejects({ sha: undefined }, /is not a commit sha/)
-    rejects({ ref: 'main; rm -rf /' }, /unexpected characters/)
-    rejects({ ref: '$(whoami)' }, /unexpected characters/)
-    rejects({ run_id: 'abc' }, /is not a run id/)
-    rejects({ run_id: undefined }, /is not a run id/)
+    // Shapes are the shared contract's job now, so assert on the field rather than
+    // wording nobody here owns. The values are what matters: run_id indexes an API
+    // path, and ref and sha reach release notes.
+    rejects({ sha: 'not-a-sha' }, /sha —/)
+    rejects({ sha: undefined }, /sha —/)
+    rejects({ ref: 'main; rm -rf /' }, /ref —/)
+    rejects({ ref: '$(whoami)' }, /ref —/)
+    rejects({ ref: '../../main' }, /ref —/)
+    rejects({ ref: '--upload-pack=curl' }, /ref —/)
+    rejects({ run_id: 'abc' }, /run_id —/)
+    rejects({ run_id: undefined }, /run_id —/)
+    rejects({ run_id: '1; rm -rf /' }, /run_id —/)
   })
 
   it('rejects an unknown framework', () => {

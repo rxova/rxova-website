@@ -25,7 +25,11 @@ afterAll(() => {
 
 const registry = (...raw) => ({
   landing: { artifact: 'landing', mount: '.' },
-  sources: raw.map((r) => resolveSource({ build: 'b', enabled: true, ...r })),
+  // `landing` copy is required of a package by the shared schema, so the fixture
+  // carries it; these tests are about mounting, not about the home page.
+  sources: raw.map((r) =>
+    resolveSource({ enabled: true, landing: { blurb: 'b', tags: ['t'] }, ...r }),
+  ),
 })
 
 /** Write an artifact directory as download-artifact would leave it. */

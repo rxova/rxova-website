@@ -43,5 +43,9 @@
       "prettier --write"
     ],
     "*.{json,jsonc,css,md,mdx,yaml,yml}": "prettier --write"
+  },
+  "dependencies": {
+    "@rxova/website-schemas": "^0.2.0",
+    "zod": "^4.4.3"
   }
 }
