@@ -54,13 +54,13 @@
     {
       "id": "blog",
       "kind": "site",
-      "enabled": false,
+      "enabled": true,
       "repo": "rxova/brand"
     },
     {
       "id": "updates",
       "kind": "site",
-      "enabled": false,
+      "enabled": true,
       "repo": "rxova/brand"
     }
   ]
