@@ -25,6 +25,7 @@ const registry = {
   sources: [
     {
       id: 'journey',
+      kind: 'package',
       enabled: true,
       repo: 'rxova/journey',
       base: '/packages/journey/',
@@ -32,7 +33,26 @@ const registry = {
       releaseTag: 'content-journey',
       releaseAsset: 'docs-journey.tgz',
     },
-    { id: 'off', enabled: false, base: '/packages/off/', mount: 'packages/off' },
+    {
+      id: 'blog',
+      kind: 'site',
+      enabled: true,
+      repo: 'rxova/brand',
+      base: '/blog/',
+      mount: 'blog',
+      releaseTag: 'content-blog',
+      releaseAsset: 'docs-blog.tgz',
+    },
+    {
+      id: 'off',
+      kind: 'package',
+      enabled: false,
+      repo: 'rxova/off',
+      base: '/packages/off/',
+      mount: 'packages/off',
+      releaseTag: 'content-off',
+      releaseAsset: 'docs-off.tgz',
+    },
   ],
 }
 
@@ -55,12 +75,22 @@ describe('validateDispatch — the happy path', () => {
     assert.equal(source.repo, 'rxova/journey')
     assert.equal(source.releaseTag, 'content-journey')
     assert.equal(source.releaseAsset, 'docs-journey.tgz')
+    // The workflow gates its deploy on this.
+    assert.equal(meta.enabled, true)
   })
 
   it('coerces a numeric run id and treats base as optional', () => {
     const { meta } = validateDispatch(registry, payload({ run_id: 42, base: undefined }))
     assert.equal(meta.runId, '42')
     assert.equal(meta.framework, 'other') // defaulted when the sender omits it
+  })
+
+  // The mount confinement check hardcoded `packages/<id>`, which predates
+  // `kind: "site"` — it refused every /blog and /updates ingest outright.
+  it('accepts a site surface, which mounts at the root rather than under packages/', () => {
+    const { source } = validateDispatch(registry, payload({ project: 'blog', base: '/blog/' }))
+    assert.equal(source.mount, 'blog')
+    assert.equal(source.releaseTag, 'content-blog')
   })
 
   it('keeps the artifact name a single shared convention', () => {
@@ -91,8 +121,14 @@ describe('validateDispatch — rejections', () => {
     rejects({ project: '' }, /project —/)
   })
 
-  it('rejects a project that is disabled in sources.json', () => {
-    rejects({ project: 'off' }, /disabled in sources\.json/)
+  it('accepts a disabled project — the docs are persisted, just not deployed', () => {
+    // The deadlock this removes: refusing a disabled project meant its docs could
+    // not be stored until it was enabled, and enabling it made fetch-docs demand a
+    // release that could not exist yet. Turning a project on always cost one red
+    // deploy. Now the tree is waiting when the flag flips.
+    const { source, meta } = validateDispatch(registry, payload({ project: 'off' }))
+    assert.equal(source.id, 'off')
+    assert.equal(meta.enabled, false)
   })
 
   it('rejects a base that disagrees with the mount — the classic 404-everything bug', () => {

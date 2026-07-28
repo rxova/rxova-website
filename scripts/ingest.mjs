@@ -15,14 +15,14 @@
 // is downloaded, decide whether it is a publishable docs tree.
 //
 // It lives in a script rather than inline in the workflow so the rules — an
-// unknown or disabled project is rejected, a base that disagrees with the mount is
+// unknown project is rejected, a base that disagrees with the mount is
 // rejected, a dist with no index.html is rejected — are covered by tests
 // (scripts/ingest.test.mjs) instead of being YAML that only ever runs in CI.
 
 import { appendFileSync, statSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { dispatchPayload } from '@rxova/website-schemas'
+import { dispatchPayload, mountFor } from '@rxova/website-schemas'
 
 import { loadRegistry } from './registry.mjs'
 
@@ -75,11 +75,17 @@ export function validateDispatch(registry, payload) {
     const known = registry.sources.map((s) => s.id).join(', ') || '(none)'
     throw new IngestError(`unknown project "${id}" — sources.json knows: ${known}`)
   }
-  if (!source.enabled) {
-    throw new IngestError(
-      `project "${id}" is disabled in sources.json; enable it there before it can publish docs`,
-    )
-  }
+  // A *disabled* project is accepted and persisted; it simply is not deployed.
+  //
+  // Rejecting it conflated two different things. An unknown project is a typo and
+  // must fail loudly. A known-but-disabled one is a deliberate registry state, and
+  // refusing its docs created a deadlock: the aggregator would not store them until
+  // the project was enabled, and enabling it made `fetch-docs.mjs` demand a release
+  // that could not exist yet — so turning a project on always cost one red deploy.
+  //
+  // Persisting regardless costs a release asset and nothing else: `fetch-docs.mjs`
+  // only ever fetches enabled sources, so the tree sits there unread until the flag
+  // flips, at which point the first deploy already has everything it needs.
 
   // Compliance: the base the docs were built for must be the one we mount them at.
   // The aggregator only relocates the tree — it never rewrites asset paths — so a
@@ -102,12 +108,19 @@ export function validateDispatch(registry, payload) {
   // future change to the derivation that broke it fails here and not on the live
   // site, and so "the mount is unique and stays inside the tree" is stated where
   // the dist is about to be trusted.
+  //
+  // Checked against `mountFor` from the shared package rather than a literal
+  // `packages/${id}`, which predated `kind: "site"` and refused every /blog and
+  // /updates ingest outright. Recomputing it here is the point: if the registry ever
+  // derived a mount some other way, this is where the disagreement surfaces.
   if (
-    source.mount !== `packages/${id}` ||
+    source.mount !== mountFor(id, source.kind) ||
     source.mount.startsWith('/') ||
     source.mount.split('/').includes('..')
   ) {
-    throw new IngestError(`refusing mount ${JSON.stringify(source.mount)} for "${id}"`)
+    throw new IngestError(
+      `refusing mount ${JSON.stringify(source.mount)} for "${id}" (kind ${source.kind})`,
+    )
   }
 
   return {
@@ -118,6 +131,9 @@ export function validateDispatch(registry, payload) {
       sha,
       runId,
       framework: payload.framework ?? 'other',
+      // The workflow gates the deploy on this: there is nothing to publish for a
+      // project the assembler will not mount.
+      enabled: source.enabled,
     },
   }
 }
@@ -197,6 +213,9 @@ function main(argv, env) {
     `ref=${meta.ref}`,
     `framework=${meta.framework}`,
     `base=${source.base}`,
+    // The workflow reads this to decide whether to deploy. A disabled project is
+    // still persisted — see validateDispatch — it just changes nothing live.
+    `enabled=${meta.enabled}`,
   ])
 }
 

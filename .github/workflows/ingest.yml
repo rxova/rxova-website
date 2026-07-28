@@ -32,6 +32,10 @@ concurrency: ingest-${{ github.event.client_payload.project }}
 jobs:
   ingest:
     runs-on: ubuntu-latest
+    outputs:
+      # Whether the project is mounted. The docs are validated and persisted either
+      # way; this only gates the deploy below.
+      enabled: ${{ steps.validate.outputs.enabled }}
     steps:
       - uses: actions/checkout@v7
       # Not a bare setup-node: ingest.mjs imports @rxova/website-schemas — the
@@ -97,6 +101,11 @@ jobs:
 
   # Redeploy from the freshly-persisted content. Runs in the same run rather than
   # via a re-dispatch, so no token that can re-trigger workflows is needed.
+  # Only when the project is actually mounted. A disabled project's docs are
+  # validated and persisted above, so enabling it later is a one-line change with
+  # the release already in place — but deploying now would rebuild the site to
+  # produce exactly what is already live.
   deploy:
     needs: ingest
+    if: needs.ingest.outputs.enabled == 'true'
     uses: ./.github/workflows/deploy.yml
