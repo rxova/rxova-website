@@ -5,7 +5,6 @@ import '../styles/global.css'
 // See src/lib/projects.ts — it fails the build if the two disagree.
 import { landingProjects, projectListSentence, siteSurfaces } from '../lib/projects'
 import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
-import ThemeToggle from '@rxova/brand/components/ThemeToggle.astro'
 import SiteHeader from '../components/SiteHeader.astro'
 
 const authorGithub = 'https://github.com/rxova'
@@ -43,10 +42,8 @@ const year = new Date().getFullYear()
     <ThemeScript />
   </head>
   <body>
-    <ThemeToggle />
+    <SiteHeader path="/" />
     <main>
-      <SiteHeader path="/" />
-
       <header class="intro">
         <h1>Building open-source React libraries the way they should be.</h1>
         <p class="lede">
