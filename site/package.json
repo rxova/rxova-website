@@ -12,7 +12,7 @@
     "check": "astro check"
   },
   "dependencies": {
-    "@rxova/brand": "^0.5.0",
+    "@rxova/brand": "^0.6.0",
     "astro": "^5.6.0"
   },
   "devDependencies": {
