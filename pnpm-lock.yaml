@@ -61,8 +61,8 @@ importers:
   site:
     dependencies:
       '@rxova/brand':
-        specifier: ^0.7.0
-        version: 0.7.0(astro@5.18.2(@types/node@26.1.1)(jiti@2.6.1)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0))
+        specifier: ^0.8.0
+        version: 0.8.0(astro@5.18.2(@types/node@26.1.1)(jiti@2.6.1)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0))
       astro:
         specifier: ^5.6.0
         version: 5.18.2(@types/node@26.1.1)(jiti@2.6.1)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0)
@@ -961,8 +961,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@rxova/brand@0.7.0':
-    resolution: {integrity: sha512-7R/LC4YbBMd5nlDB4a5wYhGks68LQWMQQlhgQztb67N6fvnHotpapgVpXfBdrNg0CVO3CiBWKDv6UzwU/Qe5/g==}
+  '@rxova/brand@0.8.0':
+    resolution: {integrity: sha512-YUCw5TYkmblg9Ug6x1mKP50Os0lzHnP82EQ1AYauuJ1CPzwevWv1hV0AL5h1hrNuHioBbHzPVYB0dh/xzRIR2w==}
     engines: {node: '>=24.0.0'}
     peerDependencies:
       '@astrojs/starlight': '>=0.36.0'
@@ -3604,7 +3604,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.62.2':
     optional: true
 
-  '@rxova/brand@0.7.0(astro@5.18.2(@types/node@26.1.1)(jiti@2.6.1)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0))':
+  '@rxova/brand@0.8.0(astro@5.18.2(@types/node@26.1.1)(jiti@2.6.1)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0))':
     dependencies:
       '@fontsource/ibm-plex-mono': 5.3.0
       '@fontsource/space-grotesk': 5.3.0

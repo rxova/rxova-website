@@ -3,10 +3,17 @@ import '../styles/global.css'
 // The project list is assembled from @rxova/brand (product metadata, shared with
 // the docs sites) and sources.json (landing copy + what is actually deployed).
 // See src/lib/projects.ts — it fails the build if the two disagree.
-import { landingProjects, projectListSentence } from '../lib/projects'
+import { landingProjects, projectListSentence, siteSurfaces } from '../lib/projects'
+import { siteUrl } from '@rxova/brand'
 import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
 import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
 import SiteHeader from '../components/SiteHeader.astro'
+
+// The footer's "Site" column, from what is actually deployed rather than the
+// package's hardcoded default — same `siteSurfaces` the menu uses, so neither
+// can advertise a surface whose first build has not landed. Absolute, because
+// every href in that footer is (see @rxova/brand's sites.ts).
+const footerSurfaces = siteSurfaces.map((s) => ({ label: s.label, href: siteUrl(s.href) }))
 ---
 
 <!doctype html>
@@ -89,7 +96,7 @@ import SiteHeader from '../components/SiteHeader.astro'
           link row, which is why it stayed a single line while every other
           surface grew the four-column one. */
       }
-      <SiteFooter />
+      <SiteFooter site={footerSurfaces} />
     </main>
 
     <style>
