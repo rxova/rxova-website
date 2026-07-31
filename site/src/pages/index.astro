@@ -3,14 +3,10 @@ import '../styles/global.css'
 // The project list is assembled from @rxova/brand (product metadata, shared with
 // the docs sites) and sources.json (landing copy + what is actually deployed).
 // See src/lib/projects.ts — it fails the build if the two disagree.
-import { landingProjects, projectListSentence, siteSurfaces } from '../lib/projects'
+import { landingProjects, projectListSentence } from '../lib/projects'
 import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
+import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
 import SiteHeader from '../components/SiteHeader.astro'
-
-const authorGithub = 'https://github.com/rxova'
-const authorEmail = 'rxova@proton.me'
-
-const year = new Date().getFullYear()
 ---
 
 <!doctype html>
@@ -87,27 +83,13 @@ const year = new Date().getFullYear()
         }
       </section>
 
-      <footer class="foot">
-        <span>© {year} rxova</span>
-        <span class="dot" aria-hidden="true">·</span>
-        <a href={authorGithub} target="_blank" rel="noopener noreferrer">GitHub</a>
-        <span class="dot" aria-hidden="true">·</span>
-        <a href={`mailto:${authorEmail}`}>Email</a>
-        <span class="dot" aria-hidden="true">·</span>
-        {
-          siteSurfaces.map((s) => (
-            <>
-              <a href={s.href}>{s.label}</a>
-              <span class="dot" aria-hidden="true">
-                ·
-              </span>
-            </>
-          ))
-        }
-        <a href="/privacy">Privacy</a>
-        <span class="dot" aria-hidden="true">·</span>
-        <a href="/terms">Terms</a>
-      </footer>
+      {
+        /* The shared footer from @rxova/brand — the same one /blog, /updates and
+          the docs sites render. This page used to carry its own dot-separated
+          link row, which is why it stayed a single line while every other
+          surface grew the four-column one. */
+      }
+      <SiteFooter />
     </main>
 
     <style>
@@ -228,29 +210,10 @@ const year = new Date().getFullYear()
         transform: translate(1px, -1px);
       }
 
-      .foot {
+      /* The footer's own rules are unscoped — they live in @rxova/brand's
+         footer.css, which astro.css already imports. */
+      :global(.rx-footer) {
         margin-top: clamp(3rem, 8vh, 5rem);
-        padding-top: 1.75rem;
-        border-top: 1px solid var(--rule);
-        color: var(--faint);
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        flex-wrap: wrap;
-      }
-
-      .foot a {
-        color: var(--muted);
-        text-decoration: none;
-      }
-
-      .foot a:hover {
-        color: var(--fg);
-      }
-
-      .dot {
-        color: var(--rule);
       }
     </style>
   </body>
