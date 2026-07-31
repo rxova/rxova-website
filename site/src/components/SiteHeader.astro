@@ -7,10 +7,17 @@
  * pages had different chrome. One component instead, so adding a fourth surface
  * is one line here rather than an edit in three files that will fall out of step.
  *
+ * It mirrors @rxova/brand's `SiteShell` header — the sticky, translucent bar with
+ * the theme toggle inside it — because /blog and /updates render that shell and
+ * the landing must not drift from them. `SiteShell` is a whole-document layout
+ * (it owns <html> and <head>), so the landing cannot mount it; this reproduces
+ * only its header, and any change to one has to be made in the other.
+ *
  * Not shared with the docs sites at /packages/*: those are Starlight, and their
  * chrome comes from @rxova/brand over npm. Cross-linking to them is the project
  * switcher's job.
  */
+import ThemeToggle from '@rxova/brand/components/ThemeToggle.astro'
 import { siteSurfaces } from '../lib/projects'
 
 interface Props {
@@ -29,33 +36,66 @@ const items = [{ label: 'Projects', href: '/' }, ...siteSurfaces]
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href))
 ---
 
+{
+  /* Full-bleed so the bar can span the viewport while its contents stay on the
+    page's measure. Sticky rather than fixed: it still takes part in layout, so
+    the page below needs no compensating top margin. */
+}
 <header class="site">
-  <a class="brand" href="/">
-    <img src="/rxova-logo-256.png" alt="" width="28" height="28" />
-    <span>rxova</span>
-  </a>
-  <nav aria-label="Sections">
-    {
-      items.map((item) => (
-        <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
-          {item.label}
-        </a>
-      ))
-    }
-  </nav>
+  <div class="site__inner">
+    <a class="brand" href="/">
+      <img src="/rxova-logo-256.png" alt="" width="28" height="28" />
+      <span>rxova</span>
+    </a>
+    <nav aria-label="Sections">
+      {
+        items.map((item) => (
+          <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+    {/* In the header, not floating over it — see ThemeToggle's `floating`. */}
+    <ThemeToggle floating={false} />
+  </div>
 </header>
 
 <style>
+  /* Sticky, translucent, full-bleed. It was a plain in-flow row with the theme
+     button floating over its right end, which on a phone put the button on top
+     of the nav links and left the header behind as soon as you scrolled. */
   .site {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--rule);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+  }
+
+  /* The blur is what keeps text legible as it passes under the bar. Where it is
+     unsupported the background falls back to nearly opaque, which is why the mix
+     above is 88% and not 60%. */
+  @supports (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px)) {
+    .site {
+      background: color-mix(in srgb, var(--bg) 72%, transparent);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+  }
+
+  .site__inner {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 1rem;
-    flex-wrap: wrap;
-    padding-bottom: 1.25rem;
-    margin-bottom: clamp(2rem, 6vh, 3rem);
-    border-bottom: 1px solid var(--rule);
+    /* No wrapping: a two-line header would eat a phone's viewport, and the row
+       is sized to fit at the narrowest widths we support. */
+    min-height: 3.5rem;
   }
+
   .brand {
     display: inline-flex;
     align-items: center;
@@ -69,7 +109,11 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     display: block;
     border-radius: 6px;
   }
+
+  /* The nav takes the space between the brand and the toggle, and pushes itself
+     to the right of it. */
   nav {
+    margin-left: auto;
     display: flex;
     gap: 1.4rem;
   }
@@ -77,6 +121,7 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     color: var(--muted);
     text-decoration: none;
     font-size: 0.95rem;
+    white-space: nowrap;
   }
   nav a:hover {
     color: var(--fg);
@@ -92,5 +137,32 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     outline: 2px solid var(--accent);
     outline-offset: 3px;
     border-radius: 2px;
+  }
+
+  /* Brand mark, the links and the toggle stay on one row at the narrowest phones
+     by dropping the wordmark — the logo carries the identity in the space left. */
+  @media (max-width: 34rem) {
+    .site__inner {
+      gap: 0.75rem;
+      padding-inline: 1rem;
+      min-height: 3.25rem;
+    }
+    nav {
+      gap: 0.9rem;
+    }
+    nav a {
+      font-size: 0.875rem;
+    }
+    .brand span {
+      display: none;
+    }
+  }
+</style>
+
+<!-- Global because `html` sits outside Astro's scoping. Without it a jump to an
+     in-page anchor would land under the sticky header. -->
+<style is:global>
+  html {
+    scroll-padding-top: 4.5rem;
   }
 </style>
