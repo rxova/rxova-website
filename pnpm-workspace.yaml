@@ -9,9 +9,11 @@ allowBuilds:
   esbuild: true
   sharp: true
 # The release-age quarantine exists to blunt supply-chain attacks on packages we
-# don't control. @rxova/brand is ours, published from rxova/brand with OIDC
-# provenance, so waiting it out only delays our own design changes. Excluded by
-# name rather than by version so every release doesn't need a new line here.
+# don't control. Both of these are ours, published from rxova/brand with OIDC
+# provenance, so waiting one out only delays our own design changes. Excluded by
+# name rather than by version so every release doesn't need a new line here —
+# `pnpm add` appends a version range if you let it, which is what left the entry
+# below reading `@0.2.0 || 0.4.0`.
 minimumReleaseAgeExclude:
   - '@rxova/brand'
-  - '@rxova/website-schemas@0.2.0'
+  - '@rxova/website-schemas'
