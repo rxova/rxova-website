@@ -7,12 +7,12 @@
  * renders. There used to be a hand-rolled copy here, and it drifted — it missed
  * the sticky-header update /blog and /updates got. This keeps only what is
  * genuinely landing-specific: the menu, which the landing derives from what is
- * actually deployed (Projects + `siteSurfaces` from sources.json) rather than a
- * fixed list, and which resolves its links root-relative because the landing
- * sits at the origin root.
+ * actually deployed (Projects + `navSurfaces`) rather than a fixed list, and
+ * which resolves its links root-relative because the landing sits at the origin
+ * root.
  */
 import Header from '@rxova/brand/components/Header.astro'
-import { siteSurfaces } from '../lib/projects'
+import { navSurfaces } from '../lib/projects'
 
 interface Props {
   /** Current path, so the active item can be marked. */
@@ -21,10 +21,10 @@ interface Props {
 
 const { path } = Astro.props
 
-// Projects is always here; the rest are whatever is actually mounted. A surface
-// that has not shipped its first build yet is absent from the menu rather than
-// linking to a 404 — see `siteSurfaces`.
-const surfaces = [{ label: 'Projects', href: '/' }, ...siteSurfaces]
+// Projects is always here; then whatever is actually mounted, then this build's
+// own pages. A mounted surface that has not shipped its first build yet is
+// absent from the menu rather than linking to a 404 — see `navSurfaces`.
+const surfaces = [{ label: 'Projects', href: '/' }, ...navSurfaces]
 
 /** `/` matches only itself; everything else matches its whole subtree. */
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href))

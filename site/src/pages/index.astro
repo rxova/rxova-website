@@ -3,17 +3,20 @@ import '../styles/global.css'
 // The project list is assembled from @rxova/brand (product metadata, shared with
 // the docs sites) and sources.json (landing copy + what is actually deployed).
 // See src/lib/projects.ts — it fails the build if the two disagree.
-import { landingProjects, projectListSentence, siteSurfaces } from '../lib/projects'
+import { landingProjects, projectListSentence, navSurfaces } from '../lib/projects'
+// Who maintains this and what the projects share — the short form of both. The
+// long form is /about, and both read from the same module so they cannot drift.
+import { MAINTAINER, PRINCIPLES } from '../lib/about'
 import { siteUrl } from '@rxova/brand'
 import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
 import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
 import SiteHeader from '../components/SiteHeader.astro'
 
 // The footer's "Site" column, from what is actually deployed rather than the
-// package's hardcoded default — same `siteSurfaces` the menu uses, so neither
+// package's hardcoded default — same `navSurfaces` the menu uses, so neither
 // can advertise a surface whose first build has not landed. Absolute, because
 // every href in that footer is (see @rxova/brand's sites.ts).
-const footerSurfaces = siteSurfaces.map((s) => ({ label: s.label, href: siteUrl(s.href) }))
+const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s.href) }))
 ---
 
 <!doctype html>
@@ -23,18 +26,23 @@ const footerSurfaces = siteSurfaces.map((s) => ({ label: s.label, href: siteUrl(
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
     <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
-    <title>rxova — open-source React libraries</title>
+    <title>Rxova — TypeScript libraries for the hard parts of the browser</title>
     <!-- Project names come from the registry, so adding a project updates the
          meta descriptions too. They used to be hand-written and were the easiest
-         thing to forget. -->
+         thing to forget.
+
+         "React libraries" here was wrong as well as forgettable: two of the three
+         ship a framework-agnostic core that runs in a worker or a plain script,
+         and Journey also ships a browser extension. React is a binding we
+         provide, not the boundary of what these are. -->
     <meta
       name="description"
-      content={`rxova — open-source React libraries: ${projectListSentence}.`}
+      content={`Rxova — small TypeScript libraries for the hard parts of the browser: ${projectListSentence}.`}
     />
-    <meta property="og:title" content="rxova" />
+    <meta property="og:title" content="Rxova" />
     <meta
       property="og:description"
-      content={`Open-source React libraries: ${projectListSentence}.`}
+      content={`Small TypeScript libraries for the hard parts of the browser: ${projectListSentence}.`}
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://rxova.org/" />
@@ -47,11 +55,19 @@ const footerSurfaces = siteSurfaces.map((s) => ({ label: s.label, href: siteUrl(
   <body>
     <SiteHeader path="/" />
     <main>
+      {
+        /* The hero names the problems rather than praising the solutions. It
+          used to read "Building open-source React libraries the way they should
+          be" over "each does one thing well … and gets out of your way", which
+          asserted quality instead of showing any, and called the whole family
+          React when only react-inputs actually is. */
+      }
       <header class="intro">
-        <h1>Building open-source React libraries the way they should be.</h1>
+        <h1>Small TypeScript libraries for the hard parts of the browser.</h1>
         <p class="lede">
-          <strong>rxova</strong> is a small family of React tools — each does one thing well, stays dependency-light,
-          and gets out of your way.
+          Cross-tab state. Non-linear flows. The inputs nobody wants to build and everybody wants to
+          import. <strong>Rxova</strong> ships framework-agnostic cores, React bindings where they earn
+          their place, and APIs small enough to stay still.
         </p>
       </header>
 
@@ -88,6 +104,55 @@ const footerSurfaces = siteSurfaces.map((s) => ({ label: s.label, href: siteUrl(
             </article>
           ))
         }
+      </section>
+
+      {
+        /* Why these three are one ecosystem. It comes after the project list
+          rather than before it: the principles mean something once you have
+          seen what they produced, and nothing at all as an opening claim. */
+      }
+      <section class="why" aria-labelledby="why-heading">
+        <h2 id="why-heading">Why Rxova</h2>
+        <p class="why-lede">
+          Three projects, one set of rules. These are what Journey, react-inputs and use-everywhere
+          have in common — and what they are held to.
+        </p>
+        <ul class="principles">
+          {
+            PRINCIPLES.map((p) => (
+              <li class="principle">
+                <h3 class="principle-title">{p.title}</h3>
+                <p class="principle-summary">{p.summary}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      {
+        /* The maintainer, named. A visitor deciding whether to depend on any of
+          this wants to know who is behind it and whether it is still moving;
+          both were previously unanswerable anywhere on the site. */
+      }
+      <section class="maintainer" aria-labelledby="maintainer-heading">
+        <h2 id="maintainer-heading">Built and maintained by {MAINTAINER.name}</h2>
+        <p class="maintainer-summary">{MAINTAINER.summary}</p>
+        <nav class="links" aria-label="About the maintainer">
+          <a href="/about">
+            About Rxova
+            <span aria-hidden="true" class="arrow">→</span>
+          </a>
+          {
+            MAINTAINER.links.map((l) => (
+              <a href={l.href} target="_blank" rel="noopener noreferrer">
+                {l.label}
+                <span aria-hidden="true" class="arrow">
+                  ↗
+                </span>
+              </a>
+            ))
+          }
+        </nav>
       </section>
 
       {
@@ -215,6 +280,67 @@ const footerSurfaces = siteSurfaces.map((s) => ({ label: s.label, href: siteUrl(
 
       .links a:hover .arrow {
         transform: translate(1px, -1px);
+      }
+
+      /* The two sections below are new work, so they use @rxova/brand's --rx-*
+         tokens directly rather than the short aliases the rules above were
+         written against. Same values — see the package's astro.css. */
+
+      /* Both sit on the same top rule the project cards use, so the page reads
+         as one column of sections rather than a list plus two appendices. */
+      .why,
+      .maintainer {
+        padding: 2.25rem 0;
+        border-top: 1px solid var(--rx-rule);
+      }
+
+      .why h2,
+      .maintainer h2 {
+        font-size: 1.5rem;
+        letter-spacing: -0.02em;
+        font-weight: 640;
+        margin-bottom: 0.7rem;
+      }
+
+      .why-lede {
+        color: var(--rx-muted);
+        max-width: 38rem;
+        margin-bottom: 2rem;
+      }
+
+      .principles {
+        list-style: none;
+        display: grid;
+        gap: 1.75rem 2.5rem;
+        /* Two columns where there is room for them, one where there is not. The
+           four principles are meant to be read as a set, and a single tall
+           column pushes the fourth off the fold on a laptop. */
+        grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+      }
+
+      .principle-title {
+        font-size: 1.02rem;
+        font-weight: 620;
+        letter-spacing: -0.01em;
+        margin-bottom: 0.35rem;
+      }
+
+      /* The rule's accent, on the title rather than around the whole card: the
+         section stays flat like the rest of the page. */
+      .principle {
+        border-left: 2px solid var(--rx-rule-strong);
+        padding-left: 1rem;
+      }
+
+      .principle-summary {
+        color: var(--rx-muted);
+        font-size: 0.97rem;
+      }
+
+      .maintainer-summary {
+        color: var(--rx-muted);
+        max-width: 38rem;
+        margin-bottom: 1.25rem;
       }
 
       /* The footer's own rules are unscoped — they live in @rxova/brand's
