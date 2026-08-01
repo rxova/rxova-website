@@ -25,7 +25,10 @@ import { parse, serialize } from 'parse5'
 
 import { PAGE_BUNDLE_FILENAME, pageBundleManifest } from './page-bundle-contract.mjs'
 
+import { findNode, element, attribute, hasClass, walkNodes } from './html.mjs'
+import { loadRedirects, writeRedirects } from './redirects.mjs'
 import { loadRegistry, enabledSources } from './registry.mjs'
+import { writeSitemaps, RXOVA_ORIGIN } from './sitemap.mjs'
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -45,26 +48,6 @@ async function copyInto(src, dest, { label }) {
   await cp(src, dest, { recursive: true })
   console.log(`  ✓ ${label}: ${src} -> ${dest}`)
   return true
-}
-
-function findNode(root, predicate) {
-  if (predicate(root)) return root
-  for (const child of root.childNodes ?? []) {
-    const found = findNode(child, predicate)
-    if (found) return found
-  }
-}
-
-const element = (name) => (node) => node.tagName === name
-const attribute = (node, name) => node.attrs?.find((attr) => attr.name === name)?.value
-
-function hasClass(node, name) {
-  return (attribute(node, 'class') ?? '').split(/\s+/).includes(name)
-}
-
-function walkNodes(root, visit) {
-  visit(root)
-  for (const child of root.childNodes ?? []) walkNodes(child, visit)
 }
 
 function mergeAttributes(target, source) {
@@ -280,13 +263,25 @@ export async function assemble(config, artifactsDir, outDir) {
   // Shell templates are build inputs, never public routes.
   await rm(join(outDir, 'shell-templates'), { recursive: true, force: true })
 
+  // 3. Stand-ins for URLs that used to exist, before the sitemap is taken — a
+  //    stub is a redirect, not a destination, so it must not be listed.
+  await writeRedirects(outDir, config.redirects ?? {}, config.origin ?? RXOVA_ORIGIN)
+
+  // 4. Sitemaps last: they describe the finished tree, so everything that will
+  //    ever be in it has to be there already.
+  await writeSitemaps(outDir, enabledSources(config), config.origin ?? RXOVA_ORIGIN)
+
   console.log('Done.')
 }
 
 // Only run as a CLI; the tests import `assemble` above.
 if (import.meta.filename === process.argv[1]) {
   const [, , artifactsDir = 'artifacts', outDir = '_site'] = process.argv
-  assemble(loadRegistry(join(repoRoot, 'sources.json')), artifactsDir, outDir).catch((err) => {
+  const config = {
+    ...loadRegistry(join(repoRoot, 'sources.json')),
+    redirects: await loadRedirects(join(repoRoot, 'redirects.json')),
+  }
+  assemble(config, artifactsDir, outDir).catch((err) => {
     console.error(`ERROR: ${err.message}`)
     process.exit(1)
   })

@@ -30,8 +30,12 @@ Which projects are mounted is `sources.json` — see [Adding a project](#adding-
 | `scripts/ingest.mjs`           | Gate 2: validates a sender's dispatch and its dist      |
 | `scripts/fetch-docs.mjs`       | Deploy-time: pulls persisted docs from content releases |
 | `scripts/assemble.mjs`         | Copies the gathered docs into the final `_site/` tree   |
+| `scripts/sitemap.mjs`          | Root sitemap index + `robots.txt` for the whole tree    |
+| `scripts/redirects.mjs`        | Static stubs for URLs that used to exist                |
+| `scripts/html.mjs`             | parse5 helpers shared by the readers of built HTML      |
 | `scripts/*.test.mjs`           | Tests for all of the above — `pnpm test`                |
 | `sources.json`                 | **The project registry** — one entry per project        |
+| `redirects.json`               | **Legacy URL map** — old path → where it lives now      |
 | `docs/INPUTS-CONTRACT.md`      | What a source repo must send (gate 1)                   |
 | `.github/workflows/ingest.yml` | validate → persist → deploy, on a docs dispatch         |
 | `.github/workflows/deploy.yml` | build landing → gather → assemble → Pages deploy        |
@@ -88,6 +92,24 @@ At deploy time `scripts/fetch-docs.mjs` pulls every _enabled_ project's persiste
 its content release and assembles the whole tree (Pages publishes a whole tree, so every
 mounted project must be present). Only the project that just changed is re-persisted; the rest
 are served from their last persisted dist — nothing is rebuilt here.
+
+## How rxova.org is found
+
+Being assembled from independently built trees has one cost a single site does not pay:
+nothing has the whole picture. Each Starlight docs site emits a perfectly good
+`sitemap-index.xml` for its own subtree, but a crawler that has never seen those files
+cannot use them. So the last two steps of the assemble know things no single project does:
+
+- `scripts/redirects.mjs` writes a stub for every entry in `redirects.json`, since GitHub
+  Pages serves files rather than redirect rules. It **fails the deploy** on a target that is
+  not in the tree — a redirect into a 404 is worse than the 404 it replaced.
+- `scripts/sitemap.mjs` writes `/sitemap-index.xml`, `/sitemap-pages.xml` and `/robots.txt`.
+  A project that ships its own sitemap is _referenced_ (it knows its own subtree best); one
+  that ships none is swept into `sitemap-pages.xml`. Either way, adding a project costs no
+  code change here. `noindex` pages, redirect stubs and `404.html` are never listed.
+
+Submit `https://rxova.org/sitemap-index.xml` once in Google Search Console; every project
+reached from it is discovered from then on, including projects added later.
 
 ## Adding a project
 
