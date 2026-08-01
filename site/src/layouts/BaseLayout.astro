@@ -20,6 +20,15 @@ const footerSurfaces = navSurfaces.map((surface) => ({
   label: surface.label,
   href: siteUrl(surface.href),
 }))
+
+// Derived from the URL Astro is actually building, never from a prop: a canonical
+// that can drift from the page it sits on is worse than none at all, because it
+// tells Google to index some other page instead of this one.
+//
+// Not emitted for the shell templates. Those are build inputs, and the assembler
+// splices a producer's <head> into them — a canonical here would survive that and
+// leave the composed page claiming to be /shell-templates/<id>.
+const canonical = template ? undefined : new URL(Astro.url.pathname, Astro.site).href
 ---
 
 <!doctype html>
@@ -30,6 +39,7 @@ const footerSurfaces = navSurfaces.map((surface) => ({
     <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
     <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
     <title>{title}</title>
+    {canonical && <link rel="canonical" href={canonical} />}
     {robots && <meta name="robots" content={robots} />}
     <slot name="head" />
     {template && <meta name="rxova-head-slot" content="" />}
