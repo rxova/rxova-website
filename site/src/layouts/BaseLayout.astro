@@ -1,0 +1,54 @@
+---
+import '../styles/global.css'
+import { siteUrl, type ProjectId } from '@rxova/brand'
+import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
+import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
+import CloudflareAnalytics from '../components/CloudflareAnalytics.astro'
+import SiteHeader from '../components/SiteHeader.astro'
+import { navSurfaces } from '../lib/projects'
+
+interface Props {
+  title: string
+  robots?: string
+  path?: string
+  project?: ProjectId
+  template?: boolean
+}
+
+const { title, robots, path = '/', project, template = false } = Astro.props
+const footerSurfaces = navSurfaces.map((surface) => ({
+  label: surface.label,
+  href: siteUrl(surface.href),
+}))
+---
+
+<!doctype html>
+<html lang="en" data-rxova-shell>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
+    <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
+    <title>{title}</title>
+    {robots && <meta name="robots" content={robots} />}
+    <slot name="head" />
+    {template && <meta name="rxova-head-slot" content="" />}
+    <ThemeScript />
+    <CloudflareAnalytics />
+  </head>
+  <body>
+    <SiteHeader path={path} />
+    {template ? <div data-rxova-page-slot /> : <slot />}
+    <div class="rx-shell-footer">
+      <SiteFooter project={project} site={footerSurfaces} />
+    </div>
+
+    <style>
+      .rx-shell-footer {
+        max-width: var(--max);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+    </style>
+  </body>
+</html>

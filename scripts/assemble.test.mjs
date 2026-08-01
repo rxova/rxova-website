@@ -11,6 +11,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import { assemble } from './assemble.mjs'
+import { composeDocument } from './assemble.mjs'
 import { resolveSource } from './registry.mjs'
 
 const roots = []
@@ -101,5 +102,64 @@ describe('assemble', () => {
     artifact('landing', { 'index.html': 'landing' })
     await run(registry())
     assert.equal(read('index.html'), 'landing')
+  })
+})
+
+describe('page-component composition', () => {
+  const shell = `<!doctype html><html lang="en" data-rxova-shell><head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width">
+    <title>private shell</title><meta name="robots" content="noindex">
+    <meta name="rxova-head-slot" content=""><script data-analytics></script>
+  </head><body><header class="site">Rxova</header><template data-rxova-page-slot></template>
+    <footer class="website-footer">Footer</footer></body></html>`
+
+  it('preserves page metadata, attributes and UI inside the website shell', () => {
+    const source = `<!doctype html><html class="starlight" data-has-sidebar><head>
+      <meta charset="utf-8"><meta name="viewport" content="source">
+      <title>Guide</title><meta name="description" content="A guide">
+      <link rel="stylesheet" href="/docs.css"><link rel="icon" href="/old.svg">
+    </head><body class="docs"><header class="header">Search</header><main>Guide body</main></body></html>`
+    const output = composeDocument(source, shell)
+    assert.match(output, /data-rxova-shell/)
+    assert.match(output, /class="starlight"/)
+    assert.match(output, /class="docs"/)
+    assert.match(output, /<title>Guide<\/title>/)
+    assert.match(output, /A guide/)
+    assert.match(output, /\/docs\.css/)
+    assert.doesNotMatch(output, /old\.svg/)
+    assert.match(output, /<header class="site">Rxova<\/header>/)
+    assert.match(output, /<header class="header">Search<\/header>/)
+    assert.match(output, /<main>Guide body<\/main>/)
+    assert.match(output, /website-footer/)
+    assert.doesNotMatch(output, /private shell/)
+    assert.doesNotMatch(output, /noindex/)
+  })
+
+  it('rejects producer-owned global chrome and analytics', () => {
+    assert.throws(
+      () =>
+        composeDocument(
+          '<html><head></head><body><main></main><footer class="rx-footer"></footer></body></html>',
+          shell,
+        ),
+      /global Rxova chrome/,
+    )
+    assert.throws(
+      () =>
+        composeDocument(
+          '<html><head><script src="https://static.cloudflareinsights.com/beacon.min.js"></script></head><body><main></main></body></html>',
+          shell,
+        ),
+      /Cloudflare Analytics/,
+    )
+  })
+
+  it('composes static redirect documents without requiring a main element', () => {
+    const output = composeDocument(
+      '<html><head><title>Redirect</title><meta http-equiv="refresh" content="0;url=/next/"></head><body><a href="/next/">Continue</a></body></html>',
+      shell,
+    )
+    assert.match(output, /http-equiv="refresh"/)
+    assert.match(output, /Continue/)
   })
 })

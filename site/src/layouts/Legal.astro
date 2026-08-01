@@ -1,97 +1,77 @@
 ---
-import '../styles/global.css'
-import { siteUrl } from '@rxova/brand'
-import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
-import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
-import { navSurfaces } from '../lib/projects'
+import BaseLayout from './BaseLayout.astro'
 
-const { title } = Astro.props
-
-/** Deployed surfaces only — see index.astro. */
-const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s.href) }))
+const { title, path } = Astro.props
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
-    <title>{title} — Rxova</title>
-    <meta name="robots" content="noindex" />
-    <ThemeScript />
-  </head>
-  <body>
-    <main class="legal">
-      <a class="back" href="/">← rxova.org</a>
-      <h1>{title}</h1>
-      <div class="prose"><slot /></div>
-      {/* The shared footer, same as every other surface — see index.astro. */}
-      <SiteFooter site={footerSurfaces} />
-    </main>
+<BaseLayout title={`${title} — Rxova`} robots="noindex" path={path}>
+  <main class="legal">
+    <a class="back" href="/">← rxova.org</a>
+    <h1>{title}</h1>
+    <div class="prose"><slot /></div>
+  </main>
 
-    <style>
-      main.legal {
-        max-width: var(--max);
-        margin: 0 auto;
-        padding: clamp(2.5rem, 8vh, 5rem) 1.5rem 4rem;
-      }
-      .back {
-        display: inline-block;
-        margin-bottom: 2rem;
-        color: var(--muted);
-        text-decoration: none;
-        font-size: 0.95rem;
-      }
-      .back:hover {
-        color: var(--fg);
-      }
-      main.legal h1 {
-        font-size: clamp(1.6rem, 4vw, 2.1rem);
-        letter-spacing: -0.02em;
-        font-weight: 650;
-        margin-bottom: 1.5rem;
-      }
-      .prose :global(h2) {
-        font-size: 1.12rem;
-        font-weight: 640;
-        letter-spacing: -0.01em;
-        margin: 2rem 0 0.5rem;
-      }
-      .prose :global(p) {
-        color: var(--muted);
-        margin-bottom: 1rem;
-      }
-      .prose :global(ul) {
-        color: var(--muted);
-        margin: 0 0 1rem 1.2rem;
-      }
-      .prose :global(li) {
-        margin-bottom: 0.4rem;
-      }
-      .prose :global(a) {
-        color: var(--fg);
-        text-decoration: underline;
-        text-underline-offset: 2px;
-      }
-      .prose :global(strong) {
-        color: var(--fg);
-        font-weight: 620;
-      }
-      .prose :global(code) {
-        font-family: var(--mono);
-        font-size: 0.88em;
-        background: var(--tag-bg);
-        padding: 0.05rem 0.35rem;
-        border-radius: 4px;
-      }
-      .prose :global(.updated) {
-        color: var(--faint);
-        font-size: 0.9rem;
-        margin-bottom: 1.75rem;
-      }
-      /* The footer's spacing is owned by @rxova/brand's footer.css — see
+  <style>
+    main.legal {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: clamp(2.5rem, 8vh, 5rem) 1.5rem 4rem;
+    }
+    .back {
+      display: inline-block;
+      margin-bottom: 2rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+    .back:hover {
+      color: var(--fg);
+    }
+    main.legal h1 {
+      font-size: clamp(1.6rem, 4vw, 2.1rem);
+      letter-spacing: -0.02em;
+      font-weight: 650;
+      margin-bottom: 1.5rem;
+    }
+    .prose :global(h2) {
+      font-size: 1.12rem;
+      font-weight: 640;
+      letter-spacing: -0.01em;
+      margin: 2rem 0 0.5rem;
+    }
+    .prose :global(p) {
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .prose :global(ul) {
+      color: var(--muted);
+      margin: 0 0 1rem 1.2rem;
+    }
+    .prose :global(li) {
+      margin-bottom: 0.4rem;
+    }
+    .prose :global(a) {
+      color: var(--fg);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .prose :global(strong) {
+      color: var(--fg);
+      font-weight: 620;
+    }
+    .prose :global(code) {
+      font-family: var(--mono);
+      font-size: 0.88em;
+      background: var(--tag-bg);
+      padding: 0.05rem 0.35rem;
+      border-radius: 4px;
+    }
+    .prose :global(.updated) {
+      color: var(--faint);
+      font-size: 0.9rem;
+      margin-bottom: 1.75rem;
+    }
+    /* The footer's spacing is owned by @rxova/brand's footer.css — see
          index.astro for why this layout no longer overrides it. */
-    </style>
-  </body>
-</html>
+  </style>
+</BaseLayout>

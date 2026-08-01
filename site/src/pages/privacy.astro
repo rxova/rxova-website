@@ -2,18 +2,32 @@
 import Legal from '../layouts/Legal.astro'
 ---
 
-<Legal title="Privacy Policy">
-  <p class="updated">Last updated: {new Date().getFullYear()}</p>
+<Legal title="Privacy Policy" path="/privacy">
+  <p class="updated">Last updated: August 2026</p>
 
   <p>
-    <strong>Short version:</strong> rxova.org is a static website. It doesn't collect your personal data,
-    set cookies, or track you.
+    <strong>Short version:</strong> rxova.org is a static website. It uses cookie-free, aggregate web
+    analytics to understand which pages are useful, and does not use that data to identify or profile
+    you.
   </p>
 
   <h2>What is collected</h2>
   <p>
-    Nothing directly. There are no accounts, no analytics, no tracking pixels, and no advertising on
-    this site, and it does not set cookies.
+    There are no accounts, advertising pixels, or marketing cookies, and rxova.org does not set
+    cookies. Cloudflare Web Analytics reports aggregate measurements such as page path, referrer
+    host, browser type, device type, and country. Rxova uses those reports to measure documentation
+    usage and improve the site. Cloudflare states that Web Analytics does not collect or use
+    visitors' personal data.
+  </p>
+
+  <h2>Analytics provider</h2>
+  <p>
+    Cloudflare processes the analytics beacon on Rxova's behalf. Its service is designed to provide
+    privacy-first aggregate measurements without client-side state such as cookies or local storage.
+    See
+    <a href="https://www.cloudflare.com/web-analytics/" target="_blank" rel="noopener noreferrer"
+      >Cloudflare Web Analytics</a
+    > for provider details.
   </p>
 
   <h2>Hosting logs</h2>

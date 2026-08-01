@@ -11,16 +11,10 @@
  * /blog and /updates it needs no entry in sources.json. It is listed in the
  * menu and the footer through `landingSurfaces` in ../lib/projects.ts.
  */
-import '../styles/global.css'
 import { MAINTAINER, PRINCIPLES } from '../lib/about'
-import { navSurfaces, siteSurfaces } from '../lib/projects'
-import { PROJECTS, siteUrl } from '@rxova/brand'
-import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
-import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
-import SiteHeader from '../components/SiteHeader.astro'
-
-/** Absolute, like every href in the shared footer — see index.astro. */
-const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s.href) }))
+import { siteSurfaces } from '../lib/projects'
+import { PROJECTS } from '@rxova/brand'
+import BaseLayout from '../layouts/BaseLayout.astro'
 
 // Same rule the menu follows: link to /blog and /updates only where they are
 // actually deployed. The prose below reads fine without them.
@@ -31,14 +25,8 @@ const updatesHref = surface('updates')
 const description = `Rxova is built and maintained by ${MAINTAINER.name} — small TypeScript libraries for the hard parts of the browser, with stable APIs, thorough tests, and documentation that answers the question you arrived with.`
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
-    <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
-    <title>About — Rxova</title>
+<BaseLayout title="About — Rxova" path="/about">
+  <Fragment slot="head">
     <meta name="description" content={description} />
     <meta property="og:title" content="About Rxova" />
     <meta property="og:description" content={description} />
@@ -46,351 +34,345 @@ const description = `Rxova is built and maintained by ${MAINTAINER.name} — sma
     <meta property="og:url" content="https://rxova.org/about" />
     <meta property="og:image" content="https://rxova.org/og/rxova.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <ThemeScript />
-  </head>
-  <body>
-    <SiteHeader path="/about" />
-    <main>
-      <header class="intro">
-        <h1>About Rxova</h1>
-        <p class="lede">
-          Rxova is a small family of open-source TypeScript libraries for the browser, built and
-          maintained by one engineer in the open. This page is the part the project list leaves out:
-          who is behind it, why it exists, and what the libraries are held to.
-        </p>
-      </header>
+  </Fragment>
+  <main>
+    <header class="intro">
+      <h1>About Rxova</h1>
+      <p class="lede">
+        Rxova is a small family of open-source TypeScript libraries for the browser, built and
+        maintained by one engineer in the open. This page is the part the project list leaves out:
+        who is behind it, why it exists, and what the libraries are held to.
+      </p>
+    </header>
 
-      {
-        /* The maintainer first. Someone who clicked "About" from a package page
+    {
+      /* The maintainer first. Someone who clicked "About" from a package page
           is usually deciding whether to depend on this, and the first thing
           that decision needs is a name. */
-      }
-      <section class="section" aria-labelledby="maintainer">
-        <h2 id="maintainer">{MAINTAINER.name}</h2>
-        <p class="role">{MAINTAINER.role}</p>
-        <p>{MAINTAINER.summary}</p>
-        <p>
-          Day to day that means React architecture at application scale: state that survives a
-          refactor, component APIs a team can use without reading their implementation, and the
-          developer-facing infrastructure — types, tests, documentation, release pipelines — that
-          decides whether any of it is still usable a year later. Rxova is that same work, done in
-          public, at a scope small enough to actually finish.
-        </p>
-        <nav class="links" aria-label={`${MAINTAINER.name} elsewhere`}>
-          {
-            MAINTAINER.links.map((l) => (
-              <a href={l.href} target="_blank" rel="noopener noreferrer">
-                {l.label}
-                <span aria-hidden="true" class="arrow">
-                  ↗
-                </span>
+    }
+    <section class="section" aria-labelledby="maintainer">
+      <h2 id="maintainer">{MAINTAINER.name}</h2>
+      <p class="role">{MAINTAINER.role}</p>
+      <p>{MAINTAINER.summary}</p>
+      <p>
+        Day to day that means React architecture at application scale: state that survives a
+        refactor, component APIs a team can use without reading their implementation, and the
+        developer-facing infrastructure — types, tests, documentation, release pipelines — that
+        decides whether any of it is still usable a year later. Rxova is that same work, done in
+        public, at a scope small enough to actually finish.
+      </p>
+      <nav class="links" aria-label={`${MAINTAINER.name} elsewhere`}>
+        {
+          MAINTAINER.links.map((l) => (
+            <a href={l.href} target="_blank" rel="noopener noreferrer">
+              {l.label}
+              <span aria-hidden="true" class="arrow">
+                ↗
+              </span>
+            </a>
+          ))
+        }
+        <a href={`mailto:${MAINTAINER.email}`}>
+          {MAINTAINER.email}
+          <span aria-hidden="true" class="arrow">→</span>
+        </a>
+      </nav>
+    </section>
+
+    <section class="section" aria-labelledby="why">
+      <h2 id="why">Why Rxova exists</h2>
+      <p>
+        Most of these libraries began as the same code written for the third time. A currency input
+        that keeps the caret where the user left it. An OTP field that does the right thing with a
+        pasted code. A way to describe a multi-step, branching flow that does not decay into a pile
+        of booleans and effects. Each had been solved before — privately, inside a product
+        repository, in a form that could not travel to the next project.
+      </p>
+      <p>
+        Rxova is where that work stops being private. It is an umbrella, not a company: a shared set
+        of standards for what counts as finished, one design system across the docs, and a single
+        place to look for any of it. The projects underneath stay independent — separate
+        repositories, separate releases, separate decisions to adopt.
+      </p>
+    </section>
+
+    <section class="section" aria-labelledby="principles">
+      <h2 id="principles">What the projects share</h2>
+      <p class="section-lede">
+        {PROJECTS.map((p) => p.label).join(', ')} solve unrelated problems. These four rules are what
+        make them one ecosystem, and they are stated so you can check the code against them.
+      </p>
+      <ol class="principles">
+        {
+          PRINCIPLES.map((p) => (
+            <li class="principle" id={p.id}>
+              <h3 class="principle-title">{p.title}</h3>
+              <p class="principle-summary">{p.summary}</p>
+              <p class="principle-detail">{p.detail}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="section" aria-labelledby="maintained">
+      <h2 id="maintained">Is it actively maintained?</h2>
+      <p>
+        Yes — and the honest way to check is not a badge on this page.
+        {
+          updatesHref ? (
+            <>
+              {' '}
+              <a href={updatesHref}>Updates</a> records every release, pipeline change and decision
+              as it happens, and each repository's commit history is public.
+            </>
+          ) : (
+            " Each repository's commit history is public."
+          )
+        } If a project ever goes quiet, those will show it long before any claim here would.
+      </p>
+      <p>
+        What one maintainer can commit to: issues get read, security reports come first, and a
+        released API does not change under you without a major version and a migration note. What it
+        would be dishonest to promise: same-day fixes, or a roadmap driven by feature votes. Knowing
+        which of those you are getting is the point of saying it is one person's work.
+      </p>
+    </section>
+
+    <section class="section" aria-labelledby="contributing">
+      <h2 id="contributing">Contributing</h2>
+      <p>Contributions are welcome, and the most useful ones are smaller than people expect:</p>
+      <ul class="list">
+        <li>
+          <strong>A bug report with a minimal reproduction.</strong> It is worth more than a patch — most
+          of the fixing time is spent getting the failure to happen on demand.
+        </li>
+        <li>
+          <strong>A focused pull request.</strong> One behaviour, with the test that fails without it.
+          Large refactors are best raised as an issue first, so neither of us spends a weekend on a direction
+          the other would not take.
+        </li>
+        <li>
+          <strong>A documentation fix.</strong> If something was unclear enough to cost you an hour, saying
+          so is a contribution even without the patch.
+        </li>
+      </ul>
+      <p>
+        Each library is developed in its own repository under <a
+          href={MAINTAINER.org}
+          target="_blank"
+          rel="noopener noreferrer">github.com/rxova</a
+        >, so issues and pull requests belong there rather than here:
+      </p>
+      <ul class="repos">
+        {
+          PROJECTS.map((p) => (
+            <li>
+              <a href={p.repo} target="_blank" rel="noopener noreferrer">
+                {p.label}
               </a>
-            ))
-          }
-          <a href={`mailto:${MAINTAINER.email}`}>
-            {MAINTAINER.email}
-            <span aria-hidden="true" class="arrow">→</span>
-          </a>
-        </nav>
-      </section>
+              <span class="repo-tagline">{p.tagline}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <p>
+        For anything that does not belong in public — a security report, or a question you would
+        rather not file — <a href={`mailto:${MAINTAINER.email}`}>{MAINTAINER.email}</a> reaches me directly.{
+          blogHref ? (
+            <>
+              {' '}
+              Longer write-ups on how these are built go on the <a href={blogHref}>blog</a>.
+            </>
+          ) : null
+        }
+      </p>
+    </section>
+  </main>
 
-      <section class="section" aria-labelledby="why">
-        <h2 id="why">Why Rxova exists</h2>
-        <p>
-          Most of these libraries began as the same code written for the third time. A currency
-          input that keeps the caret where the user left it. An OTP field that does the right thing
-          with a pasted code. A way to describe a multi-step, branching flow that does not decay
-          into a pile of booleans and effects. Each had been solved before — privately, inside a
-          product repository, in a form that could not travel to the next project.
-        </p>
-        <p>
-          Rxova is where that work stops being private. It is an umbrella, not a company: a shared
-          set of standards for what counts as finished, one design system across the docs, and a
-          single place to look for any of it. The projects underneath stay independent — separate
-          repositories, separate releases, separate decisions to adopt.
-        </p>
-      </section>
-
-      <section class="section" aria-labelledby="principles">
-        <h2 id="principles">What the projects share</h2>
-        <p class="section-lede">
-          {PROJECTS.map((p) => p.label).join(', ')} solve unrelated problems. These four rules are what
-          make them one ecosystem, and they are stated so you can check the code against them.
-        </p>
-        <ol class="principles">
-          {
-            PRINCIPLES.map((p) => (
-              <li class="principle" id={p.id}>
-                <h3 class="principle-title">{p.title}</h3>
-                <p class="principle-summary">{p.summary}</p>
-                <p class="principle-detail">{p.detail}</p>
-              </li>
-            ))
-          }
-        </ol>
-      </section>
-
-      <section class="section" aria-labelledby="maintained">
-        <h2 id="maintained">Is it actively maintained?</h2>
-        <p>
-          Yes — and the honest way to check is not a badge on this page.
-          {
-            updatesHref ? (
-              <>
-                {' '}
-                <a href={updatesHref}>Updates</a> records every release, pipeline change and
-                decision as it happens, and each repository's commit history is public.
-              </>
-            ) : (
-              " Each repository's commit history is public."
-            )
-          } If a project ever goes quiet, those will show it long before any claim here would.
-        </p>
-        <p>
-          What one maintainer can commit to: issues get read, security reports come first, and a
-          released API does not change under you without a major version and a migration note. What
-          it would be dishonest to promise: same-day fixes, or a roadmap driven by feature votes.
-          Knowing which of those you are getting is the point of saying it is one person's work.
-        </p>
-      </section>
-
-      <section class="section" aria-labelledby="contributing">
-        <h2 id="contributing">Contributing</h2>
-        <p>Contributions are welcome, and the most useful ones are smaller than people expect:</p>
-        <ul class="list">
-          <li>
-            <strong>A bug report with a minimal reproduction.</strong> It is worth more than a patch —
-            most of the fixing time is spent getting the failure to happen on demand.
-          </li>
-          <li>
-            <strong>A focused pull request.</strong> One behaviour, with the test that fails without it.
-            Large refactors are best raised as an issue first, so neither of us spends a weekend on a
-            direction the other would not take.
-          </li>
-          <li>
-            <strong>A documentation fix.</strong> If something was unclear enough to cost you an hour,
-            saying so is a contribution even without the patch.
-          </li>
-        </ul>
-        <p>
-          Each library is developed in its own repository under <a
-            href={MAINTAINER.org}
-            target="_blank"
-            rel="noopener noreferrer">github.com/rxova</a
-          >, so issues and pull requests belong there rather than here:
-        </p>
-        <ul class="repos">
-          {
-            PROJECTS.map((p) => (
-              <li>
-                <a href={p.repo} target="_blank" rel="noopener noreferrer">
-                  {p.label}
-                </a>
-                <span class="repo-tagline">{p.tagline}</span>
-              </li>
-            ))
-          }
-        </ul>
-        <p>
-          For anything that does not belong in public — a security report, or a question you would
-          rather not file — <a href={`mailto:${MAINTAINER.email}`}>{MAINTAINER.email}</a> reaches me directly.{
-            blogHref ? (
-              <>
-                {' '}
-                Longer write-ups on how these are built go on the <a href={blogHref}>blog</a>.
-              </>
-            ) : null
-          }
-        </p>
-      </section>
-
-      <SiteFooter site={footerSurfaces} />
-    </main>
-
-    <style>
-      /* New work, so these use @rxova/brand's --rx-* tokens directly rather than
+  <style>
+    /* New work, so these use @rxova/brand's --rx-* tokens directly rather than
          the short aliases the landing's older rules were written against. */
-      main {
-        max-width: var(--rx-max);
-        margin: 0 auto;
-        padding: clamp(2rem, 6vh, 3.5rem) 1.5rem 4rem;
-      }
+    main {
+      max-width: var(--rx-max);
+      margin: 0 auto;
+      padding: clamp(2rem, 6vh, 3.5rem) 1.5rem 4rem;
+    }
 
-      /* A page of prose, so the measure is narrower than the landing's card
+    /* A page of prose, so the measure is narrower than the landing's card
          grid — long lines are the fastest way to make a bio unread. */
-      .intro,
-      .section > p,
-      .section-lede,
-      .list,
-      .repos {
-        max-width: 40rem;
-      }
+    .intro,
+    .section > p,
+    .section-lede,
+    .list,
+    .repos {
+      max-width: 40rem;
+    }
 
-      .intro h1 {
-        font-size: clamp(1.7rem, 4.5vw, 2.4rem);
-        line-height: 1.15;
-        letter-spacing: -0.02em;
-        font-weight: 650;
-        margin-bottom: 1.1rem;
-      }
+    .intro h1 {
+      font-size: clamp(1.7rem, 4.5vw, 2.4rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      font-weight: 650;
+      margin-bottom: 1.1rem;
+    }
 
-      .lede {
-        color: var(--rx-muted);
-        font-size: 1.15rem;
-      }
+    .lede {
+      color: var(--rx-muted);
+      font-size: 1.15rem;
+    }
 
-      .section {
-        margin-top: clamp(2.5rem, 6vh, 3.5rem);
-        padding-top: 2.25rem;
-        border-top: 1px solid var(--rx-rule);
-      }
+    .section {
+      margin-top: clamp(2.5rem, 6vh, 3.5rem);
+      padding-top: 2.25rem;
+      border-top: 1px solid var(--rx-rule);
+    }
 
-      .section h2 {
-        font-size: 1.5rem;
-        letter-spacing: -0.02em;
-        font-weight: 640;
-        margin-bottom: 0.7rem;
-      }
+    .section h2 {
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      font-weight: 640;
+      margin-bottom: 0.7rem;
+    }
 
-      .section p {
-        color: var(--rx-muted);
-        margin-bottom: 1rem;
-      }
+    .section p {
+      color: var(--rx-muted);
+      margin-bottom: 1rem;
+    }
 
-      .section p a {
-        color: var(--rx-fg);
-        text-decoration: underline;
-        text-underline-offset: 2px;
-      }
+    .section p a {
+      color: var(--rx-fg);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
 
-      /* The one line under the name — set apart from the prose so the role
+    /* The one line under the name — set apart from the prose so the role
          reads as a label rather than as the first sentence of the bio. */
-      .section p.role {
-        font-family: var(--rx-font-mono);
-        font-size: 0.78rem;
-        letter-spacing: 0.02em;
-        text-transform: uppercase;
-        color: var(--rx-faint);
-        margin-bottom: 1.1rem;
-      }
+    .section p.role {
+      font-family: var(--rx-font-mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--rx-faint);
+      margin-bottom: 1.1rem;
+    }
 
-      .section-lede {
-        margin-bottom: 2rem;
-      }
+    .section-lede {
+      margin-bottom: 2rem;
+    }
 
-      .principles {
-        list-style: none;
-        display: grid;
-        gap: 2rem;
-        margin-top: 1.5rem;
-      }
+    .principles {
+      list-style: none;
+      display: grid;
+      gap: 2rem;
+      margin-top: 1.5rem;
+    }
 
-      .principle {
-        border-left: 2px solid var(--rx-rule-strong);
-        padding-left: 1.15rem;
-        max-width: 42rem;
-        /* Deep-linkable — the ids are stable, and the sticky header already sets
+    .principle {
+      border-left: 2px solid var(--rx-rule-strong);
+      padding-left: 1.15rem;
+      max-width: 42rem;
+      /* Deep-linkable — the ids are stable, and the sticky header already sets
            scroll-padding-top so an anchor does not land underneath it. */
-        scroll-margin-top: 5rem;
-      }
+      scroll-margin-top: 5rem;
+    }
 
-      .principle-title {
-        font-size: 1.08rem;
-        font-weight: 620;
-        letter-spacing: -0.01em;
-        margin-bottom: 0.4rem;
-      }
+    .principle-title {
+      font-size: 1.08rem;
+      font-weight: 620;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.4rem;
+    }
 
-      /* Selector matches `.section p` so the summary can sit at full contrast
+    /* Selector matches `.section p` so the summary can sit at full contrast
          above its own muted detail paragraph. */
-      .section p.principle-summary {
-        color: var(--rx-fg);
-        margin-bottom: 0.6rem;
-      }
+    .section p.principle-summary {
+      color: var(--rx-fg);
+      margin-bottom: 0.6rem;
+    }
 
-      .principle-detail {
-        font-size: 0.97rem;
-      }
+    .principle-detail {
+      font-size: 0.97rem;
+    }
 
-      .list {
-        margin: 0 0 1rem 1.15rem;
-        color: var(--rx-muted);
-      }
+    .list {
+      margin: 0 0 1rem 1.15rem;
+      color: var(--rx-muted);
+    }
 
-      .list li {
-        margin-bottom: 0.6rem;
-      }
+    .list li {
+      margin-bottom: 0.6rem;
+    }
 
-      .list strong {
-        color: var(--rx-fg);
-        font-weight: 620;
-      }
+    .list strong {
+      color: var(--rx-fg);
+      font-weight: 620;
+    }
 
-      .repos {
-        list-style: none;
-        display: grid;
-        gap: 0.55rem;
-        margin-bottom: 1.5rem;
-      }
+    .repos {
+      list-style: none;
+      display: grid;
+      gap: 0.55rem;
+      margin-bottom: 1.5rem;
+    }
 
-      .repos li {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: baseline;
-        gap: 0.15rem 0.6rem;
-      }
+    .repos li {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.15rem 0.6rem;
+    }
 
-      .repos a {
-        font-weight: 550;
-        text-decoration: none;
-        border-bottom: 1px solid transparent;
-        transition: border-color 0.15s ease;
-      }
+    .repos a {
+      font-weight: 550;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.15s ease;
+    }
 
-      .repos a:hover {
-        border-bottom-color: var(--rx-fg);
-      }
+    .repos a:hover {
+      border-bottom-color: var(--rx-fg);
+    }
 
-      .repo-tagline {
-        color: var(--rx-faint);
-        font-size: 0.9rem;
-      }
+    .repo-tagline {
+      color: var(--rx-faint);
+      font-size: 0.9rem;
+    }
 
-      /* Same link row as the landing's project cards. */
-      .links {
-        display: flex;
-        gap: 1.5rem;
-        flex-wrap: wrap;
-        margin-top: 1.25rem;
-      }
+    /* Same link row as the landing's project cards. */
+    .links {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+    }
 
-      .links a {
-        text-decoration: none;
-        font-weight: 550;
-        font-size: 0.97rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-        border-bottom: 1px solid transparent;
-        transition: border-color 0.15s ease;
-      }
+    .links a {
+      text-decoration: none;
+      font-weight: 550;
+      font-size: 0.97rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.15s ease;
+    }
 
-      .links a:hover {
-        border-bottom-color: var(--rx-fg);
-      }
+    .links a:hover {
+      border-bottom-color: var(--rx-fg);
+    }
 
-      .arrow {
-        color: var(--rx-faint);
-        font-size: 0.85em;
-        transition: transform 0.15s ease;
-      }
+    .arrow {
+      color: var(--rx-faint);
+      font-size: 0.85em;
+      transition: transform 0.15s ease;
+    }
 
-      .links a:hover .arrow {
-        transform: translate(1px, -1px);
-      }
+    .links a:hover .arrow {
+      transform: translate(1px, -1px);
+    }
 
-      /* The footer's spacing is owned by @rxova/brand's footer.css — see
+    /* The footer's spacing is owned by @rxova/brand's footer.css — see
          index.astro for why this page no longer overrides it. */
-    </style>
-  </body>
-</html>
+  </style>
+</BaseLayout>
