@@ -1,5 +1,4 @@
 ---
-import '../styles/global.css'
 // The project list is assembled from @rxova/brand (product metadata, shared with
 // the docs sites) and sources.json (landing copy + what is actually deployed).
 // See src/lib/projects.ts — it fails the build if the two disagree.
@@ -8,9 +7,9 @@ import { landingProjects, projectListSentence, navSurfaces } from '../lib/projec
 // long form is /about, and both read from the same module so they cannot drift.
 import { MAINTAINER, PRINCIPLES } from '../lib/about'
 import { siteUrl } from '@rxova/brand'
-import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
 import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
 import SiteHeader from '../components/SiteHeader.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
 
 // The footer's "Site" column, from what is actually deployed rather than the
 // package's hardcoded default — same `navSurfaces` the menu uses, so neither
@@ -19,14 +18,8 @@ import SiteHeader from '../components/SiteHeader.astro'
 const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s.href) }))
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
-    <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
-    <title>Rxova — TypeScript libraries for the hard parts of the browser</title>
+<BaseLayout title="Rxova — TypeScript libraries for the hard parts of the browser">
+  <Fragment slot="head">
     <!-- Project names come from the registry, so adding a project updates the
          meta descriptions too. They used to be hand-written and were the easiest
          thing to forget.
@@ -50,305 +43,302 @@ const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s
          gets centre-cropped by Slack and Twitter into an unreadable smear. -->
     <meta property="og:image" content="https://rxova.org/og/rxova.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <ThemeScript />
-  </head>
-  <body>
-    <SiteHeader path="/" />
-    <main>
-      {
-        /* The hero names the problems rather than praising the solutions. It
+  </Fragment>
+  <SiteHeader path="/" />
+  <main>
+    {
+      /* The hero names the problems rather than praising the solutions. It
           used to read "Building open-source React libraries the way they should
           be" over "each does one thing well … and gets out of your way", which
           asserted quality instead of showing any, and called the whole family
           React when only react-inputs actually is. */
-      }
-      <header class="intro">
-        <h1>Small TypeScript libraries for the hard parts of the browser.</h1>
-        <p class="lede">
-          Cross-tab state. Non-linear flows. The inputs nobody wants to build and everybody wants to
-          import. <strong>Rxova</strong> ships framework-agnostic cores, React bindings where they earn
-          their place, and APIs small enough to stay still.
-        </p>
-      </header>
+    }
+    <header class="intro">
+      <h1>Small TypeScript libraries for the hard parts of the browser.</h1>
+      <p class="lede">
+        Cross-tab state. Non-linear flows. The inputs nobody wants to build and everybody wants to
+        import. <strong>Rxova</strong> ships framework-agnostic cores, React bindings where they earn
+        their place, and APIs small enough to stay still.
+      </p>
+    </header>
 
-      <section class="projects" aria-label="Projects">
-        {
-          landingProjects.map((p) => (
-            <article class="project">
-              <h2 class="project-title">{p.label}</h2>
-              <ul class="packages" aria-label={`${p.label} packages`}>
-                {p.packages.map((pkg) => (
-                  <li class="pkg">{pkg}</li>
-                ))}
-              </ul>
-              <p class="tagline">{p.tagline}</p>
-              <p class="blurb">{p.blurb}</p>
-              <ul class="tags" aria-label={`${p.label} tech`}>
-                {p.tags.map((t) => (
-                  <li class="tag">{t}</li>
-                ))}
-              </ul>
-              <nav class="links" aria-label={`${p.label} links`}>
-                {p.links.map((l) => (
-                  <a
-                    href={l.href}
-                    {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  >
-                    {l.label}
-                    <span aria-hidden="true" class="arrow">
-                      {l.external ? '↗' : '→'}
-                    </span>
-                  </a>
-                ))}
-              </nav>
-            </article>
-          ))
-        }
-      </section>
-
+    <section class="projects" aria-label="Projects">
       {
-        /* Why these three are one ecosystem. It comes after the project list
+        landingProjects.map((p) => (
+          <article class="project">
+            <h2 class="project-title">{p.label}</h2>
+            <ul class="packages" aria-label={`${p.label} packages`}>
+              {p.packages.map((pkg) => (
+                <li class="pkg">{pkg}</li>
+              ))}
+            </ul>
+            <p class="tagline">{p.tagline}</p>
+            <p class="blurb">{p.blurb}</p>
+            <ul class="tags" aria-label={`${p.label} tech`}>
+              {p.tags.map((t) => (
+                <li class="tag">{t}</li>
+              ))}
+            </ul>
+            <nav class="links" aria-label={`${p.label} links`}>
+              {p.links.map((l) => (
+                <a
+                  href={l.href}
+                  {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                >
+                  {l.label}
+                  <span aria-hidden="true" class="arrow">
+                    {l.external ? '↗' : '→'}
+                  </span>
+                </a>
+              ))}
+            </nav>
+          </article>
+        ))
+      }
+    </section>
+
+    {
+      /* Why these three are one ecosystem. It comes after the project list
           rather than before it: the principles mean something once you have
           seen what they produced, and nothing at all as an opening claim. */
-      }
-      <section class="why" aria-labelledby="why-heading">
-        <h2 id="why-heading">Why Rxova</h2>
-        <p class="why-lede">
-          Three projects, one set of rules. These are what Journey, react-inputs and use-everywhere
-          have in common — and what they are held to.
-        </p>
-        <ul class="principles">
-          {
-            PRINCIPLES.map((p) => (
-              <li class="principle">
-                <h3 class="principle-title">{p.title}</h3>
-                <p class="principle-summary">{p.summary}</p>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+    }
+    <section class="why" aria-labelledby="why-heading">
+      <h2 id="why-heading">Why Rxova</h2>
+      <p class="why-lede">
+        Three projects, one set of rules. These are what Journey, react-inputs and use-everywhere
+        have in common — and what they are held to.
+      </p>
+      <ul class="principles">
+        {
+          PRINCIPLES.map((p) => (
+            <li class="principle">
+              <h3 class="principle-title">{p.title}</h3>
+              <p class="principle-summary">{p.summary}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
 
-      {
-        /* The maintainer, named. A visitor deciding whether to depend on any of
+    {
+      /* The maintainer, named. A visitor deciding whether to depend on any of
           this wants to know who is behind it and whether it is still moving;
           both were previously unanswerable anywhere on the site. */
-      }
-      <section class="maintainer" aria-labelledby="maintainer-heading">
-        <h2 id="maintainer-heading">Built and maintained by {MAINTAINER.name}</h2>
-        <p class="maintainer-summary">{MAINTAINER.summary}</p>
-        <nav class="links" aria-label="About the maintainer">
-          <a href="/about">
-            About Rxova
-            <span aria-hidden="true" class="arrow">→</span>
-          </a>
-          {
-            MAINTAINER.links.map((l) => (
-              <a href={l.href} target="_blank" rel="noopener noreferrer">
-                {l.label}
-                <span aria-hidden="true" class="arrow">
-                  ↗
-                </span>
-              </a>
-            ))
-          }
-        </nav>
-      </section>
+    }
+    <section class="maintainer" aria-labelledby="maintainer-heading">
+      <h2 id="maintainer-heading">Built and maintained by {MAINTAINER.name}</h2>
+      <p class="maintainer-summary">{MAINTAINER.summary}</p>
+      <nav class="links" aria-label="About the maintainer">
+        <a href="/about">
+          About Rxova
+          <span aria-hidden="true" class="arrow">→</span>
+        </a>
+        {
+          MAINTAINER.links.map((l) => (
+            <a href={l.href} target="_blank" rel="noopener noreferrer">
+              {l.label}
+              <span aria-hidden="true" class="arrow">
+                ↗
+              </span>
+            </a>
+          ))
+        }
+      </nav>
+    </section>
 
-      {
-        /* The shared footer from @rxova/brand — the same one /blog, /updates and
+    {
+      /* The shared footer from @rxova/brand — the same one /blog, /updates and
           the docs sites render. This page used to carry its own dot-separated
           link row, which is why it stayed a single line while every other
           surface grew the four-column one. */
-      }
-      <SiteFooter site={footerSurfaces} />
-    </main>
+    }
+    <SiteFooter site={footerSurfaces} />
+  </main>
 
-    <style>
-      main {
-        max-width: var(--max);
-        margin: 0 auto;
-        padding: clamp(2rem, 6vh, 3.5rem) 1.5rem 4rem;
-      }
+  <style>
+    main {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: clamp(2rem, 6vh, 3.5rem) 1.5rem 4rem;
+    }
 
-      .intro h1 {
-        font-size: clamp(1.7rem, 4.5vw, 2.4rem);
-        line-height: 1.15;
-        letter-spacing: -0.02em;
-        font-weight: 650;
-        margin-bottom: 1.1rem;
-      }
+    .intro h1 {
+      font-size: clamp(1.7rem, 4.5vw, 2.4rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      font-weight: 650;
+      margin-bottom: 1.1rem;
+    }
 
-      .lede {
-        color: var(--muted);
-        font-size: 1.15rem;
-        max-width: 34rem;
-      }
+    .lede {
+      color: var(--muted);
+      font-size: 1.15rem;
+      max-width: 34rem;
+    }
 
-      .projects {
-        margin-top: clamp(3rem, 8vh, 5rem);
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-      }
+    .projects {
+      margin-top: clamp(3rem, 8vh, 5rem);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
 
-      .project {
-        padding: 2.25rem 0;
-        border-top: 1px solid var(--rule);
-      }
+    .project {
+      padding: 2.25rem 0;
+      border-top: 1px solid var(--rule);
+    }
 
-      .project-title {
-        font-size: 1.5rem;
-        letter-spacing: -0.02em;
-        font-weight: 640;
-        margin-bottom: 0.7rem;
-      }
+    .project-title {
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      font-weight: 640;
+      margin-bottom: 0.7rem;
+    }
 
-      .packages {
-        list-style: none;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.4rem;
-        margin-bottom: 0.95rem;
-      }
+    .packages {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.95rem;
+    }
 
-      .pkg {
-        font-family: var(--mono);
-        font-size: 0.75rem;
-        line-height: 1.4;
-        color: var(--faint);
-        background: var(--tag-bg);
-        padding: 0.15rem 0.5rem;
-        border-radius: 5px;
-        letter-spacing: -0.01em;
-      }
+    .pkg {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      line-height: 1.4;
+      color: var(--faint);
+      background: var(--tag-bg);
+      padding: 0.15rem 0.5rem;
+      border-radius: 5px;
+      letter-spacing: -0.01em;
+    }
 
-      .tagline {
-        font-size: 1.1rem;
-        margin-bottom: 0.5rem;
-      }
+    .tagline {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
 
-      .blurb {
-        color: var(--muted);
-        max-width: 38rem;
-        margin-bottom: 1.1rem;
-      }
+    .blurb {
+      color: var(--muted);
+      max-width: 38rem;
+      margin-bottom: 1.1rem;
+    }
 
-      .tags {
-        list-style: none;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.4rem;
-        margin-bottom: 1.25rem;
-      }
+    .tags {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
+    }
 
-      .tag {
-        font-size: 0.72rem;
-        color: var(--muted);
-        border: 1px solid var(--rule);
-        padding: 0.12rem 0.55rem;
-        border-radius: 999px;
-        letter-spacing: 0.01em;
-      }
+    .tag {
+      font-size: 0.72rem;
+      color: var(--muted);
+      border: 1px solid var(--rule);
+      padding: 0.12rem 0.55rem;
+      border-radius: 999px;
+      letter-spacing: 0.01em;
+    }
 
-      .links {
-        display: flex;
-        gap: 1.5rem;
-        flex-wrap: wrap;
-      }
+    .links {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
 
-      .links a {
-        text-decoration: none;
-        font-weight: 550;
-        font-size: 0.97rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-        border-bottom: 1px solid transparent;
-        transition: border-color 0.15s ease;
-      }
+    .links a {
+      text-decoration: none;
+      font-weight: 550;
+      font-size: 0.97rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.15s ease;
+    }
 
-      .links a:hover {
-        border-bottom-color: var(--fg);
-      }
+    .links a:hover {
+      border-bottom-color: var(--fg);
+    }
 
-      .arrow {
-        color: var(--faint);
-        font-size: 0.85em;
-        transition: transform 0.15s ease;
-      }
+    .arrow {
+      color: var(--faint);
+      font-size: 0.85em;
+      transition: transform 0.15s ease;
+    }
 
-      .links a:hover .arrow {
-        transform: translate(1px, -1px);
-      }
+    .links a:hover .arrow {
+      transform: translate(1px, -1px);
+    }
 
-      /* The two sections below are new work, so they use @rxova/brand's --rx-*
+    /* The two sections below are new work, so they use @rxova/brand's --rx-*
          tokens directly rather than the short aliases the rules above were
          written against. Same values — see the package's astro.css. */
 
-      /* Both sit on the same top rule the project cards use, so the page reads
+    /* Both sit on the same top rule the project cards use, so the page reads
          as one column of sections rather than a list plus two appendices. */
-      .why,
-      .maintainer {
-        padding: 2.25rem 0;
-        border-top: 1px solid var(--rx-rule);
-      }
+    .why,
+    .maintainer {
+      padding: 2.25rem 0;
+      border-top: 1px solid var(--rx-rule);
+    }
 
-      .why h2,
-      .maintainer h2 {
-        font-size: 1.5rem;
-        letter-spacing: -0.02em;
-        font-weight: 640;
-        margin-bottom: 0.7rem;
-      }
+    .why h2,
+    .maintainer h2 {
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      font-weight: 640;
+      margin-bottom: 0.7rem;
+    }
 
-      .why-lede {
-        color: var(--rx-muted);
-        max-width: 38rem;
-        margin-bottom: 2rem;
-      }
+    .why-lede {
+      color: var(--rx-muted);
+      max-width: 38rem;
+      margin-bottom: 2rem;
+    }
 
-      .principles {
-        list-style: none;
-        display: grid;
-        gap: 1.75rem 2.5rem;
-        /* Two columns where there is room for them, one where there is not. The
+    .principles {
+      list-style: none;
+      display: grid;
+      gap: 1.75rem 2.5rem;
+      /* Two columns where there is room for them, one where there is not. The
            four principles are meant to be read as a set, and a single tall
            column pushes the fourth off the fold on a laptop. */
-        grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
-      }
+      grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    }
 
-      .principle-title {
-        font-size: 1.02rem;
-        font-weight: 620;
-        letter-spacing: -0.01em;
-        margin-bottom: 0.35rem;
-      }
+    .principle-title {
+      font-size: 1.02rem;
+      font-weight: 620;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.35rem;
+    }
 
-      /* The rule's accent, on the title rather than around the whole card: the
+    /* The rule's accent, on the title rather than around the whole card: the
          section stays flat like the rest of the page. */
-      .principle {
-        border-left: 2px solid var(--rx-rule-strong);
-        padding-left: 1rem;
-      }
+    .principle {
+      border-left: 2px solid var(--rx-rule-strong);
+      padding-left: 1rem;
+    }
 
-      .principle-summary {
-        color: var(--rx-muted);
-        font-size: 0.97rem;
-      }
+    .principle-summary {
+      color: var(--rx-muted);
+      font-size: 0.97rem;
+    }
 
-      .maintainer-summary {
-        color: var(--rx-muted);
-        max-width: 38rem;
-        margin-bottom: 1.25rem;
-      }
+    .maintainer-summary {
+      color: var(--rx-muted);
+      max-width: 38rem;
+      margin-bottom: 1.25rem;
+    }
 
-      /* No `:global(.rx-footer)` rule here any more. This page used to set
+    /* No `:global(.rx-footer)` rule here any more. This page used to set
          `margin-top: clamp(3rem, 8vh, 5rem)`, /about copied it, and Legal.astro
          set 3rem — three values for one piece of shared chrome, so the gap above
          the footer differed on every surface and none matched /blog or /updates,
          which take the 4rem from @rxova/brand's footer.css. That file is now the
          only owner of the footer's spacing. */
-    </style>
-  </body>
-</html>
+  </style>
+</BaseLayout>

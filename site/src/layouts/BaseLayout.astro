@@ -1,0 +1,30 @@
+---
+import '../styles/global.css'
+import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
+import CloudflareAnalytics from '../components/CloudflareAnalytics.astro'
+
+interface Props {
+  title: string
+  robots?: string
+}
+
+const { title, robots } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
+    <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
+    <title>{title}</title>
+    {robots && <meta name="robots" content={robots} />}
+    <slot name="head" />
+    <ThemeScript />
+    <CloudflareAnalytics />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
