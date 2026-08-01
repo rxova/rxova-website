@@ -131,6 +131,28 @@ export const siteSurfaces: readonly SiteSurface[] = ((sources.sources ?? []) as 
   .filter((s) => s.kind === 'site' && s.enabled === true)
   .map((s) => ({ id: s.id, label: LABELS[s.id] ?? s.id, href: `/${s.id}` }))
 
+/**
+ * Surfaces this repo builds itself, rather than mounts.
+ *
+ * /about is a page of the landing's own Astro build, so unlike /blog and
+ * /updates there is no artifact to wait for and nothing to gate: if this build
+ * ships, the page ships. It still belongs in the same lists as the mounted
+ * surfaces — the header menu and the footer's "Site" column — which is what
+ * `navSurfaces` is for.
+ */
+export const landingSurfaces: readonly SiteSurface[] = [
+  { id: 'about', label: 'About', href: '/about' },
+]
+
+/**
+ * The standalone surfaces of rxova.org, in menu order.
+ *
+ * Mounted ones first (Blog, Updates), then the landing's own pages. About sits
+ * last on purpose: it is who-and-why, which a reader looks for after the work,
+ * not before it.
+ */
+export const navSurfaces: readonly SiteSurface[] = [...siteSurfaces, ...landingSurfaces]
+
 /** "Journey, react-inputs, and use-everywhere" — for the page's meta descriptions. */
 export const projectListSentence: string = (() => {
   const labels = landingProjects.map((p) => p.label)

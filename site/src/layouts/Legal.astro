@@ -3,12 +3,12 @@ import '../styles/global.css'
 import { siteUrl } from '@rxova/brand'
 import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
 import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
-import { siteSurfaces } from '../lib/projects'
+import { navSurfaces } from '../lib/projects'
 
 const { title } = Astro.props
 
 /** Deployed surfaces only — see index.astro. */
-const footerSurfaces = siteSurfaces.map((s) => ({ label: s.label, href: siteUrl(s.href) }))
+const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s.href) }))
 ---
 
 <!doctype html>

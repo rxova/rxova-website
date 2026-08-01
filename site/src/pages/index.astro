@@ -3,17 +3,20 @@ import '../styles/global.css'
 // The project list is assembled from @rxova/brand (product metadata, shared with
 // the docs sites) and sources.json (landing copy + what is actually deployed).
 // See src/lib/projects.ts — it fails the build if the two disagree.
-import { landingProjects, projectListSentence, siteSurfaces } from '../lib/projects'
+import { landingProjects, projectListSentence, navSurfaces } from '../lib/projects'
+// Who maintains this and what the projects share — the short form of both. The
+// long form is /about, and both read from the same module so they cannot drift.
+import { MAINTAINER, PRINCIPLES } from '../lib/about'
 import { siteUrl } from '@rxova/brand'
 import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
 import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
 import SiteHeader from '../components/SiteHeader.astro'
 
 // The footer's "Site" column, from what is actually deployed rather than the
-// package's hardcoded default — same `siteSurfaces` the menu uses, so neither
+// package's hardcoded default — same `navSurfaces` the menu uses, so neither
 // can advertise a surface whose first build has not landed. Absolute, because
 // every href in that footer is (see @rxova/brand's sites.ts).
-const footerSurfaces = siteSurfaces.map((s) => ({ label: s.label, href: siteUrl(s.href) }))
+const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s.href) }))
 ---
 
 <!doctype html>
@@ -88,6 +91,55 @@ const footerSurfaces = siteSurfaces.map((s) => ({ label: s.label, href: siteUrl(
             </article>
           ))
         }
+      </section>
+
+      {
+        /* Why these three are one ecosystem. It comes after the project list
+          rather than before it: the principles mean something once you have
+          seen what they produced, and nothing at all as an opening claim. */
+      }
+      <section class="why" aria-labelledby="why-heading">
+        <h2 id="why-heading">Why rxova</h2>
+        <p class="why-lede">
+          Three projects, one set of rules. These are what Journey, react-inputs and use-everywhere
+          have in common — and what they are held to.
+        </p>
+        <ul class="principles">
+          {
+            PRINCIPLES.map((p) => (
+              <li class="principle">
+                <h3 class="principle-title">{p.title}</h3>
+                <p class="principle-summary">{p.summary}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      {
+        /* The maintainer, named. A visitor deciding whether to depend on any of
+          this wants to know who is behind it and whether it is still moving;
+          both were previously unanswerable anywhere on the site. */
+      }
+      <section class="maintainer" aria-labelledby="maintainer-heading">
+        <h2 id="maintainer-heading">Built and maintained by {MAINTAINER.name}</h2>
+        <p class="maintainer-summary">{MAINTAINER.summary}</p>
+        <nav class="links" aria-label="About the maintainer">
+          <a href="/about">
+            About rxova
+            <span aria-hidden="true" class="arrow">→</span>
+          </a>
+          {
+            MAINTAINER.links.map((l) => (
+              <a href={l.href} target="_blank" rel="noopener noreferrer">
+                {l.label}
+                <span aria-hidden="true" class="arrow">
+                  ↗
+                </span>
+              </a>
+            ))
+          }
+        </nav>
       </section>
 
       {
@@ -215,6 +267,67 @@ const footerSurfaces = siteSurfaces.map((s) => ({ label: s.label, href: siteUrl(
 
       .links a:hover .arrow {
         transform: translate(1px, -1px);
+      }
+
+      /* The two sections below are new work, so they use @rxova/brand's --rx-*
+         tokens directly rather than the short aliases the rules above were
+         written against. Same values — see the package's astro.css. */
+
+      /* Both sit on the same top rule the project cards use, so the page reads
+         as one column of sections rather than a list plus two appendices. */
+      .why,
+      .maintainer {
+        padding: 2.25rem 0;
+        border-top: 1px solid var(--rx-rule);
+      }
+
+      .why h2,
+      .maintainer h2 {
+        font-size: 1.5rem;
+        letter-spacing: -0.02em;
+        font-weight: 640;
+        margin-bottom: 0.7rem;
+      }
+
+      .why-lede {
+        color: var(--rx-muted);
+        max-width: 38rem;
+        margin-bottom: 2rem;
+      }
+
+      .principles {
+        list-style: none;
+        display: grid;
+        gap: 1.75rem 2.5rem;
+        /* Two columns where there is room for them, one where there is not. The
+           four principles are meant to be read as a set, and a single tall
+           column pushes the fourth off the fold on a laptop. */
+        grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+      }
+
+      .principle-title {
+        font-size: 1.02rem;
+        font-weight: 620;
+        letter-spacing: -0.01em;
+        margin-bottom: 0.35rem;
+      }
+
+      /* The rule's accent, on the title rather than around the whole card: the
+         section stays flat like the rest of the page. */
+      .principle {
+        border-left: 2px solid var(--rx-rule-strong);
+        padding-left: 1rem;
+      }
+
+      .principle-summary {
+        color: var(--rx-muted);
+        font-size: 0.97rem;
+      }
+
+      .maintainer-summary {
+        color: var(--rx-muted);
+        max-width: 38rem;
+        margin-bottom: 1.25rem;
       }
 
       /* The footer's own rules are unscoped — they live in @rxova/brand's
