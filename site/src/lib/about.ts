@@ -35,7 +35,7 @@ export const MAINTAINER = {
   role: 'Senior Frontend Engineer',
   /** The landing's one-paragraph version. */
   summary:
-    'Senior Frontend Engineer focused on React architecture, reusable developer infrastructure, and tools for complex user interfaces. rxova is where I build focused open-source libraries with stable APIs, strong TypeScript support, thorough testing, and documentation that answers the question you actually arrived with.',
+    'Senior Frontend Engineer focused on React architecture, reusable developer infrastructure, and tools for complex user interfaces. Rxova is where I build focused open-source libraries with stable APIs, strong TypeScript support, thorough testing, and documentation that answers the question you actually arrived with.',
   links: [
     { label: 'GitHub', href: 'https://github.com/jonatankruszewski', external: true },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/jonatankruszewski', external: true },

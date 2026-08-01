@@ -28,7 +28,7 @@ const surface = (id: string) => siteSurfaces.find((s) => s.id === id)?.href
 const blogHref = surface('blog')
 const updatesHref = surface('updates')
 
-const description = `rxova is built and maintained by ${MAINTAINER.name} — small TypeScript libraries for the hard parts of the browser, with stable APIs, thorough tests, and documentation that answers the question you arrived with.`
+const description = `Rxova is built and maintained by ${MAINTAINER.name} — small TypeScript libraries for the hard parts of the browser, with stable APIs, thorough tests, and documentation that answers the question you arrived with.`
 ---
 
 <!doctype html>
@@ -38,9 +38,9 @@ const description = `rxova is built and maintained by ${MAINTAINER.name} — sma
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
     <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
-    <title>About — rxova</title>
+    <title>About — Rxova</title>
     <meta name="description" content={description} />
-    <meta property="og:title" content="About rxova" />
+    <meta property="og:title" content="About Rxova" />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="profile" />
     <meta property="og:url" content="https://rxova.org/about" />
@@ -52,9 +52,9 @@ const description = `rxova is built and maintained by ${MAINTAINER.name} — sma
     <SiteHeader path="/about" />
     <main>
       <header class="intro">
-        <h1>About rxova</h1>
+        <h1>About Rxova</h1>
         <p class="lede">
-          rxova is a small family of open-source TypeScript libraries for the browser, built and
+          Rxova is a small family of open-source TypeScript libraries for the browser, built and
           maintained by one engineer in the open. This page is the part the project list leaves out:
           who is behind it, why it exists, and what the libraries are held to.
         </p>
@@ -73,7 +73,7 @@ const description = `rxova is built and maintained by ${MAINTAINER.name} — sma
           Day to day that means React architecture at application scale: state that survives a
           refactor, component APIs a team can use without reading their implementation, and the
           developer-facing infrastructure — types, tests, documentation, release pipelines — that
-          decides whether any of it is still usable a year later. rxova is that same work, done in
+          decides whether any of it is still usable a year later. Rxova is that same work, done in
           public, at a scope small enough to actually finish.
         </p>
         <nav class="links" aria-label={`${MAINTAINER.name} elsewhere`}>
@@ -95,7 +95,7 @@ const description = `rxova is built and maintained by ${MAINTAINER.name} — sma
       </section>
 
       <section class="section" aria-labelledby="why">
-        <h2 id="why">Why rxova exists</h2>
+        <h2 id="why">Why Rxova exists</h2>
         <p>
           Most of these libraries began as the same code written for the third time. A currency
           input that keeps the caret where the user left it. An OTP field that does the right thing
@@ -104,7 +104,7 @@ const description = `rxova is built and maintained by ${MAINTAINER.name} — sma
           product repository, in a form that could not travel to the next project.
         </p>
         <p>
-          rxova is where that work stops being private. It is an umbrella, not a company: a shared
+          Rxova is where that work stops being private. It is an umbrella, not a company: a shared
           set of standards for what counts as finished, one design system across the docs, and a
           single place to look for any of it. The projects underneath stay independent — separate
           repositories, separate releases, separate decisions to adopt.
