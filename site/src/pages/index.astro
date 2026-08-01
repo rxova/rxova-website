@@ -26,18 +26,23 @@ const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
     <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
-    <title>rxova — open-source React libraries</title>
+    <title>rxova — TypeScript libraries for the hard parts of the browser</title>
     <!-- Project names come from the registry, so adding a project updates the
          meta descriptions too. They used to be hand-written and were the easiest
-         thing to forget. -->
+         thing to forget.
+
+         "React libraries" here was wrong as well as forgettable: two of the three
+         ship a framework-agnostic core that runs in a worker or a plain script,
+         and Journey also ships a browser extension. React is a binding we
+         provide, not the boundary of what these are. -->
     <meta
       name="description"
-      content={`rxova — open-source React libraries: ${projectListSentence}.`}
+      content={`rxova — small TypeScript libraries for the hard parts of the browser: ${projectListSentence}.`}
     />
     <meta property="og:title" content="rxova" />
     <meta
       property="og:description"
-      content={`Open-source React libraries: ${projectListSentence}.`}
+      content={`Small TypeScript libraries for the hard parts of the browser: ${projectListSentence}.`}
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://rxova.org/" />
@@ -50,11 +55,19 @@ const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s
   <body>
     <SiteHeader path="/" />
     <main>
+      {
+        /* The hero names the problems rather than praising the solutions. It
+          used to read "Building open-source React libraries the way they should
+          be" over "each does one thing well … and gets out of your way", which
+          asserted quality instead of showing any, and called the whole family
+          React when only react-inputs actually is. */
+      }
       <header class="intro">
-        <h1>Building open-source React libraries the way they should be.</h1>
+        <h1>Small TypeScript libraries for the hard parts of the browser.</h1>
         <p class="lede">
-          <strong>rxova</strong> is a small family of React tools — each does one thing well, stays dependency-light,
-          and gets out of your way.
+          Cross-tab state. Non-linear flows. The inputs everyone gets wrong.
+          <strong>rxova</strong> ships framework-agnostic cores, React bindings where they earn their
+          place, and APIs small enough to stay still.
         </p>
       </header>
 
