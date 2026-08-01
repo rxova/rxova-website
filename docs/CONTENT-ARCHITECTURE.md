@@ -3,10 +3,10 @@
 How **rxova.org/blog** and **rxova.org/updates** are put together, and why that way
 rather than the several other ways they could have been.
 
-The short version: they are built in the **brand monorepo** and shipped here as
-ordinary dists, through the same ingest the packages already use. This repo mounts
-them. It has no blog-specific pipeline, no second contract, and no code that knows
-what a post is.
+The short version: producers build their own route bodies and page-specific head
+content. This repo never learns what a post, update or documentation page is, but
+it does own the public HTML shell around every one of them: global navigation,
+footer, theme bootstrap and analytics.
 
 ## They are sources, like everything else
 
@@ -16,12 +16,14 @@ rxova/brand                          rxova/rxova-website
   content/updates   ├─ astro build ─→  content-blog   (release)
   content/authors   │   upload dist    content-updates
   packages/         ┘   dispatch       fetch-docs.mjs (pull at deploy)
-    content-schema                     assemble.mjs   (mount at /blog, /updates)
+    content-schema                     assemble.mjs   (compose into website shell)
 ```
 
 Nothing above is new except the two entries in `sources.json`. `ingest.yml`,
 `fetch-docs.mjs` and `assemble.mjs` are the same code paths that carry
-`/packages/journey/`, and they need to know nothing about prose.
+`/packages/journey/`, and they need to know nothing about prose. A schema-2
+artifact is identified by `rxova-page-bundle.json`; schema-1 full-site artifacts
+remain copyable during the migration.
 
 ## `kind`, and why it is not an escape hatch
 
@@ -45,15 +47,16 @@ name — stays uniform, so ingest and fetch never branch on kind.
 
 ## What lives where
 
-| Repo                  | Owns                                                                                 |
-| --------------------- | ------------------------------------------------------------------------------------ |
-| `rxova/brand`         | the prose, the frontmatter schema, the validator, **and the pages that render them** |
-| `rxova/rxova-website` | the landing, and mounting what arrives                                               |
+| Repo                  | Owns                                                                                           |
+| --------------------- | ---------------------------------------------------------------------------------------------- |
+| `rxova/brand`         | prose, frontmatter schemas, producer renderers, design tokens, Header and SiteFooter           |
+| package repositories  | documentation content and Starlight's internal search/sidebar/page navigation                  |
+| `rxova/rxova-website` | the public document shell, global chrome, aggregate analytics and deploy-time HTML composition |
 
-The renderer sits with the content because that is what makes it one model instead
-of two: brand builds a dist and hands it over, exactly as `rxova/journey` does with
-its docs. This repo goes back to being what it says it is — an aggregator plus its
-own landing.
+The renderer still sits with the content: brand and package repositories build
+their own HTML and assets. The boundary is the body-level PageComponent, not a
+complete public site. This keeps producer toolchains independent while ensuring a
+single website-owned shell is present on every deployed route.
 
 ## Rejected alternatives
 
@@ -85,13 +88,18 @@ decides what it accepts.
 outside authors are needed — it would be public, so guests could contribute with no
 checkout token. Revisit when the first outside author appears.
 
-**Schema published to npm.** Unnecessary: the schema ships inside brand, next to the
-pages that consume it, so there is nothing to version.
+**Source components built centrally.** Rejected because the website would have to
+install and execute every producer's Astro, TypeDoc, image and browser toolchain.
+Rendered PageComponent bundles preserve independent builds without giving up a
+single public shell.
 
-## Still open
+## Composition rules
 
-- `/blog` and `/updates` are `"enabled": false` until brand ships their first build.
-  The flag gates the mount _and_ the menu link together, so nothing advertises a 404
-  in the meantime. Flip both to `true` once the first artifact lands.
-- Blog and Updates links in `@rxova/brand`'s `ProjectSwitcher`, so docs pages at
-  `/packages/*` link back.
+- Website-owned head elements are charset, viewport, icons, global styles, theme
+  bootstrap and Cloudflare Analytics.
+- Producers own title, description, canonical/robots/Open Graph metadata,
+  structured data and page-local scripts/styles.
+- Source `html` and `body` classes/data attributes are merged into the shell so
+  framework-generated layouts keep working.
+- Package docs retain Starlight's internal header and page footer. They omit only
+  the umbrella Rxova header/footer supplied by the website.

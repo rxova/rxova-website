@@ -27,7 +27,8 @@ const { path } = Astro.props
 const surfaces = [{ label: 'Projects', href: '/' }, ...navSurfaces]
 
 /** `/` matches only itself; everything else matches its whole subtree. */
-const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href))
+const isCurrent = (href: string) =>
+  href === '/' ? path === '/' || path.startsWith('/packages/') : path.startsWith(href)
 
 const items = surfaces.map((s) => ({ label: s.label, href: s.href, current: isCurrent(s.href) }))
 ---

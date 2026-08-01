@@ -2,23 +2,14 @@
 // The project list is assembled from @rxova/brand (product metadata, shared with
 // the docs sites) and sources.json (landing copy + what is actually deployed).
 // See src/lib/projects.ts — it fails the build if the two disagree.
-import { landingProjects, projectListSentence, navSurfaces } from '../lib/projects'
+import { landingProjects, projectListSentence } from '../lib/projects'
 // Who maintains this and what the projects share — the short form of both. The
 // long form is /about, and both read from the same module so they cannot drift.
 import { MAINTAINER, PRINCIPLES } from '../lib/about'
-import { siteUrl } from '@rxova/brand'
-import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
-import SiteHeader from '../components/SiteHeader.astro'
 import BaseLayout from '../layouts/BaseLayout.astro'
-
-// The footer's "Site" column, from what is actually deployed rather than the
-// package's hardcoded default — same `navSurfaces` the menu uses, so neither
-// can advertise a surface whose first build has not landed. Absolute, because
-// every href in that footer is (see @rxova/brand's sites.ts).
-const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s.href) }))
 ---
 
-<BaseLayout title="Rxova — TypeScript libraries for the hard parts of the browser">
+<BaseLayout title="Rxova — TypeScript libraries for the hard parts of the browser" path="/">
   <Fragment slot="head">
     <!-- Project names come from the registry, so adding a project updates the
          meta descriptions too. They used to be hand-written and were the easiest
@@ -44,7 +35,6 @@ const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s
     <meta property="og:image" content="https://rxova.org/og/rxova.png" />
     <meta name="twitter:card" content="summary_large_image" />
   </Fragment>
-  <SiteHeader path="/" />
   <main>
     {
       /* The hero names the problems rather than praising the solutions. It
@@ -152,7 +142,6 @@ const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s
           link row, which is why it stayed a single line while every other
           surface grew the four-column one. */
     }
-    <SiteFooter site={footerSurfaces} />
   </main>
 
   <style>

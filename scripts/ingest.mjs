@@ -19,15 +19,17 @@
 // rejected, a dist with no index.html is rejected — are covered by tests
 // (scripts/ingest.test.mjs) instead of being YAML that only ever runs in CI.
 
-import { appendFileSync, statSync, readdirSync } from 'node:fs'
+import { appendFileSync, statSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { dispatchPayload, mountFor } from '@rxova/website-schemas'
 
+import { PAGE_BUNDLE_FILENAME, pageBundleManifest } from './page-bundle-contract.mjs'
+
 import { loadRegistry } from './registry.mjs'
 
 /** The payload shape this aggregator understands. Bump when the contract changes. */
-export const SUPPORTED_SCHEMA = 1
+export const SUPPORTED_SCHEMA = 2
 
 /** Informational only, but a typo here usually means a misconfigured sender. */
 export const KNOWN_FRAMEWORKS = ['astro', 'docusaurus', 'other']
@@ -40,6 +42,16 @@ export const KNOWN_FRAMEWORKS = ['astro', 'docusaurus', 'other']
 export const DIST_ARTIFACT_NAME = 'docs-dist'
 
 export class IngestError extends Error {}
+
+function htmlFiles(dir) {
+  const found = []
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name)
+    if (entry.isDirectory()) found.push(...htmlFiles(path))
+    else if (entry.isFile() && entry.name.endsWith('.html')) found.push(path)
+  }
+  return found
+}
 
 /**
  * Gate 2a. Validate the dispatch against the registry and return everything the
@@ -55,7 +67,10 @@ export function validateDispatch(registry, payload) {
   // What stays below is everything the schema cannot know: whether this repo has
   // heard of the project, whether it is enabled, and whether the base the sender
   // built for is the base we will mount it at.
-  const parsed = dispatchPayload.safeParse(payload)
+  const requestedSchema = payload?.schema ?? 1
+  const parsed = dispatchPayload.safeParse(
+    requestedSchema === 2 ? { ...payload, schema: 1 } : payload,
+  )
   if (!parsed.success) {
     throw new IngestError(
       'client_payload is invalid:\n' +
@@ -66,6 +81,7 @@ export function validateDispatch(registry, payload) {
   }
 
   const { project: id, sha, ref } = parsed.data
+  const schema = requestedSchema
   const runId = String(parsed.data.run_id)
 
   const source = registry.sources.find((s) => s.id === id)
@@ -134,6 +150,7 @@ export function validateDispatch(registry, payload) {
       // The workflow gates the deploy on this: there is nothing to publish for a
       // project the assembler will not mount.
       enabled: source.enabled,
+      schema,
     },
   }
 }
@@ -144,7 +161,7 @@ export function validateDispatch(registry, payload) {
  * concrete: it must be a non-empty directory with an index.html at its root, the
  * same thing that would otherwise 404 silently once deployed.
  */
-export function checkDist(dir) {
+export function checkDist(dir, expected = {}) {
   let entries
   try {
     if (!statSync(dir).isDirectory()) throw new Error('not a directory')
@@ -166,6 +183,45 @@ export function checkDist(dir) {
       `dist ${JSON.stringify(dir)} has no index.html at its root — the docs were built for the wrong base, or the wrong directory was uploaded`,
     )
   }
+
+  const manifestPath = join(dir, PAGE_BUNDLE_FILENAME)
+  const hasManifest = entries.includes(PAGE_BUNDLE_FILENAME)
+  if (expected.schema === 2 && !hasManifest) {
+    throw new IngestError(`schema 2 dist has no ${PAGE_BUNDLE_FILENAME}`)
+  }
+  if (hasManifest) {
+    let raw
+    try {
+      raw = JSON.parse(readFileSync(manifestPath, 'utf8'))
+    } catch {
+      throw new IngestError(`${PAGE_BUNDLE_FILENAME} is not valid JSON`)
+    }
+    const parsed = pageBundleManifest.safeParse(raw)
+    if (!parsed.success) throw new IngestError(`${PAGE_BUNDLE_FILENAME} is invalid`)
+    if (expected.project && parsed.data.project !== expected.project) {
+      throw new IngestError(
+        `${PAGE_BUNDLE_FILENAME} project is ${parsed.data.project}, expected ${expected.project}`,
+      )
+    }
+    if (expected.base && parsed.data.base !== expected.base) {
+      throw new IngestError(
+        `${PAGE_BUNDLE_FILENAME} base is ${parsed.data.base}, expected ${expected.base}`,
+      )
+    }
+    for (const path of htmlFiles(dir)) {
+      const html = readFileSync(path, 'utf8')
+      const redirect = /<meta[^>]+http-equiv=["']refresh["']/i.test(html)
+      if (!/<main(?:\s|>)/i.test(html) && !redirect) {
+        throw new IngestError(`schema 2 ${path} has no <main> page component`)
+      }
+      if (/static\.cloudflareinsights\.com\/beacon\.min\.js/i.test(html)) {
+        throw new IngestError('schema 2 page component includes Cloudflare Analytics')
+      }
+      if (/class=["'][^"']*\brx-footer\b/i.test(html)) {
+        throw new IngestError('schema 2 page component includes the global Rxova footer')
+      }
+    }
+  }
   return { entries: entries.length }
 }
 
@@ -183,7 +239,12 @@ function main(argv, env) {
   if (distFlag !== -1) {
     const dir = argv[distFlag + 1]
     if (!dir) throw new IngestError('usage: ingest.mjs --check-dist <dir>')
-    const { entries } = checkDist(dir)
+    const schema = env.EXPECTED_SCHEMA ? Number(env.EXPECTED_SCHEMA) : undefined
+    const { entries } = checkDist(dir, {
+      schema,
+      project: env.EXPECTED_PROJECT,
+      base: env.EXPECTED_BASE,
+    })
     console.log(`✓ dist OK — ${entries} entr${entries === 1 ? 'y' : 'ies'}, index.html present`)
     return
   }
@@ -213,6 +274,7 @@ function main(argv, env) {
     `ref=${meta.ref}`,
     `framework=${meta.framework}`,
     `base=${source.base}`,
+    `schema=${meta.schema}`,
     // The workflow reads this to decide whether to deploy. A disabled project is
     // still persisted — see validateDispatch — it just changes nothing live.
     `enabled=${meta.enabled}`,

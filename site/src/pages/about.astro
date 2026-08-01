@@ -12,14 +12,9 @@
  * menu and the footer through `landingSurfaces` in ../lib/projects.ts.
  */
 import { MAINTAINER, PRINCIPLES } from '../lib/about'
-import { navSurfaces, siteSurfaces } from '../lib/projects'
-import { PROJECTS, siteUrl } from '@rxova/brand'
-import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
-import SiteHeader from '../components/SiteHeader.astro'
+import { siteSurfaces } from '../lib/projects'
+import { PROJECTS } from '@rxova/brand'
 import BaseLayout from '../layouts/BaseLayout.astro'
-
-/** Absolute, like every href in the shared footer — see index.astro. */
-const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s.href) }))
 
 // Same rule the menu follows: link to /blog and /updates only where they are
 // actually deployed. The prose below reads fine without them.
@@ -30,7 +25,7 @@ const updatesHref = surface('updates')
 const description = `Rxova is built and maintained by ${MAINTAINER.name} — small TypeScript libraries for the hard parts of the browser, with stable APIs, thorough tests, and documentation that answers the question you arrived with.`
 ---
 
-<BaseLayout title="About — Rxova">
+<BaseLayout title="About — Rxova" path="/about">
   <Fragment slot="head">
     <meta name="description" content={description} />
     <meta property="og:title" content="About Rxova" />
@@ -40,7 +35,6 @@ const description = `Rxova is built and maintained by ${MAINTAINER.name} — sma
     <meta property="og:image" content="https://rxova.org/og/rxova.png" />
     <meta name="twitter:card" content="summary_large_image" />
   </Fragment>
-  <SiteHeader path="/about" />
   <main>
     <header class="intro">
       <h1>About Rxova</h1>
@@ -194,8 +188,6 @@ const description = `Rxova is built and maintained by ${MAINTAINER.name} — sma
         }
       </p>
     </section>
-
-    <SiteFooter site={footerSurfaces} />
   </main>
 
   <style>

@@ -70,6 +70,10 @@ jobs:
 
       # Gate 2b. Only now, with the tree on disk, is it trusted.
       - name: Validate dist (gate 2b)
+        env:
+          EXPECTED_SCHEMA: ${{ steps.validate.outputs.schema }}
+          EXPECTED_PROJECT: ${{ steps.validate.outputs.project }}
+          EXPECTED_BASE: ${{ steps.validate.outputs.base }}
         run: node scripts/ingest.mjs --check-dist incoming
 
       # Persist as the project's canonical asset. Replace the asset in place if the

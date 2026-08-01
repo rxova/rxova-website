@@ -1,0 +1,31 @@
+---
+import type { ProjectId } from '@rxova/brand'
+
+import sources from '../../../../sources.json'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+interface Source {
+  id: string
+  kind?: 'package' | 'site'
+  enabled?: boolean
+}
+
+export function getStaticPaths() {
+  return (sources.sources as Source[])
+    .filter((source) => source.enabled === true)
+    .map((source) => ({ params: { id: source.id }, props: { source } }))
+}
+
+const { source } = Astro.props as { source: Source }
+const kind = source.kind ?? 'package'
+const path = kind === 'site' ? `/${source.id}/` : `/packages/${source.id}/`
+const project = kind === 'package' ? (source.id as ProjectId) : undefined
+---
+
+<BaseLayout
+  title={`Rxova page shell — ${source.id}`}
+  path={path}
+  project={project}
+  robots="noindex"
+  template
+/>

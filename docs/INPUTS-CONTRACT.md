@@ -8,9 +8,9 @@ validate and persist — lives in [`scripts/ingest.mjs`](../scripts/ingest.mjs) 
 
 The aggregator **never builds your docs**. It never checks your repo out and never
 runs your toolchain. You build your docs, upload them, and tell it where they are;
-it validates and publishes them. Everything your build environment needs (a pinned
-Node, a headless Chromium for mermaid, a monorepo filter chain) is your repo's
-concern and stays there.
+it validates and publishes them. Schema 2 makes the public document shell the one
+exception to “publish verbatim”: the aggregator composes each rendered body into
+the rxova-website header, footer and head before deploy.
 
 ## What a source repo must do
 
@@ -22,12 +22,18 @@ On a push to its default branch, after its docs build succeeds:
    house convention is a `DOCS_BASE_URL` env var the docs framework reads
    (`base: process.env.DOCS_BASE_URL ?? '/'`).
 
-2. **Upload the built dist as a workflow artifact named `docs-dist`.** The
+2. **For schema 2, write `rxova-page-bundle.json` at the dist root.** It identifies
+   the artifact as `html-page-component`, names the project and repeats the base.
+   Built HTML must contain page UI and a `<main>`, but no global Rxova header,
+   `SiteFooter` or Cloudflare beacon. Starlight's search/sidebar/page navigation
+   remain page UI and are preserved.
+
+3. **Upload the built dist as a workflow artifact named `docs-dist`.** The
    artifact's root must be the dist root — i.e. `index.html` sits at the top of
    the artifact, not under a subdirectory. This is the fixed name the aggregator
    downloads by; do not rename it.
 
-3. **Fire a `repository_dispatch` at `rxova/rxova-website`** with event type
+4. **Fire a `repository_dispatch` at `rxova/rxova-website`** with event type
    `docs` and the payload below.
 
 ### The dispatch payload
@@ -36,7 +42,7 @@ On a push to its default branch, after its docs build succeeds:
 {
   "event_type": "docs",
   "client_payload": {
-    "schema": 1, //   contract version; the aggregator rejects anything it does not speak
+    "schema": 2, //   rendered PageComponent contract; schema 1 is legacy full-site HTML
     "project": "use-everywhere", // your id, exactly as it appears in sources.json
     "ref": "main", //  the branch or tag the docs were built from
     "sha": "<full or short commit sha>", // the exact commit
@@ -75,7 +81,7 @@ notify-aggregator:
       run: |
         gh api repos/rxova/rxova-website/dispatches \
           -f event_type=docs \
-          -F 'client_payload[schema]=1' \
+          -F 'client_payload[schema]=2' \
           -F 'client_payload[project]=use-everywhere' \
           -F "client_payload[ref]=${GITHUB_REF_NAME}" \
           -F "client_payload[sha]=${GITHUB_SHA}" \
@@ -93,12 +99,14 @@ notify-aggregator:
    from the id is unique and stays inside the tree.
 2. **Download** the `docs-dist` artifact from your `run_id`, in your repo.
 3. **2b — contents** ([`checkDist`](../scripts/ingest.mjs)). Rejects a dist that is
-   missing, empty, or has no `index.html` at its root.
+   missing, empty, has no `index.html`, has a mismatched schema-2 manifest, or puts
+   global chrome/analytics back into a PageComponent.
 4. **Persist.** Packs the dist and stores it as the project's canonical release
    asset — tag `content-<id>`, asset `docs-<id>.tgz` — replacing the previous one.
 5. **Deploy.** Reassembles the whole site from every enabled project's persisted
-   docs and publishes to Pages. Only your project changed; the rest are served from
-   their last persisted dist, not rebuilt.
+   docs and publishes to Pages. Schema-2 HTML is composed into the source-specific
+   website shell; non-HTML assets are copied unchanged. Only your project changed;
+   the rest are served from their last persisted dist, not rebuilt.
 
 A rejection at any gate fails the ingest run and **leaves the live site
 untouched** — a bad push cannot take rxova.org down, it just does not publish.

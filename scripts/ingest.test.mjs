@@ -77,6 +77,7 @@ describe('validateDispatch — the happy path', () => {
     assert.equal(source.releaseAsset, 'docs-journey.tgz')
     // The workflow gates its deploy on this.
     assert.equal(meta.enabled, true)
+    assert.equal(meta.schema, 2)
   })
 
   it('coerces a numeric run id and treats base as optional', () => {
@@ -113,7 +114,7 @@ describe('validateDispatch — rejections', () => {
   it('rejects an unsupported schema, so a sender on a newer contract fails loudly', () => {
     // The schema field is a literal in the shared contract, so a sender on a
     // newer one is refused by the parse rather than by a hand-written check.
-    rejects({ schema: 2 }, /schema —/)
+    rejects({ schema: 3 }, /schema —/)
   })
 
   it('rejects an unknown project rather than ingesting docs nothing links to', () => {
@@ -189,6 +190,46 @@ describe('checkDist — gate 2b', () => {
     dir = make()
     writeFileSync(join(dir, 'sitemap.xml'), '<urlset/>')
     assert.throws(() => checkDist(dir), /no index\.html/)
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('validates a schema-2 page-component bundle', () => {
+    dir = make()
+    writeFileSync(
+      join(dir, 'index.html'),
+      '<!doctype html><html><body><main>Blog</main></body></html>',
+    )
+    writeFileSync(
+      join(dir, 'rxova-page-bundle.json'),
+      JSON.stringify({
+        schema: 2,
+        format: 'html-page-component',
+        project: 'blog',
+        base: '/blog/',
+      }),
+    )
+    assert.deepEqual(checkDist(dir, { schema: 2, project: 'blog', base: '/blog/' }), { entries: 2 })
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('rejects schema-2 bundles with their own analytics or global footer', () => {
+    dir = make()
+    writeFileSync(
+      join(dir, 'rxova-page-bundle.json'),
+      JSON.stringify({
+        schema: 2,
+        format: 'html-page-component',
+        project: 'blog',
+        base: '/blog/',
+      }),
+    )
+    writeFileSync(
+      join(dir, 'index.html'),
+      '<main>Blog</main><script src="https://static.cloudflareinsights.com/beacon.min.js"></script>',
+    )
+    assert.throws(() => checkDist(dir, { schema: 2 }), /Cloudflare Analytics/)
+    writeFileSync(join(dir, 'index.html'), '<main>Blog</main><footer class="rx-footer"></footer>')
+    assert.throws(() => checkDist(dir, { schema: 2 }), /global Rxova footer/)
     rmSync(dir, { recursive: true, force: true })
   })
 })
