@@ -343,11 +343,12 @@ const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s
         margin-bottom: 1.25rem;
       }
 
-      /* The footer's own rules are unscoped — they live in @rxova/brand's
-         footer.css, which astro.css already imports. */
-      :global(.rx-footer) {
-        margin-top: clamp(3rem, 8vh, 5rem);
-      }
+      /* No `:global(.rx-footer)` rule here any more. This page used to set
+         `margin-top: clamp(3rem, 8vh, 5rem)`, /about copied it, and Legal.astro
+         set 3rem — three values for one piece of shared chrome, so the gap above
+         the footer differed on every surface and none matched /blog or /updates,
+         which take the 4rem from @rxova/brand's footer.css. That file is now the
+         only owner of the footer's spacing. */
     </style>
   </body>
 </html>

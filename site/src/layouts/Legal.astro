@@ -90,10 +90,8 @@ const footerSurfaces = navSurfaces.map((s) => ({ label: s.label, href: siteUrl(s
         font-size: 0.9rem;
         margin-bottom: 1.75rem;
       }
-      /* Unscoped, from @rxova/brand's footer.css — see index.astro. */
-      :global(.rx-footer) {
-        margin-top: 3rem;
-      }
+      /* The footer's spacing is owned by @rxova/brand's footer.css — see
+         index.astro for why this layout no longer overrides it. */
     </style>
   </body>
 </html>

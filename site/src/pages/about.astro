@@ -389,10 +389,8 @@ const description = `Rxova is built and maintained by ${MAINTAINER.name} — sma
         transform: translate(1px, -1px);
       }
 
-      /* Unscoped, from @rxova/brand's footer.css — see index.astro. */
-      :global(.rx-footer) {
-        margin-top: clamp(3rem, 8vh, 5rem);
-      }
+      /* The footer's spacing is owned by @rxova/brand's footer.css — see
+         index.astro for why this page no longer overrides it. */
     </style>
   </body>
 </html>
