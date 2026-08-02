@@ -7,6 +7,10 @@ import { landingProjects, projectListSentence } from '../lib/projects'
 // long form is /about, and both read from the same module so they cannot drift.
 import { MAINTAINER, PRINCIPLES } from '../lib/about'
 import BaseLayout from '../layouts/BaseLayout.astro'
+// The reset and base element styling this page's scoped CSS is written against.
+// It lives here rather than in BaseLayout because BaseLayout also builds the
+// shell templates, which must not carry it into a docs page — see the stylesheet.
+import '../styles/global.css'
 ---
 
 <BaseLayout title="Rxova — TypeScript libraries for the hard parts of the browser" path="/">

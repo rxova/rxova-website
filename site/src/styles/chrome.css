@@ -1,0 +1,46 @@
+/**
+ * What the site chrome — the header and footer BaseLayout renders — needs, and
+ * nothing more.
+ *
+ * BaseLayout loads this on every page it builds, including the shell templates.
+ * That is the point. A shell template's body is spliced into an already-built
+ * Starlight page at deploy time (see scripts/assemble.mjs), so every stylesheet
+ * the template links follows it into that page — and `global.css` must not,
+ * because the reset inside it is unlayered while Starlight's entire stylesheet
+ * sits in `@layer starlight.*`. Unlayered beats layered whatever the
+ * specificity, so `* { margin: 0; padding: 0 }` arriving from here flattened
+ * every page under /packages/*: no content padding, the sidebar over the prose,
+ * the right sidebar adrift.
+ *
+ * The pages that own their document import `global.css` for the reset and base
+ * element styling their markup is written against. A shell template does not
+ * own its document, so it gets this instead.
+ */
+
+@import '@rxova/brand/fonts.css';
+@import '@rxova/brand/tokens.css';
+
+/* The short names the chrome's scoped CSS is written against, aliased onto the
+   `--rx-*` tokens. This is the block from `@rxova/brand/astro.css`, minus the
+   reset that has to stay out of a docs page — @rxova/brand 0.10.0 exports the
+   two together or not at all. `@rxova/brand/chrome.css` (0.11.0) is exactly
+   this pairing; when the site takes that release these lines become one import
+   and stop being a second copy. */
+:root {
+  --bg: var(--rx-bg);
+  --fg: var(--rx-fg);
+  --muted: var(--rx-muted);
+  --faint: var(--rx-faint);
+  --rule: var(--rx-rule);
+  --card: var(--rx-card);
+  --tag-bg: var(--rx-tag-bg);
+  --glow-tint: var(--rx-glow-tint);
+  --font: var(--rx-font-sans);
+  --mono: var(--rx-font-mono);
+  --max: var(--rx-max);
+
+  /* Not the brand violet: the landing's design is monochrome and uses the
+     gradient only as an accent rule. --rx-primary here would tint every focus
+     ring on the site. */
+  --accent: var(--rx-fg);
+}

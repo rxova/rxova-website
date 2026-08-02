@@ -1,5 +1,9 @@
 ---
-import '../styles/global.css'
+// The chrome's stylesheet, not the landing's: this layout also builds the shell
+// templates, and everything it links is inherited by the docs pages composed
+// into them. See ../styles/chrome.css. Pages that own their document import
+// ../styles/global.css themselves.
+import '../styles/chrome.css'
 import { siteUrl, type ProjectId } from '@rxova/brand'
 import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
 import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
@@ -29,10 +33,19 @@ const footerSurfaces = navSurfaces.map((surface) => ({
 // splices a producer's <head> into them — a canonical here would survive that and
 // leave the composed page claiming to be /shell-templates/<id>.
 const canonical = template ? undefined : new URL(Astro.url.pathname, Astro.site).href
+
+// Marks the one case where this shell wraps a Starlight document: a package's
+// shell template. `data-rxova-shell` cannot say it — the landing carries that
+// too — and neither can `template` alone, because /blog and /updates are shell
+// templates as well and are plain Astro pages on the site's own measure. Only a
+// package brings its own header, sidebar and full-bleed layout to reconcile
+// with, and `project` is set for exactly those. The assembler preserves the
+// shell's own <html> attributes, so it survives into the composed page.
+const docsShell = template && project !== undefined
 ---
 
 <!doctype html>
-<html lang="en" data-rxova-shell>
+<html lang="en" data-rxova-shell data-rxova-docs-shell={docsShell ? '' : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -58,6 +71,34 @@ const canonical = template ? undefined : new URL(Astro.url.pathname, Astro.site)
         max-width: var(--max);
         margin: 0 auto;
         padding: 0 1.5rem;
+      }
+    </style>
+
+    <!-- Global, and deliberately here rather than in @rxova/brand: these rules
+         are about what the *shell* makes redundant, they only ever apply to a
+         page this layout composed, and they take effect on the next deploy —
+         a rule shipped in the theme would wait for all three docs repos to
+         take the release and rebuild. They reach the Starlight header because
+         the assembler splices the producer's body into this document, so this
+         stylesheet is loaded over the docs' own. -->
+    <style is:global>
+      /* Two bars, one identity. The header above already carries the rxova mark
+         linking home, so repeating it in Starlight's site title made a docs page
+         read as two stacked site headers rather than a site header and a docs
+         bar. The wordmark alone still says which project you are in, which is
+         the job left. */
+      html[data-rxova-docs-shell] .rx-site-title__mark,
+      html[data-rxova-docs-shell] .rx-site-title__sep {
+        display: none;
+      }
+
+      /* The header centres its contents on the page measure, which is right on
+         the landing and wrong over a docs page: a 60rem bar floating above a
+         full-bleed one left the two rows starting at visibly different edges.
+         Starlight's own nav padding puts them on the same one. */
+      html[data-rxova-docs-shell] .site__inner {
+        max-width: none;
+        padding-inline: var(--sl-nav-pad-x);
       }
     </style>
   </body>

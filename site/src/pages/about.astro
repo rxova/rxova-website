@@ -15,6 +15,9 @@ import { MAINTAINER, PRINCIPLES } from '../lib/about'
 import { siteSurfaces } from '../lib/projects'
 import { PROJECTS } from '@rxova/brand'
 import BaseLayout from '../layouts/BaseLayout.astro'
+// See ../styles/chrome.css for why the reset is imported per page rather than
+// by BaseLayout.
+import '../styles/global.css'
 
 // Same rule the menu follows: link to /blog and /updates only where they are
 // actually deployed. The prose below reads fine without them.
