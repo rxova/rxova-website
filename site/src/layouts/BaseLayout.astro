@@ -60,7 +60,7 @@ const docsShell = template && project !== undefined
     <CloudflareAnalytics />
   </head>
   <body>
-    <SiteHeader path={path} />
+    <SiteHeader path={path} ribbon={docsShell} />
     {template ? <div data-rxova-page-slot /> : <slot />}
     <div class="rx-shell-footer">
       <SiteFooter project={project} site={footerSurfaces} />
@@ -92,13 +92,85 @@ const docsShell = template && project !== undefined
         display: none;
       }
 
-      /* The header centres its contents on the page measure, which is right on
-         the landing and wrong over a docs page: a 60rem bar floating above a
-         full-bleed one left the two rows starting at visibly different edges.
-         Starlight's own nav padding puts them on the same one. */
+      /* --- The ribbon ------------------------------------------------------
+
+         Deduping the mark was not enough: the two bars still read as two
+         headers competing for the top of the page rather than a site strip over
+         a docs bar. Three things did it, and the rules below undo each.
+
+         The umbrella bar is full height, so 120px of a 900px viewport was
+         chrome before a word of prose — 152px of 844px on a phone, where the
+         mobile table of contents stacks under both.
+
+         It is translucent and blurred while Starlight's is flat opaque, so
+         scrolling smeared prose through the top bar and then cut the same prose
+         off cleanly an inch lower. That mismatch was most of what made the pair
+         look accidental, and it only showed while moving.
+
+         And both carried the same two controls, stacked within ~50px: a theme
+         control and a "Projects" affordance. The menu half of that is handled
+         in SiteHeader; the rest is here.
+
+         What is left is a ribbon: the mark, and the site-level surfaces that
+         Starlight's bar has nowhere to put. */
+
+      /* Flat and opaque. Nothing scrolls through it any more, and the faint card
+         tint separates it from the bar below without a second rule. */
+      html[data-rxova-docs-shell] header.site {
+        background: var(--rx-card);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+
+      /* Declared rather than left to the tallest child — see the height note
+         below for what that cost the first time. */
       html[data-rxova-docs-shell] .site__inner {
+        min-height: 0;
+        height: var(--rx-ribbon-height);
+        padding-block: 0;
+        /* The header centres its contents on the page measure, which is right on
+           the landing and wrong over a docs page: a 60rem bar floating above a
+           full-bleed one left the two rows starting at visibly different edges.
+           Starlight's own nav padding puts them on the same one. */
         max-width: none;
         padding-inline: var(--sl-nav-pad-x);
+      }
+
+      /* Starlight's own picker is one row below this, at the same end of the
+         bar. Hiding the button takes it out of the tab order with it. */
+      html[data-rxova-docs-shell] .theme-toggle {
+        display: none;
+      }
+
+      /* Ribbon scale. The mark stays legible at 16px and the links drop below
+         the docs bar's own type, which is what says which of the two is
+         subordinate. */
+      html[data-rxova-docs-shell] .brand img {
+        width: 16px;
+        height: 16px;
+      }
+      html[data-rxova-docs-shell] .brand span,
+      html[data-rxova-docs-shell] nav a {
+        font-size: 0.8rem;
+      }
+    </style>
+
+    <!-- Two attributes rather than one, so this beats @rxova/brand's own
+         declaration on [data-rxova-shell] whatever order the two stylesheets
+         end up in. It is the one rule here that must not lose. -->
+    <style is:global>
+      html[data-rxova-shell][data-rxova-docs-shell] {
+        --rx-ribbon-height: 2.25rem;
+
+        /* @rxova/brand pins Starlight's bar, both sidebars, the mobile table of
+           contents and the menu button at this. It declares 3.5rem, and 3.25rem
+           on a phone — but the bar it was describing rendered 57px at both,
+           because a 2rem toggle inside 0.75rem of padding plus the 1px border
+           beat the min-height it was derived from. So the bars overlapped: 1px
+           on a desktop, 5px on a phone, where Starlight's bar sat over the
+           umbrella's bottom edge. Deriving it from the height declared right
+           above is what stops the two disagreeing again. */
+        --rx-shell-header-height: calc(var(--rx-ribbon-height) + 1px);
       }
     </style>
   </body>
