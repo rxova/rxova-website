@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@rxova/website-schemas':
-        specifier: ^0.4.0
-        version: 0.4.0(zod@4.4.3)
+        specifier: ^0.6.0
+        version: 0.6.0(zod@4.4.3)
       parse5:
         specifier: ^7.3.0
         version: 7.3.0
@@ -974,8 +974,8 @@ packages:
       '@astrojs/starlight':
         optional: true
 
-  '@rxova/website-schemas@0.4.0':
-    resolution: {integrity: sha512-RgL5+v6q9i7SEr80v5y8F0jTGiGG/Uv+7zJy+cItF0m2cWH7++GvDLwC3NMv1CSbU9D+ICyuYK6c3h6oMQYDhQ==}
+  '@rxova/website-schemas@0.6.0':
+    resolution: {integrity: sha512-l0LGvNnZU2unavZaGyTaIMWuMrlH/bFjDBv0nqGlmNFJVAfyieUsLJht5ljGm8aGUZsfBJaeuV7r+YRT6KcV1A==}
     engines: {node: '>=24.0.0'}
     peerDependencies:
       zod: ^4.0.0
@@ -3613,7 +3613,7 @@ snapshots:
       '@fontsource/space-grotesk': 5.3.0
       astro: 5.18.2(@types/node@26.1.1)(jiti@2.6.1)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0)
 
-  '@rxova/website-schemas@0.4.0(zod@4.4.3)':
+  '@rxova/website-schemas@0.6.0(zod@4.4.3)':
     dependencies:
       zod: 4.4.3
 
