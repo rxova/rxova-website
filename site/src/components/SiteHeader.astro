@@ -17,18 +17,38 @@ import { navSurfaces } from '../lib/projects'
 interface Props {
   /** Current path, so the active item can be marked. */
   path: string
+  /**
+   * Render the docs-page variant: a thin ribbon above Starlight's own bar,
+   * rather than a header standing on its own.
+   *
+   * Only the menu differs here; the rest of the variant is styling, and lives
+   * in BaseLayout beside the other rules about what the shell makes redundant.
+   */
+  ribbon?: boolean
 }
 
-const { path } = Astro.props
+const { path, ribbon = false } = Astro.props
 
-// Projects is always here; then whatever is actually mounted, then this build's
-// own pages. A mounted surface that has not shipped its first build yet is
-// absent from the menu rather than linking to a 404 — see `navSurfaces`.
-const surfaces = [{ label: 'Projects', href: '/' }, ...navSurfaces]
+// Projects first, then whatever is actually mounted, then this build's own
+// pages. A mounted surface that has not shipped its first build yet is absent
+// from the menu rather than linking to a 404 — see `navSurfaces`.
+//
+// Except on a docs page, where Starlight's bar sits directly below this one and
+// already carries the project switcher — the two landed within ~50px of each
+// other, both labelled "Projects", pointing at the same list. The switcher is
+// the better of the pair (it links every project, not just the index), so this
+// yields to it and keeps only the surfaces the docs bar has no room for.
+const surfaces = ribbon ? navSurfaces : [{ label: 'Projects', href: '/' }, ...navSurfaces]
 
-/** `/` matches only itself; everything else matches its whole subtree. */
-const isCurrent = (href: string) =>
-  href === '/' ? path === '/' || path.startsWith('/packages/') : path.startsWith(href)
+/**
+ * `/` matches only itself; everything else matches its whole subtree.
+ *
+ * `/packages/*` deliberately matches nothing. It used to mark Projects current,
+ * which meant every docs page underlined "Projects" in this bar while the reader
+ * was several levels inside a package — and now that the ribbon drops the item
+ * altogether, there is nothing left for it to mark.
+ */
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href))
 
 const items = surfaces.map((s) => ({ label: s.label, href: s.href, current: isCurrent(s.href) }))
 ---
