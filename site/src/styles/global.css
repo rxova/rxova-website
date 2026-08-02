@@ -3,10 +3,14 @@
  * every rxova.org surface. This file used to hold the tokens; they moved into
  * the package verbatim, so the palette is unchanged.
  *
- * astro.css brings the tokens, the reset and base element styling, plus aliases
- * from the short names this site's scoped styles were written against (--bg,
- * --fg, --rule, ...) onto their --rx-* equivalents — so the ~250 lines of
- * scoped CSS in index.astro keep working untouched.
+ * astro.css brings chrome.css (tokens, footer styles and aliases from the short
+ * names this site's scoped styles were written against — --bg, --fg, --rule, …
+ * onto their --rx-* equivalents), plus the reset and base element styling — so
+ * the ~250 lines of scoped CSS in index.astro keep working untouched.
+ *
+ * Imported by the pages that own their document, not by BaseLayout: the layout
+ * also builds the shell templates, whose body is composed into a built Starlight
+ * page, and the reset below would flatten it. See ./chrome.css.
  */
 
 @import '@rxova/brand/fonts.css';

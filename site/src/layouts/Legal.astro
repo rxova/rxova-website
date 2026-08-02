@@ -1,5 +1,8 @@
 ---
 import BaseLayout from './BaseLayout.astro'
+// See ../styles/chrome.css for why the reset is imported per surface rather than
+// by BaseLayout.
+import '../styles/global.css'
 
 const { title, path } = Astro.props
 ---
