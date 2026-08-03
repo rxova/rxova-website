@@ -44,6 +44,16 @@ const registry = {
       releaseAsset: 'docs-blog.tgz',
     },
     {
+      id: 'storybook-react-inputs',
+      kind: 'storybook',
+      enabled: true,
+      repo: 'rxova/react-inputs',
+      base: '/storybook/react-inputs/',
+      mount: 'storybook/react-inputs',
+      releaseTag: 'content-storybook-react-inputs',
+      releaseAsset: 'docs-storybook-react-inputs.tgz',
+    },
+    {
       id: 'off',
       kind: 'package',
       enabled: false,
@@ -92,6 +102,22 @@ describe('validateDispatch — the happy path', () => {
     const { source } = validateDispatch(registry, payload({ project: 'blog', base: '/blog/' }))
     assert.equal(source.mount, 'blog')
     assert.equal(source.releaseTag, 'content-blog')
+  })
+
+  it('accepts a storybook surface, which nests under the shared /storybook/ tree', () => {
+    const { source, meta } = validateDispatch(
+      registry,
+      payload({
+        project: 'storybook-react-inputs',
+        base: '/storybook/react-inputs/',
+        schema: 1,
+        framework: 'storybook',
+      }),
+    )
+    assert.equal(source.mount, 'storybook/react-inputs')
+    assert.equal(source.releaseTag, 'content-storybook-react-inputs')
+    // The workshop senders declare their toolchain honestly rather than 'other'.
+    assert.equal(meta.framework, 'storybook')
   })
 
   it('keeps the artifact name a single shared convention', () => {

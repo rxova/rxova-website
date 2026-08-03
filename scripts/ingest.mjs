@@ -32,7 +32,7 @@ import { loadRegistry } from './registry.mjs'
 export const SUPPORTED_SCHEMA = 2
 
 /** Informational only, but a typo here usually means a misconfigured sender. */
-export const KNOWN_FRAMEWORKS = ['astro', 'docusaurus', 'other']
+export const KNOWN_FRAMEWORKS = ['astro', 'docusaurus', 'storybook', 'other']
 
 /**
  * The fixed name every source repo uploads its dist under. One convention for all
