@@ -55,6 +55,17 @@ const rawSources: RawSource[] = (sources.sources ?? []).filter(
   (s: RawSource) => (s.kind ?? 'package') === 'package',
 )
 
+// Storybook surfaces (`kind: "storybook"`, id `storybook-<project>`, mounted at
+// /storybook/<project>/) are neither packages nor site surfaces: each belongs to
+// a project, so it surfaces as a link on that project's card rather than as a
+// menu entry of its own. Same gating as everything else — the link only renders
+// once the surface is enabled, so the card cannot advertise a 404.
+const mountedStorybooks = new Set(
+  ((sources.sources ?? []) as RawSource[])
+    .filter((s) => s.kind === 'storybook' && s.enabled === true)
+    .map((s) => s.id),
+)
+
 function fail(message: string): never {
   throw new Error(
     `[landing] sources.json and @rxova/brand disagree: ${message}\n` +
@@ -100,6 +111,9 @@ function build(): LandingProject[] {
         // Only link to docs that are actually deployed. A disabled project is
         // still worth showing — it just has nowhere to point yet.
         ...(docsMounted ? [{ label: 'Docs', href: project.mount }] : []),
+        ...(mountedStorybooks.has(`storybook-${project.id}`)
+          ? [{ label: 'Storybook', href: `/storybook/${project.id}/` }]
+          : []),
         { label: 'GitHub', href: project.repo, external: true },
         { label: 'npm', href: project.npm, external: true },
       ],

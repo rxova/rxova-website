@@ -58,6 +58,12 @@
       "repo": "rxova/brand"
     },
     {
+      "id": "storybook-react-inputs",
+      "kind": "storybook",
+      "enabled": false,
+      "repo": "rxova/react-inputs"
+    },
+    {
       "id": "updates",
       "kind": "site",
       "enabled": true,
