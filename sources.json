@@ -60,7 +60,7 @@
     {
       "id": "storybook-react-inputs",
       "kind": "storybook",
-      "enabled": false,
+      "enabled": true,
       "repo": "rxova/react-inputs"
     },
     {
