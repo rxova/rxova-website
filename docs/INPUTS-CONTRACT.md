@@ -48,7 +48,7 @@ On a push to its default branch, after its docs build succeeds:
     "sha": "<full or short commit sha>", // the exact commit
     "run_id": "${{ github.run_id }}", // the run holding your docs-dist artifact
     "base": "/packages/use-everywhere/", // optional; if sent, must equal the derived base
-    "framework": "astro", //             optional; astro | docusaurus | other
+    "framework": "astro", //             optional; astro | docusaurus | storybook | other
   },
 }
 ```
