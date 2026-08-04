@@ -102,6 +102,11 @@ async function indexablePages(outDir, skipDirs) {
         await visit(path)
         continue
       }
+      // `.html` only, deliberately. A docs site may also serve a `.md` twin of
+      // every page for agents (see scripts/llms.mjs); listing both would offer a
+      // crawler two URLs for one page, which is the textbook duplicate-content
+      // signal. Sitemaps are for indexable pages — the markdown is for readers
+      // that ask for it by name.
       if (!entry.isFile() || !entry.name.endsWith('.html')) continue
       // The 404 page is served *as* a 404. Listing it invites Google to index the
       // error page itself, which is a classic way to get a "soft 404" flagged.
@@ -125,8 +130,25 @@ const sitemapIndex = (files, origin) =>
   files.map((f) => `  <sitemap><loc>${escapeXml(`${origin}/${f}`)}</loc></sitemap>\n`).join('') +
   '</sitemapindex>\n'
 
+/**
+ * The llms.txt pointer is a COMMENT, not a directive.
+ *
+ * `Llms-txt:` is not part of the robots.txt grammar, and a field a strict parser
+ * does not know is a parse error it may take the whole file down over — a bad
+ * trade for a file whose real job is keeping the site crawlable. Agents find
+ * /llms.txt at its well-known path without being told; the line is here so a
+ * human reading robots.txt learns the index exists.
+ */
 const robotsTxt = (origin) =>
-  ['User-agent: *', 'Allow: /', '', `Sitemap: ${origin}/${SITEMAP_INDEX}`, ''].join('\n')
+  [
+    'User-agent: *',
+    'Allow: /',
+    '',
+    `Sitemap: ${origin}/${SITEMAP_INDEX}`,
+    '',
+    `# Agent-readable index of this site: ${origin}/llms.txt`,
+    '',
+  ].join('\n')
 
 /**
  * Write the root sitemap index, the catch-all urlset and robots.txt into `outDir`.
