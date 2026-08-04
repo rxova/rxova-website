@@ -129,6 +129,17 @@ describe('writeSitemaps', () => {
     assert.match(read('robots.txt'), /^Sitemap: https:\/\/rxova\.org\/sitemap-index\.xml$/m)
   })
 
+  // A comment, not a directive: an unknown robots.txt field risks taking the
+  // whole file down in a strict parser. Pinned so the next refactor of this
+  // string does not drop it silently.
+  it('points humans reading robots.txt at the agent index', async () => {
+    write('index.html', page())
+
+    await writeSitemaps(root, [], ORIGIN)
+
+    assert.match(read('robots.txt'), /^# .*: https:\/\/rxova\.org\/llms\.txt$/m)
+  })
+
   it('honours a staging origin so a preview does not advertise production URLs', async () => {
     write('index.html', page())
 
