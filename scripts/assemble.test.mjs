@@ -61,6 +61,26 @@ describe('assemble', () => {
     })
   })
 
+  // The index is written from the finished tree, so it can only be right if it
+  // runs after the projects are mounted. Assert it sees a project's own llms.txt
+  // that arrived in that project's artifact.
+  it('writes the agent index once every project is mounted', async () => {
+    artifact('landing', { 'index.html': 'landing' })
+    artifact('docs-journey', { 'index.html': 'journey docs' })
+    artifact('docs-react-inputs', { 'index.html': 'docs', 'llms.txt': '# react-inputs\n' })
+
+    await run(registry({ id: 'journey' }, { id: 'react-inputs' }))
+
+    const index = read('llms.txt')
+    assert.match(index, /^# Rxova$/m)
+    assert.match(
+      index,
+      /^- \[react-inputs]\(https:\/\/rxova\.org\/packages\/react-inputs\/llms\.txt\)/m,
+    )
+    // No index of its own yet, so the docs root — not a link that would 404.
+    assert.match(index, /^- \[journey]\(https:\/\/rxova\.org\/packages\/journey\/\)/m)
+  })
+
   it('refuses to deploy when an enabled project has no artifact', async () => {
     artifact('landing', { 'index.html': 'landing' })
     await assert.rejects(

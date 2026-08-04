@@ -29,6 +29,7 @@ import { findNode, element, attribute, hasClass, walkNodes } from './html.mjs'
 import { loadRedirects, writeRedirects } from './redirects.mjs'
 import { loadRegistry, enabledSources } from './registry.mjs'
 import { writeSitemaps, RXOVA_ORIGIN } from './sitemap.mjs'
+import { writeLlms } from './llms.mjs'
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -267,7 +268,12 @@ export async function assemble(config, artifactsDir, outDir) {
   //    stub is a redirect, not a destination, so it must not be listed.
   await writeRedirects(outDir, config.redirects ?? {}, config.origin ?? RXOVA_ORIGIN)
 
-  // 4. Sitemaps last: they describe the finished tree, so everything that will
+  // 4. The agent-facing index. After the projects are mounted, because it probes
+  //    for each one's own llms.txt and links to the docs root of any that has
+  //    none — so a project can add the file on its own schedule.
+  await writeLlms(outDir, enabledSources(config), config.origin ?? RXOVA_ORIGIN)
+
+  // 5. Sitemaps last: they describe the finished tree, so everything that will
   //    ever be in it has to be there already.
   await writeSitemaps(outDir, enabledSources(config), config.origin ?? RXOVA_ORIGIN)
 
