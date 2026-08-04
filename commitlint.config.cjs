@@ -7,6 +7,11 @@ module.exports = {
     // wrap. Enforcing a wrap width there fails the commit only once it is
     // already on main, where the message can no longer be edited.
     'body-max-line-length': [0, 'always'],
+    // Off for the same reason, and it is not redundant with the rule above: the
+    // parser splits body from footer at the first `Word: value` line, so a plain
+    // prose sentence starting "Note:" or "Fixes:" silently reclassifies every
+    // line after it as footer — where the 100-char cap still applied.
+    'footer-max-line-length': [0, 'always'],
     'type-enum': [
       2,
       'always',
