@@ -44,7 +44,7 @@ interface RawSource {
   id: string
   kind?: string
   enabled?: boolean
-  landing?: { blurb?: string; tags?: string[] }
+  landing?: { blurb?: string; tags?: string[]; demo?: string }
 }
 
 // Only the packages. `sources.json` also carries `kind: "site"` entries — /blog and
@@ -89,9 +89,17 @@ function build(): LandingProject[] {
     const source = rawSources.find((s) => s.id === project.id)
     if (!source) fail(`"${project.id}" is in PROJECTS but not in sources.json`)
 
-    const { blurb, tags } = source.landing ?? {}
+    const { blurb, tags, demo } = source.landing ?? {}
     if (!blurb) fail(`"${project.id}" has no landing.blurb in sources.json`)
     if (!tags?.length) fail(`"${project.id}" has no landing.tags in sources.json`)
+
+    // A demo is a live app the project's own repo deploys (GitHub Pages), not a
+    // dist this site ingests — so unlike Storybook it is an absolute URL rather
+    // than a mount, and it is opt-in per project. Reject a relative one: it would
+    // silently point at rxova.org and 404.
+    if (demo !== undefined && !/^https?:\/\//.test(demo)) {
+      fail(`"${project.id}" has a landing.demo that is not an absolute URL: ${demo}`)
+    }
 
     // The mount comes from brand (the docs sites need it too); sources.json derives
     // the same path from `id`. If they ever diverge the site 404s, so assert it.
@@ -114,6 +122,9 @@ function build(): LandingProject[] {
         ...(mountedStorybooks.has(`storybook-${project.id}`)
           ? [{ label: 'Storybook', href: `/storybook/${project.id}/` }]
           : []),
+        // Same slot as Storybook: both are "see it running", so they sit right
+        // after Docs and before the repo/registry links.
+        ...(demo ? [{ label: 'Demo', href: demo, external: true }] : []),
         { label: 'GitHub', href: project.repo, external: true },
         { label: 'npm', href: project.npm, external: true },
       ],
