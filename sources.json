@@ -48,7 +48,8 @@
       "enabled": true,
       "landing": {
         "blurb": "Share state and messages across every tab, window, and worker \u2014 a framework-agnostic core plus React bindings, one small API.",
-        "tags": ["JS Core", "React", "TypeScript", "Cross-tab"]
+        "tags": ["JS Core", "React", "TypeScript", "Cross-tab"],
+        "demo": "https://rxova.github.io/use-everywhere/"
       }
     },
     {
