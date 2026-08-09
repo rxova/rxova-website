@@ -24,7 +24,11 @@ import { join } from 'node:path'
 
 import { dispatchPayload, mountFor } from '@rxova/website-schemas'
 
-import { PAGE_BUNDLE_FILENAME, pageBundleManifest } from './page-bundle-contract.mjs'
+import {
+  PAGE_BUNDLE_FILENAME,
+  pageBundleManifest,
+  declaresStandalone,
+} from './page-bundle-contract.mjs'
 
 import { loadRegistry } from './registry.mjs'
 
@@ -210,6 +214,10 @@ export function checkDist(dir, expected = {}) {
     }
     for (const path of htmlFiles(dir)) {
       const html = readFileSync(path, 'utf8')
+      // A document that declares itself standalone is an asset, not a page
+      // component — it is published verbatim and never composed, so none of the
+      // page-component rules below apply to it. See STANDALONE_MARKER.
+      if (declaresStandalone(html)) continue
       const redirect = /<meta[^>]+http-equiv=["']refresh["']/i.test(html)
       if (!/<main(?:\s|>)/i.test(html) && !redirect) {
         throw new IngestError(`schema 2 ${path} has no <main> page component`)

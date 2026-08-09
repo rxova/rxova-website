@@ -182,4 +182,35 @@ describe('page-component composition', () => {
     assert.match(output, /http-equiv="refresh"/)
     assert.match(output, /Continue/)
   })
+
+  // The playground case. A frame target that gained the site header and footer
+  // inside a 300px iframe would be a quiet visual bug rather than a loud one,
+  // so this asserts on what is absent as much as on what survives.
+  it('publishes a standalone asset verbatim, never composed', async () => {
+    artifact('landing', {
+      'index.html': 'landing',
+      'shell-templates/use-everywhere/index.html': shell,
+    })
+    artifact('docs-use-everywhere', {
+      'index.html': '<html><head><title>Docs</title></head><body><main>Docs</main></body></html>',
+      'playground/tab.html':
+        '<html><head><meta name="rxova-standalone" content=""><title>tab</title></head><body><div id="root">tab</div></body></html>',
+      'rxova-page-bundle.json': JSON.stringify({
+        schema: 2,
+        format: 'html-page-component',
+        project: 'use-everywhere',
+        base: '/packages/use-everywhere/',
+      }),
+    })
+    await run(registry({ id: 'use-everywhere' }))
+
+    const page = read('packages/use-everywhere/index.html')
+    assert.match(page, /<header class="site">Rxova<\/header>/)
+
+    const asset = read('packages/use-everywhere/playground/tab.html')
+    assert.match(asset, /<div id="root">tab<\/div>/)
+    assert.doesNotMatch(asset, /<header class="site">/)
+    assert.doesNotMatch(asset, /website-footer/)
+    assert.doesNotMatch(asset, /data-rxova-shell/)
+  })
 })
