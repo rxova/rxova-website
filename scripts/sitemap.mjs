@@ -90,6 +90,37 @@ export function isIndexable(html) {
   return indexable
 }
 
+/**
+ * The `lastmod` for a built page, or undefined when the page does not claim one.
+ *
+ * Read from what the page says about itself — the `dateModified` or
+ * `datePublished` in its JSON-LD, else its first `<time datetime>`. Deliberately
+ * NOT the file's mtime: every file in a CI build is written seconds before this
+ * runs, so mtime would stamp every URL on the site with today's date on every
+ * deploy. A sitemap that claims the whole site changed daily is worse than one
+ * with no dates at all — Google learns the field is noise and discounts it.
+ *
+ * `lastmod` is optional per URL, so a page with nothing honest to say simply
+ * omits it. That is why this returns undefined rather than a fallback.
+ */
+export function lastmodFor(html) {
+  const ld = [...html.matchAll(/<script[^>]+application\/ld\+json[^>]*>(.*?)<\/script>/gis)]
+  for (const [, body] of ld) {
+    try {
+      const data = JSON.parse(body.replace(/\\u003c/gi, '<'))
+      for (const node of Array.isArray(data) ? data : [data]) {
+        const stamp = node?.dateModified ?? node?.datePublished
+        if (typeof stamp === 'string' && /^\d{4}-\d{2}-\d{2}/.test(stamp)) return stamp.slice(0, 10)
+      }
+    } catch {
+      // A page carrying unparseable JSON-LD is a separate problem; it must not
+      // take the sitemap down with it.
+    }
+  }
+  const time = html.match(/<time[^>]+datetime=["'](\d{4}-\d{2}-\d{2})/i)
+  return time?.[1]
+}
+
 async function indexablePages(outDir, skipDirs) {
   const found = []
   async function visit(dir) {
@@ -111,17 +142,24 @@ async function indexablePages(outDir, skipDirs) {
       // The 404 page is served *as* a 404. Listing it invites Google to index the
       // error page itself, which is a classic way to get a "soft 404" flagged.
       if (entry.name === '404.html') continue
-      if (isIndexable(await readFile(path, 'utf8'))) found.push(urlForFile(relative(outDir, path)))
+      const html = await readFile(path, 'utf8')
+      if (!isIndexable(html)) continue
+      found.push({ path: urlForFile(relative(outDir, path)), lastmod: lastmodFor(html) })
     }
   }
   await visit(outDir)
-  return found.sort()
+  return found.sort((a, b) => a.path.localeCompare(b.path))
 }
 
-const urlset = (paths, origin) =>
+const urlset = (pages, origin) =>
   '<?xml version="1.0" encoding="UTF-8"?>\n' +
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-  paths.map((p) => `  <url><loc>${escapeXml(origin + p)}</loc></url>\n`).join('') +
+  pages
+    .map(({ path, lastmod }) => {
+      const stamp = lastmod ? `<lastmod>${escapeXml(lastmod)}</lastmod>` : ''
+      return `  <url><loc>${escapeXml(origin + path)}</loc>${stamp}</url>\n`
+    })
+    .join('') +
   '</urlset>\n'
 
 const sitemapIndex = (files, origin) =>
@@ -161,6 +199,21 @@ export async function writeSitemaps(outDir, sources, origin = RXOVA_ORIGIN) {
   const skipDirs = new Set()
 
   for (const source of sources) {
+    // A showcase is not a page set. Storybook builds one app shell plus
+    // `iframe.html`, the canvas frame every story renders inside — documents with
+    // no crawlable prose, whose content arrives from JavaScript and whose routing
+    // lives in a query string. Neither is a destination, and submitting them from
+    // a domain with no authority yet spends crawl budget on thin pages to no end.
+    //
+    // Excluded by `kind` rather than by path, so any future non-documentation
+    // surface is excluded by existing simply as itself. Note this only stops us
+    // *offering* the URLs: the landing links to Storybook, so a crawler can still
+    // reach it. Keeping it out of the index outright would need a `noindex` from
+    // the Storybook build, which is that repo's to add.
+    if (source.kind === 'storybook') {
+      skipDirs.add(posix(source.mount))
+      continue
+    }
     if (!(await exists(join(outDir, source.mount, SITEMAP_INDEX)))) continue
     children.push(`${posix(source.mount)}/${SITEMAP_INDEX}`)
     skipDirs.add(posix(source.mount))

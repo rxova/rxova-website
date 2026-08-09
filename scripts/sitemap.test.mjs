@@ -10,7 +10,14 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { writeSitemaps, urlForFile, isIndexable, SITEMAP_INDEX, SITEMAP_PAGES } from './sitemap.mjs'
+import {
+  writeSitemaps,
+  urlForFile,
+  isIndexable,
+  lastmodFor,
+  SITEMAP_INDEX,
+  SITEMAP_PAGES,
+} from './sitemap.mjs'
 
 const roots = []
 let root
@@ -62,7 +69,69 @@ describe('isIndexable', () => {
   })
 })
 
+describe('lastmodFor', () => {
+  const ld = (obj) => `<script type="application/ld+json">${JSON.stringify(obj)}</script>`
+
+  it('prefers dateModified over datePublished', () => {
+    const html = ld({
+      '@type': 'BlogPosting',
+      datePublished: '2026-08-03T09:00:00.000Z',
+      dateModified: '2026-08-07T11:00:00.000Z',
+    })
+    assert.equal(lastmodFor(html), '2026-08-07')
+  })
+
+  it('falls back to datePublished, then to a time element', () => {
+    assert.equal(
+      lastmodFor(ld({ '@type': 'BlogPosting', datePublished: '2026-08-03T09:00:00.000Z' })),
+      '2026-08-03',
+    )
+    assert.equal(lastmodFor('<time datetime="2026-07-28T12:00:00.000Z">July</time>'), '2026-07-28')
+  })
+
+  // The whole point of the field. A page with nothing honest to say omits it,
+  // rather than being stamped with the build date on every deploy — which would
+  // claim the entire site changed daily and train Google to ignore the signal.
+  it('returns undefined when the page claims no date', () => {
+    assert.equal(lastmodFor('<html><body><main>No dates here</main></body></html>'), undefined)
+  })
+
+  it('survives unparseable JSON-LD rather than taking the sitemap down', () => {
+    assert.equal(lastmodFor('<script type="application/ld+json">{ not json </script>'), undefined)
+  })
+
+  // SiteShell escapes `<` as < before embedding, so a real page's JSON-LD
+  // is not byte-identical to what JSON.parse expects until that is undone.
+  it('reads JSON-LD that was escaped for safe embedding', () => {
+    const html =
+      '<script type="application/ld+json">' +
+      JSON.stringify({ '@type': 'BlogPosting', datePublished: '2026-08-03' }).replace(
+        /</g,
+        '\\u003c',
+      ) +
+      '</script>'
+    assert.equal(lastmodFor(html), '2026-08-03')
+  })
+})
+
 describe('writeSitemaps', () => {
+  it('stamps lastmod only on pages that state a date', async () => {
+    write('index.html', page())
+    write(
+      'blog/a-post/index.html',
+      page('<script type="application/ld+json">{"datePublished":"2026-08-03T09:00:00Z"}</script>'),
+    )
+
+    await writeSitemaps(root, [], ORIGIN)
+    const xml = read(SITEMAP_PAGES)
+
+    assert.match(
+      xml,
+      /<loc>https:\/\/rxova\.org\/blog\/a-post\/<\/loc><lastmod>2026-08-03<\/lastmod>/,
+    )
+    assert.match(xml, /<loc>https:\/\/rxova\.org\/<\/loc><\/url>/)
+  })
+
   it('lists the pages nobody else covers, at absolute URLs', async () => {
     write('index.html', page())
     write('about/index.html', page())
@@ -119,6 +188,24 @@ describe('writeSitemaps', () => {
       'https://rxova.org/',
       'https://rxova.org/updates/repos/journey/',
     ])
+  })
+
+  // A Storybook build is an app shell plus `iframe.html`, the canvas frame every
+  // story renders inside. Neither is a destination, and both were being offered
+  // to Google because storybook ships no sitemap and so fell into the sweep.
+  it('excludes a storybook surface entirely rather than sweeping its shell', async () => {
+    write('index.html', page())
+    write('storybook/react-inputs/index.html', page())
+    write('storybook/react-inputs/iframe.html', page())
+
+    const { children } = await writeSitemaps(
+      root,
+      [{ mount: 'storybook/react-inputs', kind: 'storybook' }],
+      ORIGIN,
+    )
+
+    assert.deepEqual(locs(read(SITEMAP_PAGES)), ['https://rxova.org/'])
+    assert.deepEqual(children, [])
   })
 
   it('points robots.txt at the root index', async () => {
