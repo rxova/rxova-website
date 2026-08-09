@@ -258,4 +258,52 @@ describe('checkDist — gate 2b', () => {
     assert.throws(() => checkDist(dir, { schema: 2 }), /global Rxova footer/)
     rmSync(dir, { recursive: true, force: true })
   })
+
+  // The playground case: a docs dist may legitimately carry HTML that is an
+  // asset rather than a page — an iframe target has no <main> and must never be
+  // composed. Without the marker the whole use-everywhere bundle was rejected.
+  it('accepts a standalone asset with no <main>', () => {
+    dir = make()
+    writeFileSync(
+      join(dir, 'rxova-page-bundle.json'),
+      JSON.stringify({
+        schema: 2,
+        format: 'html-page-component',
+        project: 'use-everywhere',
+        base: '/packages/use-everywhere/',
+      }),
+    )
+    writeFileSync(
+      join(dir, 'index.html'),
+      '<!doctype html><html><body><main>Docs</main></body></html>',
+    )
+    mkdirSync(join(dir, 'playground'), { recursive: true })
+    writeFileSync(
+      join(dir, 'playground', 'tab.html'),
+      '<!doctype html><html><head><meta name="rxova-standalone" content=""></head><body><div id="root"></div></body></html>',
+    )
+    assert.deepEqual(checkDist(dir, { schema: 2 }), { entries: 3 })
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  // The marker turns off the page-component rules, so it must not become a way
+  // to smuggle the global chrome into the tree unnoticed.
+  it('still rejects a page component with no <main> when unmarked', () => {
+    dir = make()
+    writeFileSync(
+      join(dir, 'rxova-page-bundle.json'),
+      JSON.stringify({
+        schema: 2,
+        format: 'html-page-component',
+        project: 'blog',
+        base: '/blog/',
+      }),
+    )
+    writeFileSync(
+      join(dir, 'index.html'),
+      '<!doctype html><html><body><div>no main</div></body></html>',
+    )
+    assert.throws(() => checkDist(dir, { schema: 2 }), /has no <main> page component/)
+    rmSync(dir, { recursive: true, force: true })
+  })
 })

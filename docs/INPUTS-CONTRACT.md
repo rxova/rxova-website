@@ -28,6 +28,25 @@ On a push to its default branch, after its docs build succeeds:
    `SiteFooter` or Cloudflare beacon. Starlight's search/sidebar/page navigation
    remain page UI and are preserved.
 
+   **Shipping HTML that is not a page?** Mark it:
+
+   ```html
+   <meta name="rxova-standalone" content="" />
+   ```
+
+   A marked document is published byte-for-byte and never composed into the site
+   shell, so none of the rules above apply to it. This is for the HTML in a dist
+   that is an _asset_ rather than a page — an iframe target, a demo shell — which
+   has no `<main>` to give and would be broken by gaining a site header and
+   footer. The use-everywhere playground is the case it exists for: a frame
+   holder plus a per-tab document, both of which have to stay on the origin so
+   the frames share a `BroadcastChannel`.
+
+   Only mark documents that are genuinely not pages. The marker turns off the
+   `<main>`, chrome and analytics checks for that file, and an unmarked document
+   is treated as a page component exactly as before — so forgetting the marker
+   fails the gate loudly, which is the safe direction.
+
 3. **Upload the built dist as a workflow artifact named `docs-dist`.** The
    artifact's root must be the dist root — i.e. `index.html` sits at the top of
    the artifact, not under a subdirectory. This is the fixed name the aggregator

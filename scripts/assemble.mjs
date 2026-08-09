@@ -23,7 +23,11 @@ import { join, dirname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parse, serialize } from 'parse5'
 
-import { PAGE_BUNDLE_FILENAME, pageBundleManifest } from './page-bundle-contract.mjs'
+import {
+  PAGE_BUNDLE_FILENAME,
+  pageBundleManifest,
+  declaresStandalone,
+} from './page-bundle-contract.mjs'
 
 import { findNode, element, attribute, hasClass, walkNodes } from './html.mjs'
 import { loadRedirects, writeRedirects } from './redirects.mjs'
@@ -194,13 +198,27 @@ async function readPageBundle(src, source) {
 async function composeInto(src, dest, shellPath, source) {
   await cp(src, dest, { recursive: true })
   const shell = await readFile(shellPath, 'utf8')
+  let composed = 0
+  let standalone = 0
   for (const file of await htmlFiles(src)) {
     const rel = relative(src, file)
-    const composed = composeDocument(await readFile(file, 'utf8'), shell, `${source.id}/${rel}`)
-    await writeFile(join(dest, rel), composed)
+    const html = await readFile(file, 'utf8')
+    // Already copied verbatim by `cp` above, which is exactly what a standalone
+    // asset wants — an iframe target must not gain the site header and footer.
+    // See STANDALONE_MARKER for why the document declares this rather than the
+    // aggregator guessing from the path.
+    if (declaresStandalone(html)) {
+      standalone++
+      continue
+    }
+    await writeFile(join(dest, rel), composeDocument(html, shell, `${source.id}/${rel}`))
+    composed++
   }
   await rm(join(dest, PAGE_BUNDLE_FILENAME), { force: true })
-  console.log(`  ✓ ${source.id}: composed page bundle -> ${dest}`)
+  // Counted rather than announced as a single line, because a marker typo turns
+  // a standalone asset into a composed page and the numbers are what show it.
+  const note = standalone > 0 ? ` (${String(standalone)} standalone, copied verbatim)` : ''
+  console.log(`  ✓ ${source.id}: composed ${String(composed)} page(s)${note} -> ${dest}`)
 }
 
 /**
