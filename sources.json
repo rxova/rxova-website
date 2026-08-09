@@ -39,8 +39,9 @@
       "id": "react-inputs",
       "enabled": true,
       "landing": {
-        "blurb": "A family of focused input components \u2014 localized currency, OTP slots, and feedback stars \u2014 each zero-to-few dependencies, accessible, and free of the usual cursor and locale bugs.",
-        "tags": ["React", "TypeScript", "Zero-dependency", "Accessible"]
+        "blurb": "Nine focused input components \u2014 currency, OTP, rating, password, phone, date, time, tags and file. Headless with no stylesheet to import, accessible by construction, and zero runtime dependencies each.",
+        "tags": ["React", "TypeScript", "Zero-dependency", "Accessible"],
+        "snippet": "import { CurrencyInput, OtpInput } from '@rxova/react-inputs'\n\n<CurrencyInput locale=\"en-US\" currency=\"USD\" value={price} onChange={setPrice} />\n<OtpInput length={6} value={code} onChange={setCode} label=\"One-time code\" />"
       }
     },
     {
@@ -49,7 +50,8 @@
       "landing": {
         "blurb": "Share state and messages across every tab, window, and worker \u2014 a framework-agnostic core plus React bindings, one small API.",
         "tags": ["JS Core", "React", "TypeScript", "Cross-tab"],
-        "demo": "https://rxova.github.io/use-everywhere/"
+        "demo": "https://rxova.github.io/use-everywhere/",
+        "snippet": "import { useSharedState } from 'use-everywhere'\n\n// No Provider. The value now exists in every tab on the origin.\nconst [count, setCount] = useSharedState('count', 0)"
       }
     },
     {

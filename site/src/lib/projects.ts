@@ -36,6 +36,14 @@ export interface LandingProject extends Project {
   blurb: string
   tags: readonly string[]
   links: readonly LandingLink[]
+  /**
+   * The package a newcomer installs first — `packages[0]` from brand, which is
+   * documented as "most prominent first". Derived rather than written into
+   * sources.json so it cannot drift from the list the card already renders.
+   */
+  install: string
+  /** Optional few lines showing the API. Absent is fine; the card just omits it. */
+  snippet?: string
   /** False when the project's docs are not mounted yet — see `enabled` in sources.json. */
   docsMounted: boolean
 }
@@ -44,7 +52,7 @@ interface RawSource {
   id: string
   kind?: string
   enabled?: boolean
-  landing?: { blurb?: string; tags?: string[]; demo?: string }
+  landing?: { blurb?: string; tags?: string[]; demo?: string; snippet?: string }
 }
 
 // Only the packages. `sources.json` also carries `kind: "site"` entries — /blog and
@@ -89,9 +97,15 @@ function build(): LandingProject[] {
     const source = rawSources.find((s) => s.id === project.id)
     if (!source) fail(`"${project.id}" is in PROJECTS but not in sources.json`)
 
-    const { blurb, tags, demo } = source.landing ?? {}
+    const { blurb, tags, demo, snippet } = source.landing ?? {}
     if (!blurb) fail(`"${project.id}" has no landing.blurb in sources.json`)
     if (!tags?.length) fail(`"${project.id}" has no landing.tags in sources.json`)
+
+    // A card without an install line is a card nobody can act on, and the name
+    // comes from brand rather than from copy — so an empty list is a bug here,
+    // not something to render around.
+    const install = project.packages[0]
+    if (!install) fail(`"${project.id}" has no packages in PROJECTS to install`)
 
     // A demo is a live app the project's own repo deploys (GitHub Pages), not a
     // dist this site ingests — so unlike Storybook it is an absolute URL rather
@@ -115,6 +129,8 @@ function build(): LandingProject[] {
       ...project,
       blurb,
       tags,
+      install,
+      ...(snippet ? { snippet } : {}),
       links: [
         // Only link to docs that are actually deployed. A disabled project is
         // still worth showing — it just has nowhere to point yet.

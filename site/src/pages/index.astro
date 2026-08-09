@@ -2,6 +2,7 @@
 // The project list is assembled from @rxova/brand (product metadata, shared with
 // the docs sites) and sources.json (landing copy + what is actually deployed).
 // See src/lib/projects.ts — it fails the build if the two disagree.
+import { siteUrl } from '@rxova/brand'
 import { landingProjects, projectListSentence } from '../lib/projects'
 // Who maintains this and what the projects share — the short form of both. The
 // long form is /about, and both read from the same module so they cannot drift.
@@ -11,6 +12,43 @@ import BaseLayout from '../layouts/BaseLayout.astro'
 // It lives here rather than in BaseLayout because BaseLayout also builds the
 // shell templates, which must not carry it into a docs page — see the stylesheet.
 import '../styles/global.css'
+
+/**
+ * Who publishes these, and what they are, in the vocabulary a crawler parses.
+ *
+ * The `Organization` is what ties the npm scope, the GitHub org and this domain
+ * together as one entity rather than three unrelated names; `hasPart` lists the
+ * projects so the landing declares the set it links to. Everything is read from
+ * the same registries the page renders from, so adding a project updates the
+ * structured data with it — the failure mode this avoids is a hand-written block
+ * that describes the site as it was the last time someone remembered to edit it.
+ */
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Rxova',
+  url: siteUrl('/'),
+  logo: siteUrl('/rxova-logo-1024.png'),
+  description: `Small TypeScript libraries for the hard parts of the browser: ${projectListSentence}.`,
+  founder: { '@type': 'Person', name: MAINTAINER.name },
+  sameAs: [MAINTAINER.org, ...MAINTAINER.links.map((l) => l.href)],
+  hasPart: landingProjects.map((p) => ({
+    '@type': 'SoftwareSourceCode',
+    name: p.label,
+    description: p.tagline,
+    url: siteUrl(p.mount),
+    codeRepository: p.repo,
+    programmingLanguage: 'TypeScript',
+    license: 'https://opensource.org/licenses/MIT',
+  })),
+}
+
+// Escaped so a `</script>` inside any of the copy above cannot close the element
+// early and spill the rest into the document as text. `<` is valid JSON and
+// parses back to `<`, so the structured data is unchanged.
+const organizationJson = JSON.stringify(organizationJsonLd).replace(/</g, '\\u003c')
+
+const blogFeed = siteUrl('/blog/rss.xml')
 ---
 
 <BaseLayout title="Rxova — TypeScript libraries for the hard parts of the browser" path="/">
@@ -38,6 +76,10 @@ import '../styles/global.css'
          gets centre-cropped by Slack and Twitter into an unreadable smear. -->
     <meta property="og:image" content="https://rxova.org/og/rxova.png" />
     <meta name="twitter:card" content="summary_large_image" />
+    <!-- The blog is mounted here but built in the brand repo, so the landing is
+         the only place that can advertise its feed from the domain root. -->
+    <link rel="alternate" type="application/rss+xml" title="Rxova Blog" href={blogFeed} />
+    <script type="application/ld+json" is:inline set:html={organizationJson} />
   </Fragment>
   <main>
     {
@@ -68,6 +110,22 @@ import '../styles/global.css'
             </ul>
             <p class="tagline">{p.tagline}</p>
             <p class="blurb">{p.blurb}</p>
+            {/* The page described three libraries and gave a reader no way to
+                try one. The install line is the shortest possible next step, and
+                the snippet is the claim the whole site makes — that these APIs
+                are small — shown instead of asserted. */}
+            <p class="install">
+              <span class="prompt" aria-hidden="true">
+                $
+              </span>
+              <code>npm i {p.install}</code>
+            </p>
+            {/* Self-closing with `set:text` rather than `<pre><code>{…}</code></pre>`.
+                Whitespace inside `<pre>` renders, and the formatter breaks a
+                nested element onto its own line — which put a blank first line
+                and eight spaces of indentation into every snippet. An element
+                with no children cannot pick up stray text nodes. */}
+            {p.snippet && <pre class="snippet" set:text={p.snippet} />}
             <ul class="tags" aria-label={`${p.label} tech`}>
               {p.tags.map((t) => (
                 <li class="tag">{t}</li>
@@ -137,6 +195,34 @@ import '../styles/global.css'
             </a>
           ))
         }
+      </nav>
+    </section>
+
+    {
+      /* The page ended without asking for anything. These are the two things a
+          reader can actually give a young project — attention now, and attention
+          later — and both are one click. Kept to a strip rather than a section
+          with a heading: it is an ask, not a chapter. */
+    }
+    <section class="follow" aria-labelledby="follow-heading">
+      <h2 id="follow-heading">Follow along</h2>
+      <p class="follow-summary">
+        Everything here is new and moving. Starring a repo is what tells me which of these is worth
+        the next month of work.
+      </p>
+      <nav class="links" aria-label="Follow Rxova">
+        <a href={MAINTAINER.org} target="_blank" rel="noopener noreferrer">
+          Star on GitHub
+          <span aria-hidden="true" class="arrow">↗</span>
+        </a>
+        <a href="/updates">
+          What changed
+          <span aria-hidden="true" class="arrow">→</span>
+        </a>
+        <a href={blogFeed}>
+          RSS
+          <span aria-hidden="true" class="arrow">→</span>
+        </a>
       </nav>
     </section>
 
@@ -218,6 +304,46 @@ import '../styles/global.css'
       margin-bottom: 1.1rem;
     }
 
+    /* The install line reads as a terminal without pretending to be one: a
+       dimmed prompt, the command in the mono face, and a rule rather than a
+       filled block so it does not outweigh the blurb above it. */
+    .install {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 0.5rem 0.7rem;
+      margin-bottom: 0.9rem;
+      /* Long scoped package names must not widen the card on a phone. */
+      overflow-x: auto;
+    }
+
+    .install .prompt {
+      color: var(--faint);
+      user-select: none;
+    }
+
+    .install code {
+      white-space: nowrap;
+    }
+
+    .snippet {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      line-height: 1.65;
+      color: var(--muted);
+      background: var(--tag-bg);
+      border-radius: 6px;
+      padding: 0.8rem 0.9rem;
+      margin-bottom: 1.1rem;
+      max-width: 38rem;
+      /* Code sets its own line breaks, so the block scrolls rather than the page. */
+      overflow-x: auto;
+    }
+
     .tags {
       list-style: none;
       display: flex;
@@ -273,13 +399,15 @@ import '../styles/global.css'
     /* Both sit on the same top rule the project cards use, so the page reads
          as one column of sections rather than a list plus two appendices. */
     .why,
-    .maintainer {
+    .maintainer,
+    .follow {
       padding: 2.25rem 0;
       border-top: 1px solid var(--rx-rule);
     }
 
     .why h2,
-    .maintainer h2 {
+    .maintainer h2,
+    .follow h2 {
       font-size: 1.5rem;
       letter-spacing: -0.02em;
       font-weight: 640;
@@ -321,7 +449,8 @@ import '../styles/global.css'
       font-size: 0.97rem;
     }
 
-    .maintainer-summary {
+    .maintainer-summary,
+    .follow-summary {
       color: var(--rx-muted);
       max-width: 38rem;
       margin-bottom: 1.25rem;
