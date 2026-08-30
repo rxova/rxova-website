@@ -16,6 +16,8 @@ import {
   isIndexable,
   lastmodFor,
   SITEMAP_INDEX,
+  childSitemapPaths,
+  AI_USER_AGENTS,
   SITEMAP_PAGES,
 } from './sitemap.mjs'
 
@@ -39,6 +41,17 @@ function write(path, body) {
 
 const page = (head = '') =>
   `<!doctype html><html><head>${head}</head><body><main>x</main></body></html>`
+
+/**
+ * What @astrojs/sitemap actually writes: an index naming one or more urlsets,
+ * never a bare urlset. Absolute locs, because that is what the spec requires and
+ * what the producer emits.
+ */
+const childIndex = (mount, files) =>
+  '<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex>' +
+  files.map((f) => `<sitemap><loc>${ORIGIN}/${mount}/${f}</loc></sitemap>`).join('') +
+  '</sitemapindex>\n'
+
 const read = (name) => readFileSync(join(root, name), 'utf8')
 const locs = (xml) => [...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1])
 
@@ -164,16 +177,53 @@ describe('writeSitemaps', () => {
     write('index.html', page())
     write('packages/journey/index.html', page())
     write('packages/journey/core/api/index.html', page())
-    write(`packages/journey/${SITEMAP_INDEX}`, '<sitemapindex/>')
+    write(`packages/journey/${SITEMAP_INDEX}`, childIndex('packages/journey', ['sitemap-0.xml']))
 
     const { children } = await writeSitemaps(root, [{ mount: 'packages/journey' }], ORIGIN)
 
     // Its pages appear once, under its own sitemap — not a second time under ours.
     assert.deepEqual(locs(read(SITEMAP_PAGES)), ['https://rxova.org/'])
-    assert.deepEqual(children, ['packages/journey/sitemap-index.xml'])
+    // The urlset, NOT the child index: see childSitemapPaths.
+    assert.deepEqual(children, ['packages/journey/sitemap-0.xml'])
     assert.deepEqual(locs(read(SITEMAP_INDEX)), [
       'https://rxova.org/sitemap-pages.xml',
-      'https://rxova.org/packages/journey/sitemap-index.xml',
+      'https://rxova.org/packages/journey/sitemap-0.xml',
+    ])
+  })
+
+  // The regression this whole flattening exists for: a nested sitemap index is
+  // invalid, and a crawler that meets one drops every URL below it. Pinned as an
+  // absence, because the failure is silent on both sides — the file parses, it
+  // just describes nothing.
+  it('never lists a child sitemap index in the root index', async () => {
+    write('index.html', page())
+    write(
+      `packages/journey/${SITEMAP_INDEX}`,
+      childIndex('packages/journey', ['sitemap-0.xml', 'sitemap-1.xml']),
+    )
+
+    await writeSitemaps(root, [{ mount: 'packages/journey' }], ORIGIN)
+
+    assert.deepEqual(locs(read(SITEMAP_INDEX)), [
+      'https://rxova.org/sitemap-pages.xml',
+      'https://rxova.org/packages/journey/sitemap-0.xml',
+      'https://rxova.org/packages/journey/sitemap-1.xml',
+    ])
+  })
+
+  // Better a project's pages listed by us than a mount that appears in no
+  // sitemap at all — which is what deferring to an index naming nothing means.
+  it('sweeps a project whose sitemap index names nothing usable', async () => {
+    write('index.html', page())
+    write('packages/journey/index.html', page())
+    write(`packages/journey/${SITEMAP_INDEX}`, '<sitemapindex/>')
+
+    const { children } = await writeSitemaps(root, [{ mount: 'packages/journey' }], ORIGIN)
+
+    assert.deepEqual(children, [])
+    assert.deepEqual(locs(read(SITEMAP_PAGES)), [
+      'https://rxova.org/',
+      'https://rxova.org/packages/journey/',
     ])
   })
 
@@ -219,6 +269,36 @@ describe('writeSitemaps', () => {
   // A comment, not a directive: an unknown robots.txt field risks taking the
   // whole file down in a strict parser. Pinned so the next refactor of this
   // string does not drop it silently.
+  // These libraries are meant to be quotable by a model. Google-Extended and
+  // Applebot-Extended grant exactly that and exist nowhere but robots.txt, so
+  // dropping them is a silent revocation with no other symptom.
+  it('names the AI agents it allows, including the two that are grants and not crawlers', async () => {
+    write('index.html', page())
+
+    await writeSitemaps(root, [], ORIGIN)
+
+    const robots = read('robots.txt')
+    for (const agent of AI_USER_AGENTS) {
+      assert.match(robots, new RegExp(`^User-agent: ${agent}$`, 'm'))
+    }
+    assert.ok(AI_USER_AGENTS.includes('Google-Extended'))
+    assert.ok(AI_USER_AGENTS.includes('Applebot-Extended'))
+  })
+
+  // Group selection is most-specific-wins, so the named agents read their own
+  // group and never the wildcard's — the Allow has to be inside it.
+  it('gives the named agents their own Allow rather than leaning on the wildcard', async () => {
+    write('index.html', page())
+
+    await writeSitemaps(root, [], ORIGIN)
+
+    const groups = read('robots.txt')
+      .split(/\n\s*\n/)
+      .filter((block) => block.includes('User-agent:'))
+
+    for (const block of groups) assert.match(block, /^Allow: \/$/m)
+  })
+
   it('points humans reading robots.txt at the agent index', async () => {
     write('index.html', page())
 
@@ -233,5 +313,59 @@ describe('writeSitemaps', () => {
     await writeSitemaps(root, [], 'https://web.rxova.org')
 
     assert.deepEqual(locs(read(SITEMAP_PAGES)), ['https://web.rxova.org/'])
+  })
+})
+
+describe('childSitemapPaths', () => {
+  const index = (locs) =>
+    `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex>${locs
+      .map((loc) => `<sitemap><loc>${loc}</loc></sitemap>`)
+      .join('')}</sitemapindex>\n`
+
+  it('flattens a child index to the urlsets it names', () => {
+    assert.deepEqual(
+      childSitemapPaths(
+        index([
+          'https://rxova.org/packages/use-everywhere/sitemap-0.xml',
+          'https://rxova.org/packages/use-everywhere/sitemap-1.xml',
+        ]),
+        'packages/use-everywhere',
+      ),
+      ['packages/use-everywhere/sitemap-0.xml', 'packages/use-everywhere/sitemap-1.xml'],
+    )
+  })
+
+  // Already a leaf. Descending into it would find pages, not sitemaps.
+  it('references a child that is a plain urlset as it stands', () => {
+    assert.deepEqual(
+      childSitemapPaths(
+        '<urlset><url><loc>https://rxova.org/packages/x/</loc></url></urlset>',
+        'packages/x',
+      ),
+      [`packages/x/${SITEMAP_INDEX}`],
+    )
+  })
+
+  // The child was built by its own repo against its own `site`, which on a
+  // staging deploy is not the origin being written here.
+  it('keeps only the path, so a foreign origin in the child cannot leak through', () => {
+    assert.deepEqual(
+      childSitemapPaths(index(['https://example.test/packages/x/sitemap-0.xml']), 'packages/x'),
+      ['packages/x/sitemap-0.xml'],
+    )
+  })
+
+  it("drops a loc that escapes the project's own mount", () => {
+    assert.deepEqual(
+      childSitemapPaths(
+        index([
+          'https://rxova.org/packages/other/sitemap-0.xml',
+          'https://rxova.org/packages/x/../sitemap-0.xml',
+          'https://rxova.org/packages/x/sitemap-0.xml',
+        ]),
+        'packages/x',
+      ),
+      ['packages/x/sitemap-0.xml'],
+    )
   })
 })

@@ -34,6 +34,21 @@ const footerSurfaces = navSurfaces.map((surface) => ({
 // leave the composed page claiming to be /shell-templates/<id>.
 const canonical = template ? undefined : new URL(Astro.url.pathname, Astro.site).href
 
+// The agent-facing index of the whole domain, advertised the standard way.
+//
+// `rel="alternate"` says "the same thing, another format", which is what an
+// llms.txt is; a reader that already parses link relations finds it without
+// having to know the well-known path, and a person reading source sees that the
+// site has one at all.
+//
+// Not on a shell template, and that is the point rather than caution. A package
+// build advertises its OWN llms.txt from its own <head> — the index of that
+// package, which is what somebody reading that page wants. The assembler splices
+// that head into this shell, so emitting the root index here too would leave the
+// composed page offering two alternates of the same type and letting the reader
+// guess which describes the page it is on.
+const llmsIndex = template ? undefined : '/llms.txt'
+
 // Marks the one case where this shell wraps a Starlight document: a package's
 // shell template. `data-rxova-shell` cannot say it — the landing carries that
 // too — and neither can `template` alone, because /blog and /updates are shell
@@ -53,6 +68,7 @@ const docsShell = template && project !== undefined
     <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
     <title>{title}</title>
     {canonical && <link rel="canonical" href={canonical} />}
+    {llmsIndex && <link rel="alternate" type="text/plain" title="llms.txt" href={llmsIndex} />}
     {robots && <meta name="robots" content={robots} />}
     <slot name="head" />
     {template && <meta name="rxova-head-slot" content="" />}
