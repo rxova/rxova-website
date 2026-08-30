@@ -53,6 +53,12 @@ const posix = (p) => p.split(sep).join('/')
 const escapeXml = (value) =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
+const XML_ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" }
+
+/** The inverse, for reading a `<loc>` out of a sitemap somebody else wrote. */
+const unescapeXml = (value) =>
+  value.replace(/&(amp|lt|gt|quot|apos);/g, (whole, name) => XML_ENTITIES[name] ?? whole)
+
 /**
  * The URL path a built file is served at, given the tree is directory-style.
  *
@@ -121,6 +127,55 @@ export function lastmodFor(html) {
   return time?.[1]
 }
 
+/**
+ * The sitemap files a project's own `sitemap-index.xml` names, as paths in this
+ * tree.
+ *
+ * A sitemap index may not list another sitemap index. sitemaps.org says so and
+ * Google enforces it by ignoring the nested file outright — along with every URL
+ * underneath it. That is exactly the shape this repo would otherwise publish the
+ * moment a project shipped a sitemap: `@astrojs/sitemap` always emits an index
+ * plus one or more `sitemap-N.xml` urlsets, never a bare urlset, so referencing
+ * the child index from the root index buries a project's whole tree one level
+ * too deep and it is read by nothing.
+ *
+ * Flattening one level here is what keeps both halves true: each project still
+ * owns its own URLs and its own lastmods, and the root index stays the single
+ * level of indirection a crawler actually follows.
+ *
+ * A child that turns out to be a plain `<urlset>` is referenced as it stands —
+ * it is already a leaf, and descending into it would only find pages.
+ *
+ * Every path is confined to the project's own mount. A sitemap may only claim
+ * URLs at or below its own location, so a `<loc>` reaching outside is invalid
+ * whatever it meant; this is the one point where a producer's build output gets
+ * to name a file in the root index, which makes it the place to check rather
+ * than assume.
+ */
+export function childSitemapPaths(xml, mount) {
+  if (!/<sitemapindex(?=[\s/>])/i.test(xml)) return [`${mount}/${SITEMAP_INDEX}`]
+
+  const prefix = `${mount}/`
+  const paths = []
+  for (const [, raw] of xml.matchAll(/<loc>\s*([^<]*?)\s*<\/loc>/gi)) {
+    const loc = unescapeXml(raw)
+    // Only the path is ours to read. The child was built by its own repo against
+    // its own `site`, which under a staging deploy is not the origin we are
+    // writing — so the origin is re-derived when the index is written, and a
+    // `<loc>` that is already a bare path works the same way.
+    let path
+    try {
+      path = new URL(loc).pathname
+    } catch {
+      path = loc
+    }
+    path = path.replace(/^\/+/, '')
+    if (!path.startsWith(prefix) || path.split('/').includes('..')) continue
+    if (!paths.includes(path)) paths.push(path)
+  }
+  return paths
+}
+
 async function indexablePages(outDir, skipDirs) {
   const found = []
   async function visit(dir) {
@@ -177,9 +232,60 @@ const sitemapIndex = (files, origin) =>
  * /llms.txt at its well-known path without being told; the line is here so a
  * human reading robots.txt learns the index exists.
  */
+/**
+ * The AI crawlers and readers this site is explicitly open to.
+ *
+ * `User-agent: *` above already permits every one of them, so this group grants
+ * nothing new today. It is here for the two things the wildcard cannot do.
+ *
+ * `Google-Extended` and `Applebot-Extended` are not crawlers at all — nothing
+ * fetches under those names. They are usage controls, read only from robots.txt,
+ * that decide whether pages Google and Apple already have may be used to ground
+ * an AI answer. robots.txt is the only place that consent can be expressed, so a
+ * site that means to be quotable has to say it here or not at all.
+ *
+ * And group selection in robots.txt is most-specific-wins, not additive: an
+ * agent named below reads only this group and ignores `*` entirely. That is the
+ * durable half. These are documentation libraries whose whole purpose is to be
+ * found by somebody asking a model how to solve the problem they solve; naming
+ * the agents means a `Disallow` added to `*` later — for a search page, a
+ * preview build, anything — cannot quietly take that away as a side effect.
+ *
+ * The same rule is the maintenance cost, and it points the other way too: a
+ * `Disallow` that is genuinely meant for everyone has to be repeated in this
+ * group, because these agents will never see the one under `*`.
+ */
+export const AI_USER_AGENTS = [
+  'GPTBot',
+  'OAI-SearchBot',
+  'ChatGPT-User',
+  'ClaudeBot',
+  'Claude-User',
+  'Claude-SearchBot',
+  'Google-Extended',
+  'Applebot-Extended',
+  'PerplexityBot',
+  'Perplexity-User',
+  'meta-externalagent',
+  'Amazonbot',
+  'Bytespider',
+  'CCBot',
+  'cohere-ai',
+  'DuckAssistBot',
+  'MistralAI-User',
+  'YouBot',
+]
+
 const robotsTxt = (origin) =>
   [
     'User-agent: *',
+    'Allow: /',
+    '',
+    '# Named explicitly, not because the group above forbids them, but because',
+    '# Google-Extended and Applebot-Extended are grants that exist nowhere else,',
+    '# and because a named group is read INSTEAD of *, so a Disallow added there',
+    '# later cannot revoke this by accident. Add such a Disallow here too.',
+    ...AI_USER_AGENTS.map((agent) => `User-agent: ${agent}`),
     'Allow: /',
     '',
     `Sitemap: ${origin}/${SITEMAP_INDEX}`,
@@ -214,8 +320,18 @@ export async function writeSitemaps(outDir, sources, origin = RXOVA_ORIGIN) {
       skipDirs.add(posix(source.mount))
       continue
     }
-    if (!(await exists(join(outDir, source.mount, SITEMAP_INDEX)))) continue
-    children.push(`${posix(source.mount)}/${SITEMAP_INDEX}`)
+    const indexPath = join(outDir, source.mount, SITEMAP_INDEX)
+    if (!(await exists(indexPath))) continue
+
+    const paths = childSitemapPaths(await readFile(indexPath, 'utf8'), posix(source.mount))
+    // An index naming nothing we can use is not a sitemap as far as this tree is
+    // concerned, so the project falls through to the sweep below — the same
+    // tolerance a project shipping no sitemap at all already gets. Deferring to
+    // it regardless would drop its pages out of the site's sitemaps entirely,
+    // which is the one outcome worse than listing them here.
+    if (paths.length === 0) continue
+
+    children.push(...paths)
     skipDirs.add(posix(source.mount))
   }
 
