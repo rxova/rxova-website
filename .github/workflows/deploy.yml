@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      # Same corepack + pinned pnpm + cached setup-node as CI uses, so the two
+      # Same pinned pnpm + cached setup-node as CI uses, so the two
       # workflows cannot drift to different Node or pnpm versions.
       - uses: ./.github/actions/setup-pnpm
         with:
