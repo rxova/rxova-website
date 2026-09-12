@@ -8,6 +8,40 @@ onlyBuiltDependencies:
 allowBuilds:
   esbuild: true
   sharp: true
+
+# Transitive fixes the direct bumps do not reach. astro 7.3.2 itself takes the
+# patched sharp (its optional dependency floor is ^0.35.4), but its ranges for
+# the packages below still admit the vulnerable versions, so the lockfile keeps
+# them until something forces a floor. Each entry is scoped to the one major
+# line that resolves here, and the upper bound is load-bearing: the replacement
+# side is a range, so a bare floor would resolve to the newest major and push a
+# dependent across it silently. A future major arriving is re-audited instead.
+overrides:
+  # GHSA-7w5x-hrqm-74c2: malformed TOML documents cause a denial of service.
+  # Reached through astro and @astrojs/internal-helpers, which parse TOML
+  # frontmatter and config at build time.
+  smol-toml@1: '>=1.7.1 <2'
+  # GHSA-w27v-7q3p-w38r and GHSA-4vpr-x523-8j87: removeScripts lets executable
+  # links (namespace and control-character bypasses) and HTML inside
+  # foreignObject survive sanitisation. Reached through astro's SVG handling.
+  svgo@4: '>=4.1.0 <5'
+  # GHSA-5p4m-2wfm-xmqj (quadratic CPU resolving !!omap) and GHSA-2883-xcg3-v3hh
+  # (maxTotalMergeKeys does not bound CPU for empty merge sources), both DoS on
+  # untrusted YAML. Reached through astro and @astrojs/internal-helpers for
+  # frontmatter, and through commitlint's cosmiconfig. Only 4.x resolves here.
+  js-yaml@4: '>=4.3.2 <5'
+  # GHSA-jqff-g426-hqxp, GHSA-fph4-wmhf-6fwf, GHSA-f65p-4m7j-42xc and
+  # GHSA-5jgf-p345-68v8: host confusion and SSRF from how URIs are normalised.
+  # Reached only through ajv, via commitlint's config validator and the YAML
+  # language server under @astrojs/check. Dev-only, never shipped.
+  fast-uri@3: '>=3.1.6 <4'
+  # GHSA-2v37-7h3g-55p8: a custom alphabet with size zero loops forever (DoS).
+  # Dependabot auto-dismissed it (alert #2) as dev-only, but `pnpm audit` still
+  # reports it: upstream widened the affected range to `<3.3.18` after 3.3.16
+  # was locked. Every path
+  # runs through postcss (vite, eslint-plugin-astro), so it is build tooling,
+  # and nothing here calls nanoid with a custom generator.
+  nanoid@3: '>=3.3.18 <4'
 # The release-age quarantine exists to blunt supply-chain attacks on packages we
 # don't control. Both of these are ours, published from rxova/brand with OIDC
 # provenance, so waiting one out only delays our own design changes. Excluded by
