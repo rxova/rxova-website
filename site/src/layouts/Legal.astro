@@ -9,9 +9,13 @@ const { title, path } = Astro.props
 
 <BaseLayout title={`${title} — Rxova`} robots="noindex" path={path}>
   <main class="legal">
-    <a class="back" href="/">← rxova.org</a>
+    <a class="back" href="/">
+      ← rxova.org
+    </a>
     <h1>{title}</h1>
-    <div class="prose"><slot /></div>
+    <div class="prose">
+      <slot />
+    </div>
   </main>
 
   <style>
