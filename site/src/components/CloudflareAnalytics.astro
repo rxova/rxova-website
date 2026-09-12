@@ -9,13 +9,11 @@ const token = import.meta.env.PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN
 const beacon = token ? JSON.stringify({ token }) : undefined
 ---
 
-{
-  token && (
-    <script
-      is:inline
-      type="module"
-      src="https://static.cloudflareinsights.com/beacon.min.js"
-      data-cf-beacon={beacon}
-    />
-  )
-}
+{token && (
+  <script
+    is:inline
+    type="module"
+    src="https://static.cloudflareinsights.com/beacon.min.js"
+    data-cf-beacon={beacon}
+  ></script>
+)}

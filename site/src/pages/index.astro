@@ -79,81 +79,75 @@ const blogFeed = siteUrl('/blog/rss.xml')
     <!-- The blog is mounted here but built in the brand repo, so the landing is
          the only place that can advertise its feed from the domain root. -->
     <link rel="alternate" type="application/rss+xml" title="Rxova Blog" href={blogFeed} />
-    <script type="application/ld+json" is:inline set:html={organizationJson} />
+    <script type="application/ld+json" is:inline set:html={organizationJson}></script>
   </Fragment>
   <main>
-    {
-      /* The hero names the problems rather than praising the solutions. It
+    {/* The hero names the problems rather than praising the solutions. It
           used to read "Building open-source React libraries the way they should
           be" over "each does one thing well … and gets out of your way", which
           asserted quality instead of showing any, and called the whole family
-          React when only react-inputs actually is. */
-    }
+          React when only react-inputs actually is. */}
     <header class="intro">
       <h1>Small TypeScript libraries for the hard parts of the browser.</h1>
       <p class="lede">
         Cross-tab state. Non-linear flows. The inputs nobody wants to build and everybody wants to
-        import. <strong>Rxova</strong> ships framework-agnostic cores, React bindings where they earn
-        their place, and APIs small enough to stay still.
+        import. <strong>Rxova</strong> ships framework-agnostic cores, React bindings where they
+        earn their place, and APIs small enough to stay still.
       </p>
     </header>
 
     <section class="projects" aria-label="Projects">
-      {
-        landingProjects.map((p) => (
-          <article class="project">
-            <h2 class="project-title">{p.label}</h2>
-            <ul class="packages" aria-label={`${p.label} packages`}>
-              {p.packages.map((pkg) => (
-                <li class="pkg">{pkg}</li>
-              ))}
-            </ul>
-            <p class="tagline">{p.tagline}</p>
-            <p class="blurb">{p.blurb}</p>
-            {/* The page described three libraries and gave a reader no way to
+      {landingProjects.map((p) => (
+        <article class="project">
+          <h2 class="project-title">{p.label}</h2>
+          <ul class="packages" aria-label={`${p.label} packages`}>
+            {p.packages.map((pkg) => (
+              <li class="pkg">{pkg}</li>
+            ))}
+          </ul>
+          <p class="tagline">{p.tagline}</p>
+          <p class="blurb">{p.blurb}</p>
+          {/* The page described three libraries and gave a reader no way to
                 try one. The install line is the shortest possible next step, and
                 the snippet is the claim the whole site makes — that these APIs
                 are small — shown instead of asserted. */}
-            <p class="install">
-              <span class="prompt" aria-hidden="true">
-                $
-              </span>
-              <code>npm i {p.install}</code>
-            </p>
-            {/* Self-closing with `set:text` rather than `<pre><code>{…}</code></pre>`.
+          <p class="install">
+            <span class="prompt" aria-hidden="true">
+              $
+            </span>
+            <code>npm i {p.install}</code>
+          </p>
+          {/* Self-closing with `set:text` rather than `<pre><code>{…}</code></pre>`.
                 Whitespace inside `<pre>` renders, and the formatter breaks a
                 nested element onto its own line — which put a blank first line
                 and eight spaces of indentation into every snippet. An element
                 with no children cannot pick up stray text nodes. */}
-            {p.snippet && <pre class="snippet" set:text={p.snippet} />}
-            <ul class="tags" aria-label={`${p.label} tech`}>
-              {p.tags.map((t) => (
-                <li class="tag">{t}</li>
-              ))}
-            </ul>
-            <nav class="links" aria-label={`${p.label} links`}>
-              {p.links.map((l) => (
-                <a
-                  href={l.href}
-                  {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                >
-                  {l.label}
-                  <span aria-hidden="true" class="arrow">
-                    {l.external ? '↗' : '→'}
-                  </span>
-                </a>
-              ))}
-            </nav>
-          </article>
-        ))
-      }
+          {p.snippet && <pre class="snippet" set:text={p.snippet}></pre>}
+          <ul class="tags" aria-label={`${p.label} tech`}>
+            {p.tags.map((t) => (
+              <li class="tag">{t}</li>
+            ))}
+          </ul>
+          <nav class="links" aria-label={`${p.label} links`}>
+            {p.links.map((l) => (
+              <a
+                href={l.href}
+                {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              >
+                {l.label}
+                <span aria-hidden="true" class="arrow">
+                  {l.external ? '↗' : '→'}
+                </span>
+              </a>
+            ))}
+          </nav>
+        </article>
+      ))}
     </section>
 
-    {
-      /* Why these three are one ecosystem. It comes after the project list
+    {/* Why these three are one ecosystem. It comes after the project list
           rather than before it: the principles mean something once you have
-          seen what they produced, and nothing at all as an opening claim. */
-    }
+          seen what they produced, and nothing at all as an opening claim. */}
     <section class="why" aria-labelledby="why-heading">
       <h2 id="why-heading">Why Rxova</h2>
       <p class="why-lede">
@@ -161,49 +155,43 @@ const blogFeed = siteUrl('/blog/rss.xml')
         have in common — and what they are held to.
       </p>
       <ul class="principles">
-        {
-          PRINCIPLES.map((p) => (
-            <li class="principle">
-              <h3 class="principle-title">{p.title}</h3>
-              <p class="principle-summary">{p.summary}</p>
-            </li>
-          ))
-        }
+        {PRINCIPLES.map((p) => (
+          <li class="principle">
+            <h3 class="principle-title">{p.title}</h3>
+            <p class="principle-summary">{p.summary}</p>
+          </li>
+        ))}
       </ul>
     </section>
 
-    {
-      /* The maintainer, named. A visitor deciding whether to depend on any of
+    {/* The maintainer, named. A visitor deciding whether to depend on any of
           this wants to know who is behind it and whether it is still moving;
-          both were previously unanswerable anywhere on the site. */
-    }
+          both were previously unanswerable anywhere on the site. */}
     <section class="maintainer" aria-labelledby="maintainer-heading">
       <h2 id="maintainer-heading">Built and maintained by {MAINTAINER.name}</h2>
       <p class="maintainer-summary">{MAINTAINER.summary}</p>
       <nav class="links" aria-label="About the maintainer">
         <a href="/about">
           About Rxova
-          <span aria-hidden="true" class="arrow">→</span>
+          <span aria-hidden="true" class="arrow">
+            →
+          </span>
         </a>
-        {
-          MAINTAINER.links.map((l) => (
-            <a href={l.href} target="_blank" rel="noopener noreferrer">
-              {l.label}
-              <span aria-hidden="true" class="arrow">
-                ↗
-              </span>
-            </a>
-          ))
-        }
+        {MAINTAINER.links.map((l) => (
+          <a href={l.href} target="_blank" rel="noopener noreferrer">
+            {l.label}
+            <span aria-hidden="true" class="arrow">
+              ↗
+            </span>
+          </a>
+        ))}
       </nav>
     </section>
 
-    {
-      /* The page ended without asking for anything. These are the two things a
+    {/* The page ended without asking for anything. These are the two things a
           reader can actually give a young project — attention now, and attention
           later — and both are one click. Kept to a strip rather than a section
-          with a heading: it is an ask, not a chapter. */
-    }
+          with a heading: it is an ask, not a chapter. */}
     <section class="follow" aria-labelledby="follow-heading">
       <h2 id="follow-heading">Follow along</h2>
       <p class="follow-summary">
@@ -213,25 +201,29 @@ const blogFeed = siteUrl('/blog/rss.xml')
       <nav class="links" aria-label="Follow Rxova">
         <a href={MAINTAINER.org} target="_blank" rel="noopener noreferrer">
           Star on GitHub
-          <span aria-hidden="true" class="arrow">↗</span>
+          <span aria-hidden="true" class="arrow">
+            ↗
+          </span>
         </a>
         <a href="/updates">
           What changed
-          <span aria-hidden="true" class="arrow">→</span>
+          <span aria-hidden="true" class="arrow">
+            →
+          </span>
         </a>
         <a href={blogFeed}>
           RSS
-          <span aria-hidden="true" class="arrow">→</span>
+          <span aria-hidden="true" class="arrow">
+            →
+          </span>
         </a>
       </nav>
     </section>
 
-    {
-      /* The shared footer from @rxova/brand — the same one /blog, /updates and
+    {/* The shared footer from @rxova/brand — the same one /blog, /updates and
           the docs sites render. This page used to carry its own dot-separated
           link row, which is why it stayed a single line while every other
-          surface grew the four-column one. */
-    }
+          surface grew the four-column one. */}
   </main>
 
   <style>
