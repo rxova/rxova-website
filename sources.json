@@ -29,7 +29,7 @@
   "sources": [
     {
       "id": "overlock",
-      "enabled": true,
+      "enabled": false,
       "landing": {
         "blurb": "Reads a git patch and reports the edits that make a test suite ask less than it did \u2014 a deterministic gate on test integrity. Runs as a CLI, an agent stop hook, an MCP server or a GitHub Action.",
         "tags": ["CLI", "TypeScript", "MCP Server", "GitHub Action"]
