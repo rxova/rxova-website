@@ -63,6 +63,15 @@
       }
     },
     {
+      "id": "ts-extended-errors",
+      "enabled": false,
+      "landing": {
+        "blurb": "Typed error classes for TypeScript, and a JSON round trip that rebuilds them as the classes they were \u2014 across a process boundary, a worker or a log line. A base class, a one-line factory, and helpers that search the cause chain.",
+        "tags": ["TypeScript", "Zero-dependency", "Node", "Browser"],
+        "snippet": "import { defineError, findCauseOf } from '@rxova/ts-extended-errors'\n\nconst NotFoundError = defineError('NotFoundError', { code: 'HTTP_NOT_FOUND' })\n\n// Found however deeply it is wrapped in another error's cause.\nfindCauseOf(thrown, NotFoundError)?.context"
+      }
+    },
+    {
       "id": "blog",
       "kind": "site",
       "enabled": true,
