@@ -71,8 +71,8 @@ importers:
   site:
     dependencies:
       '@rxova/brand':
-        specifier: ^0.13.0
-        version: 0.13.0(astro@7.3.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.1)(jiti@2.6.1)(yaml@2.9.0))
+        specifier: ^0.14.0
+        version: 0.14.0(astro@7.3.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.1)(jiti@2.6.1)(yaml@2.9.0))
       astro:
         specifier: ^7.3.2
         version: 7.3.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -932,8 +932,8 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@rxova/brand@0.13.0':
-    resolution: {integrity: sha512-2cQiBcKzkX8aJc8UKf7QwDZUyrMhN9FDYmoJ2voWeqYFvg1L5vG/6qHlipV8y+Sc2bBVl8Mrh162YEyQVJnpVA==}
+  '@rxova/brand@0.14.0':
+    resolution: {integrity: sha512-vL9E+14vs7t6Q+F5RKdOhPxxGdirtkQ7/s2Q/c1JZnMDQmC86HJgXRT/JWL5rSQBvRxigOBpREMIUs1qDaN8Qg==}
     engines: {node: '>=24.0.0'}
     peerDependencies:
       '@astrojs/starlight': '>=0.36.0'
@@ -3303,7 +3303,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@rxova/brand@0.13.0(astro@7.3.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.1)(jiti@2.6.1)(yaml@2.9.0))':
+  '@rxova/brand@0.14.0(astro@7.3.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.1)(jiti@2.6.1)(yaml@2.9.0))':
     dependencies:
       '@fontsource/ibm-plex-mono': 5.3.0
       '@fontsource/space-grotesk': 5.3.0
