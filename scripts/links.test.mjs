@@ -57,7 +57,10 @@ function snippetImports(snippet) {
 
 // Raw, not through loadRegistry: its schema keeps only what the deploy needs and
 // drops `demo` and `snippet`, which the landing reads straight from the file.
-const withLanding = JSON.parse(readFileSync(SOURCES_FILE, 'utf8')).sources.filter((s) => s.landing)
+const withLanding = JSON.parse(readFileSync(SOURCES_FILE, 'utf8')).sources.filter(
+  // Only entries with something to check: an empty describe fails the run.
+  (s) => s.landing?.demo || s.landing?.snippet,
+)
 
 describe('snippetImports', () => {
   it('reduces deep and scoped imports to their package and drops local ones', () => {
@@ -89,7 +92,7 @@ describe.each(withLanding.map((s) => [s.id, s]))('%s landing links', (_, source)
     it(
       `imports ${pkg}, which is published on npm`,
       async () => {
-        const url = `https://registry.npmjs.org/${pkg.replace('/', '%2f')}`
+        const url = `https://registry.npmjs.org/${encodeURIComponent(pkg)}`
         assert.equal(await status(url, 'GET'), 200)
       },
       TIMEOUT,
