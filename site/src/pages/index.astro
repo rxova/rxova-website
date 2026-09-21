@@ -49,9 +49,42 @@ const organizationJsonLd = {
 const organizationJson = JSON.stringify(organizationJsonLd).replace(/</g, '\\u003c')
 
 const blogFeed = siteUrl('/blog/rss.xml')
+
+/**
+ * The numbers in the signal strip, counted rather than written down.
+ *
+ * The page previously described the family as "three projects" in two places
+ * while five were shipping — the cost of a figure that only a person can
+ * update. Everything here is derived from the same registries the cards render
+ * from, so the strip is correct by construction the moment a project lands.
+ *
+ * "1 maintainer" is the one that is not flattery. A reader deciding whether to
+ * take a dependency is entitled to know the bus factor, and MAINTAINER is
+ * deliberately singular — see src/lib/about.ts.
+ */
+const packageCount = landingProjects.reduce((n, p) => n + p.packages.length, 0)
+const signals = [
+  { figure: String(landingProjects.length), label: 'projects' },
+  { figure: String(packageCount), label: 'npm packages' },
+  { figure: 'MIT', label: 'licensed' },
+  { figure: '1', label: 'maintainer' },
+]
+
+/**
+ * Every package name in the family, with its project's primary one marked.
+ *
+ * This is the hero's right-hand column, and it is the honest version of the
+ * "look how much there is" panel a startup page would fake. There is nothing
+ * invented in it: `packages` comes from @rxova/brand and is documented as most
+ * prominent first, so `primary` is `packages[0]` — the same package the card's
+ * install line uses.
+ */
+const surfacePackages = landingProjects.flatMap((p) =>
+  p.packages.map((name, i) => ({ name, primary: i === 0, project: p.label })),
+)
 ---
 
-<BaseLayout title="Rxova — TypeScript libraries for the hard parts of the browser" path="/">
+<BaseLayout title="Rxova — TypeScript libraries for the hard parts of the browser" path="/" wide>
   <Fragment slot="head">
     <!-- Project names come from the registry, so adding a project updates the
          meta descriptions too. They used to be hand-written and were the easiest
@@ -80,83 +113,258 @@ const blogFeed = siteUrl('/blog/rss.xml')
          the only place that can advertise its feed from the domain root. -->
     <link rel="alternate" type="application/rss+xml" title="Rxova Blog" href={blogFeed} />
     <script type="application/ld+json" is:inline set:html={organizationJson}></script>
+    <!-- Stamped before first paint, and the only thing gating the enhanced
+         layouts below. Everything on this page renders complete and readable
+         without it: the showcase falls back to every project stacked with
+         the rail as a set of in-page jump links, and the reveal animations are
+         simply never armed. The attribute is what lets the enhanced states be
+         styled with no flash of the fallback — a class added by a deferred
+         script would paint the stacked version first and collapse it. -->
+    <script is:inline>
+      document.documentElement.dataset.js = ''
+    </script>
   </Fragment>
-  <main>
-    {/* The hero names the problems rather than praising the solutions. It
-          used to read "Building open-source React libraries the way they should
-          be" over "each does one thing well … and gets out of your way", which
-          asserted quality instead of showing any, and called the whole family
-          React when only react-inputs actually is. */}
-    <header class="intro">
-      <h1>Small TypeScript libraries for the hard parts of the browser.</h1>
-      <p class="lede">
-        Cross-tab state. Non-linear flows. The inputs nobody wants to build and everybody wants to
-        import. <strong>Rxova</strong> ships framework-agnostic cores, React bindings where they
-        earn their place, and APIs small enough to stay still.
-      </p>
-    </header>
 
-    <section class="projects" aria-label="Projects">
-      {landingProjects.map((p) => (
-        <article class="project">
-          <h2 class="project-title">{p.label}</h2>
-          <ul class="packages" aria-label={`${p.label} packages`}>
-            {p.packages.map((pkg) => (
-              <li class="pkg">{pkg}</li>
-            ))}
-          </ul>
-          <p class="tagline">{p.tagline}</p>
-          <p class="blurb">{p.blurb}</p>
-          {/* The page described three libraries and gave a reader no way to
-                try one. The install line is the shortest possible next step, and
-                the snippet is the claim the whole site makes — that these APIs
-                are small — shown instead of asserted. */}
-          <p class="install">
-            <span class="prompt" aria-hidden="true">
-              $
-            </span>
-            <code>npm i {p.install}</code>
+  <main>
+    {/* --- Hero -----------------------------------------------------------
+
+        The hero names the problems rather than praising the solutions. It
+        used to read "Building open-source React libraries the way they should
+        be" over "each does one thing well … and gets out of your way", which
+        asserted quality instead of showing any, and called the whole family
+        React when only react-inputs actually is.
+
+        The right-hand panel is the thesis of the redesign: the complaint this
+        page was rebuilt to answer is that the project list read as a dictionary,
+        and the answer is to show the *scale* once, as one typographic object,
+        instead of spelling it out one card-height at a time. */}
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow rise" style="--d: 0ms">
+            <span class="dot" aria-hidden="true"></span>
+            Open source · TypeScript · MIT
           </p>
-          {/* Self-closing with `set:text` rather than `<pre><code>{…}</code></pre>`.
-                Whitespace inside `<pre>` renders, and the formatter breaks a
-                nested element onto its own line — which put a blank first line
-                and eight spaces of indentation into every snippet. An element
-                with no children cannot pick up stray text nodes. */}
-          {p.snippet && <pre class="snippet" set:text={p.snippet}></pre>}
-          <ul class="tags" aria-label={`${p.label} tech`}>
-            {p.tags.map((t) => (
-              <li class="tag">{t}</li>
+          <h1 class="rise" style="--d: 60ms">
+            Small TypeScript libraries for the <span class="grad">hard parts of the browser</span>.
+          </h1>
+          <p class="lede rise" style="--d: 120ms">
+            Cross-tab state. Non-linear flows. Typed errors that survive a JSON round trip. The
+            inputs nobody wants to build and everybody wants to import. <strong>Rxova</strong> ships
+            framework-agnostic cores, React bindings where they earn their place, and APIs small
+            enough to stay still.
+          </p>
+          <div class="cta-row rise" style="--d: 180ms">
+            <a class="btn btn-primary" href="#projects">
+              Browse the projects
+              <span aria-hidden="true" class="arrow">
+                →
+              </span>
+            </a>
+            <a
+              class="btn btn-ghost"
+              href={MAINTAINER.org}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+              <span aria-hidden="true" class="arrow">
+                ↗
+              </span>
+            </a>
+          </div>
+        </div>
+
+        {/* Not decoration: every name below is a package you can install, read
+            from the same registry the cards use. The emphasised ones are each
+            project's `packages[0]` — the entry point its card installs. */}
+        <aside class="surface rise" style="--d: 240ms" aria-labelledby="surface-heading">
+          <div class="surface-bar">
+            <span class="surface-mark" aria-hidden="true"></span>
+            <h2 id="surface-heading" class="surface-heading">
+              {packageCount} packages, {landingProjects.length} projects
+            </h2>
+          </div>
+          <ul class="surface-list">
+            {surfacePackages.map((pkg) => (
+              <li class={pkg.primary ? 'surface-pkg is-primary' : 'surface-pkg'}>
+                {pkg.primary && <span class="surface-dot" aria-hidden="true"></span>}
+                {pkg.name}
+              </li>
             ))}
           </ul>
-          <nav class="links" aria-label={`${p.label} links`}>
-            {p.links.map((l) => (
-              <a
-                href={l.href}
-                {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-              >
-                {l.label}
-                <span aria-hidden="true" class="arrow">
-                  {l.external ? '↗' : '→'}
-                </span>
-              </a>
-            ))}
-          </nav>
-        </article>
-      ))}
+          <p class="surface-note">Take one. Nothing here requires anything else here.</p>
+        </aside>
+      </div>
     </section>
 
-    {/* Why these three are one ecosystem. It comes after the project list
-          rather than before it: the principles mean something once you have
-          seen what they produced, and nothing at all as an opening claim. */}
+    {/* --- Signals ---------------------------------------------------------
+
+        Counted from the registry rather than typed — see `signals` above. */}
+    <section class="signals" aria-label="Rxova at a glance">
+      <dl class="signal-list">
+        {signals.map((s) => (
+          <div class="signal">
+            <dt class="signal-figure">{s.figure}</dt>
+            <dd class="signal-label">{s.label}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+
+    {/* --- The showcase ----------------------------------------------------
+
+        Every project used to be a full-height card — blurb, install line,
+        snippet, tags and four links each — stacked down one 44rem column. Every
+        reader paid for every one of them to find the one they came for, which is the
+        "reads like a dictionary" this replaces.
+
+        So: an index and an exhibit. The rail is one line per project, scannable in
+        one look; the stage shows one project at a time, at a size that can
+        actually carry a code sample.
+
+        Without JavaScript the rail is a set of in-page links and every
+        panel is simply there, stacked, exactly as before — so a crawler, a
+        reader-mode pass and a text browser all still get the whole page. The
+        `data-js` attribute stamped in <head> is what switches on the tab
+        behaviour, and enhance() below upgrades the links to a real ARIA
+        tablist with roving focus and arrow-key navigation. */}
+    <section class="showcase" id="projects" aria-labelledby="projects-heading">
+      <div class="section-head reveal">
+        <p class="eyebrow">
+          <span class="dot" aria-hidden="true"></span>
+          The projects
+        </p>
+        <h2 id="projects-heading">Problems worth a dependency.</h2>
+      </div>
+
+      <div class="showcase-body">
+        <div class="rail" id="project-rail" aria-label="Projects">
+          {landingProjects.map((p, i) => (
+            <a
+              class={i === 0 ? 'rail-item is-active' : 'rail-item'}
+              href={`#project-${p.id}`}
+              data-rail={p.id}
+            >
+              <span class="rail-bar" aria-hidden="true"></span>
+              <span class="rail-text">
+                <span class="rail-name">{p.label}</span>
+                <span class="rail-tagline">{p.tagline}</span>
+              </span>
+            </a>
+          ))}
+        </div>
+
+        <div class="stage">
+          {landingProjects.map((p, i) => (
+            <article
+              class={i === 0 ? 'panel is-active' : 'panel'}
+              id={`project-${p.id}`}
+              data-panel={p.id}
+              aria-labelledby={`panel-heading-${p.id}`}
+            >
+              <header class="panel-head">
+                <h3 class="panel-title" id={`panel-heading-${p.id}`}>
+                  {p.label}
+                </h3>
+                <p class="panel-tagline">{p.tagline}</p>
+              </header>
+
+              <p class="panel-blurb">{p.blurb}</p>
+
+              {/* The install line is the shortest possible next step, and the
+                  snippet is the claim the whole site makes — that these APIs
+                  are small — shown instead of asserted. */}
+              <div class="install">
+                <span class="prompt" aria-hidden="true">
+                  $
+                </span>
+                <code>npm i {p.install}</code>
+              </div>
+
+              {/* Self-closing with `set:text` rather than `<pre><code>{…}</code></pre>`.
+                  Whitespace inside `<pre>` renders, and the formatter breaks a
+                  nested element onto its own line — which put a blank first line
+                  and eight spaces of indentation into every snippet. An element
+                  with no children cannot pick up stray text nodes. */}
+              {p.snippet ? (
+                <pre class="snippet" set:text={p.snippet}></pre>
+              ) : (
+                /* No snippet in sources.json for this one. Rather than invent an
+                   API to fill the slot — the one thing on this page that would
+                   actually mislead a reader — the panel shows what it does know:
+                   every package the project publishes. */
+                <div class="manifest">
+                  <p class="manifest-label">Ships as</p>
+                  <ul class="manifest-list">
+                    {p.packages.map((name) => (
+                      <li class="manifest-pkg">{name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <ul class="tags" aria-label={`${p.label} tech`}>
+                {p.tags.map((t) => (
+                  <li class="tag">{t}</li>
+                ))}
+              </ul>
+
+              <nav class="links" aria-label={`${p.label} links`}>
+                {p.links.map((l) => (
+                  <a
+                    href={l.href}
+                    {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  >
+                    {l.label}
+                    <span aria-hidden="true" class="arrow">
+                      {l.external ? '↗' : '→'}
+                    </span>
+                  </a>
+                ))}
+              </nav>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* --- Principles ------------------------------------------------------
+
+        Why these are one ecosystem. It comes after the project list rather
+        than before it: the principles mean something once you have seen what
+        they produced, and nothing at all as an opening claim.
+
+        No count in the copy. This heading read "Three projects, one set of
+        rules" while five were shipping, and the fix is not to write "five" —
+        it is for prose never to carry a number a person has to remember to
+        change. Counts on this page appear in exactly two places, the signal
+        strip and the hero panel, and both are reduced from the registry at
+        build time, so they are right the moment a project lands and there is
+        nothing to update by hand.
+
+        Each carries its own id as a mono kicker. That is not decoration and it
+        is not a made-up sequence number — the id is the anchor the same
+        principle has on /about, so the marker is a thing the reader can act on. */}
     <section class="why" aria-labelledby="why-heading">
-      <h2 id="why-heading">Why Rxova</h2>
-      <p class="why-lede">
-        Three projects, one set of rules. These are what Journey, react-inputs and use-everywhere
-        have in common — and what they are held to.
-      </p>
+      <div class="section-head reveal">
+        <p class="eyebrow">
+          <span class="dot" aria-hidden="true"></span>
+          The rules
+        </p>
+        <h2 id="why-heading">One set of rules, every project.</h2>
+        <p class="section-lede">
+          These are what everything here has in common — and what it is held to. Each is stated so
+          you can check it against the code and catch me failing it.
+        </p>
+      </div>
+
       <ul class="principles">
-        {PRINCIPLES.map((p) => (
-          <li class="principle">
+        {PRINCIPLES.map((p, i) => (
+          <li class="principle reveal" style={`--d: ${i * 70}ms`}>
+            <a class="principle-id" href={`/about#${p.id}`}>
+              {p.id}
+            </a>
             <h3 class="principle-title">{p.title}</h3>
             <p class="principle-summary">{p.summary}</p>
           </li>
@@ -164,136 +372,708 @@ const blogFeed = siteUrl('/blog/rss.xml')
       </ul>
     </section>
 
-    {/* The maintainer, named. A visitor deciding whether to depend on any of
-          this wants to know who is behind it and whether it is still moving;
-          both were previously unanswerable anywhere on the site. */}
-    <section class="maintainer" aria-labelledby="maintainer-heading">
-      <h2 id="maintainer-heading">Built and maintained by {MAINTAINER.name}</h2>
-      <p class="maintainer-summary">{MAINTAINER.summary}</p>
-      <nav class="links" aria-label="About the maintainer">
-        <a href="/about">
-          About Rxova
-          <span aria-hidden="true" class="arrow">
-            →
-          </span>
-        </a>
-        {MAINTAINER.links.map((l) => (
-          <a href={l.href} target="_blank" rel="noopener noreferrer">
-            {l.label}
+    {/* --- Maintainer ------------------------------------------------------
+
+        Named. A visitor deciding whether to depend on any of this wants to
+        know who is behind it and whether it is still moving; both were
+        previously unanswerable anywhere on the site. */}
+    <section class="maintainer reveal" aria-labelledby="maintainer-heading">
+      <div class="maintainer-inner">
+        <div class="maintainer-copy">
+          <p class="eyebrow">
+            <span class="dot" aria-hidden="true"></span>
+            Who builds this
+          </p>
+          <h2 id="maintainer-heading">{MAINTAINER.name}</h2>
+          <p class="maintainer-role">{MAINTAINER.role}</p>
+          <p class="maintainer-summary">{MAINTAINER.summary}</p>
+          <nav class="links" aria-label="About the maintainer">
+            <a href="/about">
+              About Rxova
+              <span aria-hidden="true" class="arrow">
+                →
+              </span>
+            </a>
+            {MAINTAINER.links.map((l) => (
+              <a href={l.href} target="_blank" rel="noopener noreferrer">
+                {l.label}
+                <span aria-hidden="true" class="arrow">
+                  ↗
+                </span>
+              </a>
+            ))}
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    {/* --- Follow ----------------------------------------------------------
+
+        The page ended without asking for anything. These are the two things a
+        reader can actually give a young project — attention now, and attention
+        later — and both are one click. */}
+    <section class="follow reveal" aria-labelledby="follow-heading">
+      <div class="follow-card">
+        <h2 id="follow-heading">Follow along.</h2>
+        <p class="follow-summary">
+          Everything here is new and moving. Starring a repo is what tells me which of these is
+          worth the next month of work.
+        </p>
+        <nav class="links cta-row" aria-label="Follow Rxova">
+          <a
+            class="btn btn-primary"
+            href={MAINTAINER.org}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Star on GitHub
             <span aria-hidden="true" class="arrow">
               ↗
             </span>
           </a>
-        ))}
-      </nav>
-    </section>
-
-    {/* The page ended without asking for anything. These are the two things a
-          reader can actually give a young project — attention now, and attention
-          later — and both are one click. Kept to a strip rather than a section
-          with a heading: it is an ask, not a chapter. */}
-    <section class="follow" aria-labelledby="follow-heading">
-      <h2 id="follow-heading">Follow along</h2>
-      <p class="follow-summary">
-        Everything here is new and moving. Starring a repo is what tells me which of these is worth
-        the next month of work.
-      </p>
-      <nav class="links" aria-label="Follow Rxova">
-        <a href={MAINTAINER.org} target="_blank" rel="noopener noreferrer">
-          Star on GitHub
-          <span aria-hidden="true" class="arrow">
-            ↗
-          </span>
-        </a>
-        <a href="/updates">
-          What changed
-          <span aria-hidden="true" class="arrow">
-            →
-          </span>
-        </a>
-        <a href={blogFeed}>
-          RSS
-          <span aria-hidden="true" class="arrow">
-            →
-          </span>
-        </a>
-      </nav>
+          <a class="btn btn-ghost" href="/updates">
+            What changed
+            <span aria-hidden="true" class="arrow">
+              →
+            </span>
+          </a>
+          <a class="btn btn-ghost" href={blogFeed}>
+            RSS
+            <span aria-hidden="true" class="arrow">
+              →
+            </span>
+          </a>
+        </nav>
+      </div>
     </section>
 
     {/* The shared footer from @rxova/brand — the same one /blog, /updates and
-          the docs sites render. This page used to carry its own dot-separated
-          link row, which is why it stayed a single line while every other
-          surface grew the four-column one. */}
+        the docs sites render — is rendered by BaseLayout, below this. */}
   </main>
 
+  {/* --- Behaviour ---------------------------------------------------------
+
+      Two jobs, both enhancements over a page that is already complete: turn
+      the rail into a tablist, and arm the scroll reveals. Deliberately inline
+      and un-bundled — it is under 2KB, it has no imports, and a separate
+      request for it would cost more than it weighs. */}
+  <script>
+    interface RailTab extends HTMLAnchorElement {
+      dataset: DOMStringMap & { rail: string }
+    }
+
+    /**
+     * The rail becomes a real tablist.
+     *
+     * The markup ships as anchors pointing at the panels, which is what makes
+     * the no-JS page work — so the upgrade is: adopt the tab roles, take over
+     * the click, and add the keyboard model anchors do not have (arrows, Home,
+     * End). Activation is automatic, which is the right pattern here because
+     * switching panels is instant and has no cost to get wrong.
+     */
+    function enhanceRail(): void {
+      const rail = document.getElementById('project-rail')
+      const stage = document.querySelector<HTMLElement>('.stage')
+      if (!rail || !stage) return
+
+      const tabs = [...rail.querySelectorAll<RailTab>('.rail-item')]
+      const panels = new Map(
+        [...stage.querySelectorAll<HTMLElement>('.panel')].map((p) => [p.dataset.panel ?? '', p]),
+      )
+      if (tabs.length === 0 || panels.size === 0) return
+
+      rail.setAttribute('role', 'tablist')
+      rail.setAttribute('aria-orientation', 'vertical')
+
+      const select = (next: RailTab, focus: boolean): void => {
+        for (const tab of tabs) {
+          const on = tab === next
+          tab.setAttribute('aria-selected', String(on))
+          tab.tabIndex = on ? 0 : -1
+          tab.classList.toggle('is-active', on)
+
+          const panel = panels.get(tab.dataset.rail)
+          if (!panel) continue
+          panel.classList.toggle('is-active', on)
+          // Removed from the accessibility tree as well as from view, so a
+          // screen reader is not read every tagline for one visible panel.
+          panel.setAttribute('aria-hidden', String(!on))
+        }
+        if (focus) next.focus()
+      }
+
+      tabs.forEach((tab, i) => {
+        tab.setAttribute('role', 'tab')
+        tab.setAttribute('aria-controls', `project-${tab.dataset.rail}`)
+        // The panel keeps its id for the no-JS anchor, so the tab must not also
+        // be a link to it once it is a tab — the href is what would otherwise
+        // jump the page on activation.
+        tab.removeAttribute('href')
+        tab.tabIndex = i === 0 ? 0 : -1
+
+        tab.addEventListener('click', () => select(tab, false))
+        tab.addEventListener('keydown', (event: KeyboardEvent) => {
+          const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[event.key]
+          let target: RailTab | undefined
+          if (step) target = tabs[(tabs.indexOf(tab) + step + tabs.length) % tabs.length]
+          else if (event.key === 'Home') target = tabs[0]
+          else if (event.key === 'End') target = tabs[tabs.length - 1]
+          else if (event.key === ' ' || event.key === 'Enter') target = tab
+          if (!target) return
+          event.preventDefault()
+          select(target, true)
+        })
+      })
+
+      for (const panel of panels.values()) panel.setAttribute('role', 'tabpanel')
+      select(tabs[0], false)
+
+      // A link from elsewhere on the site can still name a panel by its id
+      // (/#project-journey). Honour it, since the tabs have taken the anchor
+      // behaviour away from the browser.
+      const fromHash = tabs.find((t) => `#project-${t.dataset.rail}` === location.hash)
+      if (fromHash) select(fromHash, false)
+    }
+
+    /**
+     * Arms the scroll reveals.
+     *
+     * Everything marked `.reveal` is at rest — visible — until this runs, and
+     * the CSS only hides it once `data-revealing` is on the root. That ordering
+     * is the whole point: if this script never runs, never finishes, or runs in
+     * a browser without IntersectionObserver, the page is simply a page with no
+     * entrance animations rather than a page of blank sections.
+     */
+    function enhanceReveals(): void {
+      const targets = [...document.querySelectorAll<HTMLElement>('.reveal')]
+      if (targets.length === 0) return
+
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+      if (reduced.matches || !('IntersectionObserver' in window)) return
+
+      document.documentElement.dataset.revealing = ''
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue
+            entry.target.classList.add('is-in')
+            observer.unobserve(entry.target)
+          }
+        },
+        // Fires a little before the section reaches the fold, so the motion has
+        // finished by the time the reader's eye actually arrives on it.
+        { rootMargin: '0px 0px -12% 0px', threshold: 0.05 },
+      )
+
+      for (const target of targets) observer.observe(target)
+
+      // Failsafe. If anything above leaves a section unobserved — a browser
+      // quirk, a section that was already past the viewport on load, a reader
+      // who never scrolls — the page must not keep content hidden. This is the
+      // one state the design is not allowed to reach.
+      window.setTimeout(() => {
+        for (const target of targets) target.classList.add('is-in')
+      }, 3000)
+    }
+
+    enhanceRail()
+    enhanceReveals()
+  </script>
   <style>
+    /* ------------------------------------------------------------------
+       Page frame
+
+       `--max` is the wide measure here — BaseLayout's `wide` prop sets it at
+       the document root so the header and footer are centred on the same
+       number. Prose inside still gets a real measure of its own; a 72rem
+       paragraph is unreadable however wide the shell is.
+       ------------------------------------------------------------------ */
     main {
       max-width: var(--max);
       margin: 0 auto;
-      padding: clamp(2rem, 6vh, 3.5rem) 1.5rem 4rem;
+      padding-block: 0 5rem;
+      padding-inline: 1.5rem;
     }
 
-    .intro h1 {
-      font-size: clamp(1.7rem, 4.5vw, 2.4rem);
+    /* One prose measure, named once, so every block of running text on the
+       page lines up on the same right edge. */
+    .lede,
+    .section-lede,
+    .panel-blurb,
+    .maintainer-summary,
+    .follow-summary {
+      max-width: 40rem;
+    }
+
+    /* ------------------------------------------------------------------
+       Shared vocabulary
+
+       The gradient is the only chroma in the brand — see @rxova/brand's
+       tokens.css, which is explicit that adding a second accent hue is the
+       thing not to do. So it is spent in exactly four places: the eyebrow dot,
+       the primary button, the active rail bar, and the hairline over each
+       principle. Everything else is the warm monochrome.
+       ------------------------------------------------------------------ */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-family: var(--rx-font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--rx-faint);
+      margin-bottom: 1rem;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: var(--rx-radius-pill);
+      background: var(--rx-gradient);
+      flex: none;
+    }
+
+    /* Clipped to the text, so the one coloured phrase in the page is the
+       headline's own subject rather than a block behind it. */
+    .grad {
+      background: var(--rx-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      /* The fallback matters: where background-clip:text is unsupported the
+         transparent colour would render the phrase invisible. */
+      -webkit-text-fill-color: transparent;
+    }
+
+    @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+      .grad {
+        background: none;
+        color: var(--rx-primary);
+        -webkit-text-fill-color: currentColor;
+      }
+    }
+
+    .section-head {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-head h2,
+    .maintainer h2,
+    .follow h2 {
+      font-size: clamp(1.55rem, 3.2vw, 2.1rem);
       line-height: 1.15;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.025em;
       font-weight: 650;
-      margin-bottom: 1.1rem;
+      text-wrap: balance;
+    }
+
+    .section-lede {
+      color: var(--rx-muted);
+      margin-top: 0.9rem;
+    }
+
+    /* ------------------------------------------------------------------
+       Buttons
+       ------------------------------------------------------------------ */
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.62rem 1.1rem;
+      border-radius: var(--rx-radius-pill);
+      font-size: 0.95rem;
+      font-weight: 550;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition:
+        transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1),
+        box-shadow 0.18s ease,
+        background-color 0.18s ease,
+        border-color 0.18s ease;
+    }
+
+    /* White on the gradient in both themes. The ramp's darkest stop is #0a84ff,
+       which carries white text at this size; inheriting --rx-fg would put warm
+       black on blue in light mode and near-white on it in dark, so the one
+       coloured control on the page would change legibility with the theme. */
+    .btn-primary {
+      background: var(--rx-gradient);
+      color: #fff;
+      box-shadow: var(--rx-shadow-soft);
+    }
+
+    .btn-ghost {
+      border-color: var(--rx-rule-strong);
+      color: var(--rx-fg);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--rx-fg);
+      background: var(--rx-card);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .arrow {
+      color: currentColor;
+      opacity: 0.7;
+      font-size: 0.85em;
+      transition: transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+
+    /* Buttons nudge their arrow diagonally, plain links horizontally — the
+       external-link glyph leans out of the page, the in-page one leads across
+       it. A `.btn` inside a `.links` row is a button first, so it is excluded
+       from the second rule rather than overridden by it. */
+    .btn:hover .arrow {
+      transform: translate(2px, -2px);
+    }
+
+    .links a:not(.btn):hover .arrow {
+      transform: translate(2px, 0);
+    }
+
+    /* ------------------------------------------------------------------
+       Hero
+       ------------------------------------------------------------------ */
+    .hero {
+      padding-block: clamp(3rem, 9vh, 6rem) clamp(3rem, 8vh, 5rem);
+    }
+
+    .hero-grid {
+      display: grid;
+      gap: clamp(2.5rem, 5vw, 4rem);
+      align-items: center;
+      /* The panel is a fixed-ish column and the copy takes the rest, rather
+         than 1fr 1fr — the package list has a natural width and stretching it
+         opens gaps between the names. */
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    }
+
+    .hero h1 {
+      font-size: clamp(2.1rem, 5.4vw, 3.6rem);
+      line-height: 1.05;
+      letter-spacing: -0.035em;
+      font-weight: 650;
+      text-wrap: balance;
+      margin-bottom: 1.4rem;
     }
 
     .lede {
-      color: var(--muted);
-      font-size: 1.15rem;
-      max-width: 34rem;
+      color: var(--rx-muted);
+      font-size: clamp(1.02rem, 1.6vw, 1.15rem);
+      margin-bottom: 1.9rem;
     }
 
-    .projects {
-      margin-top: clamp(3rem, 8vh, 5rem);
+    .lede strong {
+      color: var(--rx-fg);
+      font-weight: 600;
+    }
+
+    /* --- The package surface ------------------------------------------ */
+    .surface {
+      position: relative;
+      background: var(--rx-card);
+      border: 1px solid var(--rx-rule);
+      border-radius: var(--rx-radius);
+      padding: 1.1rem 1.25rem 1.25rem;
+      box-shadow: var(--rx-shadow-soft);
+    }
+
+    .surface-bar {
       display: flex;
-      flex-direction: column;
-      gap: 0;
+      align-items: center;
+      gap: 0.6rem;
+      padding-bottom: 0.9rem;
+      margin-bottom: 0.95rem;
+      border-bottom: 1px solid var(--rx-rule);
     }
 
-    .project {
-      padding: 2.25rem 0;
-      border-top: 1px solid var(--rule);
+    .surface-mark {
+      width: 10px;
+      height: 10px;
+      border-radius: var(--rx-radius-pill);
+      background: var(--rx-gradient);
+      flex: none;
     }
 
-    .project-title {
-      font-size: 1.5rem;
-      letter-spacing: -0.02em;
-      font-weight: 640;
-      margin-bottom: 0.7rem;
+    .surface-heading {
+      font-family: var(--rx-font-mono);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      color: var(--rx-muted);
+      font-variant-numeric: tabular-nums;
     }
 
-    .packages {
+    .surface-list {
       list-style: none;
       display: flex;
       flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-bottom: 0.95rem;
+      gap: 0.35rem 0.5rem;
     }
 
-    .pkg {
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      line-height: 1.4;
-      color: var(--faint);
-      background: var(--tag-bg);
+    .surface-pkg {
+      font-family: var(--rx-font-mono);
+      font-size: 0.73rem;
+      line-height: 1.5;
+      color: var(--rx-faint);
       padding: 0.15rem 0.5rem;
-      border-radius: 5px;
-      letter-spacing: -0.01em;
+      border-radius: var(--rx-radius-sm);
+      background: var(--rx-tag-bg);
+      /* A scoped name must never widen the hero column on a phone. */
+      max-width: 100%;
+      overflow-wrap: anywhere;
     }
 
-    .tagline {
-      font-size: 1.1rem;
-      margin-bottom: 0.5rem;
+    /* Each project's entry point, told apart from its siblings by weight and
+       contrast rather than by a second colour. */
+    .surface-pkg.is-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--rx-fg);
+      font-weight: 500;
+      background: var(--rx-bg);
+      border: 1px solid var(--rx-rule-strong);
     }
 
-    .blurb {
-      color: var(--muted);
-      max-width: 38rem;
-      margin-bottom: 1.1rem;
+    .surface-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: var(--rx-radius-pill);
+      background: var(--rx-gradient);
+      flex: none;
+    }
+
+    .surface-note {
+      margin-top: 1rem;
+      font-size: 0.82rem;
+      color: var(--rx-faint);
+    }
+
+    /* ------------------------------------------------------------------
+       Signals
+       ------------------------------------------------------------------ */
+    .signals {
+      border-block: 1px solid var(--rx-rule);
+      padding-block: 1.5rem;
+    }
+
+    .signal-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem 3.5rem;
+    }
+
+    .signal {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .signal-figure {
+      font-size: 1.45rem;
+      font-weight: 640;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .signal-label {
+      font-family: var(--rx-font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--rx-faint);
+    }
+
+    /* ------------------------------------------------------------------
+       Showcase
+       ------------------------------------------------------------------ */
+    .showcase {
+      padding-block: clamp(3.5rem, 9vh, 5.5rem);
+    }
+
+    .showcase-body {
+      display: grid;
+      gap: clamp(1.5rem, 3vw, 2.5rem);
+      grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .rail {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      /* A grid item's automatic minimum is its content, not its track. Without
+         this the rail refuses to go narrower than its longest tagline and
+         pushes the whole document sideways instead of scrolling in its own box
+         at the narrow breakpoint below. */
+      min-width: 0;
+      /* Short rows, so the index stays in view while the reader works
+         through a panel that is taller than it is. */
+      position: sticky;
+      top: 5rem;
+    }
+
+    .rail-item {
+      display: flex;
+      gap: 0.85rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: var(--rx-radius);
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      background: transparent;
+      transition:
+        background-color 0.2s ease,
+        transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+
+    .rail-item:hover {
+      background: var(--rx-card);
+      transform: translateX(2px);
+    }
+
+    .rail-item:focus-visible {
+      outline: 2px solid var(--rx-fg);
+      outline-offset: 2px;
+    }
+
+    /* The gradient rail bar is the one piece of chroma in this section, and it
+       grows rather than appearing — the movement is what makes the switch feel
+       like a selection instead of a repaint. */
+    .rail-bar {
+      flex: none;
+      width: 2px;
+      border-radius: var(--rx-radius-pill);
+      background: var(--rx-rule-strong);
+      transition:
+        background 0.25s ease,
+        transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+      transform: scaleY(0.45);
+    }
+
+    .rail-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      min-width: 0;
+    }
+
+    .rail-name {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--rx-muted);
+      transition: color 0.2s ease;
+    }
+
+    .rail-tagline {
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: var(--rx-faint);
+    }
+
+    .rail-item.is-active {
+      background: var(--rx-card);
+    }
+
+    .rail-item.is-active .rail-bar {
+      background: var(--rx-gradient);
+      transform: scaleY(1);
+    }
+
+    .rail-item.is-active .rail-name {
+      color: var(--rx-fg);
+    }
+
+    /* --- The stage ----------------------------------------------------
+
+       Base state: every panel in normal flow, which is the whole page without
+       JavaScript. The single-panel behaviour is scoped to [data-js] so the
+       fallback is never briefly collapsed and then restored. */
+    .stage {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      min-width: 0;
+    }
+
+    .panel {
+      border: 1px solid var(--rx-rule);
+      border-radius: var(--rx-radius);
+      background: var(--rx-card);
+      padding: clamp(1.25rem, 3vw, 2rem);
+      min-width: 0;
+    }
+
+    :global(html[data-js]) .stage {
+      display: grid;
+      /* Every panel in one grid cell, so the stage is as tall as the panel
+         being shown and the crossfade has nothing to push around.
+
+         The explicit `minmax(0, 1fr)` is load-bearing: a named area with no
+         track sizing gets an `auto` column, which resolves to the max-content
+         width of the *widest* panel — so one long install line sized the whole
+         stage and pushed the page past the viewport at every width under about
+         1100px. Naming the track caps it at the space available. */
+      grid-template-areas: 'panel';
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    :global(html[data-js]) .panel {
+      grid-area: panel;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition:
+        opacity 0.28s ease,
+        transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1),
+        visibility 0s linear 0.28s;
+    }
+
+    :global(html[data-js]) .panel.is-active {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition-delay: 0s, 0s, 0s;
+    }
+
+    .panel-head {
+      margin-bottom: 1rem;
+    }
+
+    .panel-title {
+      font-size: clamp(1.4rem, 2.6vw, 1.8rem);
+      font-weight: 650;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+    }
+
+    .panel-tagline {
+      margin-top: 0.35rem;
+      font-size: 1.02rem;
+      color: var(--rx-fg);
+    }
+
+    .panel-blurb {
+      color: var(--rx-muted);
+      margin-bottom: 1.25rem;
     }
 
     /* The install line reads as a terminal without pretending to be one: a
@@ -303,18 +1083,19 @@ const blogFeed = siteUrl('/blog/rss.xml')
       display: flex;
       align-items: baseline;
       gap: 0.5rem;
-      font-family: var(--mono);
+      font-family: var(--rx-font-mono);
       font-size: 0.82rem;
-      border: 1px solid var(--rule);
-      border-radius: 6px;
-      padding: 0.5rem 0.7rem;
+      border: 1px solid var(--rx-rule-strong);
+      border-radius: var(--rx-radius-sm);
+      background: var(--rx-bg);
+      padding: 0.55rem 0.75rem;
       margin-bottom: 0.9rem;
       /* Long scoped package names must not widen the card on a phone. */
       overflow-x: auto;
     }
 
     .install .prompt {
-      color: var(--faint);
+      color: var(--rx-faint);
       user-select: none;
     }
 
@@ -323,17 +1104,55 @@ const blogFeed = siteUrl('/blog/rss.xml')
     }
 
     .snippet {
-      font-family: var(--mono);
+      font-family: var(--rx-font-mono);
       font-size: 0.78rem;
-      line-height: 1.65;
-      color: var(--muted);
-      background: var(--tag-bg);
-      border-radius: 6px;
-      padding: 0.8rem 0.9rem;
-      margin-bottom: 1.1rem;
-      max-width: 38rem;
+      line-height: 1.7;
+      color: var(--rx-muted);
+      background: var(--rx-bg);
+      border: 1px solid var(--rx-rule);
+      border-radius: var(--rx-radius-sm);
+      padding: 0.9rem 1rem;
+      margin-bottom: 1.25rem;
       /* Code sets its own line breaks, so the block scrolls rather than the page. */
       overflow-x: auto;
+    }
+
+    /* The stand-in for a project with no snippet in sources.json. */
+    .manifest {
+      background: var(--rx-bg);
+      border: 1px solid var(--rx-rule);
+      border-radius: var(--rx-radius-sm);
+      padding: 0.9rem 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .manifest-label {
+      font-family: var(--rx-font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--rx-faint);
+      margin-bottom: 0.6rem;
+    }
+
+    .manifest-list {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.5rem;
+    }
+
+    .manifest-pkg {
+      font-family: var(--rx-font-mono);
+      font-size: 0.75rem;
+      color: var(--rx-muted);
+      overflow-wrap: anywhere;
+    }
+
+    .manifest-pkg + .manifest-pkg::before {
+      content: '·';
+      color: var(--rx-faint);
+      margin-right: 0.5rem;
     }
 
     .tags {
@@ -341,118 +1160,299 @@ const blogFeed = siteUrl('/blog/rss.xml')
       display: flex;
       flex-wrap: wrap;
       gap: 0.4rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.4rem;
     }
 
     .tag {
       font-size: 0.72rem;
-      color: var(--muted);
-      border: 1px solid var(--rule);
-      padding: 0.12rem 0.55rem;
-      border-radius: 999px;
+      color: var(--rx-muted);
+      border: 1px solid var(--rx-rule-strong);
+      padding: 0.12rem 0.6rem;
+      border-radius: var(--rx-radius-pill);
       letter-spacing: 0.01em;
     }
 
     .links {
       display: flex;
-      gap: 1.5rem;
+      gap: 1.4rem;
       flex-wrap: wrap;
     }
 
-    .links a {
+    /* The underline sweeps in from the left rather than switching on, which is
+       the one micro-interaction repeated everywhere plain links appear.
+ 
+       `:not(.btn)` rather than a reset rule further down. The sweep draws its
+       rule with `background-image`, and the follow row is a `.links` of
+       buttons — so a later `.links.cta-row a { background-image: none }` did
+       undo the sweep, and took `.btn-primary`'s gradient fill with it. That
+       left "Star on GitHub" as white text on the follow card: invisible in
+       light mode, and the page's one real contrast failure. Excluding buttons
+       from the selector means the two never share a property to fight over. */
+    .links a:not(.btn) {
       text-decoration: none;
       font-weight: 550;
-      font-size: 0.97rem;
+      font-size: 0.95rem;
       display: inline-flex;
       align-items: center;
       gap: 0.3rem;
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.15s ease;
+      padding-bottom: 2px;
+      background-image: linear-gradient(currentColor, currentColor);
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      background-size: 0% 1px;
+      transition: background-size 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
     }
 
-    .links a:hover {
-      border-bottom-color: var(--fg);
+    .links a:not(.btn):hover {
+      background-size: 100% 1px;
     }
 
-    .arrow {
-      color: var(--faint);
-      font-size: 0.85em;
-      transition: transform 0.15s ease;
-    }
-
-    .links a:hover .arrow {
-      transform: translate(1px, -1px);
-    }
-
-    /* The two sections below are new work, so they use @rxova/brand's --rx-*
-         tokens directly rather than the short aliases the rules above were
-         written against. Same values — see the package's astro.css. */
-
-    /* Both sit on the same top rule the project cards use, so the page reads
-         as one column of sections rather than a list plus two appendices. */
-    .why,
-    .maintainer,
-    .follow {
-      padding: 2.25rem 0;
+    /* ------------------------------------------------------------------
+       Principles
+       ------------------------------------------------------------------ */
+    .why {
+      padding-block: clamp(3.5rem, 9vh, 5.5rem);
       border-top: 1px solid var(--rx-rule);
-    }
-
-    .why h2,
-    .maintainer h2,
-    .follow h2 {
-      font-size: 1.5rem;
-      letter-spacing: -0.02em;
-      font-weight: 640;
-      margin-bottom: 0.7rem;
-    }
-
-    .why-lede {
-      color: var(--rx-muted);
-      max-width: 38rem;
-      margin-bottom: 2rem;
     }
 
     .principles {
       list-style: none;
       display: grid;
-      gap: 1.75rem 2.5rem;
-      /* Two columns where there is room for them, one where there is not. The
-           four principles are meant to be read as a set, and a single tall
-           column pushes the fourth off the fold on a laptop. */
-      grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+      gap: 2rem 2.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    }
+
+    /* A gradient hairline over each, in place of the border-left the flat
+       version used. It is 2px of chroma per column and it is what makes the
+       columns read as one set. */
+    .principle {
+      padding-top: 1rem;
+      border-top: 2px solid transparent;
+      border-image: var(--rx-gradient) 1;
+      border-image-width: 2px 0 0 0;
+    }
+
+    /* The id, which is also the anchor for the same principle on /about. */
+    .principle-id {
+      display: inline-block;
+      font-family: var(--rx-font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      color: var(--rx-faint);
+      text-decoration: none;
+      margin-bottom: 0.65rem;
+      transition: color 0.2s ease;
+    }
+
+    .principle-id:hover {
+      color: var(--rx-fg);
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
 
     .principle-title {
-      font-size: 1.02rem;
+      font-size: 1.05rem;
       font-weight: 620;
-      letter-spacing: -0.01em;
-      margin-bottom: 0.35rem;
-    }
-
-    /* The rule's accent, on the title rather than around the whole card: the
-         section stays flat like the rest of the page. */
-    .principle {
-      border-left: 2px solid var(--rx-rule-strong);
-      padding-left: 1rem;
+      letter-spacing: -0.015em;
+      margin-bottom: 0.4rem;
+      text-wrap: balance;
     }
 
     .principle-summary {
       color: var(--rx-muted);
-      font-size: 0.97rem;
+      font-size: 0.95rem;
     }
 
-    .maintainer-summary,
+    /* ------------------------------------------------------------------
+       Maintainer + follow
+       ------------------------------------------------------------------ */
+    .maintainer {
+      padding-block: clamp(3.5rem, 9vh, 5.5rem);
+      border-top: 1px solid var(--rx-rule);
+    }
+
+    .maintainer-role {
+      font-family: var(--rx-font-mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      color: var(--rx-faint);
+      margin-top: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .maintainer-summary {
+      color: var(--rx-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .follow {
+      padding-block: 0 clamp(2rem, 5vh, 3rem);
+    }
+
+    /* The one full card on the page, and the last thing on it. The gradient is
+       the top edge only — a filled gradient panel at this size would be the
+       loudest thing in a design whose whole point is restraint. */
+    .follow-card {
+      position: relative;
+      background: var(--rx-card);
+      border: 1px solid var(--rx-rule);
+      border-radius: var(--rx-radius);
+      padding: clamp(1.75rem, 4vw, 2.75rem);
+      overflow: hidden;
+    }
+
+    .follow-card::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 2px;
+      background: var(--rx-gradient);
+    }
+
     .follow-summary {
       color: var(--rx-muted);
-      max-width: 38rem;
-      margin-bottom: 1.25rem;
+      margin-top: 0.8rem;
+      margin-bottom: 1.6rem;
     }
 
-    /* No `:global(.rx-footer)` rule here any more. This page used to set
-         `margin-top: clamp(3rem, 8vh, 5rem)`, /about copied it, and Legal.astro
-         set 3rem — three values for one piece of shared chrome, so the gap above
-         the footer differed on every surface and none matched /blog or /updates,
-         which take the 4rem from @rxova/brand's footer.css. That file is now the
-         only owner of the footer's spacing. */
+    /* ------------------------------------------------------------------
+       Motion
+
+       Two systems, and both fail open.
+
+       `.rise` is the load sequence. It is pure CSS with no observer, so it
+       always completes — and it animates *to* the resting state, so a browser
+       that ignores the animation shows the finished hero rather than nothing.
+
+       `.reveal` is the scroll sequence. It is visible by default and only
+       becomes hidden once the script has stamped [data-revealing] on the root,
+       which it does only after confirming an IntersectionObserver exists and
+       that the reader has not asked for reduced motion. See enhanceReveals().
+       ------------------------------------------------------------------ */
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .rise {
+      animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      animation-delay: var(--d, 0ms);
+    }
+
+    :global(html[data-revealing]) .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition:
+        opacity 0.6s cubic-bezier(0.2, 0.7, 0.2, 1),
+        transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+      transition-delay: var(--d, 0ms);
+    }
+
+    :global(html[data-revealing]) .reveal.is-in {
+      opacity: 1;
+      transform: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      /* Nothing moves, nothing fades in, and nothing is left hidden waiting
+         for a transition that will not run. */
+      .rise,
+      :global(html[data-revealing]) .reveal {
+        animation: none;
+        transition: none;
+        opacity: 1;
+        transform: none;
+      }
+
+      .btn,
+      .rail-item,
+      .rail-bar,
+      .arrow,
+      .links a,
+      :global(html[data-js]) .panel {
+        transition: none;
+      }
+    }
+
+    /* ------------------------------------------------------------------
+       Narrow
+
+       Two breaks, not one. The hero stacks before the showcase does, because a
+       two-column hero fails first: the package list needs about 22rem to avoid
+       one name per line, while the rail is still comfortable at 16rem.
+       ------------------------------------------------------------------ */
+    @media (max-width: 62rem) {
+      .hero-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 2.5rem;
+      }
+    }
+
+    @media (max-width: 52rem) {
+      .showcase-body {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      /* The rail becomes a scrollable strip of chips above the stage. The
+         taglines go — a row of them side by side is the dictionary again, in a
+         row instead of a column — and the name alone is enough once the panel
+         below is showing the tagline in full. */
+      .rail {
+        position: static;
+        flex-direction: row;
+        gap: 0.4rem;
+        overflow-x: auto;
+        /* Room for the focus ring, which a scroll container would otherwise
+           clip against its own edge. */
+        padding: 0.25rem;
+        margin: -0.25rem;
+        scrollbar-width: thin;
+      }
+
+      .rail-item {
+        flex: none;
+        gap: 0.55rem;
+        padding: 0.5rem 0.8rem;
+        border: 1px solid var(--rx-rule);
+      }
+
+      .rail-item:hover {
+        transform: none;
+      }
+
+      .rail-tagline {
+        display: none;
+      }
+
+      .rail-bar {
+        width: 2px;
+        transform: scaleY(0.7);
+      }
+
+      .rail-name {
+        font-size: 0.9rem;
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 40rem) {
+      main {
+        padding-inline: 1.25rem;
+      }
+
+      .signal-list {
+        gap: 0.9rem 2rem;
+      }
+
+      .links {
+        gap: 1.1rem;
+      }
+    }
   </style>
 </BaseLayout>
