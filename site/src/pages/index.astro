@@ -29,7 +29,7 @@ const organizationJsonLd = {
   name: 'Rxova',
   url: siteUrl('/'),
   logo: siteUrl('/rxova-logo-1024.png'),
-  description: `Small TypeScript libraries for the hard parts of the browser: ${projectListSentence}.`,
+  description: `Independent TypeScript libraries for problems that are harder than they look: ${projectListSentence}.`,
   founder: { '@type': 'Person', name: MAINTAINER.name },
   sameAs: [MAINTAINER.org, ...MAINTAINER.links.map((l) => l.href)],
   hasPart: landingProjects.map((p) => ({
@@ -84,24 +84,24 @@ const surfacePackages = landingProjects.flatMap((p) =>
 )
 ---
 
-<BaseLayout title="Rxova — TypeScript libraries for the hard parts of the browser" path="/" wide>
+<BaseLayout title="Rxova — take one package, keep the rest of your stack" path="/" wide>
   <Fragment slot="head">
     <!-- Project names come from the registry, so adding a project updates the
          meta descriptions too. They used to be hand-written and were the easiest
          thing to forget.
 
-         "React libraries" here was wrong as well as forgettable: two of the three
-         ship a framework-agnostic core that runs in a worker or a plain script,
-         and Journey also ships a browser extension. React is a binding we
-         provide, not the boundary of what these are. -->
+         These track the headline rather than restating the category. A search
+         result and a shared link now say the same thing the page says, and
+         neither claims the browser is the boundary of what these are — two of
+         them run just as well in Node, a worker or a terminal. -->
     <meta
       name="description"
-      content={`Rxova — small TypeScript libraries for the hard parts of the browser: ${projectListSentence}.`}
+      content={`Independent TypeScript libraries for problems that are harder than they look: ${projectListSentence}.`}
     />
     <meta property="og:title" content="Rxova" />
     <meta
       property="og:description"
-      content={`Small TypeScript libraries for the hard parts of the browser: ${projectListSentence}.`}
+      content={`Take one package, keep the rest of your stack. Independent TypeScript libraries: ${projectListSentence}.`}
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://rxova.org/" />
@@ -128,11 +128,23 @@ const surfacePackages = landingProjects.flatMap((p) =>
   <main>
     {/* --- Hero -----------------------------------------------------------
 
-        The hero names the problems rather than praising the solutions. It
-        used to read "Building open-source React libraries the way they should
-        be" over "each does one thing well … and gets out of your way", which
-        asserted quality instead of showing any, and called the whole family
-        React when only react-inputs actually is.
+        The headline is a promise a reader can hold the project to, not a
+        description of the category it is in. "Small TypeScript libraries for
+        the hard parts of the browser" was the latter: every library author
+        claims small and focused, so it distinguished nothing — and it had gone
+        factually wrong as the family grew, since overlock is a CLI and a CI
+        gate and ts-extended-errors runs in Node as readily as in a page.
+        Neither is a hard part of the browser.
+
+        What is actually unusual here is the adoption cost: no meta-package, no
+        shared runtime, no framework, so taking one package commits you to
+        nothing else. That is checkable — a reader can open any package.json
+        and catch us failing it — which is the bar the rest of the page is
+        written to.
+
+        The lede's list is illustrative, but it is kept complete: one clause
+        per project, so it cannot quietly drop a project the way a count goes
+        stale. Add a project, add a clause.
 
         The right-hand panel is the thesis of the redesign: the complaint this
         page was rebuilt to answer is that the project list read as a dictionary,
@@ -146,13 +158,13 @@ const surfacePackages = landingProjects.flatMap((p) =>
             Open source · TypeScript · MIT
           </p>
           <h1 class="rise" style="--d: 60ms">
-            Small TypeScript libraries for the hard parts of the browser.
+            Take one package. Keep the rest of your stack.
           </h1>
           <p class="lede rise" style="--d: 120ms">
-            Cross-tab state. Non-linear flows. Typed errors that survive a JSON round trip. The
-            inputs nobody wants to build and everybody wants to import. <strong>Rxova</strong> ships
-            framework-agnostic cores, React bindings where they earn their place, and APIs small
-            enough to stay still.
+            <strong>Rxova</strong> publishes independent TypeScript libraries for problems that are
+            harder than they look: cross-tab state, non-linear flows, typed errors that survive a
+            JSON round trip, tests that quietly stop asserting, and the inputs nobody wants to
+            build. No meta-package, no shared runtime, no framework to adopt.
           </p>
           <div class="cta-row rise" style="--d: 180ms">
             <a class="btn btn-primary" href="#projects">
@@ -193,7 +205,7 @@ const surfacePackages = landingProjects.flatMap((p) =>
               </li>
             ))}
           </ul>
-          <p class="surface-note">Take one. Nothing here requires anything else here.</p>
+          <p class="surface-note">Highlighted names are the package each project starts with.</p>
         </aside>
       </div>
     </section>
