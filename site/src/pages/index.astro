@@ -7,6 +7,10 @@ import { landingProjects, projectListSentence } from '../lib/projects'
 // Who maintains this and what the projects share — the short form of both. The
 // long form is /about, and both read from the same module so they cannot drift.
 import { MAINTAINER, PRINCIPLES, STANDARDS } from '../lib/about'
+// The wordmark's letterforms, generated once from Space Grotesk Bold. Rendered
+// twice from this one constant — flat below, extruded by the script at the
+// bottom of this file — so the two can never disagree. See the module.
+import { WORDMARK_PATH, WORDMARK_VIEWBOX, WORDMARK_TEXT } from '../lib/wordmark'
 import BaseLayout from '../layouts/BaseLayout.astro'
 // The reset and base element styling this page's scoped CSS is written against.
 // It lives here rather than in BaseLayout because BaseLayout also builds the
@@ -128,6 +132,35 @@ const STANDARD_ICONS: Record<string, string> = {
   </Fragment>
 
   <main>
+    {/* --- The wordmark ----------------------------------------------------
+
+        Rendered flat, then upgraded in place.
+
+        The `<svg>` below is the real thing, not a placeholder: it is the
+        correct letterforms at the correct size, and on a browser with no
+        WebGL, no JavaScript, or a reader who has asked for reduced motion it
+        is what stays on screen. The canvas beside it is empty and hidden until
+        three.js has actually built something to put in it, so there is never a
+        blank rectangle where the word should be.
+
+        `aria-hidden` on the whole block. The word "Rxova" is already the site
+        header's brand link and the first word of the heading below it, so
+        announcing it a third time would be noise. It is decoration that
+        happens to be legible. */}
+    <div class="wordmark" data-wordmark aria-hidden="true">
+      <svg
+        class="wordmark-flat"
+        viewBox={WORDMARK_VIEWBOX}
+        role="presentation"
+        focusable="false"
+        data-wordmark-flat
+      >
+        <title>{WORDMARK_TEXT}</title>
+        <path d={WORDMARK_PATH}></path>
+      </svg>
+      <canvas class="wordmark-canvas" data-wordmark-canvas hidden></canvas>
+    </div>
+
     {/* --- The opening line ------------------------------------------------
 
         There is no hero. There was one — an eyebrow of tags, a display
@@ -429,6 +462,267 @@ const STANDARD_ICONS: Record<string, string> = {
         the docs sites render — is rendered by BaseLayout, below this. */}
   </main>
 
+  {/* --- The 3D wordmark ---------------------------------------------------
+
+      Its own module so it can be code-split: three.js is about 150KB over the
+      wire, which is more than the rest of this page put together, and none of
+      it is fetched until the checks below have passed. A landing whose first
+      claim is that its libraries do not drag anything in behind them should
+      not block its own first paint on a 3D engine. */}
+  <script>
+    import { WORDMARK_PATH, WORDMARK_VIEWBOX } from '../lib/wordmark'
+
+    /** Reads a CSS custom property off the document root. */
+    function token(name: string, fallback: string): string {
+      const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+      return value || fallback
+    }
+
+    /**
+     * Does this browser actually have WebGL, rather than merely claim the API?
+     *
+     * `'WebGLRenderingContext' in window` is true in places where creating a
+     * context still fails — a blocklisted driver, a headless run, a machine
+     * that has exhausted its context count. Asking for one and throwing the
+     * probe away is the only answer that is not a guess.
+     */
+    function hasWebGL(): boolean {
+      try {
+        const probe = document.createElement('canvas')
+        return Boolean(probe.getContext('webgl2') ?? probe.getContext('webgl'))
+      } catch {
+        return false
+      }
+    }
+
+    async function mountWordmark(): Promise<void> {
+      const host = document.querySelector<HTMLElement>('[data-wordmark]')
+      const flat = document.querySelector<SVGElement>('[data-wordmark-flat]')
+      const canvas = document.querySelector<HTMLCanvasElement>('[data-wordmark-canvas]')
+      if (!host || !flat || !canvas || !hasWebGL()) return
+
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+
+      const THREE = await import('three')
+      const { SVGLoader } = await import('three/addons/loaders/SVGLoader.js')
+
+      // SVGLoader parses a document, not a bare `d`, so the path is wrapped in
+      // the smallest SVG that carries its own coordinate space. Nothing is
+      // fetched — this is the string from ../lib/wordmark.
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${WORDMARK_VIEWBOX}"><path d="${WORDMARK_PATH}"/></svg>`
+      const parsed = new SVGLoader().parse(svg)
+
+      const shapes = parsed.paths.flatMap((path) => SVGLoader.createShapes(path))
+      if (shapes.length === 0) return
+
+      // Depth and bevel are set against the word's own width rather than in
+      // absolute units, so changing the wordmark cannot change how chunky it
+      // looks. 1000 is the normalised width the path module guarantees.
+      const unit = 1000
+      const geometry = new THREE.ExtrudeGeometry(shapes, {
+        depth: unit * 0.058,
+        // No bevel. On a solid it softens the edge; on a wireframe every bevel
+        // ring is another loop of lines around each letter, which turns the
+        // counters into a scribble.
+        bevelEnabled: false,
+        curveSegments: 14,
+      })
+
+      // SVG is y-down and three is y-up, so the word arrives upside down. A
+      // half turn about X rather than a scale of -1: a rotation keeps the face
+      // winding intact, where a mirror inverts it and leaves every normal —
+      // and therefore all the lighting — pointing into the geometry.
+      geometry.rotateX(Math.PI)
+      geometry.center()
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+
+      const scene = new THREE.Scene()
+      const camera = new THREE.PerspectiveCamera(16, 1, 0.1, unit * 40)
+
+      // `EdgesGeometry`, not `wireframe: true`. A wireframe material draws every
+      // triangle the tessellator produced, so a curve becomes a fan of hatching
+      // and the word turns to noise. This keeps only edges where two faces meet
+      // at more than the threshold angle — the front outline, the back outline,
+      // and the corners joining them. A smooth curve's side wall stays blank,
+      // which is what makes the result read as a drawing rather than a mesh.
+      const edges = new THREE.EdgesGeometry(geometry, 22)
+
+      // The brand ramp, run along the word rather than across a fill. The page
+      // spends the gradient on rules and marks and never on type — a wireframe
+      // is rules, so this is the one place the two meet.
+      //
+      // Four stops for three colours: the ramp ends on the blue it started on,
+      // so when the sweep below wraps from 1 back to 0 there is no seam. With
+      // three stops the word would jump magenta-to-blue once per cycle.
+      const stops = [
+        new THREE.Color(token('--rx-accent-a', '#0a84ff')),
+        new THREE.Color(token('--rx-accent-b', '#6b3df0')),
+        new THREE.Color(token('--rx-accent-c', '#e6199b')),
+        new THREE.Color(token('--rx-accent-a', '#0a84ff')),
+      ]
+      const position = edges.getAttribute('position')
+      const colors = new Float32Array(position.count * 3)
+      edges.computeBoundingBox()
+      const span = edges.boundingBox!
+      const width = span.max.x - span.min.x || 1
+
+      // Each vertex's fixed place along the word, 0 at the R and 1 past the a.
+      // Precomputed because it never changes; only the offset added to it does.
+      const along = new Float32Array(position.count)
+      for (let i = 0; i < position.count; i++) {
+        along[i] = (position.getX(i) - span.min.x) / width
+      }
+
+      const colorAttribute = new THREE.BufferAttribute(colors, 3)
+      const mixed = new THREE.Color()
+
+      /**
+       * Writes the ramp into the colour attribute, shifted by `offset`.
+       *
+       * Done on the CPU rather than in a patched shader. The edge geometry is a
+       * few thousand vertices, so this is a handful of microseconds a frame,
+       * and it keeps the material a stock `LineBasicMaterial` that any reader
+       * of this file can reason about.
+       */
+      function paint(offset: number): void {
+        const segments = stops.length - 1
+        for (let i = 0; i < along.length; i++) {
+          const t = (along[i] + offset) % 1
+          const scaled = t * segments
+          const from = Math.min(Math.floor(scaled), segments - 1)
+          mixed.copy(stops[from]).lerp(stops[from + 1], scaled - from)
+          colors[i * 3] = mixed.r
+          colors[i * 3 + 1] = mixed.g
+          colors[i * 3 + 2] = mixed.b
+        }
+        colorAttribute.needsUpdate = true
+      }
+
+      paint(0)
+      edges.setAttribute('color', colorAttribute)
+
+      // What the camera frames. Measured off the edge geometry rather than the
+      // solid it came from, so it is the drawing's own extent.
+      const size = new THREE.Vector3()
+      span.getSize(size)
+
+      const material = new THREE.LineBasicMaterial({
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.9,
+      })
+      const mesh = new THREE.LineSegments(edges, material)
+      scene.add(mesh)
+
+      // No lights: `LineBasicMaterial` is unlit, and the ramp above is the only
+      // colour in the scene.
+
+      /** Frames the word on the shorter of the two axes, with a margin. */
+      function fit(): void {
+        const w = host!.clientWidth
+        const h = host!.clientHeight
+        if (w === 0 || h === 0) return
+        renderer.setSize(w, h, false)
+        camera.aspect = w / h
+        const fov = (camera.fov * Math.PI) / 180
+        const forHeight = size.y / (2 * Math.tan(fov / 2))
+        const forWidth = size.x / camera.aspect / (2 * Math.tan(fov / 2))
+        camera.position.z = Math.max(forHeight, forWidth) * 1.06
+        camera.updateProjectionMatrix()
+      }
+
+      // No theme observer. The ramp is three fixed brand colours that hold
+      // against both the light and the dark ground, so unlike the solid version
+      // — which took its face colour from --rx-fg — nothing here has to be
+      // re-read when the toggle flips.
+
+      let running = false
+      const target = { x: 0, y: 0 }
+      const current = { x: 0, y: 0 }
+
+      function frame(time: number): void {
+        if (!running) return
+
+        // The colour never settles: the ramp walks the length of the word on a
+        // twelve-second loop and wraps seamlessly, so there is always something
+        // moving even when the geometry is still and nobody is pointing at it.
+        paint((time / 12000) % 1)
+
+        // A slow turn rather than a spin. Roughly ±17° of yaw and ±5° of pitch,
+        // on periods that do not divide into each other, so the pair never
+        // repeats the same pose on a visible cycle — and the word stays face-on
+        // enough to read at every point in it.
+        const yaw = Math.sin(time / 7000) * 0.26
+        const pitch = Math.sin(time / 9400) * 0.09
+
+        // The pointer's pull, eased in rather than tracked exactly, added on
+        // top of the drift instead of replacing it.
+        current.x += (target.x - current.x) * 0.06
+        current.y += (target.y - current.y) * 0.06
+
+        mesh.rotation.x = current.x + pitch
+        mesh.rotation.y = current.y + yaw
+        renderer.render(scene, camera)
+        requestAnimationFrame(frame)
+      }
+
+      function start(): void {
+        if (running || reduced.matches) return
+        running = true
+        requestAnimationFrame(frame)
+      }
+
+      function stop(): void {
+        running = false
+      }
+
+      function onPointer(event: PointerEvent): void {
+        const box = host!.getBoundingClientRect()
+        target.y = ((event.clientX - box.left) / box.width - 0.5) * 0.3
+        target.x = ((event.clientY - box.top) / box.height - 0.5) * 0.16
+      }
+
+      fit()
+      canvas.hidden = false
+      flat!.setAttribute('hidden', '')
+
+      if (reduced.matches) {
+        // A still frame at a slight angle: the shape is the point, the motion
+        // is not, and someone who asked for less of it gets none.
+        mesh.rotation.set(0.04, -0.12, 0)
+        renderer.render(scene, camera)
+      } else {
+        start()
+        host!.addEventListener('pointermove', onPointer)
+        host!.addEventListener('pointerleave', () => {
+          target.x = 0
+          target.y = 0
+        })
+      }
+
+      new ResizeObserver(() => {
+        fit()
+        if (!running) renderer.render(scene, camera)
+      }).observe(host!)
+
+      // Nothing should keep painting while the tab is in the background, and a
+      // multi-page site leaves this context behind on every navigation.
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stop()
+        else start()
+      })
+      addEventListener('pagehide', () => {
+        stop()
+        geometry.dispose()
+        material.dispose()
+        renderer.dispose()
+      })
+    }
+
+    void mountWordmark()
+  </script>
   {/* --- Behaviour ---------------------------------------------------------
 
       Two jobs, both enhancements over a page that is already complete: turn
@@ -726,6 +1020,50 @@ const STANDARD_ICONS: Record<string, string> = {
 
     .links a:not(.btn):hover .arrow {
       transform: translate(2px, 0);
+    }
+
+    /* ------------------------------------------------------------------
+       The wordmark
+
+       One box, two renderers. The flat SVG and the canvas occupy the same
+       grid cell so swapping one for the other cannot move the page — the
+       block's height is set here and neither child can change it.
+       ------------------------------------------------------------------ */
+    .wordmark {
+      display: grid;
+      grid-template-areas: 'mark';
+      /* Sized against the viewport width rather than its height: this sits
+         above the fold on every screen, and a vh-based band collapses to
+         nothing in a short landscape window. */
+      width: min(100%, 34rem);
+      height: clamp(4.5rem, 11vw, 8.5rem);
+      margin-top: clamp(1.5rem, 4vh, 2.75rem);
+    }
+
+    .wordmark-flat,
+    .wordmark-canvas {
+      grid-area: mark;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Outlined, not filled — the fallback for a wireframe should look like the
+       thing it stands in for. `non-scaling-stroke` keeps the line a true
+       hairline at any rendered size instead of thickening with the viewBox. */
+    .wordmark-flat {
+      fill: none;
+      stroke: var(--rx-fg);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+      /* Left-aligned like everything else on the page; the path's own box is
+         tight to the letters, so this is the word's real edge. */
+      object-fit: contain;
+      object-position: left center;
+    }
+
+    .wordmark-canvas[hidden] {
+      display: none;
     }
 
     /* ------------------------------------------------------------------
