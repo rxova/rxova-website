@@ -29,6 +29,11 @@
     // than opening a pull request nobody asked for. Replaces the major-bump
     // guard that lived in the auto-merge workflow.
     ':approveMajorUpdates',
+
+    // Refreshes the whole lockfile monthly. Transitive versions only move when
+    // something above them does, so without this a lockfile quietly keeps
+    // stale copies that the registry has long since patched.
+    ':maintainLockFilesMonthly',
   ],
 
   // The label Dependabot applied by default. It already exists here.
