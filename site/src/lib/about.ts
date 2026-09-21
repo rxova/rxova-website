@@ -52,6 +52,61 @@ export const MAINTAINER = {
   org: 'https://github.com/rxova',
 } as const
 
+/**
+ * What the projects are built to, as opposed to what they do.
+ *
+ * `PRINCIPLES` below is about API shape — what goes in a library and what stays
+ * out. This is the other half: how the work is made and kept. A reader deciding
+ * whether to take a dependency is weighing both, and the landing used to answer
+ * neither — the slot this fills carried a strip of counts ("5 projects, 17 npm
+ * packages"), which tells you the size of the catalogue and nothing about
+ * whether any of it is safe to install.
+ *
+ * Each is short enough to sit in a strip and specific enough to be checked. Add
+ * to this list rather than reaching for an adjective: "production grade" on its
+ * own is a claim, "nothing publishes from a red build" is a rule.
+ */
+export interface Standard {
+  /** Two or three words. The strip shows this at full contrast. */
+  label: string
+  /** One clause saying what the label actually commits to. */
+  detail: string
+}
+
+export const STANDARDS: readonly Standard[] = [
+  // First because it is the whole proposition, not one attribute among six:
+  // each library exists for one specific pain point and is judged on whether
+  // it removes it. Everything below is a constraint on how that is done.
+  {
+    label: 'One pain point each',
+    detail: 'A specific problem, solved in a practical way, and nothing beyond it.',
+  },
+  {
+    label: 'Production grade',
+    detail: 'Built to be depended on, not to demo well.',
+  },
+  {
+    label: 'Zero runtime dependencies',
+    detail: 'Nothing reaches your lockfile that you did not choose.',
+  },
+  {
+    label: 'Tested where it matters',
+    detail: 'The edge cases that made each library necessary are the suite.',
+  },
+  {
+    label: 'Modern toolchain',
+    detail: 'tsdown, TypeScript and pnpm — no legacy build to inherit.',
+  },
+  {
+    label: 'Clean CI',
+    detail: 'Nothing publishes from a red build.',
+  },
+  {
+    label: 'Answered quickly',
+    detail: 'Issues and pull requests do not sit.',
+  },
+] as const
+
 export interface Principle {
   /** Stable id — also the anchor on /about, so don't rename one casually. */
   id: string
