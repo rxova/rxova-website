@@ -67,6 +67,11 @@ export const MAINTAINER = {
  * own is a claim, "nothing publishes from a red build" is a rule.
  */
 export interface Standard {
+  /**
+   * Stable key. The landing maps it to an icon, so renaming one drops that
+   * item's glyph rather than breaking the build — keep them still.
+   */
+  id: string
   /** Two or three words. The strip shows this at full contrast. */
   label: string
   /** One clause saying what the label actually commits to. */
@@ -78,30 +83,37 @@ export const STANDARDS: readonly Standard[] = [
   // each library exists for one specific pain point and is judged on whether
   // it removes it. Everything below is a constraint on how that is done.
   {
+    id: 'one-pain-point',
     label: 'One pain point each',
     detail: 'A specific problem, solved in a practical way, and nothing beyond it.',
   },
   {
+    id: 'production-grade',
     label: 'Production grade',
     detail: 'Built to be depended on, not to demo well.',
   },
   {
+    id: 'zero-dependencies',
     label: 'Zero runtime dependencies',
     detail: 'Nothing reaches your lockfile that you did not choose.',
   },
   {
+    id: 'tested',
     label: 'Tested where it matters',
     detail: 'The edge cases that made each library necessary are the suite.',
   },
   {
+    id: 'modern-toolchain',
     label: 'Modern toolchain',
     detail: 'tsdown, TypeScript and pnpm — no legacy build to inherit.',
   },
   {
+    id: 'clean-ci',
     label: 'Clean CI',
     detail: 'Nothing publishes from a red build.',
   },
   {
+    id: 'answered-quickly',
     label: 'Answered quickly',
     detail: 'Issues and pull requests do not sit.',
   },
