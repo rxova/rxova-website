@@ -146,7 +146,7 @@ const surfacePackages = landingProjects.flatMap((p) =>
             Open source · TypeScript · MIT
           </p>
           <h1 class="rise" style="--d: 60ms">
-            Small TypeScript libraries for the <span class="grad">hard parts of the browser</span>.
+            Small TypeScript libraries for the hard parts of the browser.
           </h1>
           <p class="lede rise" style="--d: 120ms">
             Cross-tab state. Non-linear flows. Typed errors that survive a JSON round trip. The
@@ -611,9 +611,11 @@ const surfacePackages = landingProjects.flatMap((p) =>
 
        The gradient is the only chroma in the brand — see @rxova/brand's
        tokens.css, which is explicit that adding a second accent hue is the
-       thing not to do. So it is spent in exactly four places: the eyebrow dot,
-       the primary button, the active rail bar, and the hairline over each
-       principle. Everything else is the warm monochrome.
+       thing not to do. It is spent on rules and marks, never on type: the
+       eyebrow dot, the primary button, the active rail bar, the hairline over
+       each principle and the top edge of the follow card. Headings are the
+       warm near-black — a gradient across a headline fights the letterforms
+       and drops the contrast of whichever end lands on the lightest stop.
        ------------------------------------------------------------------ */
     .eyebrow {
       display: inline-flex;
@@ -633,26 +635,6 @@ const surfacePackages = landingProjects.flatMap((p) =>
       border-radius: var(--rx-radius-pill);
       background: var(--rx-gradient);
       flex: none;
-    }
-
-    /* Clipped to the text, so the one coloured phrase in the page is the
-       headline's own subject rather than a block behind it. */
-    .grad {
-      background: var(--rx-gradient);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      /* The fallback matters: where background-clip:text is unsupported the
-         transparent colour would render the phrase invisible. */
-      -webkit-text-fill-color: transparent;
-    }
-
-    @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
-      .grad {
-        background: none;
-        color: var(--rx-primary);
-        -webkit-text-fill-color: currentColor;
-      }
     }
 
     .section-head {
