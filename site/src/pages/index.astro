@@ -775,27 +775,46 @@ const STANDARD_ICONS: Record<string, string> = {
       grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
     }
 
+    /* Icon beside the label, detail hanging under it — two columns rather than
+       three stacked blocks. The icon sat on its own line above the label, which
+       cost a line of vertical space per item and read as a row of loose glyphs
+       above a row of words instead of seven labelled claims. */
+    .standard {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 0.55rem;
+      row-gap: 0.3rem;
+    }
+
     /* Sized to the label beside it and set in the faint ink, so the row reads
        label-first. An icon at text contrast would out-weigh the words it is
        labelling, which is the wrong way round for a list of claims. */
     .standard-icon {
-      width: 20px;
-      height: 20px;
-      display: block;
+      grid-column: 1;
+      grid-row: 1;
+      /* Optically matched to the mono label's cap height rather than to its
+         font-size, which would leave the glyph sitting low against the caps. */
+      width: 15px;
+      height: 15px;
+      align-self: center;
       color: var(--rx-faint);
-      margin-bottom: 0.7rem;
     }
 
     .standard-label {
+      grid-column: 2;
+      grid-row: 1;
       font-family: var(--rx-font-mono);
       font-size: 0.74rem;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--rx-fg);
-      margin-bottom: 0.4rem;
     }
 
+    /* Second column, so it lines up with the label rather than with the icon —
+       the indent is what binds the pair into one item. */
     .standard-detail {
+      grid-column: 2;
+      grid-row: 2;
       font-size: 0.9rem;
       line-height: 1.5;
       color: var(--rx-muted);
