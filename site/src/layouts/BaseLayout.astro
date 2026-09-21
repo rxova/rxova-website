@@ -17,9 +17,23 @@ interface Props {
   path?: string
   project?: ProjectId
   template?: boolean
+  /**
+   * Widen the whole shell to the marketing measure instead of the prose one.
+   *
+   * It sets `--max`, not a width on `<main>`, because three things are centred
+   * on that token and must agree: @rxova/brand's `Header`, this layout's footer
+   * wrapper, and the page's own content. A page that widened only itself would
+   * sit under a 44rem header with its edges hanging past both, which is the
+   * exact mismatch the docs ribbon already had to be taught out of.
+   *
+   * Only the landing sets it. /about, /privacy and /terms are prose and stay on
+   * the prose measure; the shell templates must never take it, since their body
+   * is composed into a full-bleed Starlight document.
+   */
+  wide?: boolean
 }
 
-const { title, robots, path = '/', project, template = false } = Astro.props
+const { title, robots, path = '/', project, template = false, wide = false } = Astro.props
 const footerSurfaces = navSurfaces.map((surface) => ({
   label: surface.label,
   href: siteUrl(surface.href),
@@ -60,7 +74,12 @@ const docsShell = template && project !== undefined
 ---
 
 <!doctype html>
-<html lang="en" data-rxova-shell data-rxova-docs-shell={docsShell ? '' : undefined}>
+<html
+  lang="en"
+  data-rxova-shell
+  data-rxova-docs-shell={docsShell ? '' : undefined}
+  data-rxova-wide={wide ? '' : undefined}
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -168,6 +187,14 @@ const docsShell = template && project !== undefined
       html[data-rxova-docs-shell] .brand span,
       html[data-rxova-docs-shell] nav a {
         font-size: 0.8rem;
+      }
+    </style>
+
+    <!-- The wide measure, applied once at the document root so the header, the
+         page and the footer are centred on the same number. See the `wide` prop. -->
+    <style is:global>
+      html[data-rxova-wide] {
+        --max: var(--rx-max-wide);
       }
     </style>
 
