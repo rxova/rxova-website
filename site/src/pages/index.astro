@@ -6,7 +6,7 @@ import { siteUrl } from '@rxova/brand'
 import { landingProjects, projectListSentence } from '../lib/projects'
 // Who maintains this and what the projects share — the short form of both. The
 // long form is /about, and both read from the same module so they cannot drift.
-import { MAINTAINER, PRINCIPLES } from '../lib/about'
+import { MAINTAINER, PRINCIPLES, STANDARDS } from '../lib/about'
 import BaseLayout from '../layouts/BaseLayout.astro'
 // The reset and base element styling this page's scoped CSS is written against.
 // It lives here rather than in BaseLayout because BaseLayout also builds the
@@ -51,37 +51,39 @@ const organizationJson = JSON.stringify(organizationJsonLd).replace(/</g, '\\u00
 const blogFeed = siteUrl('/blog/rss.xml')
 
 /**
- * The numbers in the signal strip, counted rather than written down.
+ * The one library the hero shows working.
  *
- * The page previously described the family as "three projects" in two places
- * while five were shipping — the cost of a figure that only a person can
- * update. Everything here is derived from the same registries the cards render
- * from, so the strip is correct by construction the moment a project lands.
+ * The hero used to carry a chip cloud of every package name over the heading
+ * "17 packages, 5 projects", and a strip of counts under it. Both answered a
+ * question nobody arrives with. How many packages there are says nothing about
+ * whether any of them is worth installing, and a reader deciding that wants to
+ * see an API, not an inventory.
  *
- * "1 maintainer" is the one that is not flattery. A reader deciding whether to
- * take a dependency is entitled to know the bus factor, and MAINTAINER is
- * deliberately singular — see src/lib/about.ts.
+ * So the hero shows one library actually solving its problem: the project's own
+ * tagline as the problem, its own snippet as the proof, both read from the same
+ * registries every card below uses. Nothing is written twice and nothing is
+ * invented.
+ *
+ * `use-everywhere` leads because its snippet is the shortest complete argument
+ * the family has — two lines, no Provider, no server. Change this id to feature
+ * a different one; the build fails if it names a project that is missing or has
+ * no snippet, rather than silently rendering an empty panel.
  */
-const packageCount = landingProjects.reduce((n, p) => n + p.packages.length, 0)
-const signals = [
-  { figure: String(landingProjects.length), label: 'projects' },
-  { figure: String(packageCount), label: 'npm packages' },
-  { figure: 'MIT', label: 'licensed' },
-  { figure: '1', label: 'maintainer' },
-]
+const HERO_PROJECT_ID = 'use-everywhere'
 
-/**
- * Every package name in the family, with its project's primary one marked.
- *
- * This is the hero's right-hand column, and it is the honest version of the
- * "look how much there is" panel a startup page would fake. There is nothing
- * invented in it: `packages` comes from @rxova/brand and is documented as most
- * prominent first, so `primary` is `packages[0]` — the same package the card's
- * install line uses.
- */
-const surfacePackages = landingProjects.flatMap((p) =>
-  p.packages.map((name, i) => ({ name, primary: i === 0, project: p.label })),
-)
+const heroProject = landingProjects.find((p) => p.id === HERO_PROJECT_ID)
+if (!heroProject) {
+  throw new Error(
+    `[landing] HERO_PROJECT_ID "${HERO_PROJECT_ID}" is not a project. ` +
+      `Known: ${landingProjects.map((p) => p.id).join(', ')}.`,
+  )
+}
+if (!heroProject.snippet) {
+  throw new Error(
+    `[landing] the hero features "${HERO_PROJECT_ID}", which has no landing.snippet ` +
+      `in sources.json. Add one, or feature a project that has one.`,
+  )
+}
 ---
 
 <BaseLayout title="Rxova — take one package, keep the rest of your stack" path="/" wide>
@@ -187,41 +189,54 @@ const surfacePackages = landingProjects.flatMap((p) =>
           </div>
         </div>
 
-        {/* Not decoration: every name below is a package you can install, read
-            from the same registry the cards use. The emphasised ones are each
-            project's `packages[0]` — the entry point its card installs. */}
-        <aside class="surface rise" style="--d: 240ms" aria-labelledby="surface-heading">
-          <div class="surface-bar">
-            <span class="surface-mark" aria-hidden="true"></span>
-            <h2 id="surface-heading" class="surface-heading">
-              {packageCount} packages, {landingProjects.length} projects
+        {/* The claim the whole site makes — that these APIs are small — shown
+            instead of asserted, in the place a marketing page would normally
+            put a product shot or an inventory. Every string here comes from the
+            registries: the name and tagline from @rxova/brand, the snippet and
+            the mounted-docs flag from sources.json. */}
+        <aside class="demo rise" style="--d: 240ms" aria-labelledby="demo-heading">
+          <div class="demo-bar">
+            <h2 class="demo-name" id="demo-heading">
+              {heroProject.label}
             </h2>
+            <p class="demo-problem">{heroProject.tagline}</p>
           </div>
-          <ul class="surface-list">
-            {surfacePackages.map((pkg) => (
-              <li class={pkg.primary ? 'surface-pkg is-primary' : 'surface-pkg'}>
-                {pkg.primary && <span class="surface-dot" aria-hidden="true"></span>}
-                {pkg.name}
-              </li>
-            ))}
-          </ul>
-          <p class="surface-note">Highlighted names are the package each project starts with.</p>
+          <pre class="demo-code" set:text={heroProject.snippet}></pre>
+          <div class="demo-foot">
+            <code class="demo-install">npm i {heroProject.install}</code>
+            {heroProject.docsMounted && (
+              <a class="demo-link" href={heroProject.mount}>
+                Read the docs
+                <span aria-hidden="true" class="arrow">
+                  →
+                </span>
+              </a>
+            )}
+          </div>
         </aside>
       </div>
     </section>
 
-    {/* --- Signals ---------------------------------------------------------
+    {/* --- Standards -------------------------------------------------------
 
-        Counted from the registry rather than typed — see `signals` above. */}
-    <section class="signals" aria-label="Rxova at a glance">
-      <dl class="signal-list">
-        {signals.map((s) => (
-          <div class="signal">
-            <dt class="signal-figure">{s.figure}</dt>
-            <dd class="signal-label">{s.label}</dd>
-          </div>
+        This slot used to be a strip of counts — projects, packages,
+        maintainers. Quantity is the one thing about a library catalogue that
+        does not help anyone choose: nobody installs a dependency because there
+        are sixteen others beside it. What a reader is actually weighing is
+        whether the thing is safe to depend on, so the slot now carries that.
+
+        Read from STANDARDS in src/lib/about.ts, beside the principles, so the
+        claims live with the rest of the landing's prose and can be picked up by
+        /about without being written twice. */}
+    <section class="standards" aria-label="How these are built">
+      <ul class="standard-list">
+        {STANDARDS.map((item) => (
+          <li class="standard">
+            <p class="standard-label">{item.label}</p>
+            <p class="standard-detail">{item.detail}</p>
+          </li>
         ))}
-      </dl>
+      </ul>
     </section>
 
     {/* --- The showcase ----------------------------------------------------
@@ -694,14 +709,21 @@ const surfacePackages = landingProjects.flatMap((p) =>
         border-color 0.18s ease;
     }
 
-    /* White on the gradient in both themes. The ramp's darkest stop is #0a84ff,
-       which carries white text at this size; inheriting --rx-fg would put warm
-       black on blue in light mode and near-white on it in dark, so the one
-       coloured control on the page would change legibility with the theme. */
+    /* Solid ink, both themes, straight off the tokens — so it inverts with the
+       palette and never needs a literal.
+
+       It was a gradient fill with a violet glow under it, which is the single
+       most recognisable tell of a generated page: the loudest element on the
+       screen was a button, and the colour was doing the work the words should.
+       The gradient still runs on the rules and marks, where it reads as the
+       brand rather than as decoration. */
     .btn-primary {
-      background: var(--rx-gradient);
-      color: #fff;
-      box-shadow: var(--rx-shadow-soft);
+      background: var(--rx-fg);
+      color: var(--rx-bg);
+    }
+
+    .btn-primary:hover {
+      background: color-mix(in srgb, var(--rx-fg) 88%, var(--rx-bg));
     }
 
     .btn-ghost {
@@ -752,10 +774,12 @@ const surfacePackages = landingProjects.flatMap((p) =>
       display: grid;
       gap: clamp(2.5rem, 5vw, 4rem);
       align-items: center;
-      /* The panel is a fixed-ish column and the copy takes the rest, rather
-         than 1fr 1fr — the package list has a natural width and stretching it
-         opens gaps between the names. */
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      /* Even columns. The panel used to hold a wrapping list of package names,
+         which had a natural width and looked gappy when stretched, so the copy
+         took the larger share. It now holds code, which does not wrap — at the
+         old ratio the example's comment line was clipped at the panel edge,
+         and that line is the entire point of the example. */
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
 
     .hero h1 {
@@ -778,121 +802,118 @@ const surfacePackages = landingProjects.flatMap((p) =>
       font-weight: 600;
     }
 
-    /* --- The package surface ------------------------------------------ */
-    .surface {
-      position: relative;
-      background: var(--rx-card);
+    /* --- The hero's working example ------------------------------------
+
+       A panel, not a card: one border, no fill beyond the card tint, and no
+       shadow. The violet glow that used to sit under it was the same tell as
+       the gradient button — an effect standing in for a reason. */
+    .demo {
       border: 1px solid var(--rx-rule);
       border-radius: var(--rx-radius);
-      padding: 1.1rem 1.25rem 1.25rem;
-      box-shadow: var(--rx-shadow-soft);
+      background: var(--rx-card);
+      overflow: hidden;
     }
 
-    .surface-bar {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding-bottom: 0.9rem;
-      margin-bottom: 0.95rem;
+    .demo-bar {
+      padding: 1.1rem 1.25rem;
       border-bottom: 1px solid var(--rx-rule);
     }
 
-    .surface-mark {
-      width: 10px;
-      height: 10px;
-      border-radius: var(--rx-radius-pill);
-      background: var(--rx-gradient);
-      flex: none;
-    }
-
-    .surface-heading {
+    .demo-name {
       font-family: var(--rx-font-mono);
-      font-size: 0.78rem;
+      font-size: 0.85rem;
       font-weight: 500;
-      letter-spacing: 0.01em;
-      color: var(--rx-muted);
-      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.3rem;
     }
 
-    .surface-list {
-      list-style: none;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem 0.5rem;
-    }
-
-    .surface-pkg {
-      font-family: var(--rx-font-mono);
-      font-size: 0.73rem;
+    /* The project's own tagline. The panel's job is to name a problem before it
+       shows code, and the tagline is already that sentence, written once. */
+    .demo-problem {
+      font-size: 0.92rem;
       line-height: 1.5;
+      color: var(--rx-muted);
+    }
+
+    .demo-code {
+      font-family: var(--rx-font-mono);
+      /* Sized so the longest line in the featured snippet clears the panel at
+         the desktop measure. It still scrolls rather than wrapping — see the
+         note below — but it should not need to on a laptop. */
+      font-size: 0.73rem;
+      line-height: 1.75;
+      color: var(--rx-fg);
+      background: var(--rx-bg);
+      padding: 1.1rem 1.25rem;
+      /* Code sets its own line breaks, so the block scrolls rather than the page. */
+      overflow-x: auto;
+    }
+
+    .demo-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.6rem 1rem;
+      padding: 0.85rem 1.25rem;
+      border-top: 1px solid var(--rx-rule);
+    }
+
+    .demo-install {
+      font-family: var(--rx-font-mono);
+      font-size: 0.75rem;
       color: var(--rx-faint);
-      padding: 0.15rem 0.5rem;
-      border-radius: var(--rx-radius-sm);
-      background: var(--rx-tag-bg);
-      /* A scoped name must never widen the hero column on a phone. */
-      max-width: 100%;
       overflow-wrap: anywhere;
     }
 
-    /* Each project's entry point, told apart from its siblings by weight and
-       contrast rather than by a second colour. */
-    .surface-pkg.is-primary {
+    .demo-link {
+      font-size: 0.85rem;
+      font-weight: 550;
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      color: var(--rx-fg);
-      font-weight: 500;
-      background: var(--rx-bg);
-      border: 1px solid var(--rx-rule-strong);
+      gap: 0.3rem;
+      white-space: nowrap;
     }
 
-    .surface-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: var(--rx-radius-pill);
-      background: var(--rx-gradient);
-      flex: none;
-    }
-
-    .surface-note {
-      margin-top: 1rem;
-      font-size: 0.82rem;
-      color: var(--rx-faint);
+    .demo-link:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
     }
 
     /* ------------------------------------------------------------------
-       Signals
+       Standards
+
+       A band, not a row of stat tiles. Big-number tiles are for pages where
+       the figures are the point; here the figures were the problem. Each item
+       is a claim over a clause, on a hairline, so the section reads as a list
+       of commitments rather than a scoreboard.
        ------------------------------------------------------------------ */
-    .signals {
+    .standards {
       border-block: 1px solid var(--rx-rule);
-      padding-block: 1.5rem;
+      padding-block: 2rem;
     }
 
-    .signal-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.25rem 3.5rem;
+    .standard-list {
+      list-style: none;
+      display: grid;
+      gap: 1.5rem 2.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
     }
 
-    .signal {
-      display: flex;
-      align-items: baseline;
-      gap: 0.5rem;
-    }
-
-    .signal-figure {
-      font-size: 1.45rem;
-      font-weight: 640;
-      letter-spacing: -0.03em;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .signal-label {
+    .standard-label {
       font-family: var(--rx-font-mono);
-      font-size: 0.72rem;
-      letter-spacing: 0.07em;
+      font-size: 0.74rem;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--rx-faint);
+      color: var(--rx-fg);
+      margin-bottom: 0.4rem;
+    }
+
+    .standard-detail {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--rx-muted);
     }
 
     /* ------------------------------------------------------------------
@@ -1440,8 +1461,8 @@ const surfacePackages = landingProjects.flatMap((p) =>
         padding-inline: 1.25rem;
       }
 
-      .signal-list {
-        gap: 0.9rem 2rem;
+      .standard-list {
+        gap: 1.1rem 1.5rem;
       }
 
       .links {
