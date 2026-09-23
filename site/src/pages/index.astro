@@ -57,6 +57,30 @@ const organizationJson = JSON.stringify(organizationJsonLd).replace(/</g, '\\u00
 const blogFeed = siteUrl('/blog/rss.xml')
 
 /**
+ * The project the showcase opens on.
+ *
+ * Deliberately not "whichever is first". Display order is @rxova/brand's
+ * `PROJECTS`, because the docs switcher reads the same list and the two should
+ * agree — but the project that happens to sit at the top of that list is not
+ * necessarily the one to meet a first-time visitor with. The page opened on a
+ * project whose docs are switched off, so the first panel anyone saw had no
+ * Docs link and, having no snippet, showed a package list where the code goes.
+ *
+ * Featuring one instead makes that a decision rather than an accident. The
+ * build fails if it names a project that does not exist, so this cannot rot
+ * into a silently empty stage.
+ */
+const FEATURED_PROJECT_ID = 'ts-extended-errors'
+
+const featuredIndex = landingProjects.findIndex((p) => p.id === FEATURED_PROJECT_ID)
+if (featuredIndex === -1) {
+  throw new Error(
+    `[landing] FEATURED_PROJECT_ID "${FEATURED_PROJECT_ID}" is not a project. ` +
+      `Known: ${landingProjects.map((p) => p.id).join(', ')}.`,
+  )
+}
+
+/**
  * One glyph per standard, keyed by `Standard.id`.
  *
  * Inline rather than a sprite or an icon package: there are seven, they are a
@@ -191,7 +215,7 @@ const STANDARD_ICONS: Record<string, string> = {
         <div class="rail" id="project-rail" aria-label="Projects">
           {landingProjects.map((p, i) => (
             <a
-              class={i === 0 ? 'rail-item is-active' : 'rail-item'}
+              class={i === featuredIndex ? 'rail-item is-active' : 'rail-item'}
               href={`#project-${p.id}`}
               data-rail={p.id}
             >
@@ -207,7 +231,7 @@ const STANDARD_ICONS: Record<string, string> = {
         <div class="stage">
           {landingProjects.map((p, i) => (
             <article
-              class={i === 0 ? 'panel is-active' : 'panel'}
+              class={i === featuredIndex ? 'panel is-active' : 'panel'}
               id={`project-${p.id}`}
               data-panel={p.id}
               aria-labelledby={`panel-heading-${p.id}`}
@@ -486,14 +510,19 @@ const STANDARD_ICONS: Record<string, string> = {
         if (focus) next.focus()
       }
 
-      tabs.forEach((tab, i) => {
+      // Whichever tab the build marked active, rather than the first one — see
+      // FEATURED_PROJECT_ID. Falling back to the first keeps the script working
+      // if that marking is ever dropped from the markup.
+      const initial = tabs.find((tab) => tab.classList.contains('is-active')) ?? tabs[0]
+
+      tabs.forEach((tab) => {
         tab.setAttribute('role', 'tab')
         tab.setAttribute('aria-controls', `project-${tab.dataset.rail}`)
         // The panel keeps its id for the no-JS anchor, so the tab must not also
         // be a link to it once it is a tab — the href is what would otherwise
         // jump the page on activation.
         tab.removeAttribute('href')
-        tab.tabIndex = i === 0 ? 0 : -1
+        tab.tabIndex = tab === initial ? 0 : -1
 
         tab.addEventListener('click', () => select(tab, false))
         tab.addEventListener('keydown', (event: KeyboardEvent) => {
@@ -510,7 +539,7 @@ const STANDARD_ICONS: Record<string, string> = {
       })
 
       for (const panel of panels.values()) panel.setAttribute('role', 'tabpanel')
-      select(tabs[0], false)
+      select(initial, false)
 
       // A link from elsewhere on the site can still name a panel by its id
       // (/#project-journey). Honour it, since the tabs have taken the anchor
