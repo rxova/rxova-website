@@ -152,23 +152,6 @@ function build(): LandingProject[] {
 export const landingProjects: readonly LandingProject[] = build()
 
 /**
- * The projects whose docs are actually mounted, as footer links.
- *
- * The shared footer lists every project on every page of the origin, which is
- * deliberate — it is how a reader who landed on one docs page learns the rest
- * exists. But it was reading @rxova/brand's `PROJECTS`, which is the set of
- * projects that *exist*, not the set whose docs are *deployed*. A project with
- * `enabled: false` has no mount, so the footer of every page on rxova.org
- * carried a link straight to a 404.
- *
- * Same gate as everything else: `enabled` in sources.json turns the mount and
- * the link on together, which is the whole reason that flag lives in git.
- */
-export const mountedProjects: readonly SiteSurface[] = landingProjects
-  .filter((p) => p.docsMounted)
-  .map((p) => ({ id: p.id, label: p.label, href: p.mount }))
-
-/**
  * The standalone surfaces of rxova.org that are actually deployed.
  *
  * `/blog` and `/updates` are built in the brand monorepo and mounted here like any
