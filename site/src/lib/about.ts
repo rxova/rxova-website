@@ -95,7 +95,12 @@ export const STANDARDS: readonly Standard[] = [
   {
     id: 'zero-dependencies',
     label: 'Zero runtime dependencies',
-    detail: 'Nothing reaches your lockfile that you did not choose.',
+    // Stated precisely because it is the one claim here a reader can disprove
+    // in thirty seconds with `npm view <pkg> dependencies`. Every package in
+    // the family declares no third-party dependency at all; where a manifest
+    // lists one it is another rxova package, and React is always a peer rather
+    // than something installed on your behalf.
+    detail: 'No third-party packages — only our own, with React always a peer.',
   },
   {
     id: 'tested',
