@@ -194,7 +194,7 @@ export const landingSurfaces: readonly SiteSurface[] = [
  */
 export const navSurfaces: readonly SiteSurface[] = [...siteSurfaces, ...landingSurfaces]
 
-/** "Journey, react-inputs, and use-everywhere" — for the page's meta descriptions. */
+/** "journey, react-inputs, and use-everywhere" — for the page's meta descriptions. */
 export const projectListSentence: string = (() => {
   const labels = landingProjects.map((p) => p.label)
   if (labels.length <= 1) return labels[0] ?? ''

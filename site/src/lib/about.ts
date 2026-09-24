@@ -135,7 +135,7 @@ export interface Principle {
 }
 
 /**
- * What Journey, react-inputs and use-everywhere have in common.
+ * What journey, react-inputs and use-everywhere have in common.
  *
  * The landing used to assert that the libraries were "focused and
  * dependency-light" and leave it there, which is a claim rather than a
@@ -150,7 +150,7 @@ export const PRINCIPLES: readonly Principle[] = [
     summary:
       'Each library solves one problem and stops there. No plugin system, no configuration to learn before the first useful line.',
     detail:
-      'Journey models flow graphs — it does not route, fetch, or render for you. react-inputs ships inputs, not a design system. A small surface is one you can hold in your head, and it is the only kind that can credibly promise to stay stable, because most of the work of keeping an API still is saying no to what does not belong in it.',
+      'journey models flow graphs — it does not route, fetch, or render for you. react-inputs ships inputs, not a design system. A small surface is one you can hold in your head, and it is the only kind that can credibly promise to stay stable, because most of the work of keeping an API still is saying no to what does not belong in it.',
   },
   {
     id: 'typescript-first',
