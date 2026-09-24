@@ -35,14 +35,14 @@ const organizationJsonLd = {
   description: `Independent TypeScript libraries for problems that are harder than they look: ${projectListSentence}.`,
   founder: { '@type': 'Person', name: MAINTAINER.name },
   sameAs: [MAINTAINER.org, ...MAINTAINER.links.map((l) => l.href)],
-  // The same set the page lists: `landingProjects` holds only enabled projects,
-  // so every `url` here has docs mounted behind it. A disabled one is left out
-  // of the structured data exactly as it is left off the page.
+  // The same set the page lists: `landingProjects` holds only enabled projects.
+  // `url` is each one's overview page, which says what the project is before
+  // sending anyone into its docs.
   hasPart: landingProjects.map((p) => ({
     '@type': 'SoftwareSourceCode',
     name: p.label,
     description: p.tagline,
-    url: siteUrl(p.mount),
+    url: siteUrl(p.overview),
     codeRepository: p.repo,
     programmingLanguage: 'TypeScript',
     license: 'https://opensource.org/licenses/MIT',

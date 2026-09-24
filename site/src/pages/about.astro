@@ -99,9 +99,14 @@ const description = `Rxova is built and maintained by ${MAINTAINER.name} — sma
     <section class="section" aria-labelledby="principles">
       <h2 id="principles">What the projects share</h2>
       <p class="section-lede">
-        {landingProjects.map((p) => p.label).join(', ')} solve unrelated problems. These four rules
-        are what make them one ecosystem, and they are stated so you can check the code against
-        them.
+        {landingProjects.map((p, i) => (
+          <>
+            {i > 0 && ', '}
+            <a href={p.overview}>{p.label}</a>
+          </>
+        ))}{' '}
+        solve unrelated problems. These four rules are what make them one ecosystem, and they are
+        stated so you can check the code against them.
       </p>
       <ol class="principles">
         {PRINCIPLES.map((p) => (
