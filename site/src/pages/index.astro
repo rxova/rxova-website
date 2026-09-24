@@ -238,7 +238,7 @@ const STANDARD_ICONS: Record<string, string> = {
             >
               <header class="panel-head">
                 <h3 class="panel-title" id={`panel-heading-${p.id}`}>
-                  {p.label}
+                  <a href={p.overview}>{p.label}</a>
                 </h3>
                 <p class="panel-tagline">{p.tagline}</p>
               </header>
@@ -278,7 +278,13 @@ const STANDARD_ICONS: Record<string, string> = {
                 ))}
               </ul>
 
-              <ProjectLinks links={p.links} label={`${p.label} links`} />
+              {/* The overview first: it is the one page that says everything
+                  this panel has room to summarise, and it exists for every
+                  project — docs or not. */}
+              <ProjectLinks
+                links={[{ label: 'Overview', href: p.overview }, ...p.links]}
+                label={`${p.label} links`}
+              />
             </article>
           ))}
         </div>
@@ -1060,6 +1066,15 @@ const STANDARD_ICONS: Record<string, string> = {
       font-weight: 650;
       letter-spacing: -0.025em;
       line-height: 1.15;
+    }
+
+    .panel-title a {
+      text-decoration: none;
+    }
+
+    .panel-title a:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
     }
 
     .panel-tagline {
