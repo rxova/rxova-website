@@ -19,11 +19,19 @@
  */
 
 import { PROJECTS, type Project } from '@rxova/brand'
+import { checkSnippetImports } from './imports'
+import { checkLandingCopy } from './landing-copy'
 
 // Resolved by Vite at build time. `sources.json` sits at the repo root, outside
 // the Astro project — see astro.config.mjs, which widens the dev server's fs
 // allowlist so `pnpm dev` can read it too.
 import sources from '../../../sources.json'
+
+/** A published package, linked to its npm page. */
+export interface PackageLink {
+  name: string
+  href: string
+}
 
 export interface LandingLink {
   label: string
@@ -44,6 +52,12 @@ export interface LandingProject extends Project {
   install: string
   /** Optional few lines showing the API. Absent is fine; the card just omits it. */
   snippet?: string
+  /** 3–5 short, concrete lines for the overview page's "What you get". */
+  features: readonly string[]
+  /** This project's overview page on the landing — `/projects/<id>/`. */
+  overview: string
+  /** Every package the project publishes, each linked to its npm page. */
+  packageLinks: readonly PackageLink[]
   /** False when the project's docs are not mounted yet — see `enabled` in sources.json. */
   docsMounted: boolean
 }
@@ -52,8 +66,17 @@ interface RawSource {
   id: string
   kind?: string
   enabled?: boolean
-  landing?: { blurb?: string; tags?: string[]; demo?: string; snippet?: string }
+  landing?: {
+    blurb?: string
+    tags?: string[]
+    demo?: string
+    snippet?: string
+    features?: string[]
+  }
 }
+
+/** Where a project's overview page lives: `/projects/<id>/`. */
+const OVERVIEW_ROOT = 'projects'
 
 // Only the packages. `sources.json` also carries `kind: "site"` entries — /blog and
 // /updates, built in the brand monorepo and mounted like any other dist — and those
@@ -83,7 +106,22 @@ function fail(message: string): never {
   )
 }
 
+/** A landing entry that is wrong on its own terms, rather than out of step with brand. */
+function invalid(message: string): never {
+  throw new Error(`[landing] sources.json: ${message}`)
+}
+
 function build(): LandingProject[] {
+  // The overview pages are built at /projects/<id>/. A source whose id is
+  // `projects` — a `kind: "site"` entry mounts at /<id>/ — would be mounted over
+  // all of them, so check every kind, not only the packages. The schema's
+  // RESERVED_PATHS will catch this upstream once it lists `projects`.
+  for (const s of (sources.sources ?? []) as RawSource[]) {
+    if (s.id === OVERVIEW_ROOT) {
+      invalid(`"${s.id}" is reserved: the landing builds its overview pages at /${OVERVIEW_ROOT}/`)
+    }
+  }
+
   // A project in sources.json with no brand entry would build and mount docs that
   // no switcher links to, and that the landing cannot describe. Catch it here.
   for (const s of rawSources) {
@@ -97,7 +135,12 @@ function build(): LandingProject[] {
     const source = rawSources.find((s) => s.id === project.id)
     if (!source) fail(`"${project.id}" is in PROJECTS but not in sources.json`)
 
-    const { blurb, tags, demo, snippet } = source.landing ?? {}
+    // Unknown keys and the features list — see ./landing-copy.ts, which
+    // `pnpm test` runs over the same file before any build does.
+    const copyProblems = checkLandingCopy(source.landing)
+    if (copyProblems.length) invalid(`"${project.id}" ${copyProblems.join('; ')}`)
+
+    const { blurb, tags, demo, snippet, features } = source.landing ?? {}
     if (!blurb) fail(`"${project.id}" has no landing.blurb in sources.json`)
     if (!tags?.length) fail(`"${project.id}" has no landing.tags in sources.json`)
 
@@ -123,6 +166,15 @@ function build(): LandingProject[] {
       )
     }
 
+    // A snippet is shown as this project's code, so what it imports must be
+    // something this project publishes — brand's `packages`, plus React for a
+    // hook or a component. The ts-extended-errors card once imported a name
+    // brand did not list, and only a network test could notice.
+    if (snippet) {
+      const problems = checkSnippetImports(snippet, project.packages)
+      if (problems.length) invalid(`"${project.id}" landing.snippet ${problems.join('; ')}`)
+    }
+
     const docsMounted = source.enabled === true
 
     return {
@@ -131,6 +183,13 @@ function build(): LandingProject[] {
       tags,
       install,
       ...(snippet ? { snippet } : {}),
+      // Checked by checkLandingCopy above.
+      features: features as string[],
+      overview: `/${OVERVIEW_ROOT}/${project.id}/`,
+      packageLinks: project.packages.map((name) => ({
+        name,
+        href: `https://www.npmjs.com/package/${name}`,
+      })),
       links: [
         // Only link to docs that are actually deployed. `landingProjects` drops
         // disabled projects anyway; the guard keeps `build()` honest on its own.

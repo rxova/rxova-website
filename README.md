@@ -124,9 +124,22 @@ Two entries, no workflow changes.
    {
      "id": "foo", // must match the brand PROJECTS id
      "enabled": true,
-     "landing": { "blurb": "…", "tags": ["React", "TypeScript"] },
+     "landing": {
+       "blurb": "…",
+       "tags": ["React", "TypeScript"],
+       // 3–5 short, concrete lines for the overview page's "What you get".
+       "features": ["…", "…", "…"],
+       // Optional: a few lines of real API. Its imports must be the project's
+       // own packages (as listed in brand) or react / react-dom.
+       "snippet": "import { … } from 'foo'\n…",
+       // Optional: an absolute URL to a live demo the project deploys itself.
+       "demo": "https://…",
+     },
    }
    ```
+
+   `landing` accepts only these five keys. The build fails on any other one, on a features list
+   outside 3–5 lines, and on a snippet that imports something the project does not publish.
 
 Everything else is derived from `id`: docs mount at `_site/packages/foo`, persist to release
 `content-foo` as `docs-foo.tgz`, and the project appears on the landing with Docs, GitHub and

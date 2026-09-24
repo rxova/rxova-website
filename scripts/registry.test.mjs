@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import { resolveSource, loadRegistry, enabledSources, SOURCES_FILE } from './registry.mjs'
+import { checkLandingCopy } from '../site/src/lib/landing-copy.ts'
 
 /**
  * Minimum *valid* entry; individual tests override the field under test.
@@ -169,6 +170,17 @@ describe('the real sources.json', () => {
     for (const s of registry.sources.filter((s) => s.kind === 'package')) {
       assert.ok(s.landing.blurb, `${s.id} has no landing.blurb`)
       assert.ok(s.landing.tags?.length, `${s.id} has no landing.tags`)
+    }
+  })
+
+  // Raw, not `registry.sources`: loadRegistry's schema keeps only `blurb` and
+  // `tags` and silently drops every other landing key — including a misspelt
+  // one, which is exactly what this is here to catch. The landing build runs
+  // the same check; this one fails in seconds instead of mid-build.
+  it('gives every package 3–5 landing features and no unknown landing keys', () => {
+    const raw = JSON.parse(readFileSync(SOURCES_FILE, 'utf8'))
+    for (const s of raw.sources.filter((s) => (s.kind ?? 'package') === 'package')) {
+      assert.deepEqual(checkLandingCopy(s.landing), [], `${s.id}`)
     }
   })
 
