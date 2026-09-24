@@ -33,6 +33,7 @@ Which projects are mounted is `sources.json` — see [Adding a project](#adding-
 | `scripts/sitemap.mjs`          | Root sitemap index + `robots.txt` for the whole tree    |
 | `scripts/redirects.mjs`        | Static stubs for URLs that used to exist                |
 | `scripts/html.mjs`             | parse5 helpers shared by the readers of built HTML      |
+| `scripts/check-landing.mjs`    | Reads `site/dist`: project pages, links, disabled docs  |
 | `scripts/*.test.mjs`           | Tests for all of the above — `pnpm test`                |
 | `sources.json`                 | **The project registry** — one entry per project        |
 | `redirects.json`               | **Legacy URL map** — old path → where it lives now      |
@@ -143,13 +144,14 @@ Two entries, no workflow changes.
 
 Everything else is derived from `id`: docs mount at `_site/packages/foo`, persist to release
 `content-foo` as `docs-foo.tgz`, and the project appears on the landing with Docs, GitHub and
-npm links. Then wire the new repo's sender per
+npm links, plus its own overview page at `/projects/foo/` — built by this repo from the brand
+entry and the `landing` copy, so it needs nothing from the project's repo. Then wire the new repo's sender per
 [docs/INPUTS-CONTRACT.md](docs/INPUTS-CONTRACT.md).
 
 There is no `build`/`install`/`output` here — the aggregator never builds the project. How the
 docs are built is entirely the source repo's business.
 
-`enabled: false` keeps a project listed on the landing but drops its Docs link and makes gate 2
+`enabled: false` keeps a project listed on the landing, with its overview page, but drops its Docs link and makes gate 2
 reject its dispatch — use it for a project whose docs aren't ready yet.
 
 ### Checking your entry
@@ -157,6 +159,7 @@ reject its dispatch — use it for a project whose docs aren't ready yet.
 ```sh
 pnpm check:registry   # validate sources.json
 pnpm test             # the registry, the ingest gates, the fetch plan, and assembly
+pnpm build && pnpm check:landing   # every project page is built and linked
 ```
 
 Both run in CI, along with a build-time check that `sources.json` and the brand package
