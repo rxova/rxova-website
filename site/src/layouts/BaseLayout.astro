@@ -9,7 +9,7 @@ import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
 import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
 import CloudflareAnalytics from '../components/CloudflareAnalytics.astro'
 import SiteHeader from '../components/SiteHeader.astro'
-import { navSurfaces } from '../lib/projects'
+import { mountedProjects, navSurfaces } from '../lib/projects'
 
 interface Props {
   title: string
@@ -37,6 +37,14 @@ const { title, robots, path = '/', project, template = false, wide = false } = A
 const footerSurfaces = navSurfaces.map((surface) => ({
   label: surface.label,
   href: siteUrl(surface.href),
+}))
+
+// Only the projects whose docs this deploy actually contains. The footer would
+// otherwise list every project in @rxova/brand's PROJECTS, including any whose
+// docs are switched off in sources.json — see `mountedProjects`.
+const footerProjects = mountedProjects.map((project) => ({
+  label: project.label,
+  href: siteUrl(project.href),
 }))
 
 // Derived from the URL Astro is actually building, never from a prop: a canonical
@@ -98,7 +106,7 @@ const docsShell = template && project !== undefined
     <SiteHeader path={path} ribbon={docsShell} />
     {template ? <div data-rxova-page-slot /> : <slot />}
     <div class="rx-shell-footer">
-      <SiteFooter project={project} site={footerSurfaces} />
+      <SiteFooter project={project} site={footerSurfaces} projects={footerProjects} />
     </div>
 
     <style>
