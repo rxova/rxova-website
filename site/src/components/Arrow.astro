@@ -1,0 +1,31 @@
+---
+/**
+ * The arrow after a link's label — see ../lib/arrows.ts for why it is drawn.
+ *
+ * Unstyled beyond its size: `.arrow` and `data-dir` are the hooks each caller's
+ * hover rule nudges, so an in-site arrow leads across and an outbound one leans
+ * out.
+ */
+import { ARROWS } from '../lib/arrows'
+
+interface Props {
+  dir: keyof typeof ARROWS
+}
+
+const { dir } = Astro.props
+---
+
+<svg
+  class="arrow"
+  data-dir={dir}
+  viewBox="0 0 16 16"
+  width="0.9em"
+  height="0.9em"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  set:html={ARROWS[dir]}
+/>

@@ -1,0 +1,148 @@
+---
+/**
+ * The one-line install command, with a copy button.
+ *
+ * The command is plain selectable text first. The button ships `hidden` and
+ * the script below only reveals it once it has found `navigator.clipboard` —
+ * so without JavaScript, or in a context where the Clipboard API is not
+ * available (plain http, some embedded webviews), there is no button that does
+ * nothing when pressed, and the text can still be selected by hand.
+ */
+interface Props {
+  /** The package to install, e.g. `@rxova/journey-react`. */
+  pkg: string
+  class?: string
+}
+
+const { pkg, class: className } = Astro.props
+const command = `npm i ${pkg}`
+---
+
+<div class:list={['install', className]}>
+  <div class="command">
+    <span class="prompt" aria-hidden="true">
+      $
+    </span>
+    <code>{command}</code>
+  </div>
+  <button type="button" class="copy" data-copy={command} aria-label={`Copy "${command}"`} hidden>
+    Copy
+  </button>
+  {/* Announced, not just shown: the label change on the button is invisible to
+      a screen reader that has already moved on from it. */}
+  <span class="status" role="status" aria-live="polite"></span>
+</div>
+
+<script>
+  // Processed once per page however many install lines it renders.
+  if (navigator.clipboard?.writeText) {
+    for (const button of document.querySelectorAll<HTMLButtonElement>('button.copy[data-copy]')) {
+      const status = button.parentElement?.querySelector<HTMLElement>('.status')
+      let reset: number | undefined
+
+      button.hidden = false
+      button.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(button.dataset.copy ?? '')
+        } catch {
+          // Denied permission or an unfocused document. The command is still
+          // on screen to select, so say nothing rather than claim a copy.
+          return
+        }
+        button.textContent = 'Copied'
+        if (status) status.textContent = 'Copied to clipboard'
+        window.clearTimeout(reset)
+        reset = window.setTimeout(() => {
+          button.textContent = 'Copy'
+          if (status) status.textContent = ''
+        }, 2000)
+      })
+    }
+  }
+</script>
+
+<style>
+  /* Reads as a terminal without pretending to be one: a dimmed prompt, the
+     command in the mono face, and a rule rather than a filled block so it does
+     not outweigh the prose around it. */
+  .install {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--rx-font-mono);
+    font-size: 0.82rem;
+    border: 1px solid var(--rx-rule-strong);
+    border-radius: var(--rx-radius-sm);
+    background: var(--rx-bg);
+    padding: 0.35rem 0.4rem 0.35rem 0.75rem;
+    min-width: 0;
+  }
+
+  /* The command scrolls inside its own box, and the button stays put beside
+     it: a long scoped package name must not widen a card on a phone, and must
+     not push the button out of reach either. */
+  .command {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    padding-block: 0.2rem;
+  }
+
+  .prompt {
+    color: var(--rx-faint);
+    user-select: none;
+  }
+
+  code {
+    white-space: nowrap;
+  }
+
+  .copy {
+    flex: none;
+    font: inherit;
+    font-size: 0.72rem;
+    color: var(--rx-muted);
+    background: transparent;
+    border: 1px solid var(--rx-rule);
+    border-radius: var(--rx-radius-sm);
+    padding: 0.2rem 0.55rem;
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .copy:hover {
+    color: var(--rx-fg);
+    border-color: var(--rx-rule-strong);
+  }
+
+  .copy:focus-visible {
+    outline: 2px solid var(--rx-fg);
+    outline-offset: 2px;
+  }
+
+  /* `hidden` must win over the display the rule above does not set, but a
+     stylesheet `display` anywhere upstream would beat the attribute. */
+  .copy[hidden] {
+    display: none;
+  }
+
+  .status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .copy {
+      transition: none;
+    }
+  }
+</style>

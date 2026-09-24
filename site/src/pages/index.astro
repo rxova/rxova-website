@@ -8,6 +8,9 @@ import { landingProjects, projectListSentence } from '../lib/projects'
 // long form is /about, and both read from the same module so they cannot drift.
 import { MAINTAINER, PRINCIPLES, STANDARDS } from '../lib/about'
 import BaseLayout from '../layouts/BaseLayout.astro'
+import { ARROWS } from '../lib/arrows'
+import InstallLine from '../components/InstallLine.astro'
+import ProjectLinks from '../components/ProjectLinks.astro'
 // The reset and base element styling this page's scoped CSS is written against.
 // It lives here rather than in BaseLayout because BaseLayout also builds the
 // shell templates, which must not carry it into a docs page — see the stylesheet.
@@ -90,21 +93,6 @@ if (featuredIndex === -1) {
  * the label next to each one carries the meaning, so every `<svg>` is
  * `aria-hidden` and nothing here is announced twice.
  */
-/**
- * The arrow after a link's label: `across` for a page on this site, `out` for
- * one that opens elsewhere.
- *
- * Drawn rather than typed. The `→` and `↗` characters came from the text font
- * at 0.85em, so they rendered at two different widths, sat a size below the
- * label and shrank or grew with whichever font the glyph fell back to. Stroked
- * paths on one 16-unit grid, sized in `em`, keep both the same weight as each
- * other and as the label beside them.
- */
-const ARROWS = {
-  across: '<path d="M3 8h10M9 4l4 4-4 4" />',
-  out: '<path d="M4.5 11.5l7-7M5.5 4.5h6v6" />',
-} as const
-
 const STANDARD_ICONS: Record<string, string> = {
   // A target: one thing, aimed at deliberately.
   'one-pain-point': '<circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3.2" />',
@@ -260,12 +248,7 @@ const STANDARD_ICONS: Record<string, string> = {
               {/* The install line is the shortest possible next step, and the
                   snippet is the claim the whole site makes — that these APIs
                   are small — shown instead of asserted. */}
-              <div class="install">
-                <span class="prompt" aria-hidden="true">
-                  $
-                </span>
-                <code>npm i {p.install}</code>
-              </div>
+              <InstallLine class="panel-install" pkg={p.install} />
 
               {/* Self-closing with `set:text` rather than `<pre><code>{…}</code></pre>`.
                   Whitespace inside `<pre>` renders, and the formatter breaks a
@@ -295,28 +278,7 @@ const STANDARD_ICONS: Record<string, string> = {
                 ))}
               </ul>
 
-              <nav class="links" aria-label={`${p.label} links`}>
-                {p.links.map((l) => (
-                  <a
-                    href={l.href}
-                    {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  >
-                    {l.label}
-                    <svg
-                      class="arrow"
-                      data-dir={l.external ? 'out' : 'across'}
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.6"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                      set:html={ARROWS[l.external ? 'out' : 'across']}
-                    />
-                  </a>
-                ))}
-              </nav>
+              <ProjectLinks links={p.links} label={`${p.label} links`} />
             </article>
           ))}
         </div>
@@ -1111,31 +1073,10 @@ const STANDARD_ICONS: Record<string, string> = {
       margin-bottom: 1.25rem;
     }
 
-    /* The install line reads as a terminal without pretending to be one: a
-       dimmed prompt, the command in the mono face, and a rule rather than a
-       filled block so it does not outweigh the blurb above it. */
-    .install {
-      display: flex;
-      align-items: baseline;
-      gap: 0.5rem;
-      font-family: var(--rx-font-mono);
-      font-size: 0.82rem;
-      border: 1px solid var(--rx-rule-strong);
-      border-radius: var(--rx-radius-sm);
-      background: var(--rx-bg);
-      padding: 0.55rem 0.75rem;
+    /* The install line's own styles live in InstallLine.astro; the panel only
+       spaces it. */
+    .panel :global(.panel-install) {
       margin-bottom: 0.9rem;
-      /* Long scoped package names must not widen the card on a phone. */
-      overflow-x: auto;
-    }
-
-    .install .prompt {
-      color: var(--rx-faint);
-      user-select: none;
-    }
-
-    .install code {
-      white-space: nowrap;
     }
 
     .snippet {

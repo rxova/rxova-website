@@ -1,0 +1,86 @@
+---
+/**
+ * A project's row of arrow links — Docs, Storybook, Demo, GitHub, npm.
+ *
+ * The list itself is built and gated in ../lib/projects.ts, so every page that
+ * renders one shows the same links in the same order and none of them can
+ * advertise a mount that is switched off. This only draws the row: in-page
+ * links lead across, external ones lean out and open a new tab.
+ */
+import type { LandingLink } from '../lib/projects'
+import Arrow from './Arrow.astro'
+
+interface Props {
+  links: readonly LandingLink[]
+  /** The nav's accessible name, e.g. "journey links". */
+  label: string
+}
+
+const { links, label } = Astro.props
+---
+
+<nav class="links" aria-label={label}>
+  {links.map((l) => (
+    <a href={l.href} {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+      {l.label}
+      <Arrow dir={l.external ? 'out' : 'across'} />
+    </a>
+  ))}
+</nav>
+
+<style>
+  .links {
+    display: flex;
+    gap: 1.4rem;
+    flex-wrap: wrap;
+  }
+
+  /* The underline sweeps in from the left rather than switching on — the same
+     micro-interaction the landing uses on every plain link row. */
+  .links a {
+    text-decoration: none;
+    font-weight: 550;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding-bottom: 2px;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .links a:hover {
+    background-size: 100% 1px;
+  }
+
+  .links :global(.arrow) {
+    flex: none;
+    opacity: 0.7;
+    transition: transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  /* Each arrow nudges the way it points. */
+  .links a:hover :global(.arrow) {
+    transform: translate(2px, 0);
+  }
+
+  .links a:hover :global(.arrow[data-dir='out']) {
+    transform: translate(2px, -2px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .links a,
+    .links :global(.arrow) {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .links {
+      gap: 1.1rem;
+    }
+  }
+</style>
