@@ -1,0 +1,136 @@
+---
+/**
+ * One project as a tile: name, tagline, tags, the install line, and the two
+ * places to go next — its overview page and its docs.
+ *
+ * Deliberately short. A tile is for choosing between projects, not for reading
+ * one: the blurb, the snippet and the package list are on the overview page it
+ * links to, so a row of these stays scannable in one look.
+ */
+import type { LandingProject } from '../lib/projects'
+import InstallLine from './InstallLine.astro'
+
+interface Props {
+  project: LandingProject
+}
+
+const { project: p } = Astro.props
+---
+
+<article class="tile" aria-labelledby={`tile-${p.id}`}>
+  <h3 class="tile-title" id={`tile-${p.id}`}>
+    <a href={p.overview}>{p.label}</a>
+  </h3>
+  <p class="tile-tagline">{p.tagline}</p>
+
+  <ul class="tile-tags" aria-label={`${p.label} tech`}>
+    {p.tags.map((t) => (
+      <li>{t}</li>
+    ))}
+  </ul>
+
+  <InstallLine pkg={p.install} />
+
+  <nav class="tile-links" aria-label={`${p.label} links`}>
+    <a href={p.overview}>
+      Overview
+      <span aria-hidden="true" class="arrow">
+        →
+      </span>
+    </a>
+    {p.docsMounted ? (
+      <a href={p.mount}>
+        Docs
+        <span aria-hidden="true" class="arrow">
+          →
+        </span>
+      </a>
+    ) : (
+      <span class="tile-soon">Docs coming soon</span>
+    )}
+  </nav>
+</article>
+
+<style>
+  .tile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border: 1px solid var(--rx-rule);
+    border-radius: var(--rx-radius);
+    background: var(--rx-card);
+    padding: 1.25rem;
+    min-width: 0;
+  }
+
+  .tile-title {
+    font-size: 1.15rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .tile-title a {
+    text-decoration: none;
+  }
+
+  .tile-title a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .tile-tagline {
+    color: var(--rx-muted);
+    font-size: 0.95rem;
+  }
+
+  .tile-tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .tile-tags li {
+    font-size: 0.7rem;
+    color: var(--rx-muted);
+    border: 1px solid var(--rx-rule-strong);
+    padding: 0.1rem 0.55rem;
+    border-radius: var(--rx-radius-pill);
+  }
+
+  /* Pinned to the bottom, so the links line up across a row of tiles whose
+     taglines wrap to different lengths. */
+  .tile-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.2rem;
+    margin-top: auto;
+    padding-top: 0.25rem;
+  }
+
+  .tile-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 550;
+    font-size: 0.92rem;
+    text-decoration: none;
+  }
+
+  .tile-links a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .arrow {
+    opacity: 0.7;
+    font-size: 0.85em;
+  }
+
+  .tile-soon {
+    font-size: 0.85rem;
+    color: var(--rx-faint);
+  }
+</style>
