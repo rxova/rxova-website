@@ -16,6 +16,9 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 
 import { SOURCES_FILE } from './registry.mjs'
+// Shared with the landing build, which checks the same imports against the
+// project's own packages — see site/src/lib/imports.ts.
+import { checkSnippetImports, snippetImports } from '../site/src/lib/imports.ts'
 
 const TIMEOUT = 45_000
 
@@ -39,22 +42,6 @@ async function status(url, method) {
   return last
 }
 
-/** `@scope/name/sub` -> `@scope/name`; `name/sub` -> `name`. */
-function packageName(specifier) {
-  const parts = specifier.split('/')
-  return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0]
-}
-
-/** Bare package specifiers a snippet imports from, skipping relative paths and node builtins. */
-function snippetImports(snippet) {
-  const specifiers = [...snippet.matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)].map((m) => m[1])
-  return [
-    ...new Set(
-      specifiers.filter((s) => !s.startsWith('.') && !s.startsWith('node:')).map(packageName),
-    ),
-  ]
-}
-
 // Raw, not through loadRegistry: its schema keeps only what the deploy needs and
 // drops `demo` and `snippet`, which the landing reads straight from the file.
 const withLanding = JSON.parse(readFileSync(SOURCES_FILE, 'utf8')).sources.filter(
@@ -72,6 +59,35 @@ describe('snippetImports', () => {
       "import e from 'use-everywhere/react'",
     ].join('\n')
     assert.deepEqual(snippetImports(snippet), ['@rxova/journey-core', 'use-everywhere'])
+  })
+})
+
+describe('checkSnippetImports', () => {
+  it('rejects a snippet importing a name the project does not publish', () => {
+    // The ts-extended-errors card as it shipped: brand listed the scoped name,
+    // the package is published unscoped, and the snippet imported the latter.
+    const snippet = "import { defineError } from 'ts-extended-errors'"
+    assert.deepEqual(checkSnippetImports(snippet, ['@rxova/ts-extended-errors']), [
+      'imports "ts-extended-errors", which is not one of its packages (@rxova/ts-extended-errors)',
+      'imports none of its own packages (@rxova/ts-extended-errors)',
+    ])
+  })
+
+  it('accepts a React peer import beside one of its own packages', () => {
+    const snippet = [
+      "import { useState } from 'react'",
+      "import { OtpInput } from '@rxova/react-inputs/otp'",
+    ].join('\n')
+    assert.deepEqual(checkSnippetImports(snippet, ['@rxova/react-inputs']), [])
+  })
+
+  it('rejects a snippet that imports only peers', () => {
+    const snippet = "import { useState } from 'react'"
+    assert.equal(checkSnippetImports(snippet, ['use-everywhere']).length, 1)
+  })
+
+  it('ignores a snippet with no imports', () => {
+    assert.deepEqual(checkSnippetImports('npx overlock check', ['overlock']), [])
   })
 })
 
