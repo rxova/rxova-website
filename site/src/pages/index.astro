@@ -819,6 +819,15 @@ const STANDARD_ICONS: Record<string, string> = {
       grid-template-columns: auto minmax(0, 1fr);
       column-gap: 0.55rem;
       row-gap: 0.3rem;
+      /* Rows keep their content height; slack collects at the bottom.
+ 
+         Each item is stretched to the tallest one in the row, and both of these
+         rows are `auto`, so without this the spare height was shared equally
+         between them. An item whose detail ran to two lines where its
+         neighbours ran to three took half the difference into its *label* row —
+         which dropped the vertically centred icon by 5px and its detail text by
+         11px, so one column in every row sat visibly lower than the rest. */
+      align-content: start;
     }
 
     /* Sized to the label beside it and set in the faint ink, so the row reads
