@@ -76,6 +76,10 @@ jobs:
       # the package's TypeScript source — see site/src/lib/projects.ts.
       - run: pnpm run check:registry
       - run: pnpm run build
+      # What the build produced, read like a crawler would: every project has
+      # an overview page, the home page links each one, and nothing links into
+      # a docs mount that is switched off. Fails if there is no build to read.
+      - run: pnpm run check:landing
 
   # The one check the org ruleset requires on main. A ruleset names checks one
   # by one, so this job stands in for the whole workflow: it waits for every
