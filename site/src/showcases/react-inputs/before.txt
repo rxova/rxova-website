@@ -1,0 +1,74 @@
+import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react'
+
+// amount.tsx: group the thousands as the customer types
+function format(raw: string) {
+  const [whole, fraction] = raw.replace(/[^\d.]/g, '').split('.')
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return fraction === undefined ? grouped : `${grouped}.${fraction.slice(0, 2)}`
+}
+
+function AmountField({ onAmount }: { onAmount: (amount: number) => void }) {
+  const [text, setText] = useState('')
+
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const next = format(e.target.value) // '1250,50' in Berlin becomes '125,050'
+    setText(next) // a new string, so the caret jumps to the end
+    onAmount(Number(next.replace(/,/g, ''))) // and an empty field is 0
+  }
+
+  return (
+    <span>
+      € <input id="amount" inputMode="decimal" value={text} onChange={onChange} />
+    </span>
+  )
+}
+
+// code.tsx: one box per digit, focus moved by hand
+function CodeField({ onCode }: { onCode: (code: string) => void }) {
+  const [digits, setDigits] = useState(['', '', '', '', '', ''])
+  const boxes = useRef<(HTMLInputElement | null)[]>([])
+
+  const onDigit = (i: number, e: ChangeEvent<HTMLInputElement>) => {
+    const digit = e.target.value.replace(/\D/g, '').slice(-1)
+    const next = digits.map((old, j) => (j === i ? digit : old))
+    setDigits(next)
+    if (digit && i < 5) boxes.current[i + 1]?.focus()
+    if (next.every(Boolean)) onCode(next.join(''))
+  }
+
+  const onKeyDown = (i: number, e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !digits[i] && i > 0) boxes.current[i - 1]?.focus()
+  }
+
+  return (
+    <div>
+      {digits.map((digit, i) => (
+        <input
+          key={i}
+          ref={(el) => {
+            boxes.current[i] = el
+          }}
+          value={digit}
+          maxLength={1}
+          inputMode="numeric"
+          onChange={(e) => onDigit(i, e)}
+          onKeyDown={(e) => onKeyDown(i, e)}
+        />
+      ))}
+    </div>
+  )
+}
+
+// transfer.tsx: the form itself
+export function Transfer({ send }: { send: (amount: number, code: string) => void }) {
+  const [amount, setAmount] = useState(0)
+
+  return (
+    <form>
+      <label htmlFor="amount">Amount</label>
+      <AmountField onAmount={setAmount} />
+      <p>Enter the code we sent you by SMS</p>
+      <CodeField onCode={(code) => send(amount, code)} />
+    </form>
+  )
+}

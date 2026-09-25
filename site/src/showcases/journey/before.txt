@@ -1,0 +1,60 @@
+type Step = 'cart' | 'address' | 'payment' | 'review'
+type Checkout = { hasPhysicalItems: boolean; address: string | null }
+
+// checkout.ts: the flow, as a small store the page subscribes to
+export function createCheckout(validateAddress: (address: string | null) => Promise<boolean>) {
+  let state = {
+    step: 'cart' as Step,
+    checkout: { hasPhysicalItems: true, address: null } as Checkout,
+    loading: false,
+    error: null as unknown,
+  }
+  const listeners = new Set<() => void>()
+  const set = (patch: Partial<typeof state>) => {
+    state = { ...state, ...patch }
+    listeners.forEach((listener) => listener())
+  }
+
+  async function next() {
+    if (state.step === 'cart') {
+      set({ step: state.checkout.hasPhysicalItems ? 'address' : 'payment' })
+    } else if (state.step === 'address') {
+      set({ loading: true, error: null })
+      try {
+        const ok = await validateAddress(state.checkout.address)
+        // The user may have pressed Back meanwhile: this moves them to payment anyway
+        if (ok) set({ step: 'payment' })
+      } catch (error) {
+        set({ error })
+      } finally {
+        // No timeout: if the request hangs, loading stays true
+        set({ loading: false })
+      }
+    } else if (state.step === 'payment') {
+      set({ step: 'review' })
+    }
+  }
+
+  // The route again, backwards, kept in step with next() by hand
+  function back() {
+    if (state.step === 'review') set({ step: 'payment' })
+    else if (state.step === 'payment') set({ step: state.checkout.hasPhysicalItems ? 'address' : 'cart' })
+    else if (state.step === 'address') set({ step: 'cart' })
+  }
+
+  // "Edit address" on the review step. Back from there goes to cart, not to review.
+  function editAddress() {
+    if (state.step === 'review') set({ step: 'address' })
+  }
+
+  return {
+    getState: () => state,
+    subscribe: (listener: () => void) => {
+      listeners.add(listener)
+      return () => listeners.delete(listener)
+    },
+    next,
+    back,
+    editAddress,
+  }
+}

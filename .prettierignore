@@ -9,3 +9,7 @@ coverage/
 pnpm-lock.yaml
 **/assets/
 **/CHANGELOG.md
+# The walkthroughs' code is displayed exactly as written: its line breaks are
+# what each note's fragments point at, so a reflow would move the markers.
+site/src/showcases/*/after.*
+site/src/showcases/*/before.*

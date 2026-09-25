@@ -154,3 +154,5 @@ fetchTimeout: 15000
 fetchRetries: 1
 fetchRetryMintimeout: 5000
 fetchRetryMaxtimeout: 10000
+minimumReleaseAgeExclude:
+  - ts-extended-errors@1.0.0

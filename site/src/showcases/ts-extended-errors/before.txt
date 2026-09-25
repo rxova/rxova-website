@@ -1,0 +1,66 @@
+// errors.ts: shared by the worker and the API
+class CardDeclinedError extends Error {
+  reason: 'expired' | 'insufficient_funds'
+  last4: string
+  constructor(reason: 'expired' | 'insufficient_funds', last4: string) {
+    super(`card ending ${last4} declined: ${reason}`)
+    this.name = 'CardDeclinedError'
+    this.reason = reason
+    this.last4 = last4
+    Object.setPrototypeOf(this, CardDeclinedError.prototype)
+  }
+}
+class RateLimitError extends Error {
+  limit: number
+  retryAfterMs: number
+  constructor(limit: number, retryAfterMs: number) {
+    super(`rate limit of ${limit} hit, retry in ${retryAfterMs} ms`)
+    this.name = 'RateLimitError'
+    this.limit = limit
+    this.retryAfterMs = retryAfterMs
+    Object.setPrototypeOf(this, RateLimitError.prototype)
+  }
+}
+
+// wire.ts: a payload, a guard and a rebuild for every class, kept in step by hand
+type CardDeclinedPayload = { name: 'CardDeclinedError'; reason: 'expired' | 'insufficient_funds'; last4: string }
+type RateLimitPayload = { name: 'RateLimitError'; limit: number; retryAfterMs: number }
+
+function toPayload(e: unknown): CardDeclinedPayload | RateLimitPayload | { name: 'Error' } {
+  if (e instanceof CardDeclinedError) return { name: 'CardDeclinedError', reason: e.reason, last4: e.last4 }
+  if (e instanceof RateLimitError) return { name: 'RateLimitError', limit: e.limit, retryAfterMs: e.retryAfterMs }
+  return { name: 'Error' }
+}
+
+const isCardDeclined = (p: any): p is CardDeclinedPayload =>
+  p?.name === 'CardDeclinedError' && typeof p.reason === 'string' && typeof p.last4 === 'string'
+const isRateLimit = (p: any): p is RateLimitPayload =>
+  p?.name === 'RateLimitError' && typeof p.limit === 'number' && typeof p.retryAfterMs === 'number'
+
+function fromPayload(p: unknown): Error {
+  if (isCardDeclined(p)) return new CardDeclinedError(p.reason, p.last4)
+  if (isRateLimit(p)) return new RateLimitError(p.limit, p.retryAfterMs)
+  return new Error('unknown failure')
+}
+
+// worker.ts: charges the card, and reports a failure as JSON
+async function runCheckout(orderId: string, charge: () => Promise<void>) {
+  try {
+    await charge()
+    return { ok: true }
+  } catch (e) {
+    // error: { name: 'RateLimitError', limit: 100, retryAfterMs: 1200 }
+    // No orderId: wrapping e to carry it would hide e from toPayload's instanceof checks
+    return { ok: false, error: toPayload(e) }
+  }
+}
+
+// api.ts: receives that JSON, and decides what the customer sees
+function respond(payload: unknown) {
+  const error = fromPayload(payload)
+  if (error instanceof RateLimitError) {
+    return { status: 429, limit: error.limit, retryAfterMs: error.retryAfterMs }
+  }
+  if (error instanceof CardDeclinedError) return { status: 402, reason: error.reason }
+  return { status: 500 }
+}
