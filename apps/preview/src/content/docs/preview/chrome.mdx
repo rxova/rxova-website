@@ -1,0 +1,24 @@
+---
+title: Shared chrome
+description: The three Starlight overrides, rendered in place rather than described.
+---
+
+The chrome this package ships is not on this page — it is _around_ it, which is the
+only way to check it:
+
+- **`SiteTitle`** (top left): the rxova mark linking to the umbrella origin, plus the
+  project wordmark linking to this site's root. It reads `Astro.locals.starlightRoute`,
+  so it only renders inside a Starlight route — which is why this preview is a Starlight
+  site rather than a plain Astro one.
+- **`SocialIcons`** (top right): Starlight's defaults, then the cross-project switcher.
+  Open it and confirm every project resolves against `RXOVA_ORIGIN`.
+- **`Footer`** (below): Starlight's pagination, edit link and last updated, then the
+  shared four-column site footer.
+
+The footer's `SiteFooter` and the switcher's `ProjectSwitcher` take plain props, so
+they are also rendered on the [plain Astro page](/plain/) without any Starlight context.
+
+## Pagination
+
+This page sits between two others in the sidebar so the previous/next links below have
+something to point at — they are themselves part of what `starlight.css` restyles.

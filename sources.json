@@ -75,7 +75,7 @@
       "id": "blog",
       "kind": "site",
       "enabled": true,
-      "repo": "rxova/brand"
+      "repo": "rxova/rxova-website"
     },
     {
       "id": "storybook-react-inputs",
@@ -87,7 +87,7 @@
       "id": "updates",
       "kind": "site",
       "enabled": true,
-      "repo": "rxova/brand"
+      "repo": "rxova/rxova-website"
     }
   ]
 }

@@ -11,13 +11,16 @@ footer, theme bootstrap and analytics.
 ## They are sources, like everything else
 
 ```
-rxova/brand                          rxova/rxova-website
-  content/posts    ─┐                  ingest.yml     (validate + persist)
-  content/updates   ├─ astro build ─→  content-blog   (release)
-  content/authors   │   upload dist    content-updates
-  packages/         ┘   dispatch       fetch-docs.mjs (pull at deploy)
-    content-schema                     assemble.mjs   (compose into website shell)
+packages/blog/posts       ─┐                     ingest.yml     (validate + persist)
+packages/updates/updates   ├─ astro build ─────→ content-blog   (release)
+packages/*/authors         │   upload dist       content-updates
+packages/website-schemas  ─┘   dispatch          fetch-docs.mjs (pull at deploy)
+                                                 assemble.mjs   (compose into website shell)
 ```
+
+The blog and updates used to be built in a separate `rxova/brand` repository. They now
+live here, but they still go through the same path as any project's docs: built by their
+own workflow, sent to `ingest.yml`, persisted and assembled.
 
 Nothing above is new except the two entries in `sources.json`. `ingest.yml`,
 `fetch-docs.mjs` and `assemble.mjs` are the same code paths that carry
@@ -47,13 +50,13 @@ name — stays uniform, so ingest and fetch never branch on kind.
 
 ## What lives where
 
-| Repo                  | Owns                                                                                           |
-| --------------------- | ---------------------------------------------------------------------------------------------- |
-| `rxova/brand`         | prose, frontmatter schemas, producer renderers, design tokens, Header and SiteFooter           |
-| package repositories  | documentation content and Starlight's internal search/sidebar/page navigation                  |
-| `rxova/rxova-website` | the public document shell, global chrome, aggregate analytics and deploy-time HTML composition |
+| Where                                        | Owns                                                                                           |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `packages/` in this repo                     | prose, frontmatter schemas, producer renderers, design tokens, Header and SiteFooter           |
+| package repositories                         | documentation content and Starlight's internal search/sidebar/page navigation                  |
+| `site/`, `scripts/` and workflows, this repo | the public document shell, global chrome, aggregate analytics and deploy-time HTML composition |
 
-The renderer still sits with the content: brand and package repositories build
+The renderer still sits with the content: the blog, updates and package repositories build
 their own HTML and assets. The boundary is the body-level PageComponent, not a
 complete public site. This keeps producer toolchains independent while ensuring a
 single website-owned shell is present on every deployed route.

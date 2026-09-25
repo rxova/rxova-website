@@ -1,0 +1,26 @@
+---
+title: Tokens
+description: Every colour token as a live swatch, in whichever theme you are viewing.
+---
+
+import TokenTable from '../../../components/TokenTable.astro'
+
+Swatches read their colour from the custom property itself, so this page shows what
+`tokens.css` currently defines rather than a copy of it. Flip the theme toggle: every
+neutral inverts, the accents do not.
+
+<TokenTable />
+
+## Fonts
+
+The two families, at the weights the package actually bundles.
+
+<p style={{ fontFamily: 'var(--rx-font-sans)', fontWeight: 400 }}>Space Grotesk 400 — body copy</p>
+<p style={{ fontFamily: 'var(--rx-font-sans)', fontWeight: 500 }}>Space Grotesk 500 — UI</p>
+<p style={{ fontFamily: 'var(--rx-font-sans)', fontWeight: 600 }}>Space Grotesk 600 — headings</p>
+<p style={{ fontFamily: 'var(--rx-font-sans)', fontWeight: 700 }}>Space Grotesk 700 — display</p>
+<p style={{ fontFamily: 'var(--rx-font-mono)', fontWeight: 400 }}>IBM Plex Mono 400 — code</p>
+<p style={{ fontFamily: 'var(--rx-font-mono)', fontWeight: 500 }}>IBM Plex Mono 500 — emphasis</p>
+
+Clicking between pages should never change the shape of this text after it paints.
+That is `font-display: optional` doing its job; anything else is a regression.

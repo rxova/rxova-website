@@ -8,8 +8,9 @@ export default defineConfig(
   globalIgnores([
     '**/node_modules/',
     '**/dist/',
-    '_site/',
     '**/.astro/',
+    '**/.turbo/',
+    '_site/',
     'artifacts/',
     'build/',
     'coverage/',
@@ -26,8 +27,16 @@ export default defineConfig(
     languageOptions: { globals: { ...globals.browser } },
   },
   {
-    // Node ESM tooling (the site assembler).
-    files: ['scripts/**/*.mjs'],
+    // Node tooling: the aggregator and repo scripts at the root, and the ones one
+    // workspace level down (packages/brand/scripts). sites.ts reads process.env
+    // for the origin override, so package sources get Node globals too.
+    files: ['**/src/**/*.ts', '**/scripts/**/*.{ts,mjs}'],
+    languageOptions: { globals: globals.node },
+  },
+  {
+    // Astro config files run under Node, and read process.env for the base URL the
+    // aggregator will mount each surface at.
+    files: ['**/*.config.mjs'],
     languageOptions: { globals: globals.node },
   },
 )

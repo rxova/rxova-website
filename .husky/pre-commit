@@ -1,4 +1,19 @@
 #!/usr/bin/env sh
 set -e
 
+# eslint --fix + prettier --write over exactly the staged files.
 pnpm exec lint-staged
+
+# The whole-program checks lint-staged cannot do per-file: types are a property
+# of the program, not of a file. One Turbo invocation pays the startup once and
+# replays every package whose inputs are byte-identical, so in practice this
+# only re-checks what the commit actually touched — without asking git what
+# "changed", which is what keeps it correct mid-rebase, after a cherry-pick and
+# on a merge.
+#
+# `tsc` cannot parse .astro, so without check:astro the shared chrome — every
+# component this package exists to ship — would go unchecked until CI.
+#
+# `//#test` is a root task: the only tests here cover the repo's own tooling
+# under scripts/, which is not a package, so there is nothing to fan out.
+pnpm exec turbo run typecheck //#test check:astro

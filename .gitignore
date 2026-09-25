@@ -7,6 +7,7 @@ _site/
 .astro/
 artifacts/
 coverage/
+.turbo/
 
 # planning / private docs stash
 build/
@@ -18,7 +19,7 @@ build/
 .env.*
 !.env.example
 
-# synced from @rxova/brand at build time
+# synced from packages/brand at build time
 site/public/og/
 
 # local AI assistant state and per-developer instruction files

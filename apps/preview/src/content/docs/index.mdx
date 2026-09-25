@@ -1,0 +1,29 @@
+---
+title: rxova brand
+description: Every surface the theme styles, on one site, so a change can be looked at before it ships.
+template: splash
+hero:
+  tagline: Design tokens, Starlight theme and shared chrome — rendered through the same code path a real docs site uses.
+  actions:
+    - text: Typography and prose
+      link: /preview/prose/
+      icon: right-arrow
+    - text: Plain Astro surface
+      link: /plain/
+      icon: external
+      variant: minimal
+---
+
+import { CardGrid, Card } from '@astrojs/starlight/components'
+
+<CardGrid>
+  <Card title="Why this exists" icon="open-book">
+    Nothing else in this repo renders the theme. Every regression had to be found on a live site —
+    including the font flash, which is why `font-display: optional` landed in `fonts.css` only after
+    it shipped.
+  </Card>
+  <Card title="What it covers" icon="approve-check">
+    The shared Starlight config, all three component overrides, both entry-point stylesheets and the
+    token ladder in light and dark.
+  </Card>
+</CardGrid>

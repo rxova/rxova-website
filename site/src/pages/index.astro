@@ -153,8 +153,8 @@ const STANDARD_ICONS: Record<string, string> = {
          gets centre-cropped by Slack and Twitter into an unreadable smear. -->
     <meta property="og:image" content="https://rxova.org/og/rxova.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <!-- The blog is mounted here but built in the brand repo, so the landing is
-         the only place that can advertise its feed from the domain root. -->
+    <!-- The blog is mounted at /blog as its own surface, so the landing is the
+         only place that can advertise its feed from the domain root. -->
     <link rel="alternate" type="application/rss+xml" title="Rxova Blog" href={blogFeed} />
     <script type="application/ld+json" is:inline set:html={organizationJson}></script>
     <!-- Stamped before first paint, and the only thing gating the enhanced

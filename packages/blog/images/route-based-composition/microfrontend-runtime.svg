@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" role="img" aria-labelledby="title desc">
+  <title id="title">A common micro-frontend architecture</title>
+  <desc id="desc">Autonomous teams build and deploy separate frontends that a browser shell composes at runtime into one page.</desc>
+  <defs>
+    <linearGradient id="accent" x1="0" x2="1">
+      <stop offset="0" stop-color="#0a84ff"/>
+      <stop offset="0.5" stop-color="#6b3df0"/>
+      <stop offset="1" stop-color="#e6199b"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0 10 5 0 10z" fill="#6b3df0"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="650" rx="28" fill="#fbfaf7"/>
+  <rect x="1" y="1" width="1198" height="648" rx="27" fill="none" stroke="#d5d0c6" stroke-width="2"/>
+  <text x="64" y="72" fill="#14140f" font-family="system-ui, sans-serif" font-size="30" font-weight="700">A common micro-frontend shape</text>
+  <text x="64" y="108" fill="#605c54" font-family="system-ui, sans-serif" font-size="19">Independent teams deploy vertical slices; a shell composes them for the visitor.</text>
+
+  <g font-family="system-ui, sans-serif" text-anchor="middle">
+    <rect x="64" y="164" width="250" height="104" rx="16" fill="#fff" stroke="#0a84ff" stroke-width="3"/>
+    <text x="189" y="204" fill="#14140f" font-size="21" font-weight="700">Team A</text>
+    <text x="189" y="236" fill="#605c54" font-size="17">build + deploy A</text>
+
+    <rect x="64" y="320" width="250" height="104" rx="16" fill="#fff" stroke="#e6199b" stroke-width="3"/>
+    <text x="189" y="360" fill="#14140f" font-size="21" font-weight="700">Team B</text>
+    <text x="189" y="392" fill="#605c54" font-size="17">build + deploy B</text>
+
+    <path d="M332 216H450" stroke="#6b3df0" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M332 372H450" stroke="#6b3df0" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="474" y="164" width="236" height="104" rx="16" fill="#f0ede6" stroke="#d5d0c6" stroke-width="2"/>
+    <text x="592" y="204" fill="#14140f" font-size="20" font-weight="700">Frontend A</text>
+    <text x="592" y="236" fill="#605c54" font-size="17">production remote</text>
+
+    <rect x="474" y="320" width="236" height="104" rx="16" fill="#f0ede6" stroke="#d5d0c6" stroke-width="2"/>
+    <text x="592" y="360" fill="#14140f" font-size="20" font-weight="700">Frontend B</text>
+    <text x="592" y="392" fill="#605c54" font-size="17">production remote</text>
+
+    <path d="M728 216H814" stroke="#6b3df0" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M728 372H814" stroke="#6b3df0" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="838" y="142" width="298" height="350" rx="22" fill="#fff" stroke="url(#accent)" stroke-width="4"/>
+    <text x="987" y="184" fill="#14140f" font-size="22" font-weight="700">Browser shell</text>
+    <rect x="870" y="210" width="234" height="54" rx="10" fill="#f0ede6" stroke="#d5d0c6"/>
+    <text x="987" y="244" fill="#605c54" font-size="17">shared navigation</text>
+    <rect x="870" y="284" width="234" height="76" rx="10" fill="#eaf4ff" stroke="#0a84ff" stroke-width="2"/>
+    <text x="987" y="329" fill="#14140f" font-size="18" font-weight="650">Frontend A fragment</text>
+    <rect x="870" y="380" width="234" height="76" rx="10" fill="#fff0f8" stroke="#e6199b" stroke-width="2"/>
+    <text x="987" y="425" fill="#14140f" font-size="18" font-weight="650">Frontend B fragment</text>
+  </g>
+
+  <text x="64" y="548" fill="#605c54" font-family="system-ui, sans-serif" font-size="18">Typical goals: team autonomy · independent production deployment · explicit runtime contracts</text>
+  <rect x="64" y="584" width="1072" height="5" rx="2.5" fill="url(#accent)"/>
+</svg>

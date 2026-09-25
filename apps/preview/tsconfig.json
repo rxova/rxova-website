@@ -1,0 +1,11 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist", "node_modules"],
+  "compilerOptions": {
+    // @rxova/brand ships uncompiled TypeScript, so its relative imports carry a
+    // real .ts extension — a consumer typechecking it needs to allow that, the
+    // same way the package's own tsconfig does.
+    "allowImportingTsExtensions": true
+  }
+}

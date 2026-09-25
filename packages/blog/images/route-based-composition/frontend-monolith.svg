@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">Frontend monolith build diagram</title>
+  <desc id="desc">Routes, components, and content enter one application build, producing one artifact that owns the whole website.</desc>
+  <defs>
+    <linearGradient id="accent" x1="0" x2="1">
+      <stop offset="0" stop-color="#0a84ff"/>
+      <stop offset="0.5" stop-color="#6b3df0"/>
+      <stop offset="1" stop-color="#e6199b"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0 10 5 0 10z" fill="#6b3df0"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="560" rx="28" fill="#fbfaf7"/>
+  <rect x="1" y="1" width="1198" height="558" rx="27" fill="none" stroke="#d5d0c6" stroke-width="2"/>
+  <text x="64" y="72" fill="#14140f" font-family="system-ui, sans-serif" font-size="30" font-weight="700">Frontend monolith</text>
+  <text x="64" y="108" fill="#605c54" font-family="system-ui, sans-serif" font-size="19">One application owns the source, build, artifact, and route map.</text>
+
+  <g font-family="system-ui, sans-serif" text-anchor="middle">
+    <rect x="64" y="164" width="220" height="76" rx="14" fill="#fff" stroke="#d5d0c6" stroke-width="2"/>
+    <text x="174" y="210" fill="#14140f" font-size="21" font-weight="650">Routes</text>
+    <rect x="64" y="256" width="220" height="76" rx="14" fill="#fff" stroke="#d5d0c6" stroke-width="2"/>
+    <text x="174" y="302" fill="#14140f" font-size="21" font-weight="650">Components</text>
+    <rect x="64" y="348" width="220" height="76" rx="14" fill="#fff" stroke="#d5d0c6" stroke-width="2"/>
+    <text x="174" y="394" fill="#14140f" font-size="21" font-weight="650">Content</text>
+
+    <path d="M300 202H430M300 294H430M300 386H430" stroke="#6b3df0" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="452" y="190" width="286" height="210" rx="20" fill="#f0ede6" stroke="url(#accent)" stroke-width="4"/>
+    <text x="595" y="258" fill="#14140f" font-size="24" font-weight="700">One application build</text>
+    <text x="595" y="300" fill="#605c54" font-size="19">Next.js · Vite · Astro</text>
+    <text x="595" y="338" fill="#605c54" font-size="18">one dependency graph</text>
+
+    <path d="M756 295H866" stroke="#6b3df0" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="890" y="164" width="246" height="260" rx="20" fill="#fff" stroke="#d5d0c6" stroke-width="2"/>
+    <text x="1013" y="214" fill="#14140f" font-size="23" font-weight="700">One artifact</text>
+    <line x1="922" y1="238" x2="1104" y2="238" stroke="#e7e3db" stroke-width="2"/>
+    <text x="1013" y="282" fill="#605c54" font-size="19">/</text>
+    <text x="1013" y="322" fill="#605c54" font-size="19">/docs/</text>
+    <text x="1013" y="362" fill="#605c54" font-size="19">/blog/</text>
+    <text x="1013" y="402" fill="#605c54" font-size="19">/account/</text>
+  </g>
+
+  <rect x="64" y="490" width="1072" height="5" rx="2.5" fill="url(#accent)"/>
+</svg>

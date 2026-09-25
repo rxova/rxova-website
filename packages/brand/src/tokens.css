@@ -1,0 +1,138 @@
+/**
+ * rxova design tokens — the single source of truth for every rxova.org surface.
+ *
+ * Seeded from the original landing page (rxova-website/site/src/styles/global.css),
+ * which was the de-facto brand before this package existed.
+ *
+ * The palette is a warm monochrome: warm near-black ink on warm paper, with the
+ * logo's blue -> violet -> magenta gradient as the ONLY chroma in the system.
+ * Resist adding a second accent hue — the restraint is the identity.
+ *
+ * Every neutral flips between light and dark, so downstream mappings (see
+ * starlight.css) can reference a token once and get both modes for free.
+ */
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  /* Surfaces, ordered background -> foreground. */
+  --rx-bg: #ffffff;
+  --rx-card: #fbfaf7;
+  --rx-tag-bg: #f0ede6;
+  --rx-rule: #e7e3db;
+  --rx-rule-strong: #d5d0c6;
+
+  /* Text, ordered faintest -> strongest. */
+  --rx-faint: #8b867c;
+  --rx-muted: #605c54;
+  --rx-fg: #14140f;
+
+  /* Accent ramp: the gradient's violet mid-stop, for links and focus. */
+  --rx-primary: #6b3df0;
+  --rx-primary-dark: #5a2fd6;
+  --rx-primary-darker: #4a27b8;
+  --rx-primary-darkest: #3c1f96;
+  --rx-primary-light: #8159f3;
+  --rx-primary-lighter: #9375f5;
+  --rx-primary-lightest: #b7a3f9;
+
+  --rx-glow-tint: rgb(107 61 240 / 0.14);
+  --rx-shadow-soft: 0 20px 60px -30px rgb(107 61 240 / 0.35);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --rx-bg: #0b0a08;
+  --rx-card: #1e1b17;
+  --rx-tag-bg: #2b2721;
+  --rx-rule: #3b362d;
+  --rx-rule-strong: #565043;
+
+  --rx-faint: #9a9385;
+  --rx-muted: #bbb3a6;
+  --rx-fg: #f4f1ea;
+
+  /* Lightened so the accent keeps AA contrast on a dark surface. */
+  --rx-primary: #9375f5;
+  --rx-primary-dark: #8159f3;
+  --rx-primary-darker: #6b3df0;
+  --rx-primary-darkest: #5a2fd6;
+  --rx-primary-light: #b7a3f9;
+  --rx-primary-lighter: #cbbcfb;
+  --rx-primary-lightest: #e0d7fd;
+
+  --rx-glow-tint: rgb(244 241 234 / 0.06);
+  --rx-shadow-soft: 0 20px 60px -30px rgb(0 0 0 / 0.6);
+}
+
+/* --- On the size of the dark steps ---------------------------------------
+ *
+ * The dark surfaces used to sit 2.5 L* apart (bg #100f0d, card #17150f), which
+ * is a contrast ratio of 1.05 — a card edge nobody can see. Every panel, code
+ * block and quote floated on the page with only a 1px rule to define it, and
+ * that rule was itself only 1.18 against the card. The light theme gets away
+ * with a comparable step (1.7 L*) because a dark edge on a light ground reads
+ * strongly; near black the same step disappears, and ambient glare finishes it.
+ *
+ * So the dark ramp is deliberately spaced wider than its light counterpart
+ * rather than being a mirror of it: card sits 7.2 L* above bg, and the rule
+ * 12.9 above card. Judge changes here in L*, not in contrast ratio — ratio is
+ * compressed at the dark end and will happily report a 7 L* step as "1.1" and
+ * therefore fine.
+ *
+ * Text was never the problem and is unchanged in kind: fg 15.2, muted 8.3 and
+ * faint 5.6 against card.
+ */
+
+/* OS preference wins only when no explicit choice has been stored. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+
+    --rx-bg: #0b0a08;
+    --rx-card: #1e1b17;
+    --rx-tag-bg: #2b2721;
+    --rx-rule: #3b362d;
+    --rx-rule-strong: #565043;
+
+    --rx-faint: #9a9385;
+    --rx-muted: #bbb3a6;
+    --rx-fg: #f4f1ea;
+
+    --rx-primary: #9375f5;
+    --rx-primary-dark: #8159f3;
+    --rx-primary-darker: #6b3df0;
+    --rx-primary-darkest: #5a2fd6;
+    --rx-primary-light: #b7a3f9;
+    --rx-primary-lighter: #cbbcfb;
+    --rx-primary-lightest: #e0d7fd;
+
+    --rx-glow-tint: rgb(244 241 234 / 0.06);
+    --rx-shadow-soft: 0 20px 60px -30px rgb(0 0 0 / 0.6);
+  }
+}
+
+/* Mode-independent tokens. */
+:root {
+  /* The logo gradient. Use it for rules, hero accents and the switcher dot —
+     never for body text, where it cannot meet a contrast ratio. */
+  --rx-accent-a: #0a84ff;
+  --rx-accent-b: #6b3df0;
+  --rx-accent-c: #e6199b;
+  --rx-gradient: linear-gradient(90deg, var(--rx-accent-a), var(--rx-accent-b), var(--rx-accent-c));
+
+  --rx-font-sans:
+    'Space Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --rx-font-mono:
+    'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  --rx-radius: 12px;
+  --rx-radius-sm: 6px;
+  --rx-radius-pill: 999px;
+
+  /* Prose measure for the landing; wider bound for marketing sections. */
+  --rx-max: 44rem;
+  --rx-max-wide: 72rem;
+}

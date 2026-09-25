@@ -1,0 +1,197 @@
+---
+/**
+ * The fixed light/dark toggle in the top-right corner.
+ *
+ * Button, styles and behaviour in one place. It was inline on the landing page;
+ * /blog and /changelog want the same control, and a second copy of the icon
+ * swapping and the bfcache handling is exactly the duplication that let the
+ * pre-paint script drift (see ThemeScript.astro).
+ *
+ * Pairs with `<ThemeScript />` in `<head>`, which is what actually avoids the
+ * flash — this only handles clicks and keeps the icon honest.
+ *
+ * For the surfaces that are not Starlight — the umbrella landing, /blog, /updates.
+ * The docs sites get their toggle from Starlight, themed by ThemeSelect.astro.
+ *
+ * Pairs with ThemeScript.astro in <head>, which is what actually avoids the flash;
+ * this only handles clicks and keeps the icon honest.
+ */
+
+interface Props {
+  /**
+   * Pin the button to the top-right corner of the viewport.
+   *
+   * The default, because that is where it has always been and the landing lays
+   * out around it. `SiteShell` passes `false`: it puts the button in its own
+   * sticky header, and a fixed button over a fixed header is two things
+   * competing for the same corner — on a phone the floating one landed on top
+   * of the nav.
+   */
+  floating?: boolean
+}
+
+const { floating = true } = Astro.props
+---
+
+<button
+  id="theme-toggle"
+  class:list={['theme-toggle', { 'theme-toggle--floating': floating }]}
+  type="button"
+  aria-label="Toggle theme"
+>
+  <span class="icon" aria-hidden="true">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+    </svg>
+  </span>
+</button>
+
+<style>
+  /* Quiet by default: no border, no fill, the same muted ink as the nav links
+     beside it. A bordered card-coloured box was the heaviest thing in a header
+     that is otherwise three grey words — it read as a primary control on a page
+     where changing the theme is the least important thing you can do. */
+  .theme-toggle {
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease,
+      background-color 0.2s ease;
+  }
+
+  /* Floating, it has no header to belong to and sits over arbitrary page
+     content, so it keeps the border and the fill — without them there is
+     nothing to say it is a button. */
+  .theme-toggle--floating {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    /* Above SiteShell's sticky header (z-index 10). Nothing pairs the two
+       today, but the whole point of a fixed button is that it stays reachable,
+       and the header would otherwise paint straight over it. */
+    z-index: 20;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-color: var(--rule);
+    background: var(--card);
+    color: var(--fg);
+  }
+
+  .theme-toggle .icon {
+    display: grid;
+    place-items: center;
+  }
+
+  /* `:global` because the icon is swapped by innerHTML in the script below, and
+     what that writes carries none of Astro's scoping attributes. Scoped, these
+     rules applied only to the SVG the server rendered — the first `render()`
+     replaced it with one at Lucide's own 24px and stroke-width 2, which is why
+     the button looked so much heavier than the nav beside it. */
+  .theme-toggle :global(svg) {
+    width: 1.05rem;
+    height: 1.05rem;
+    display: block;
+    stroke-width: 1.6;
+  }
+
+  .theme-toggle:hover {
+    color: var(--fg);
+  }
+
+  .theme-toggle--floating:hover {
+    border-color: var(--faint);
+  }
+
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+</style>
+
+<script is:inline>
+  ;(function () {
+    const root = document.documentElement
+    const btn = document.getElementById('theme-toggle')
+    const glyph = btn.querySelector('.icon')
+    const media = window.matchMedia('(prefers-color-scheme: dark)')
+
+    // Lucide icons (ISC licensed).
+    const ICON_MOON =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>'
+    const ICON_SUN =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>'
+
+    function current() {
+      return root.getAttribute('data-theme') || (media.matches ? 'dark' : 'light')
+    }
+    function stored() {
+      try {
+        const t = localStorage.getItem('starlight-theme')
+        return t === 'light' || t === 'dark' ? t : null
+      } catch {
+        /* localStorage may be unavailable */
+        return null
+      }
+    }
+    // Re-read the saved choice and reflect it in the DOM. Same job as the
+    // pre-paint script in <head>, minus the write.
+    function sync() {
+      const t = stored()
+      if (t) root.setAttribute('data-theme', t)
+      else root.removeAttribute('data-theme')
+      render()
+    }
+    function render() {
+      const dark = current() === 'dark'
+      // Show the icon of the theme you'd switch TO.
+      glyph.innerHTML = dark ? ICON_SUN : ICON_MOON
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme')
+    }
+    function apply(t) {
+      root.setAttribute('data-theme', t)
+      try {
+        // Starlight's key — see the pre-paint script in <head>.
+        localStorage.setItem('starlight-theme', t)
+      } catch {
+        /* localStorage may be unavailable */
+      }
+      render()
+    }
+
+    btn.addEventListener('click', function () {
+      apply(current() === 'dark' ? 'light' : 'dark')
+    })
+    // Track the OS preference while the user hasn't overridden it.
+    media.addEventListener('change', function () {
+      if (!root.getAttribute('data-theme')) render()
+    })
+    // Going to a docs site and pressing Back restores this document from the
+    // bfcache: the DOM is reused as it was, so neither the pre-paint script nor
+    // this one runs again, and the page keeps the theme it had when you left —
+    // even though the docs site wrote a new one to `starlight-theme` in the
+    // meantime. `pageshow` is the only notification of that restore.
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) sync()
+    })
+    render()
+  })()
+</script>

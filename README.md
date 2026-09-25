@@ -1,7 +1,7 @@
 # rxova-website
 
-The landing page for [rxova.org](https://rxova.org) **and** the docs aggregator that
-publishes the whole site.
+The landing page for [rxova.org](https://rxova.org), the docs aggregator that publishes the
+whole site, and the design system, blog and updates stream every page is built from.
 
 `rxova.org` is one static site on **GitHub Pages** (its DNS lives in AWS Route 53, but
 serving is GitHub Pages). This repo is the only thing that publishes it. It builds the Astro
@@ -13,7 +13,9 @@ them here already built; this repo validates and publishes them. See
 [docs/INPUTS-CONTRACT.md](docs/INPUTS-CONTRACT.md).
 
 ```
-rxova.org/                         -> site/  (Astro landing, built here)
+rxova.org/                         -> site/                 (Astro landing, built here)
+rxova.org/blog/                    -> packages/blog         (built here, persisted as content-blog)
+rxova.org/updates/                 -> packages/updates      (built here, persisted as content-updates)
 rxova.org/packages/journey/        -> rxova/journey        docs (built there, persisted as content-journey)
 rxova.org/packages/react-inputs/   -> rxova/react-inputs   docs (built there, persisted as content-react-inputs)
 rxova.org/packages/use-everywhere/ -> rxova/use-everywhere docs (built there, persisted as content-use-everywhere)
@@ -26,6 +28,11 @@ Which projects are mounted is `sources.json` — see [Adding a project](#adding-
 | Path                           | What                                                    |
 | ------------------------------ | ------------------------------------------------------- |
 | `site/`                        | Astro landing page (builds to `site/dist`)              |
+| `packages/brand`               | `@rxova/brand` on npm: tokens, Starlight theme, chrome  |
+| `packages/website-schemas`     | `@rxova/website-schemas` on npm: the content contracts  |
+| `packages/blog`                | `/blog`, built here and ingested like a project's docs  |
+| `packages/updates`             | `/updates`, built the same way                          |
+| `apps/preview`                 | A Starlight site that renders `@rxova/brand` for review |
 | `scripts/registry.mjs`         | Reads/validates `sources.json`; derives every path      |
 | `scripts/ingest.mjs`           | Gate 2: validates a sender's dispatch and its dist      |
 | `scripts/fetch-docs.mjs`       | Deploy-time: pulls persisted docs from content releases |
@@ -34,9 +41,13 @@ Which projects are mounted is `sources.json` — see [Adding a project](#adding-
 | `scripts/redirects.mjs`        | Static stubs for URLs that used to exist                |
 | `scripts/html.mjs`             | parse5 helpers shared by the readers of built HTML      |
 | `scripts/*.test.mjs`           | Tests for all of the above — `pnpm test`                |
+| `scripts/verify.ts`            | The pre-push gate, the same list CI runs                |
+| `scripts/validate-content.ts`  | Pre-merge check of blog and updates frontmatter         |
+| `scripts/check-changeset.ts`   | Requires a changeset when a published package changes   |
 | `sources.json`                 | **The project registry** — one entry per project        |
 | `redirects.json`               | **Legacy URL map** — old path → where it lives now      |
 | `docs/INPUTS-CONTRACT.md`      | What a source repo must send (gate 1)                   |
+| `docs/CONTENT.md`              | How to write a blog post or an update                   |
 | `.github/workflows/ingest.yml` | validate → persist → deploy, on a docs dispatch         |
 | `.github/workflows/deploy.yml` | build landing → gather → assemble → Pages deploy        |
 | `build/`                       | Private planning docs (git-ignored)                     |
@@ -46,14 +57,32 @@ mounts, which release holds its docs — is answered by `sources.json` through
 `scripts/registry.mjs`. Neither `deploy.yml` nor `ingest.yml` holds per-project knowledge or
 changes when a project is added, enabled or disabled.
 
-## Develop the landing
+## Develop
 
 ```sh
 pnpm install
-pnpm dev            # http://localhost:4321
-pnpm build          # -> site/dist
-pnpm preview
+pnpm dev                          # the landing, http://localhost:4321
+pnpm --filter @rxova/blog dev     # or @rxova/updates
+pnpm brand:dev                    # the brand preview site
+pnpm og                           # re-render the social cards after a palette or tagline change
+pnpm run verify                   # the full gate, same list CI runs (also the pre-push hook)
 ```
+
+`verify` is defined once in [`scripts/verify.ts`](./scripts/verify.ts) so the local gate and CI
+cannot drift. Writing for the blog or updates: [docs/CONTENT.md](docs/CONTENT.md).
+
+## Releasing the packages
+
+`@rxova/brand` and `@rxova/website-schemas` publish to npm through Changesets, gated on CI
+having gone green for the exact commit:
+
+1. `pnpm exec changeset` on your branch. The `changeset present` check requires one when a
+   published package changes; label a pull request `skip-changeset` when it publishes nothing.
+2. Merge — the Release workflow opens or updates the version PR.
+3. Merge that, and the packages publish with provenance.
+
+The **Snapshot** workflow publishes a throwaway `0.x.y-next.N` to the `next` tag for trying an
+in-progress change in a real consumer repo.
 
 ## How a project's docs reach rxova.org
 
@@ -115,10 +144,12 @@ reached from it is discovered from then on, including projects added later.
 
 Two entries, no workflow changes.
 
-1. **In [`rxova/brand`](https://github.com/rxova/brand)** — add the project to `PROJECTS` in
-   `src/sites.ts` (the docs sites read it for their project switcher), run `pnpm og` to
-   generate its social card, publish, and bump `@rxova/brand` in `site/package.json` here.
-2. **In this repo** — add one entry to `sources.json`:
+Both in this repo, in the same pull request:
+
+1. Add the project to `PROJECTS` in `packages/brand/src/sites.ts` (the docs sites read it for
+   their project switcher), run `pnpm og` to generate its social card, and add a changeset so
+   the docs sites can pick up the new `@rxova/brand`.
+2. Add one entry to `sources.json`:
 
    ```jsonc
    {
@@ -198,4 +229,5 @@ three variables are no longer read and can be deleted.
 
 Each **source repo** needs a secret `AGGREGATOR_DISPATCH_TOKEN` (a fine-grained PAT with
 **Contents: write** on `rxova/rxova-website`) to fire the `docs` dispatch. See
-[docs/INPUTS-CONTRACT.md](docs/INPUTS-CONTRACT.md#tokens).
+[docs/INPUTS-CONTRACT.md](docs/INPUTS-CONTRACT.md#tokens). The blog and updates are sent from
+this repository, so they use the workflow's own token and need neither secret.

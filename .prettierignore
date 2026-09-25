@@ -1,8 +1,11 @@
 node_modules/
-dist/
+**/dist/
 _site/
-.astro/
+**/.astro/
+**/.turbo/
 artifacts/
 build/
-pnpm-lock.yaml
 coverage/
+pnpm-lock.yaml
+**/assets/
+**/CHANGELOG.md
