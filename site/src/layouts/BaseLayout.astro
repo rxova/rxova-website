@@ -20,11 +20,10 @@ interface Props {
   /**
    * Widen the whole shell to the marketing measure instead of the prose one.
    *
-   * It sets `--max`, not a width on `<main>`, because three things are centred
-   * on that token and must agree: @rxova/brand's `Header`, this layout's footer
-   * wrapper, and the page's own content. A page that widened only itself would
-   * sit under a 44rem header with its edges hanging past both, which is the
-   * exact mismatch the docs ribbon already had to be taught out of.
+   * It sets `--max`, the page's content measure. The header and footer do not
+   * follow it: they sit on the wide measure on every surface this layout owns,
+   * so moving between the landing and /blog, /updates or /about never moves
+   * the chrome. See the chrome block at the end of this file.
    *
    * Only the landing sets it. /about, /privacy and /terms are prose and stay on
    * the prose measure; the shell templates must never take it, since their body
@@ -111,7 +110,7 @@ const docsShell = template && project !== undefined
 
     <style>
       .rx-shell-footer {
-        max-width: var(--max);
+        max-width: var(--rx-chrome-max, var(--max));
         margin: 0 auto;
         padding: 0 1.5rem;
       }
@@ -198,11 +197,38 @@ const docsShell = template && project !== undefined
       }
     </style>
 
-    <!-- The wide measure, applied once at the document root so the header, the
-         page and the footer are centred on the same number. See the `wide` prop. -->
+    <!-- The wide measure for the page's own content. See the `wide` prop. -->
     <style is:global>
       html[data-rxova-wide] {
         --max: var(--rx-max-wide);
+      }
+    </style>
+
+    <!-- The chrome sits still while you move between the site's own surfaces.
+
+         Two things used to move it. The header and footer were centred on the
+         page's measure, so going from the landing (72rem) to /blog, /updates or
+         /about (44rem) slid the logo and the nav ~220px inward on a wide screen.
+         They now sit on the wide measure everywhere, and each page keeps its own
+         measure for its content under them.
+
+         And a page short enough not to scroll is a scrollbar-width wider than
+         one that does, so the whole centred layout shifted sideways on every
+         switch between them. `scrollbar-gutter: stable` reserves the track on
+         every page.
+
+         The width does not apply to a docs page: its header is already
+         full-bleed (see the ribbon above), and its footer stays where it was.
+         The gutter does, so leaving the docs for the landing does not jump. -->
+    <style is:global>
+      html[data-rxova-shell] {
+        scrollbar-gutter: stable;
+      }
+      html[data-rxova-shell]:not([data-rxova-docs-shell]) {
+        --rx-chrome-max: var(--rx-max-wide);
+      }
+      html[data-rxova-shell]:not([data-rxova-docs-shell]) .site__inner {
+        max-width: var(--rx-chrome-max);
       }
     </style>
 
