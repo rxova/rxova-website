@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Rxova route-based composition pipeline</title>
+  <desc id="desc">Independent repositories build static route trees, the website validates and persists them, and an assembler copies the enabled trees into one GitHub Pages deployment.</desc>
+  <defs>
+    <linearGradient id="accent" x1="0" x2="1">
+      <stop offset="0" stop-color="#0a84ff"/>
+      <stop offset="0.5" stop-color="#6b3df0"/>
+      <stop offset="1" stop-color="#e6199b"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0 10 5 0 10z" fill="#6b3df0"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="720" rx="28" fill="#fbfaf7"/>
+  <rect x="1" y="1" width="1198" height="718" rx="27" fill="none" stroke="#d5d0c6" stroke-width="2"/>
+  <text x="64" y="72" fill="#14140f" font-family="system-ui, sans-serif" font-size="30" font-weight="700">Rxova: compose static artifacts at the route boundary</text>
+  <text x="64" y="108" fill="#605c54" font-family="system-ui, sans-serif" font-size="19">Builds are independent. Admission and the final production deployment are shared.</text>
+
+  <g font-family="system-ui, sans-serif" text-anchor="middle">
+    <text x="177" y="156" fill="#8b867c" font-size="16" font-weight="700" letter-spacing="1">ROUTE OWNERS</text>
+    <rect x="64" y="180" width="226" height="70" rx="14" fill="#fff" stroke="#d5d0c6" stroke-width="2"/>
+    <text x="177" y="210" fill="#14140f" font-size="19" font-weight="700">Journey repo</text>
+    <text x="177" y="234" fill="#605c54" font-size="15">build docs-dist</text>
+    <rect x="64" y="270" width="226" height="70" rx="14" fill="#fff" stroke="#d5d0c6" stroke-width="2"/>
+    <text x="177" y="300" fill="#14140f" font-size="19" font-weight="700">Inputs repo</text>
+    <text x="177" y="324" fill="#605c54" font-size="15">build docs-dist</text>
+    <rect x="64" y="360" width="226" height="70" rx="14" fill="#fff" stroke="#d5d0c6" stroke-width="2"/>
+    <text x="177" y="390" fill="#14140f" font-size="19" font-weight="700">Brand repo</text>
+    <text x="177" y="414" fill="#605c54" font-size="15">build blog + updates</text>
+
+    <path d="M308 215H410M308 305H410M308 395H410" stroke="#6b3df0" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <text x="543" y="156" fill="#8b867c" font-size="16" font-weight="700" letter-spacing="1">RECEIVER</text>
+    <rect x="434" y="180" width="218" height="250" rx="20" fill="#f0ede6" stroke="url(#accent)" stroke-width="4"/>
+    <text x="543" y="226" fill="#14140f" font-size="21" font-weight="700">rxova-website</text>
+    <line x1="468" y1="248" x2="618" y2="248" stroke="#d5d0c6" stroke-width="2"/>
+    <text x="543" y="282" fill="#605c54" font-size="16">validate identity</text>
+    <text x="543" y="314" fill="#605c54" font-size="16">derive route</text>
+    <text x="543" y="346" fill="#605c54" font-size="16">check static tree</text>
+    <text x="543" y="378" fill="#605c54" font-size="16">accept or reject</text>
+
+    <path d="M670 305H756" stroke="#6b3df0" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <text x="876" y="156" fill="#8b867c" font-size="16" font-weight="700" letter-spacing="1">LAST GOOD</text>
+    <rect x="780" y="180" width="192" height="250" rx="20" fill="#fff" stroke="#d5d0c6" stroke-width="2"/>
+    <text x="876" y="220" fill="#14140f" font-size="20" font-weight="700">Artifact store</text>
+    <text x="876" y="266" fill="#605c54" font-size="15">content-journey</text>
+    <text x="876" y="300" fill="#605c54" font-size="15">content-inputs</text>
+    <text x="876" y="334" fill="#605c54" font-size="15">content-blog</text>
+    <text x="876" y="368" fill="#605c54" font-size="15">content-updates</text>
+
+    <path d="M876 448V500" stroke="#6b3df0" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="686" y="524" width="380" height="122" rx="20" fill="#fff" stroke="url(#accent)" stroke-width="4"/>
+    <text x="876" y="560" fill="#14140f" font-size="21" font-weight="700">One Pages deployment</text>
+    <text x="876" y="594" fill="#605c54" font-size="16">/ · /packages/* · /blog/ · /updates/</text>
+    <text x="876" y="622" fill="#605c54" font-size="15">assembler copies enabled route trees</text>
+
+    <rect x="64" y="512" width="500" height="146" rx="18" fill="#fff" stroke="#d5d0c6" stroke-width="2"/>
+    <text x="314" y="550" fill="#14140f" font-size="20" font-weight="700">Composition contract</text>
+    <text x="314" y="584" fill="#605c54" font-size="16">id + kind → base + mount + artifact</text>
+    <text x="314" y="616" fill="#605c54" font-size="16">the sender builds; the receiver decides</text>
+  </g>
+
+  <rect x="64" y="678" width="1072" height="5" rx="2.5" fill="url(#accent)"/>
+</svg>

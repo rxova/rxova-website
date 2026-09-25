@@ -58,14 +58,16 @@ jobs:
 
       # The sender's dist, fetched from its own workflow run. Cross-repo artifact
       # download needs a token with actions:read on the source repo; the dispatch
-      # itself is authenticated separately by the sender's dispatch token.
+      # itself is authenticated separately by the sender's dispatch token. The
+      # blog and updates are built in this repository, so for them the job's own
+      # token (actions: read above) is enough.
       - name: Download the sender's dist
         uses: actions/download-artifact@v8
         with:
           name: ${{ steps.validate.outputs.artifact_name }}
           repository: ${{ steps.validate.outputs.repo }}
           run-id: ${{ steps.validate.outputs.run_id }}
-          github-token: ${{ secrets.SOURCE_ARTIFACTS_TOKEN }}
+          github-token: ${{ steps.validate.outputs.repo == github.repository && github.token || secrets.SOURCE_ARTIFACTS_TOKEN }}
           path: incoming
 
       # Gate 2b. Only now, with the tree on disk, is it trusted.

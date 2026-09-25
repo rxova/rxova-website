@@ -1,0 +1,170 @@
+---
+/**
+ * The rxova.org header — the one every plain-Astro surface renders.
+ *
+ * There used to be two copies of this markup and its styles: one inside
+ * `SiteShell` (for /blog and /updates) and a hand-rolled twin in the website
+ * repo (for the landing at `/`). They drifted — the landing missed the sticky
+ * update the shell got — which is exactly the failure mode of a header that
+ * lives in more than one place. This is the single copy; `SiteShell` renders it,
+ * and the website imports it over npm and renders it too.
+ *
+ * It takes the menu as data rather than owning it. The two surfaces resolve their
+ * URLs differently — the shell links absolutely through `siteUrl` because /blog
+ * and /updates are mounted at their own base paths, while the landing sits at the
+ * root and links relatively — and the landing's menu is derived from what is
+ * actually deployed. So each caller passes a fully-resolved list; this owns how
+ * the header *looks and behaves*, which is the part that was drifting.
+ *
+ * Not for the docs sites at /packages/*: those are Starlight and take their
+ * chrome from `sharedStarlightConfig`, not from an Astro component.
+ */
+import ThemeToggle from './ThemeToggle.astro'
+
+export interface HeaderItem {
+  label: string
+  /** Fully resolved by the caller — absolute or root-relative as its base needs. */
+  href: string
+  /** Marks the item for the surface the reader is on. */
+  current?: boolean
+}
+
+interface Props {
+  /** Where the brand mark links — the site root, resolved by the caller. */
+  homeHref: string
+  /** Logo `src`, resolved by the caller for its base. */
+  logoSrc: string
+  /** The menu, in the one fixed order every surface shows it. */
+  items: readonly HeaderItem[]
+}
+
+const { homeHref, logoSrc, items } = Astro.props
+---
+
+{/* Outside <main> in every shell so it can span the viewport while its contents
+    stay on the page's measure. Sticky rather than fixed: it still takes part in
+    layout, so nothing below needs a compensating top margin. */}
+<header class="site">
+  <div class="site__inner">
+    <a class="brand" href={homeHref}>
+      <img src={logoSrc} alt="" width="28" height="28" />
+      <span>Rxova</span>
+    </a>
+    <nav aria-label="Sections">
+      {items.map((item) => (
+        <a href={item.href} aria-current={item.current ? 'page' : undefined}>
+          {item.label}
+        </a>
+      ))}
+    </nav>
+    {/* In the header, not floating over it — see ThemeToggle's `floating`. */}
+    <ThemeToggle floating={false} />
+  </div>
+</header>
+
+<style>
+  /* Sticky, translucent, full-bleed. It was a plain in-flow row with the theme
+     button floating over its right end, which on a phone put the button on top
+     of the nav links and left the header behind as soon as you scrolled — a long
+     post gave you no way back without scrolling to the top. */
+  .site {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--rule);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+  }
+
+  /* The blur is what keeps text legible as it passes under the bar. Where it is
+     unsupported the background falls back to nearly opaque, which is why the mix
+     above is 88% and not 60%. */
+  @supports (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px)) {
+    .site {
+      background: color-mix(in srgb, var(--bg) 72%, transparent);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+  }
+
+  .site__inner {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    /* No wrapping: a two-line header would eat a phone's viewport, and the row
+       is sized to fit at the narrowest widths we support. */
+    min-height: 3.5rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--fg);
+    text-decoration: none;
+    font-weight: 640;
+    letter-spacing: -0.01em;
+  }
+  .brand img {
+    display: block;
+    border-radius: 6px;
+  }
+
+  /* The nav takes the space between the brand and the toggle, and pushes itself
+     to the right of it. */
+  nav {
+    margin-left: auto;
+    display: flex;
+    gap: 1.4rem;
+  }
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  nav a:hover {
+    color: var(--fg);
+  }
+  /* The current section is marked for everyone, not only for assistive tech —
+     aria-current on its own is invisible. */
+  nav a[aria-current='page'] {
+    color: var(--fg);
+    text-decoration: underline;
+    text-underline-offset: 5px;
+  }
+  nav a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Brand mark, the links and the toggle stay on one row at the narrowest phones
+     by dropping the wordmark — the logo carries the identity in the space left. */
+  @media (max-width: 34rem) {
+    .site__inner {
+      gap: 0.75rem;
+      padding-inline: 1rem;
+      min-height: 3.25rem;
+    }
+    nav {
+      gap: 0.9rem;
+    }
+    nav a {
+      font-size: 0.875rem;
+    }
+    .brand span {
+      display: none;
+    }
+  }
+</style>
+
+<!-- Global because `html` sits outside Astro's scoping. Without it a jump to an
+     in-page anchor would land under the sticky header. -->
+<style is:global>
+  html {
+    scroll-padding-top: 4.5rem;
+  }
+</style>

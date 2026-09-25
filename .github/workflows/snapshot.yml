@@ -1,0 +1,53 @@
+name: Snapshot
+
+# Publishes a throwaway prerelease to the `next` dist-tag so a consumer repo can
+# try an in-progress design change end to end:
+#
+#   consumer$ pnpm add @rxova/brand@next
+#
+# This exists because the brand package lives in its own repo, so there is no
+# `workspace:*` shortcut for iterating against a real consumer. Snapshots are
+# immutable, never referenced by `latest`, and carry no changelog — the point is
+# that CI resolves exactly what you resolved locally.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'dist-tag to publish under'
+        required: false
+        default: 'next'
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HUSKY: '0'
+    permissions:
+      contents: read
+      id-token: write # trusted publishing
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-pnpm
+        with:
+          registry-url: 'https://registry.npmjs.org'
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@^11.5.1
+      - run: pnpm install --frozen-lockfile
+
+      # Verify before publishing: a snapshot goes to the real registry, and a
+      # broken one wastes a round-trip in whichever repo is waiting on it.
+      - run: pnpm run verify
+
+      - name: Version as a snapshot
+        run: pnpm exec changeset version --snapshot ${{ inputs.tag }}
+      - name: Publish
+        run: pnpm exec changeset publish --tag ${{ inputs.tag }} --no-git-tag
+        env:
+          NPM_CONFIG_PROVENANCE: 'true'

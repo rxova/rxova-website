@@ -3,28 +3,59 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "description": "rxova.org: the landing page, the docs aggregator, and the brand packages, blog and updates it is built from",
+  "license": "MIT",
+  "author": "Jonatan Kruszewski <jonakrusze@gmail.com>",
+  "homepage": "https://rxova.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rxova/rxova-website.git"
+  },
+  "bugs": "https://github.com/rxova/rxova-website/issues",
   "packageManager": "pnpm@12.5.1",
-  "description": "Landing page for rxova open-source projects + docs aggregator for rxova.org",
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "scripts": {
     "dev": "pnpm -C site dev",
-    "build": "pnpm -C site build",
+    "build": "turbo run build",
     "preview": "pnpm -C site preview",
-    "typecheck": "pnpm -C site check",
-    "test": "vitest run",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "assemble": "node scripts/assemble.mjs",
+    "typecheck": "turbo run typecheck",
+    "test": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage",
+    "check:astro": "turbo run check:astro",
+    "check:og": "turbo run check:og",
+    "og": "turbo run og --filter=@rxova/brand",
+    "check:exports": "turbo run check:exports",
     "check:registry": "node scripts/check-registry.mjs",
-    "prepare": "husky",
+    "pack:smoke": "turbo run pack:smoke --concurrency=1",
+    "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/.eslintcache",
+    "lint:fix": "eslint . --fix --cache --cache-location node_modules/.cache/eslint/.eslintcache",
+    "format": "prettier --write . --cache --cache-location node_modules/.cache/prettier/.prettiercache",
+    "format:check": "prettier --check . --cache --cache-location node_modules/.cache/prettier/.prettiercache",
+    "audit:check": "pnpm audit --audit-level=high --ignore-registry-errors",
+    "dedupe:check": "pnpm dedupe --check",
+    "assemble": "node scripts/assemble.mjs",
     "sync:og": "node scripts/sync-brand-og.mjs",
-    "test:coverage": "vitest run --coverage"
+    "brand:dev": "turbo run dev --filter=@rxova/preview",
+    "preview:build": "turbo run build --filter=@rxova/preview",
+    "validate:content": "node --import tsx ./scripts/validate-content.ts",
+    "verify": "node --import tsx ./scripts/verify.ts",
+    "release": "changeset publish",
+    "prepare": "husky && pnpm --filter @rxova/website-schemas run build"
+  },
+  "dependencies": {
+    "@rxova/website-schemas": "workspace:^",
+    "parse5": "^8.0.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^1.0.1",
+    "@changesets/cli": "^3.0.3",
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
     "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.1",
     "@vitest/coverage-v8": "^5.0.1",
     "eslint": "^10.10.0",
     "eslint-plugin-astro": "^3.2.0",
@@ -33,9 +64,12 @@
     "lint-staged": "^17.5.1",
     "prettier": "^3.9.7",
     "prettier-plugin-astro": "^1.0.0",
+    "tsx": "^4.23.13",
+    "turbo": "^2.10.13",
     "typescript": "6.0.3",
     "typescript-eslint": "^8.70.0",
-    "vitest": "^5.0.1"
+    "vitest": "^5.0.1",
+    "yaml": "^2.9.1"
   },
   "lint-staged": {
     "*.{ts,tsx,astro,mjs,js}": [
@@ -43,10 +77,5 @@
       "prettier --write"
     ],
     "*.{json,jsonc,css,md,mdx,yaml,yml}": "prettier --write"
-  },
-  "dependencies": {
-    "@rxova/website-schemas": "^0.6.1",
-    "parse5": "^8.0.1",
-    "zod": "^4.6.5"
   }
 }

@@ -1,20 +1,24 @@
 import { defineConfig } from 'vitest/config'
 
 /**
- * One runner for both halves of this repo.
+ * The root run covers `scripts/`, which is not a package: the aggregator's
+ * tooling (the registry, the ingest gate, the deploy-time fetch and the
+ * assembler) and the repo tooling (the release gate, the changeset check and the
+ * content validator).
  *
- * `scripts/` covers the aggregator's tooling — the registry, the ingest gate, the
- * deploy-time fetch and the assembler. `site/src/lib` covers the ordering and
- * formatting behind /blog and /updates.
- *
- * These used to run under `node --test`. They moved here because node:test has no
- * per-file coverage threshold, and a single global number lets one well-covered
- * file hide an untested one.
+ * Every package under `packages/` owns a vitest config and a `test` script,
+ * reached through `turbo run test`. Collecting them here as well would run them
+ * twice under a config that is not theirs.
  */
 export default defineConfig({
   test: {
-    include: ['scripts/**/*.test.mjs'],
+    include: ['scripts/**/*.test.{mjs,ts}'],
+    exclude: ['**/node_modules/**', 'packages/**', 'apps/**', 'site/**'],
+    // Node, not jsdom: most of what is under test shells out to git and pnpm.
     environment: 'node',
+    // The changeset tests spawn a real process against a temp git repo, which
+    // is comfortably slower than the 5s default on a cold runner.
+    testTimeout: 30_000,
 
     coverage: {
       provider: 'v8',
@@ -23,29 +27,25 @@ export default defineConfig({
       /**
        * Coverage is REPORTED, not enforced. Deliberate, and temporary.
        *
-       * The intended gate is 95% per file. `site/src/lib/entries.ts` already clears
-       * it, but the aggregator scripts do not, and switching the gate on now would
-       * make the pipeline's health depend on a hardening pass that has not happened:
+       * The intended gate is 95% per file, and switching it on now would make the
+       * pipeline's health depend on a hardening pass that has not happened:
        *
-       *   scripts/assemble.mjs       88% stmts · 69% branches
-       *   scripts/registry.mjs       93% branches — nearly there
-       *   scripts/ingest.mjs         65% stmts · 76% branches
-       *   scripts/fetch-docs.mjs     15% stmts — shells out to `gh`
-       *   scripts/check-registry.mjs  0% — a thin CLI over registry.mjs
-       *
-       * They have real tests; the gaps are error paths and the two scripts that
-       * shell out. Closing those means injecting the `gh` runner the way verify.ts
-       * injects its spawn over in brand — a refactor of the deploy pipeline, where a
-       * mistake stops publishing rather than breaking a blog post. Its own change.
+       *   scripts/assemble.mjs         88% stmts · 69% branches
+       *   scripts/registry.mjs         93% branches — nearly there
+       *   scripts/ingest.mjs           65% stmts · 76% branches
+       *   scripts/fetch-docs.mjs       15% stmts — shells out to `gh`
+       *   scripts/check-registry.mjs    0% — a thin CLI over registry.mjs
+       *   scripts/check-changeset.ts    0% — its tests spawn a real process, so
+       *                                   in-process v8 sees nothing
        *
        * Re-enabling is one edit: uncomment `thresholds` below, in the same change
        * that closes the gap, so the gate goes green on its first run.
        *
-       * .astro files stay out regardless — pages and layouts carry markup rather
-       * than branches, and `astro check` plus the build are what guard them.
+       * .astro and CSS stay out regardless: `astro check`, `publint`, the pack
+       * smoke test and the builds are what guard them.
        */
       all: true,
-      include: ['scripts/*.mjs'],
+      include: ['scripts/*.{mjs,ts}'],
       exclude: ['**/*.test.*'],
       // thresholds: {
       //   perFile: true,

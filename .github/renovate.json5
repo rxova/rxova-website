@@ -1,17 +1,20 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
 
-  // Renovate replaces Dependabot here, and with it the Dependabot config and
-  // the auto-merge workflow that armed its pull requests. Same bot as the
-  // other rxova repositories, so every repository updates the same way.
+  // Renovate replaced Dependabot here, and with it the Dependabot config, the
+  // auto-merge workflow that armed its pull requests and the dedupe workflow
+  // that had to push a fix before they could ever go green.
+  //
+  // The reason is `postUpdateOptions` below. Dependabot patches the lockfile
+  // with its own logic and never runs the package manager, so `dedupe:check`
+  // rejected nearly every pull request it opened. Renovate runs pnpm itself.
 
   extends: [
     'config:recommended',
 
     // One pull request for everything that is not a major, which is what the
-    // Dependabot `groups` blocks were doing. The GitHub Actions pinned in
-    // .github/workflows and .github/actions are covered by Renovate without a
-    // separate entry, and land in the same pull request.
+    // Dependabot `groups` blocks were doing. The Actions are split back out
+    // below.
     'group:allNonMajor',
     'schedule:weekly',
 
@@ -30,36 +33,54 @@
     // guard that lived in the auto-merge workflow.
     ':approveMajorUpdates',
 
-    // Refreshes the whole lockfile monthly. Transitive versions only move when
-    // something above them does, so without this a lockfile quietly keeps
-    // stale copies that the registry has long since patched.
+    // Peer ranges are a published contract, not a dependency to keep current.
+    ':disablePeerDependencies',
+
+    // Refreshes the whole lockfile monthly. This is the half Dependabot had no
+    // answer for: `pnpm dedupe --check` re-resolves against the live registry,
+    // so a lockfile goes stale on its own as upstream publishes patches, with
+    // no change here at all.
     ':maintainLockFilesMonthly',
   ],
 
-  // The label Dependabot applied by default. It already exists here.
-  labels: ['dependencies'],
+  // `skip-changeset` is what the changeset gate reads. A bump changes what the
+  // repository builds with, never what it publishes, so there is no changelog
+  // entry to write.
+  labels: ['dependencies', 'skip-changeset'],
 
   // Move the declared range rather than only the lockfile, so `package.json`
   // says what is actually installed.
   rangeStrategy: 'bump',
 
+  // The whole reason for the migration: run `pnpm dedupe` after updating, so
+  // what lands already satisfies the `Check dependency dedupe` step.
+  postUpdateOptions: ['pnpmDedupe'],
+
   packageRules: [
+    {
+      // The Actions pinned in .github/workflows and .github/actions get their
+      // own weekly pull request, as they did under Dependabot. A red Actions
+      // bump then never holds back the npm one, or the other way round.
+      matchManagers: ['github-actions'],
+      groupName: 'all actions',
+    },
     {
       // Patch and minor merge themselves once CI is green. `platformAutomerge`
       // hands that to GitHub's own auto-merge, so it waits for the required
       // `all checks` status exactly as the old workflow did — but without a
       // workflow, and without the token dance a bot-authored push needs.
-      matchUpdateTypes: ['minor', 'patch'],
+      matchUpdateTypes: ['minor', 'patch', 'pin', 'digest'],
       automerge: true,
       platformAutomerge: true,
     },
     {
-      // TypeScript 7 is held, not skipped: the native rewrite breaks
-      // typescript-eslint, which is the whole `lint` step. Written as a
-      // ceiling rather than an ignore so 6.x patches and minors still come
-      // through.
+      // TypeScript 7 is held, not skipped: typescript-eslint declares its peer
+      // as `>=4.8.4 <6.1.0` and errors on sight of TS 7, which is the whole
+      // `lint` step. Written as a ceiling rather than an ignore so 6.x patches
+      // and minors still come through.
       //
       // Lift it by deleting this rule once typescript-eslint accepts TS 7.
+      // Check by bumping typescript by hand and running `pnpm run verify`.
       matchPackageNames: ['typescript'],
       allowedVersions: '<7',
     },

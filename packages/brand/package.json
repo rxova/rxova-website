@@ -1,0 +1,78 @@
+{
+  "name": "@rxova/brand",
+  "version": "0.15.0",
+  "type": "module",
+  "description": "Design tokens, Starlight theme and shared site chrome for rxova.org",
+  "keywords": [
+    "rxova",
+    "design-tokens",
+    "astro",
+    "starlight",
+    "theme"
+  ],
+  "license": "MIT",
+  "author": "Jonatan Kruszewski <jonakrusze@gmail.com>",
+  "homepage": "https://rxova.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rxova/rxova-website.git",
+    "directory": "packages/brand"
+  },
+  "bugs": "https://github.com/rxova/rxova-website/issues",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "src",
+    "assets"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./src/tokens.css",
+    "./astro.css": "./src/astro.css",
+    "./chrome.css": "./src/chrome.css",
+    "./starlight.css": "./src/starlight.css",
+    "./fonts.css": "./src/fonts.css",
+    "./components/*": "./src/components/*",
+    "./assets/*": "./assets/*",
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "@astrojs/starlight": ">=0.36.0",
+    "astro": ">=5.6.0"
+  },
+  "peerDependenciesMeta": {
+    "@astrojs/starlight": {
+      "optional": true
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "check:astro": "astro check",
+    "pack:smoke": "node --import tsx scripts/pack-smoke.ts",
+    "check:exports": "publint --strict",
+    "og": "node --import tsx scripts/generate-og.ts",
+    "check:og": "node --import tsx scripts/generate-og.ts --check",
+    "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.2.5",
+    "@fontsource/space-grotesk": "^5.2.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/starlight": "^0.42.1",
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/node": "^26.6.1",
+    "@vitest/coverage-v8": "^5.0.1",
+    "astro": "^7.3.2",
+    "publint": "^0.3.24",
+    "satori": "^0.33.4",
+    "tsx": "^4.23.13",
+    "typescript": "6.0.3",
+    "vitest": "^5.0.1"
+  }
+}

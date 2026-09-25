@@ -65,7 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       # The same pinned pnpm as the build job, not a bare setup-node: the scripts
-      # below import @rxova/website-schemas — the contract shared with rxova/brand —
+      # below import @rxova/website-schemas — the contract shared with the senders —
       # so this job needs the workspace installed. It used to get away with plain
       # node because registry.mjs had no dependencies at all.
       - uses: ./.github/actions/setup-pnpm

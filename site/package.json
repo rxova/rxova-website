@@ -9,12 +9,12 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check:astro": "astro check"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.5",
     "@fontsource/space-grotesk": "^5.2.5",
-    "@rxova/brand": "^0.15.0",
+    "@rxova/brand": "workspace:^",
     "astro": "^7.3.3"
   },
   "devDependencies": {

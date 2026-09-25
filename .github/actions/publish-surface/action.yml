@@ -1,0 +1,97 @@
+name: Publish a site surface
+description: Build one surface for its mount, upload its dist, and tell rxova.org it is there.
+
+# The body of a surface's publish, factored out so the per-surface workflows
+# hold nothing but their trigger.
+#
+# It is an action rather than a reusable workflow on purpose, and rather than a
+# matrix. All three would remove the duplication; only this one gives each
+# surface its own *workflow run*, which is what the aggregator's contract
+# actually requires. See the note in publish-blog.yml.
+#
+# Same contract as a project's docs — see docs/INPUTS-CONTRACT.md.
+
+inputs:
+  surface:
+    description: The surface to build — its package directory, its mount, and its project id.
+    required: true
+  package:
+    description: The workspace package name to build, e.g. '@rxova/blog'.
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: pnpm install --frozen-lockfile
+
+    # The same gate CI runs. CI runs on the merge commit in parallel with this
+    # job, so without its own check this could publish a tree CI is about to
+    # reject.
+    - shell: bash
+      run: pnpm run validate:content
+
+    # Built for the mount, never for `/`. The aggregator only relocates the tree —
+    # it never rewrites asset paths — so a build made for the wrong base deploys a
+    # page with every stylesheet 404ing.
+    #
+    # Through turbo rather than `pnpm --filter`, which builds only the named
+    # package: the surfaces import @rxova/website-schemas, which now ships compiled
+    # output, so its `exports` point at a dist/ that does not exist in a fresh
+    # checkout. `build` declares `dependsOn: ["^build"]`, so turbo builds the
+    # dependency first. pnpm --filter silently does not, and Astro fails resolving
+    # the package while generating content types.
+    - name: Build ${{ inputs.surface }}
+      shell: bash
+      env:
+        DOCS_BASE_URL: /${{ inputs.surface }}/
+      run: pnpm exec turbo run build --filter=${{ inputs.package }}
+
+    # Asserted here, where the dist still exists and the expected base is known.
+    # Nothing upstream notices a wrong base: `/` is a perfectly valid base, just
+    # not this one. It shipped exactly that way once.
+    - name: Check it was built for its mount
+      shell: bash
+      run: node packages/${{ inputs.surface }}/scripts/check-base.mjs
+        packages/${{ inputs.surface }}/dist /${{ inputs.surface }}/
+
+    - name: Mark the page-component bundle
+      shell: bash
+      run: node scripts/write-page-bundle.mjs
+        packages/${{ inputs.surface }}/dist ${{ inputs.surface }} /${{ inputs.surface }}/
+
+    - name: Read the version
+      id: meta
+      shell: bash
+      run: |
+        VERSION=$(node -p "require('./packages/${{ inputs.surface }}/package.json').version")
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+    # The fixed name the aggregator downloads by; do not rename it.
+    #
+    # It is fixed across every sender, so exactly one artifact may carry it per
+    # run — see publish-blog.yml for what happens when two do.
+    - uses: actions/upload-artifact@v7
+      with:
+        name: docs-dist
+        path: packages/${{ inputs.surface }}/dist
+        if-no-files-found: error
+
+    # The ingest workflow lives in this repository, so the job's own token can
+    # dispatch to it: a `repository_dispatch` sent with GITHUB_TOKEN is one of the
+    # two events that token is still allowed to start a workflow run with. The
+    # calling job grants `contents: write` for it.
+    - name: Tell rxova.org
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh api "repos/${GITHUB_REPOSITORY}/dispatches" \
+          -f event_type=docs \
+          -F client_payload[schema]=2 \
+          -F client_payload[project]='${{ inputs.surface }}' \
+          -F client_payload[ref]="${GITHUB_REF#refs/heads/}" \
+          -F client_payload[sha]="$GITHUB_SHA" \
+          -F client_payload[run_id]="$GITHUB_RUN_ID" \
+          -F client_payload[version]='${{ steps.meta.outputs.version }}' \
+          -F client_payload[base]='/${{ inputs.surface }}/' \
+          -F client_payload[framework]=astro

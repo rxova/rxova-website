@@ -45,9 +45,8 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
 export const SOURCES_FILE = join(repoRoot, 'sources.json')
 
 /**
- * The entry shape comes from `@rxova/website-schemas`, published from rxova/brand.
- *
- * It lives there rather than here because brand is the *sender*: `@rxova/blog` and
+ * The entry shape comes from `@rxova/website-schemas` (packages/website-schemas),
+ * which is published because the senders import it too: `@rxova/blog` and
  * `@rxova/updates` are two of the entries this file governs, and a contract belongs
  * with the thing that has to keep it. Importing it means a rule cannot be enforced
  * one way here and another way there.
@@ -55,7 +54,7 @@ export const SOURCES_FILE = join(repoRoot, 'sources.json')
  * `mountFor` and `baseFor` come from the same place for the same reason. The
  * derivation is the invariant worth protecting: a tree built for one base and
  * copied to a different mount serves a page with every stylesheet 404ing, and that
- * is only impossible if both repos compute it identically.
+ * is only impossible if sender and receiver compute it identically.
  */
 import { sourceEntry, mountFor, baseFor } from '@rxova/website-schemas'
 

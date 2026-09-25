@@ -1,0 +1,47 @@
+name: Publish updates
+
+# Build /updates and hand it to rxova.org.
+#
+# A separate file from publish-blog.yml, not a second matrix leg beside it, so
+# that this surface gets its own workflow run and therefore its own `run_id` and
+# its own `docs-dist` artifact. The full reasoning, and the bug that made it
+# necessary, is in publish-blog.yml — this was the surface that broke.
+#
+# The steps live once, in ../actions/publish-surface.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/updates/**'
+      # The surfaces are built against these, so a change to either republishes
+      # both. That is one more reason they cannot share a run.
+      - 'packages/website-schemas/src/**'
+      - 'packages/brand/src/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-updates-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # the repository_dispatch that hands the build to ingest.yml
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: ./.github/actions/publish-surface
+        with:
+          surface: updates
+          package: '@rxova/updates'

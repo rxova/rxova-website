@@ -1,0 +1,22 @@
+{
+  // Standalone rather than extending `astro/tsconfigs/strict` like the sibling
+  // package does: nothing here touches Astro. The schema is plain zod so that a
+  // plain Node validator can import it — see src/index.ts.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    // Ships uncompiled source like @rxova/brand does — the website imports it
+    // straight out of a checkout, so nothing here ever emits.
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "verbatimModuleSyntax": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

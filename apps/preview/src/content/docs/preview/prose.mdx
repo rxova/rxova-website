@@ -1,0 +1,94 @@
+---
+title: Typography and prose
+description: Every element starlight.css maps a token onto, on one page.
+---
+
+import { Aside, Tabs, TabItem, Steps, Badge, FileTree } from '@astrojs/starlight/components'
+
+Body copy in Space Grotesk 400. This paragraph exists to show the measure, the line
+height and the way `--rx-muted` reads against `--rx-bg` in both themes — flip the
+theme with the toggle in the header and nothing here should lose contrast.
+
+Inline code like `--rx-primary`, a [link to the tokens](/preview/tokens/), **bold text**,
+_italic text_ and a <Badge text="badge" variant="tip" />.
+
+## Heading level two
+
+Sits directly under body copy so the size ramp and the rule colour are visible together.
+
+### Heading level three
+
+The smallest heading the docs sites use.
+
+## Code
+
+Code blocks are where `--rx-font-mono` and the surface tokens meet, and where the
+IBM Plex Mono weights actually get exercised.
+
+```ts title="astro.config.mjs"
+import { sharedStarlightConfig } from '@rxova/brand'
+
+export default defineConfig({
+  integrations: [
+    starlight(
+      sharedStarlightConfig({
+        project: 'journey',
+        sidebar: [{ label: 'Guides', autogenerate: { directory: 'guides' } }],
+      }),
+    ),
+  ],
+})
+```
+
+```bash
+pnpm add @rxova/brand
+```
+
+## Asides
+
+<Aside type="note">The neutral aside — `--sl-color-gray-*` mapped onto the rxova ladder.</Aside>
+<Aside type="tip">Tip.</Aside>
+<Aside type="caution">Caution.</Aside>
+<Aside type="danger">Danger, which is the only place the theme uses a warm accent.</Aside>
+
+## Components with their own surfaces
+
+<Tabs>
+  <TabItem label="pnpm">`pnpm add @rxova/brand`</TabItem>
+  <TabItem label="npm">`npm i @rxova/brand`</TabItem>
+</Tabs>
+
+<Steps>
+
+1. Install the package.
+2. Spread `sharedStarlightConfig()` into `starlight()`.
+3. There is no step three.
+
+</Steps>
+
+<FileTree>
+
+- packages/
+  - brand/
+    - src/
+      - tokens.css
+      - starlight.css
+- apps/
+  - preview/
+
+</FileTree>
+
+## Tables and rules
+
+| Token          | Role                          |
+| -------------- | ----------------------------- |
+| `--rx-fg`      | Body text                     |
+| `--rx-muted`   | Secondary text                |
+| `--rx-rule`    | Hairlines                     |
+| `--rx-primary` | Accent, links and focus rings |
+
+---
+
+A horizontal rule above, and a blockquote below.
+
+> The mark means "the umbrella", and the wordmark beside it says which project you are in.

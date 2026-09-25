@@ -1,56 +1,147 @@
+# The landing site, the published packages (@rxova/brand, @rxova/website-schemas)
+# and the surfaces built from them (the blog, the updates stream), plus the
+# preview site that renders the brand package. `apps/*` is globbed so a second
+# surface is a directory, not a config change.
 packages:
   - site
+  - packages/*
+  - apps/*
 
-# esbuild + sharp ship prebuilt binaries via install scripts; Astro/Vite need them.
-onlyBuiltDependencies:
-  - esbuild
-  - sharp
+overrides:
+  # GHSA-f88m-g3jw-g9cj: sharp <0.35.0 inherits four libvips CVEs. Astro pins
+  # the 0.34 line and every copy here reaches it through Astro, so the fix has
+  # to be forced from the root. 0.35 is a patch-shaped change for how Astro uses
+  # it (resize/rotate/format on build-time image optimisation), and the preview
+  # build is the proof — it is the only thing in this repo that actually invokes
+  # sharp. Drop this once Astro ships a release depending on >=0.35.0.
+  sharp: '>=0.35.0'
+
+  # Not a security pin — a lockfile-determinism one. Astro 7.3 moved its markdown
+  # pipeline to `@astrojs/markdown-satteri` 0.4, which wants satteri ^0.10, while
+  # `@astrojs/mdx` still pins the 0.3 line on satteri 0.9. With both majors in the
+  # tree, pnpm 11 recorded satteri 0.10's nine optional `@bruits/satteri-*`
+  # binaries on Linux and none of them on macOS, so `pnpm dedupe --check` — the
+  # gate that runs in CI and in the pre-push hook — could not pass on both: CI
+  # wanted the entries added, a macOS checkout wanted them removed, and neither
+  # was wrong about its own machine. `supportedArchitectures` does not fix it,
+  # because `dedupe` ignores it. Collapsing to one satteri version does: the 0.3
+  # markdown pipeline runs on 0.10 unchanged (it is the same parser, and the
+  # preview build and the blog/updates builds are the proof). Drop this once
+  # @astrojs/mdx depends on the 0.4 line itself.
+  satteri: '0.10.5'
+
+  # GHSA-rgw5-rvv9-x895: brace-expansion <5.0.9 can be driven into unbounded
+  # intermediate arrays, which bypasses the earlier CVE-2026-14257 mitigation.
+  # It arrives here 39 ways (glob, rimraf, eslint's file walking), so no direct
+  # dependency bump reaches it. The patch is a bounds check, not an API change.
+  brace-expansion: '>=5.0.9'
+
+  # GHSA-6g55-p6wh-862q (incomplete-fix follow-up): postcss <=8.5.22 will read
+  # an arbitrary .map file from an attacker-controlled sourceMappingURL when
+  # `from` is unset. Only reached at build time through Astro's CSS pipeline,
+  # but the inputs here are authored content, so the cost of forcing it is zero.
+  postcss: '>=8.5.23'
+
+  # fast-uri <3.1.6 is confused about the host in four separate ways: a
+  # backslash read as an authority introducer, a percent-encoded scheme that
+  # normalises into a different one, a skipped IDN conversion, and two SSRF
+  # paths out of the same parse. Pulled in transitively by ajv for schema $ref
+  # resolution -- @rxova/website-schemas is the consumer. Held to the 3.x line
+  # deliberately: 3.1.6 carries the fixes, and ajv expects that major.
+  #
+  # The floor was 3.1.5, which is where the first advisory's patched range
+  # started when this entry was written. The three that landed since are all
+  # patched in 3.1.6, so the pin went stale without any file here changing and
+  # the gate went red on a commit that touched only .github/ -- the same way
+  # the nanoid floor below did.
+  fast-uri: '>=3.1.6 <4'
+
+  # GHSA-5p4m-2wfm-xmqj: `!!omap` resolution is quadratic in the number of keys,
+  # so a hostile YAML document costs CPU out of proportion to its size. High, and
+  # it lands on both live majors — the 3.x line through @manypkg's read-yaml-file
+  # under changesets, and the 4.x line through changesets, commitlint's cosmiconfig
+  # and Astro's markdown pipeline. Every consumer here parses YAML this repo owns
+  # (frontmatter, changesets, commitlint config) rather than anything untrusted,
+  # but `audit:check` gates on high. Pinned per-major: the 3.x consumers still call
+  # the pre-4.0 API, so a single `>=4.3.1` would break them rather than patch them.
+  # Both bounds are closed because an open `>=3.15.1` resolves to 5.x.
+  # The floors were 3.15.1 and 4.3.1, where the advisory's patched ranges started
+  # when this entry was written; upstream has since widened both by a patch, so
+  # the pins went stale on their own — the same drift the fast-uri and nanoid
+  # notes below describe.
+  js-yaml@3: '>=3.15.2 <4'
+  js-yaml@4: '>=4.3.2 <5'
+
+  # GHSA-w27v-7q3p-w38r: svgo's `removeScripts` plugin can be walked past with a
+  # namespaced attribute or a control character in the URL, so a hostile SVG keeps
+  # its executable link through the sanitiser. Reached only through Astro's asset
+  # pipeline, which optimises SVGs this repo authors, but `audit:check` gates on
+  # high. 4.1.0 tightens the matching; no plugin API changed. Drop this once Astro
+  # depends on >=4.1.0 itself.
+  svgo: '>=4.1.0 <5'
+
+  # GHSA-2v37-7h3g-55p8: with a custom alphabet and a size of zero, nanoid's fill
+  # loop has nothing to consume and never terminates. High, and every one of the 57
+  # paths is something reaching postcss — Astro's CSS pipeline, eslint-plugin-astro,
+  # vitest's Vite — none of which lets a caller near the generator, and nothing here
+  # is published with it. But `audit:check` gates on high, so it blocks every push.
+  # Scoped to the 3.x line and closed at the top: postcss requires nanoid, and an
+  # open `>=3.3.18` resolves to the ESM-only 6.x line that a require() cannot load.
+  # Drop this once postcss depends on >=3.3.18 itself.
+  #
+  # The floor was 3.3.17, which is where the advisory's patched range started when
+  # this entry was written. Upstream has since widened it to `<3.3.18`, so the pin
+  # that fixed this went stale without any file here changing and the gate went red
+  # on a commit that touched only .github/. That is the failure mode `audit:check`
+  # is deliberately not a Turbo task for — a cached pass would have replayed over it.
+  nanoid@3: '>=3.3.18 <4'
+
+  # GHSA-7w5x-hrqm-74c2: smol-toml's parser backtracks on a malformed document
+  # in a way that costs time out of proportion to its length, so a hostile .toml
+  # file is a denial of service. High, and it arrives 38 ways -- every one of them
+  # `@astrojs/internal-helpers` or `@astrojs/markdown-remark` under Astro's content
+  # pipeline, which parses TOML frontmatter this repo authors rather than anything
+  # untrusted. Nothing here is published with it. But `audit:check` gates on high,
+  # so it blocks every push, and it is what stranded @rxova/brand@0.13.0: CI went
+  # red on the version commit, and Release is gated on CI, so the publish never ran.
+  #
+  # Every consumer declares `^1.6.0`, so the whole 1.x line is already in range and
+  # this only lifts the floor past the advisory. Closed at the top for the reason
+  # the pins above are: an open floor would resolve a future 2.x on its own. Left
+  # as a floor rather than an exact version so the next 1.x patch is picked up
+  # without an edit here -- the drift the fast-uri and nanoid notes describe.
+  # Drop this once Astro depends on >=1.7.1 itself.
+  smol-toml: '>=1.7.1 <2'
+
+  # GHSA-px8p-9vwx-vf98: fflate <0.7.5 can loop forever in `unzipSync` on a
+  # malformed ZIP64 archive. Moderate, so `audit:check` does not gate on it, but
+  # it is an open Dependabot alert. The only path is satori -- the OG image
+  # renderer, a devDependency of @rxova/brand -- which pins `fflate: 0.7.3`
+  # exactly, and its @shuding/opentype.js wants `^0.7.3`; even satori 0.33.4,
+  # the latest, still carries the exact pin, so no bump here reaches it.
+  # Closed below 0.8 so both consumers stay on the line they declare; 0.7.5 is
+  # the patch release. Drop this once satori depends on >=0.7.5 itself.
+  fflate: '>=0.7.5 <0.8'
+
+  # GHSA-9rgm-9g3h-6x36: devalue <5.9.1 can be driven into a denial of service
+  # by malformed input to `parse`/`unflatten`; 5.9.2 is the first patched
+  # release. Reached only through Astro, which declares `^5.8.1` -- still
+  # true of the latest astro -- so no bump here reaches it. Moderate, so
+  # `audit:check` does not gate on it, but it is an open Dependabot alert.
+  # Closed below 6 so it stays on the line Astro declares. Drop this once Astro
+  # depends on >=5.9.2 itself.
+  devalue: '>=5.9.2 <6'
+
+# esbuild + sharp ship prebuilt binaries via install scripts; Astro needs them
+# to typecheck .astro files and to build the sites.
+#
+# `allowBuilds` only — pnpm 10's `onlyBuiltDependencies` listed the same two and
+# was dropped as redundant. The explicit per-package form is what the sibling
+# repos use, and it makes a new script-running dependency fail loudly instead of
+# being silently skipped by an allowlist it is missing from.
 allowBuilds:
   esbuild: true
   sharp: true
-
-# Transitive fixes the direct bumps do not reach. astro 7.3.2 itself takes the
-# patched sharp (its optional dependency floor is ^0.35.4), but its ranges for
-# the packages below still admit the vulnerable versions, so the lockfile keeps
-# them until something forces a floor. Each entry is scoped to the one major
-# line that resolves here, and the upper bound is load-bearing: the replacement
-# side is a range, so a bare floor would resolve to the newest major and push a
-# dependent across it silently. A future major arriving is re-audited instead.
-overrides:
-  # GHSA-7w5x-hrqm-74c2: malformed TOML documents cause a denial of service.
-  # Reached through astro and @astrojs/internal-helpers, which parse TOML
-  # frontmatter and config at build time.
-  smol-toml@1: '>=1.7.1 <2'
-  # GHSA-w27v-7q3p-w38r and GHSA-4vpr-x523-8j87: removeScripts lets executable
-  # links (namespace and control-character bypasses) and HTML inside
-  # foreignObject survive sanitisation. Reached through astro's SVG handling.
-  svgo@4: '>=4.1.0 <5'
-  # GHSA-5p4m-2wfm-xmqj (quadratic CPU resolving !!omap) and GHSA-2883-xcg3-v3hh
-  # (maxTotalMergeKeys does not bound CPU for empty merge sources), both DoS on
-  # untrusted YAML. Reached through astro and @astrojs/internal-helpers for
-  # frontmatter, and through commitlint's cosmiconfig. Only 4.x resolves here.
-  js-yaml@4: '>=4.3.2 <5'
-  # GHSA-jqff-g426-hqxp, GHSA-fph4-wmhf-6fwf, GHSA-f65p-4m7j-42xc and
-  # GHSA-5jgf-p345-68v8: host confusion and SSRF from how URIs are normalised.
-  # Reached only through ajv, via commitlint's config validator and the YAML
-  # language server under @astrojs/check. Dev-only, never shipped.
-  fast-uri@3: '>=3.1.6 <4'
-  # GHSA-2v37-7h3g-55p8: a custom alphabet with size zero loops forever (DoS).
-  # Dependabot auto-dismissed it (alert #2) as dev-only, but `pnpm audit` still
-  # reports it: upstream widened the affected range to `<3.3.18` after 3.3.16
-  # was locked. Every path
-  # runs through postcss (vite, eslint-plugin-astro), so it is build tooling,
-  # and nothing here calls nanoid with a custom generator.
-  nanoid@3: '>=3.3.18 <4'
-# The release-age quarantine exists to blunt supply-chain attacks on packages we
-# don't control. Both of these are ours, published from rxova/brand with OIDC
-# provenance, so waiting one out only delays our own design changes. Excluded by
-# name rather than by version so every release doesn't need a new line here —
-# `pnpm add` appends a version range if you let it, which is what left the entry
-# below reading `@0.2.0 || 0.4.0`.
-minimumReleaseAgeExclude:
-  - '@rxova/brand'
-  - '@rxova/website-schemas'
 
 # The advisory lookup is the one request whose result is advisory rather than
 # required, and pnpm's default schedule -- a 60s fetch timeout and two retries --

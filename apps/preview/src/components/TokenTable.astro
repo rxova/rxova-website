@@ -1,0 +1,89 @@
+---
+/**
+ * Renders every neutral and accent token as a live swatch.
+ *
+ * The values are read from CSS custom properties at paint time rather than
+ * restated here, so this page cannot drift from tokens.css: if a token is
+ * renamed or dropped, its swatch goes transparent instead of quietly showing a
+ * stale colour.
+ */
+const NEUTRALS = [
+  'rx-bg',
+  'rx-card',
+  'rx-tag-bg',
+  'rx-rule',
+  'rx-rule-strong',
+  'rx-faint',
+  'rx-muted',
+  'rx-fg',
+]
+
+const ACCENTS = [
+  'rx-primary',
+  'rx-primary-light',
+  'rx-primary-lightest',
+  'rx-accent-a',
+  'rx-accent-b',
+  'rx-accent-c',
+]
+---
+
+<div class="rows">
+  {[
+    { label: 'Neutral ladder', tokens: NEUTRALS },
+    { label: 'Accents', tokens: ACCENTS },
+  ].map((group) => (
+    <section>
+      <h3>{group.label}</h3>
+      <ul>
+        {group.tokens.map((name) => (
+          <li>
+            <span class="swatch" style={`background: var(--${name})`} />
+            <code>--{name}</code>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+  <section>
+    <h3>Gradient</h3>
+    <div class="gradient"></div>
+  </section>
+</div>
+
+<style>
+  .rows {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: 0.5rem;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .swatch {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--rx-radius-sm, 6px);
+    /* Against a same-coloured background a swatch is invisible without this —
+       which is the point for --rx-bg. */
+    border: 1px solid var(--rx-rule);
+    flex: none;
+  }
+
+  .gradient {
+    height: 3rem;
+    border-radius: var(--rx-radius, 12px);
+    background: var(--rx-gradient);
+  }
+</style>

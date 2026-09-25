@@ -1,0 +1,220 @@
+{
+  "$schema": "https://v2-10-7.turborepo.dev/schema.json",
+  "ui": "tui",
+  "globalDependencies": [".nvmrc"],
+  "tasks": {
+    // The sites build (the landing, the blog, updates and the brand preview);
+    // @rxova/brand ships uncompiled source, so it has no `build` script and Turbo
+    // simply skips it. `^build` is declared
+    // anyway so that stops being true silently if the package ever gains one.
+    "build": {
+      "dependsOn": ["^build"],
+      // DOCS_BASE_URL decides the base every asset path is written against, and it
+      // has to be declared for two reasons. Turbo 2 runs tasks in a strict
+      // environment, so an undeclared var never reaches astro at all — the surfaces
+      // then build for `/` and deploy with every stylesheet 404ing. And it belongs
+      // in the hash: without it a build for `/blog/` and one for `/updates/` look
+      // identical to the cache, so the second would replay the first's output.
+      "env": ["DOCS_BASE_URL"],
+      "outputs": ["dist/**"],
+      "outputLogs": "new-only"
+    },
+    // The landing reads files outside its own directory, which Turbo does not hash
+    // on its own: the repo-root sources.json (projects.ts and the shell templates
+    // import it), and @rxova/brand's source and social cards, which it consumes
+    // unbuilt through the workspace and copies into public/og in `prebuild`.
+    // Without these a registry or brand change would replay yesterday's landing.
+    "@rxova/homepage-site#build": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/sources.json",
+        "$TURBO_ROOT$/packages/brand/src/**",
+        "$TURBO_ROOT$/packages/brand/assets/**",
+        "$TURBO_ROOT$/scripts/sync-brand-og.mjs"
+      ],
+      "outputs": ["dist/**"],
+      "outputLogs": "new-only"
+    },
+    "@rxova/homepage-site#check:astro": {
+      "dependsOn": ["^build", "build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/sources.json",
+        "$TURBO_ROOT$/packages/brand/src/**"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    // Both read dist/, so they wait on this package's own build rather than only
+    // its dependencies'. Without it, `turbo run check:exports` can lint a stale or
+    // absent tarball and pass.
+    "check:exports": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "pack:smoke": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    // A root task (`//#`): the repo's own tooling under `scripts/`, which is not a
+    // package and so cannot be reached by `turbo run test` above. Keyed on exactly
+    // what this suite reads — every package's tests moved out, so a change in one
+    // no longer invalidates this.
+    // The root scripts import @rxova/website-schemas, which resolves to its dist/.
+    // The root `prepare` builds it once after install; the edge here keeps a
+    // parallel `turbo run build` from cleaning dist/ out from under a running test.
+    "//#test": {
+      "dependsOn": ["@rxova/website-schemas#build"],
+      "outputs": [],
+      "inputs": ["vitest.config.ts", "scripts/**", "sources.json", "redirects.json"],
+      "outputLogs": "new-only"
+    },
+    // Every package owns its own vitest config; `//#test` below stays for the
+    // repo's own tooling, which is not a package.
+    //
+    // `^test` is what makes the cache honest rather than merely fast. @rxova/blog's
+    // tests import @rxova/website-schemas and @rxova/brand *source* — these packages ship
+    // uncompiled TypeScript — so without a dependency edge Turbo would hash only
+    // blog's own files and happily replay a green result over a contract that had
+    // changed underneath it.
+    //
+    // Inputs are the files a test run actually reads: source, the config, the
+    // manifest, and — for the two content packages — the prose itself, since their
+    // suites parse the real posts. A README or a workflow edit replays instead.
+    "test": {
+      "dependsOn": ["^test"],
+      "inputs": [
+        "src/**",
+        "scripts/**",
+        "test/**",
+        "posts/**",
+        "updates/**",
+        "authors/**",
+        "vitest.config.ts",
+        "package.json"
+      ],
+      "outputs": ["coverage/**"],
+      "outputLogs": "new-only"
+    },
+    // The blog's suite runs a real `astro build` (test/render.test.ts), which
+    // resolves @rxova/website-schemas through its `exports` — and those point at a
+    // dist/ that does not exist in a fresh checkout. `^test` alone would leave the
+    // dependency unbuilt and fail the run on a cold clone with a resolution error
+    // that says nothing about images. Same reason publish-site builds through turbo
+    // rather than `pnpm --filter`.
+    //
+    // `check:astro` is that same real `astro build` again, seen from the other side:
+    // a third astro process in packages/blog would race the package's own build and
+    // check over `node_modules/.astro` exactly as described on `check:astro` below.
+    // Depending on it puts this last in the package's astro chain — and since
+    // `check:astro` already depends on this package's `build`, that edge orders this
+    // after the build as well.
+    "@rxova/blog#test": {
+      "dependsOn": ["^test", "^build", "check:astro"],
+      "inputs": [
+        "src/**",
+        "test/**",
+        "posts/**",
+        "authors/**",
+        "astro.config.mjs",
+        "vitest.config.ts",
+        "package.json"
+      ],
+      "outputs": ["coverage/**"],
+      "outputLogs": "new-only"
+    },
+    // `build` here is this package's own, not just its dependencies', and it is
+    // ordering rather than a data dependency — `astro check` never reads dist/.
+    //
+    // Astro keeps its content-layer store at `node_modules/.astro/data-store.json`
+    // and writes it by renaming a fixed `.tmp` sibling into place. That is atomic
+    // against a crash and against nothing else: the guard around it lives in the
+    // writing process, so two astro invocations in the same package directory both
+    // write the same temp path and both rename it. The first wins, the second dies
+    // on a rename of a file that is no longer there — surfaced as an
+    // UnknownFilesystemError naming an internal path and no file of ours, which is
+    // why it reads as infrastructure flake rather than the ordering bug it is.
+    // Timing-dependent, so it lands on whichever commit is unlucky.
+    //
+    // Ordering the two is the whole fix; astro exposes no lock and no per-invocation
+    // cache directory to configure instead. `check:exports` and `pack:smoke` below
+    // already depend on their own `build` for a different reason — the packages that
+    // have no `build` script simply skip the edge.
+    "check:astro": {
+      "dependsOn": ["^build", "build"],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    // Keyed on exactly what the card fingerprint hashes (see
+    // packages/brand/scripts/generate-og.ts) rather than $TURBO_DEFAULT$:
+    // editing a component, a stylesheet or a doc page cannot change a social
+    // card, so those edits should replay this instead of re-running satori.
+    "check:og": {
+      "outputs": [],
+      "inputs": [
+        "src/tokens.css",
+        "src/sites.ts",
+        "scripts/generate-og.ts",
+        "scripts/og-manifest.json",
+        "assets/og/**"
+      ],
+      "outputLogs": "new-only"
+    },
+    // Renders and rewrites the committed PNGs, so it must never be replayed
+    // from cache — the whole point is the side effect on assets/og/.
+    "og": {
+      "cache": false
+    },
+    // A root task (`//#`): `pnpm dedupe --check` reads the whole workspace in
+    // one pass from the root, so there is nothing to fan out. It is a pure
+    // function of the dependency graph, so keying the cache on exactly the
+    // files that feed it means source edits replay it while any manifest change
+    // re-runs it.
+    //
+    // Deliberately NOT applied to audit:check: its verdict depends on the
+    // upstream advisory database, which changes without any file here changing,
+    // so a cached pass could replay over a newly-disclosed CVE.
+    "//#dedupe:check": {
+      "outputs": [],
+      "inputs": [
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "package.json",
+        "packages/*/package.json",
+        "apps/*/package.json",
+        "site/package.json"
+      ],
+      "outputLogs": "new-only"
+    },
+    // A root task (`//#`): the validator reads both surfaces in one pass and reports
+    // them together, so there is nothing to fan out. Keyed on exactly what it reads
+    // — the prose, the shared schema, the REPOS registry it checks ids against, and
+    // the script. Editing a component or a token cannot invalidate it.
+    "//#validate:content": {
+      "dependsOn": ["@rxova/website-schemas#build"],
+      "outputs": [],
+      "inputs": [
+        "packages/blog/posts/**",
+        "packages/blog/authors/**",
+        "packages/updates/updates/**",
+        "packages/updates/authors/**",
+        "packages/website-schemas/src/**",
+        "packages/brand/src/sites.ts",
+        "scripts/validate-content.ts"
+      ],
+      "outputLogs": "new-only"
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

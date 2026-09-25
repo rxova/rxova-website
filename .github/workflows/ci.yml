@@ -3,93 +3,268 @@ name: CI
 on:
   push:
     branches: [main]
-  # `edited` is here because of what the commitlint job below lints: the PR
-  # title and description, which is the message a squash merge composes. Those
-  # are the only inputs to a check that no push can change — without `edited`,
-  # fixing the title the job just rejected leaves the red X in place and the
-  # only way to re-run it is a no-op commit.
+    # The narrow set that cannot reach a check or a release. `docs/` is one
+    # prose file, a CHANGELOG is changesets' own output, and neither is ever
+    # the whole of a version commit — every `chore: version packages` carries
+    # the package.json bumps beside them, so a release can never be filtered
+    # away here. Content markdown is deliberately absent: `packages/blog/posts`
+    # and `packages/updates/updates` are loaded by Astro and asserted on by
+    # posts.test.ts and updates.test.ts, so a post is source and gets a run.
+    #
+    # Push only. On `pull_request` a skipped workflow never reports, so a
+    # required check would wait forever on a green that cannot arrive.
+    paths-ignore:
+      - 'docs/**'
+      - '**/CHANGELOG.md'
+      - '**/LICENSE'
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    # No `edited`: it fires on body edits as well as title edits, with nothing
+    # at the trigger able to tell them apart, and with `cancel-in-progress`
+    # below each one killed an in-flight run and started a fresh one. A
+    # cancelled job still bills its minute rounded up, so adding a link to a
+    # description cost a whole run's worth of them. The title check that
+    # genuinely needs `edited` lives in pr-title.yml, where the same edit costs
+    # one job under a name the default branch does not require.
+    #
+    # `labeled`/`unlabeled` stay: the changeset gate's escape hatch is the
+    # `skip-changeset` label, and without them the label lands on a pull request
+    # whose checks never re-run. The gate used to sit in its own workflow to
+    # avoid exactly that cost, which kept it out of `all checks` — so nothing
+    # required it, and a pull request without a changeset could merge.
+    #
+    # A label event runs the full graph like any other. No job here decides
+    # whether to run from the event type, so a label run re-checks the same
+    # commit and reaches the same `all checks` verdict — a run that skipped the
+    # code jobs could turn a failing pull request green.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
+# Default to read-only; jobs opt into more where they need it.
 permissions:
   contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # On a pull request a newer run supersedes the one in flight — a label event
+  # on the same commit included, since it re-runs the whole graph and nothing
+  # is lost by cancelling the older run.
+  #
+  # Superseding only applies to pull requests. On main every push is a release
+  # candidate: Release triggers on `workflow_run` and is gated on
+  # `conclusion == 'success'`, and a cancelled run concludes `cancelled`, so
+  # cancelling a version commit's CI skips its release with nothing to show for
+  # it. That is how @rxova/brand@0.9.0 was versioned, tagged in the changelog and
+  # never published — its CI was cancelled 57 seconds in by the next push.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # Cheap gate first: a bad commit message fails in seconds and short-circuits
-  # the heavier install + static checks below (needs: commitlint).
+  # The root of the graph: everything else declares `needs: [commitlint]`.
+  #
+  # It runs on push as well as pull_request on purpose. A job that is skipped
+  # also skips its dependents, so gating this on `pull_request` alone would
+  # silently skip the entire workflow on main — and the alternative, an
+  # `if: always() && !failure()` on every other job, is the kind of expression
+  # that is wrong in a way nobody notices until something ships unchecked.
   commitlint:
+    name: commit messages
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
+    # Every job here carries a ceiling. Nothing in this workflow has ever
+    # legitimately come close to one, and a job that hangs bills until somebody
+    # notices — six hours, in the worst run across these repos.
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: wagoid/commitlint-github-action@v6
-        with:
-          configFile: commitlint.config.cjs
-          commitDepth: 0
-
-      # The step above lints the branch's commits, but none of them is what
-      # lands: a squash merge composes a new message from the PR title and
-      # description at merge time. Unlinted, that message's first contact with
-      # CI is the push to main, where it can no longer be edited. Lint it here,
-      # while it is still a PR field someone can fix.
-      #
-      # Title and body go through env, never through ${{ }} interpolation into
-      # the script — a backtick or $( in a PR title would otherwise execute.
-      - name: Lint prospective squash-merge message
-        if: github.event_name == 'pull_request'
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          printf '%s\n\n%s\n' "$PR_TITLE" "$PR_BODY" |
-            npx --yes \
-              -p @commitlint/cli@21.2.1 \
-              -p @commitlint/config-conventional@21.2.0 \
-              commitlint --config commitlint.config.cjs
-
-  static:
-    name: format · lint · types · test · build
-    needs: commitlint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-pnpm
       - run: pnpm install --frozen-lockfile
 
+      - name: Lint the branch commits
+        if: github.event_name == 'pull_request'
+        run: >-
+          pnpm exec commitlint --verbose
+          --from ${{ github.event.pull_request.base.sha }}
+          --to ${{ github.event.pull_request.head.sha }}
+
+      # The squash-merge subject is the PR *title*, which no commit in the branch
+      # contains. Checked here for every push to the branch, and in pr-title.yml
+      # for the edit that changes it after CI has already gone green.
+      # Passed through the environment, never interpolated into the shell — a
+      # title is attacker-controlled text.
+      - name: Lint the PR title
+        if: github.event_name == 'pull_request'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: echo "$PR_TITLE" | pnpm exec commitlint --verbose
+
+      # On main this is the squashed subject already linted above, plus the
+      # changesets `chore: version packages` commit. Cheap, and it is what keeps
+      # this job unskippable.
+      - name: Lint the pushed commit
+        if: github.event_name == 'push'
+        run: pnpm exec commitlint --last --verbose
+
+  # One job, in `scripts/verify.ts`'s order, so what CI runs and what a
+  # contributor runs before pushing stay the same checks in the same sequence.
+  #
+  # This used to be three: `checks`, `supply-chain` and `pack-smoke`. Together
+  # they did 154 seconds of work and billed 4 minutes, because GitHub rounds
+  # every job up to the whole minute and charges each one a fresh checkout, Node
+  # install and `pnpm install` — around 25 seconds before any of them started
+  # checking anything. In one job it is the setup once and the rounding once.
+  #
+  # The cost of merging is that a failing audit no longer reports separately
+  # from a failing lint — one red check instead of three. Worth it at this
+  # price; split it back out if this repo ever grows enough contributors that
+  # parallel feedback matters more than the bill.
+  checks:
+    name: audit · format · lint · types · build · pack
+    needs: [commitlint]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-pnpm
+      - uses: ./.github/actions/turbo-cache
+      - run: pnpm install --frozen-lockfile
+
+      # `dedupe:check` fails only because of the lockfile in front of you, so it
+      # belongs up here with the other checks the diff can actually cause.
+      # Skipped on the version PR, as it was when this was its own job: that
+      # branch only carries version numbers and changelogs.
+      - name: Check dependency dedupe
+        if: github.head_ref != 'changeset-release/main'
+        run: pnpm run dedupe:check
+
       - run: pnpm run format:check
       - run: pnpm run lint
-      - run: pnpm run typecheck
-      # The registry pipeline: how sources.json becomes a build matrix, where a
-      # docs build is found, and what the assembler refuses to publish. These
-      # only otherwise run during a deploy, where a mistake is already live.
-      - run: pnpm run test
-      # Structural check on the real sources.json. The cross-check against
-      # @rxova/brand's PROJECTS runs inside `build` below, where Vite can load
-      # the package's TypeScript source — see site/src/lib/projects.ts.
-      - run: pnpm run check:registry
-      - run: pnpm run build
 
-  # The one check the org ruleset requires on main. A ruleset names checks one
-  # by one, so this job stands in for the whole workflow: it waits for every
-  # other job and fails if any of them failed or was cancelled. A new job added
-  # above has to be added to `needs` here too, or nothing requires it.
+      # One Turbo invocation rather than five sequential `pnpm run`s: it knows
+      # the ordering, fans out across both packages, and replays whichever tasks
+      # this commit did not actually touch.
+      #
+      # `tsc` cannot parse .astro, so without check:astro the shared chrome —
+      # every component this package exists to ship — would go unchecked. The
+      # social cards are generated from tokens.css and sites.ts and then
+      # committed, so a palette or tagline change silently invalidates them.
+      #
+      # `build` covers the preview site, which consumes the package exactly as a
+      # docs site does — shared Starlight config, component overrides, both
+      # stylesheets. A change that typechecks but breaks a real consumer's build
+      # fails here rather than in whichever repo upgrades first. It used to be
+      # its own `preview` job; `turbo run build` is the same work.
+      # `//#validate:content` is the pre-merge gate for content/. rxova-website
+      # validates the same frontmatter again through Astro's collections when it
+      # renders it, but that failure lands in another repo after the merge — this
+      # one lands on the pull request that caused it.
+      - name: Typecheck, tests, Astro check, social cards, build, metadata and content
+        run: >-
+          pnpm exec turbo run typecheck //#test check:astro check:og build check:exports test
+          //#validate:content
+
+      # Structural check on the real sources.json. The cross-check against
+      # @rxova/brand's PROJECTS runs inside `build` above, where Vite can load
+      # the package's TypeScript source — see site/src/lib/projects.ts.
+      - name: Check the docs registry
+        run: pnpm run check:registry
+
+      # Last, and kept out of the combined Turbo run above for the reason
+      # verify.ts gives: it shells out to a real `pnpm pack` into a temp dir,
+      # which races on the pnpm store if run concurrently with anything else.
+      #
+      # This package ships uncompiled source, so there is no build step to catch
+      # a file missing from `files` or an `exports` path that points at nothing.
+      # Packing and resolving every declared subpath is the substitute — without
+      # it a broken export only surfaces in whichever consumer upgrades first.
+      #
+      # The preview app links the package by `workspace:*`, which resolves to
+      # the source directory, so it cannot catch a `files` omission. This can.
+      - name: Pack and resolve every export
+        if: github.head_ref != 'changeset-release/main'
+        run: pnpm run pack:smoke
+
+      # Last, deliberately. `audit:check` is in the local pre-push gate too, and
+      # running it here as well is what keeps a stale local checkout from being
+      # the only thing standing between a new advisory and a release. But its
+      # verdict depends on the upstream advisory database, which changes without
+      # any file here changing — so it is the one step in this job that can go
+      # red on a commit that touched nothing, and it must not be the one that
+      # stops the rest from reporting.
+      #
+      # That is not hypothetical: this job's first run failed on a nanoid
+      # advisory whose patched floor had moved since the pin was written, and
+      # with the audit first, lint, types and the build never ran at all. A CVE
+      # found while the tree does not compile changes nobody's day; a build
+      # failure hidden behind a CVE costs a whole round trip.
+      #
+      # Deliberately not a Turbo task, for the same reason: a cached pass could
+      # replay over a fresh advisory.
+      #
+      # `--ignore-registry-errors` keeps an unreachable advisory endpoint from
+      # failing the job: pnpm exits 0 when the registry was at fault and leaves
+      # every other failure alone. How long it waits first is bounded by
+      # `fetchTimeout` / `fetchRetries` in pnpm-workspace.yaml; `timeout-minutes`
+      # is the backstop for pnpm not coming back at all.
+      - name: Audit dependencies
+        if: github.head_ref != 'changeset-release/main'
+        timeout-minutes: 5
+        run: pnpm run audit:check
+
+  changeset:
+    name: changeset present
+    needs: [commitlint]
+    # Pull requests only: the check diffs a pull request's base against its
+    # head, and a push to main has neither. Skip the auto-generated version PR
+    # too: it has already consumed every changeset, so the gate would find none
+    # and fail.
+    if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main'
+    permissions:
+      contents: read
+      # check-changeset.ts reads the skip-changeset label through the API
+      # (`gh api repos/.../labels`). Without this the call 403s, the script
+      # warns and proceeds label-blind, and the documented escape hatch
+      # silently does nothing.
+      pull-requests: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-pnpm
+      - run: pnpm install --frozen-lockfile
+      # A change to a published package reaches every docs site; releasing it
+      # should be deliberate.
+      # Escape hatches: the `skip-changeset` label, or `[skip-changeset]` in the
+      # PR title. The label re-runs this job on its own; the title does not,
+      # because this workflow no longer listens to `edited`, so a retitle takes
+      # effect on the next push or label event. Docs/CI/config-only diffs are
+      # auto-skipped by the script.
+      - name: Require a changeset for published-package changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node --import tsx ./scripts/check-changeset.ts
+
+  # The one status the default branch requires. Every other job in this file is
+  # listed in `needs`, so requiring this single name covers all of them, and a
+  # job added later only has to be added here rather than to the ruleset too.
   #
-  # Skipped counts as passing. `if: always()` is what makes it run after an
-  # upstream failure — without it the gate itself would be skipped, and a
-  # skipped required check satisfies the ruleset.
+  # `always()` so it reports on every run, even when a job it depends on failed.
+  # Skipped counts as passed — a push to main skips the changeset check, which
+  # has no pull request to diff; a failure or a cancellation does not, so a run
+  # killed mid-flight can never read as green.
+  #
+  # The PR-title re-check on `edited` is not in here: it runs in pr-title.yml,
+  # on the event this workflow does not listen to.
   all-checks:
     name: all checks
     if: always()
-    needs: [commitlint, static]
+    needs: [commitlint, checks, changeset]
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Fail if any job failed or was cancelled
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
