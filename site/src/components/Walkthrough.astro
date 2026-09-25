@@ -76,7 +76,11 @@ const icons = {
             aria-pressed={side.key === 'before' ? 'true' : 'false'}
           >
             <span class={`dot ${side.key}`} aria-hidden="true" />
-            {side.label}
+            {/* The full label where the window has room for it; "Before" and
+                "After" where it does not — "With ts-extended-errors" is wider
+                than half a phone. See the container query below. */}
+            <span class="tab-long">{side.label}</span>
+            <span class="tab-short">{side.key === 'before' ? 'Before' : 'After'}</span>
           </button>
         ))}
       </div>
@@ -475,8 +479,11 @@ const icons = {
     text-wrap: pretty;
   }
 
-  /* One frame. The code sits straight in it: no inner box, no second border. */
+  /* One frame. The code sits straight in it: no inner box, no second border.
+     A size container, so the bar lays itself out for the window's width, not
+     the viewport's. */
   .window {
+    container-type: inline-size;
     overflow: clip;
     border: 1px solid var(--rx-rule-strong);
     border-radius: var(--rx-radius);
@@ -557,6 +564,10 @@ const icons = {
     box-shadow:
       0 0 0 1px var(--rx-rule-strong),
       0 1px 2px color-mix(in srgb, var(--rx-fg) 8%, transparent);
+  }
+
+  .tab-short {
+    display: none;
   }
 
   .dot {
@@ -901,10 +912,10 @@ const icons = {
     }
   }
 
-  /* On a phone the bar is two tidy rows rather than one that wraps raggedly:
-     the switch across the full width, halves equal, and the step controls
-     under it, spread edge to edge. The code keeps every rem it can. */
-  @media (max-width: 34rem) {
+  /* A narrow window: the bar is two tidy rows rather than one that wraps
+     raggedly — the switch across the full width, halves equal and labelled
+     Before and After, and the step controls under it, spread edge to edge. */
+  @container (max-width: 36rem) {
     .bar {
       padding-inline: 0.45rem;
       row-gap: 0.25rem;
@@ -922,6 +933,14 @@ const icons = {
       font-size: 0.8rem;
     }
 
+    .tab-long {
+      display: none;
+    }
+
+    .tab-short {
+      display: inline;
+    }
+
     .controls {
       flex: 1 1 100%;
       justify-content: space-between;
@@ -932,10 +951,6 @@ const icons = {
       flex: 1;
     }
 
-    .walkthrough[data-js] .code {
-      height: min(22rem, 52vh);
-    }
-
     .caption {
       padding: 0.75rem 0.8rem;
       font-size: 0.9rem;
@@ -943,6 +958,13 @@ const icons = {
 
     .code :global(.expressive-code) {
       --ec-codePadInl: 1.75rem;
+    }
+  }
+
+  /* A phone's height, not only its width, decides how much code fits. */
+  @media (max-width: 34rem) {
+    .walkthrough[data-js] .code {
+      height: min(22rem, 52vh);
     }
   }
 </style>
