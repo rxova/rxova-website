@@ -13,6 +13,14 @@ import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
 import CloudflareAnalytics from '../components/CloudflareAnalytics.astro'
 import SiteHeader from '../components/SiteHeader.astro'
 import { mountedProjects, navSurfaces } from '../lib/projects'
+// The same files @rxova/brand/fonts.css points at: this package resolves to the
+// version brand does, so Vite emits each once and the preload below and the
+// @font-face rule share one URL. See `fontPreloads`.
+import spaceGrotesk400 from '@fontsource/space-grotesk/files/space-grotesk-latin-400-normal.woff2?url'
+import spaceGrotesk500 from '@fontsource/space-grotesk/files/space-grotesk-latin-500-normal.woff2?url'
+import spaceGrotesk600 from '@fontsource/space-grotesk/files/space-grotesk-latin-600-normal.woff2?url'
+import spaceGrotesk700 from '@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2?url'
+import plexMono400 from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url'
 
 interface Props {
   title: string
@@ -68,6 +76,31 @@ const llmsIndex = template ? undefined : '/llms.txt'
 // with, and `project` is set for exactly those. The assembler preserves the
 // shell's own <html> attributes, so it survives into the composed page.
 const docsShell = template && project !== undefined
+
+/**
+ * The brand fonts, requested from the first line of <head>.
+ *
+ * @rxova/brand declares them `font-display: optional`: the browser waits about
+ * 100ms for the font and, if it is not there, sets the whole page in the
+ * system fallback. Left to the stylesheet, a font is only requested once the
+ * CSS has arrived and a text node has been laid out, which is already too late
+ * on a first visit — and GitHub Pages serves everything with max-age=600, so
+ * ten minutes after a visit the cached copy has to be revalidated before it can
+ * be used, which is too late again. So the page a visitor lands on was set in
+ * the fallback, the next one in Space Grotesk, and the header visibly changed
+ * typeface on the first click.
+ *
+ * Preloading starts each request (or revalidation) alongside the stylesheet's,
+ * so the font is there when the text is first laid out. Latin only, and only
+ * the faces the pages actually use — Space Grotesk at every weight the design
+ * resolves to, and the mono's regular.
+ *
+ * Not on a docs page: Starlight's stylesheet points at that package's own copy
+ * of the files, so a preload of this build's would download them twice.
+ */
+const fontPreloads = docsShell
+  ? []
+  : [spaceGrotesk400, spaceGrotesk500, spaceGrotesk600, spaceGrotesk700, plexMono400]
 ---
 
 <!doctype html>
@@ -75,6 +108,9 @@ const docsShell = template && project !== undefined
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {fontPreloads.map((href) => (
+      <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />
+    ))}
     <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
     <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
     <title>{title}</title>
@@ -191,51 +227,6 @@ const docsShell = template && project !== undefined
     <style is:global>
       html[data-rxova-shell] {
         scrollbar-gutter: stable;
-      }
-    </style>
-
-    <!-- The header stays on screen while you move between pages.
-
-         Every link here is a full page load. Between the old page unloading and
-         the new one's first paint a phone would show a blank frame, so the
-         sticky header vanished and reappeared on every click — a flicker at the
-         top of the screen, where it is most visible.
-
-         A cross-document view transition keeps the old page painted until the
-         new one is ready, then swaps them. Naming the header gives it its own
-         snapshot: it sits at the same place on both pages, so it holds still
-         while the content under it cross-fades. Every page this layout builds
-         opts in, which is what the browser requires of both ends — the landing,
-         /about, the legal pages, and /blog and /updates through their shell
-         templates.
-
-         Not on a docs page's header: that one is the ribbon, a different bar,
-         and morphing the full header into it would draw attention rather than
-         hide the switch. It cross-fades with the rest of the page instead.
-
-         Where view transitions are unsupported the rule is ignored and a
-         navigation behaves exactly as before. -->
-    <style is:global>
-      @view-transition {
-        navigation: auto;
-      }
-
-      html[data-rxova-shell]:not([data-rxova-docs-shell]) header.site {
-        view-transition-name: rx-site-header;
-      }
-
-      /* Short: this hides a page swap rather than decorating one. */
-      ::view-transition-old(root),
-      ::view-transition-new(root) {
-        animation-duration: 0.15s;
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        ::view-transition-group(*),
-        ::view-transition-old(*),
-        ::view-transition-new(*) {
-          animation: none;
-        }
       }
     </style>
 
