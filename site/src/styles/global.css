@@ -10,7 +10,7 @@
  *
  * Imported by the pages that own their document, not by BaseLayout: the layout
  * also builds the shell templates, whose body is composed into a built Starlight
- * page, and the reset below would flatten it. See ./chrome.css.
+ * page, and the reset below would flatten it. See ../layouts/BaseLayout.astro.
  */
 
 @import '@rxova/brand/fonts.css';

@@ -128,7 +128,7 @@ const STANDARD_ICONS: Record<string, string> = {
 }
 ---
 
-<BaseLayout title="Rxova — take one package, keep the rest of your stack" path="/" wide>
+<BaseLayout title="Rxova — take one package, keep the rest of your stack" path="/">
   <Fragment slot="head">
     <!-- Project names come from the registry, so adding a project updates the
          meta descriptions too. They used to be hand-written and were the easiest
@@ -663,10 +663,9 @@ const STANDARD_ICONS: Record<string, string> = {
     /* ------------------------------------------------------------------
        Page frame
 
-       `--max` is the wide measure here — BaseLayout's `wide` prop sets it at
-       the document root so the header and footer are centred on the same
-       number. Prose inside still gets a real measure of its own; a 72rem
-       paragraph is unreadable however wide the shell is.
+       `--max` is @rxova/brand's page width, the one the header and footer
+       centre on too. Prose inside still gets a real measure of its own; a
+       72rem paragraph is unreadable however wide the page is.
        ------------------------------------------------------------------ */
     main {
       max-width: var(--max);
