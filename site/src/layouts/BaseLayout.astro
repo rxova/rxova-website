@@ -194,6 +194,51 @@ const docsShell = template && project !== undefined
       }
     </style>
 
+    <!-- The header stays on screen while you move between pages.
+
+         Every link here is a full page load. Between the old page unloading and
+         the new one's first paint a phone would show a blank frame, so the
+         sticky header vanished and reappeared on every click — a flicker at the
+         top of the screen, where it is most visible.
+
+         A cross-document view transition keeps the old page painted until the
+         new one is ready, then swaps them. Naming the header gives it its own
+         snapshot: it sits at the same place on both pages, so it holds still
+         while the content under it cross-fades. Every page this layout builds
+         opts in, which is what the browser requires of both ends — the landing,
+         /about, the legal pages, and /blog and /updates through their shell
+         templates.
+
+         Not on a docs page's header: that one is the ribbon, a different bar,
+         and morphing the full header into it would draw attention rather than
+         hide the switch. It cross-fades with the rest of the page instead.
+
+         Where view transitions are unsupported the rule is ignored and a
+         navigation behaves exactly as before. -->
+    <style is:global>
+      @view-transition {
+        navigation: auto;
+      }
+
+      html[data-rxova-shell]:not([data-rxova-docs-shell]) header.site {
+        view-transition-name: rx-site-header;
+      }
+
+      /* Short: this hides a page swap rather than decorating one. */
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: 0.15s;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        ::view-transition-group(*),
+        ::view-transition-old(*),
+        ::view-transition-new(*) {
+          animation: none;
+        }
+      }
+    </style>
+
     <!-- Two attributes rather than one, so this beats @rxova/brand's own
          declaration on [data-rxova-shell] whatever order the two stylesheets
          end up in. It is the one rule here that must not lose. -->
