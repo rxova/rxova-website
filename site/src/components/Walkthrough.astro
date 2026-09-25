@@ -125,7 +125,9 @@ const icons = {
     </div>
 
     <p class="caption" hidden data-caption>
-      <span class="caption-number" data-caption-number></span>
+      <span class="caption-marker">
+        <span class="caption-number" data-caption-number></span>
+      </span>
       <span class="caption-text" data-caption-text></span>
     </p>
 
@@ -748,6 +750,20 @@ const icons = {
     color: var(--rx-fg);
     font-size: 0.95rem;
     line-height: 1.5;
+  }
+
+  /* One text line tall — `1lh` is the caption's own line box — with the circle
+     centred in it. The circle is taller than a line, so pinned to the top it
+     sat a couple of pixels below the first line's centre; centred on a line's
+     height it stays level with it whatever the caption's font size. */
+  .caption-marker {
+    /* Flex, not grid: a grid row grows to fit the circle, so centring in it
+       moves nothing. A flex line is the box's own height — one text line — and
+       a taller item centred in it overflows evenly above and below. */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 1lh;
   }
 
   .caption-number {
