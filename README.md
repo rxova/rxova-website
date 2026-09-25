@@ -151,7 +151,7 @@ entry and the `landing` copy, so it needs nothing from the project's repo. Then 
 There is no `build`/`install`/`output` here — the aggregator never builds the project. How the
 docs are built is entirely the source repo's business.
 
-`enabled: false` keeps a project listed on the landing, with its overview page, but drops its Docs link and makes gate 2
+`enabled: false` keeps a project off the landing — no card, no overview page, no footer link — and makes gate 2
 reject its dispatch — use it for a project whose docs aren't ready yet.
 
 ### Checking your entry

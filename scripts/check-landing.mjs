@@ -6,11 +6,12 @@
 // used to look at what it produced. This reads site/dist the way a visitor and a
 // crawler would, and asserts the promises the overview pages make:
 //
-//   - every package has /projects/<id>/index.html, with its own canonical URL,
-//     an og:image and exactly one <h1>;
+//   - every enabled package has /projects/<id>/index.html, with its own
+//     canonical URL, an og:image and exactly one <h1>;
 //   - the home page links every one of those pages;
-//   - no page links under /packages/<id>/ for a project whose docs are disabled,
-//     which is a link straight to a 404.
+//   - a disabled package has no page, and nothing links under /packages/<id>/
+//     or /projects/<id>/ for it — `enabled: false` keeps a project off the site
+//     entirely, and either link would be a link straight to a 404.
 //
 // A missing site/dist is a failure, not a skip: a check that passes because
 // there was nothing to check is how this would quietly stop running.
@@ -68,7 +69,8 @@ export function checkLanding(dist, sources) {
   }
 
   const problems = []
-  const packages = sources.filter((s) => s.kind === 'package')
+  const packages = sources.filter((s) => s.kind === 'package' && s.enabled)
+  const disabled = sources.filter((s) => s.kind === 'package' && !s.enabled)
   const read = (path) => parse(readFileSync(path, 'utf8'))
 
   for (const { id } of packages) {
@@ -102,15 +104,20 @@ export function checkLanding(dist, sources) {
       problems.push(`the home page does not link /projects/${id}/`)
   }
 
-  const disabled = packages.filter((s) => !s.enabled).map((s) => s.base)
+  for (const { id } of disabled) {
+    if (existsSync(join(dist, 'projects', id)))
+      problems.push(`/projects/${id}/ was built, but ${id} is disabled`)
+  }
+
+  const forbidden = disabled.flatMap((s) => [s.base, `/projects/${s.id}/`])
   for (const file of htmlFiles(dist)) {
     // Shell templates are build inputs composed into docs pages, not pages.
     const path = relative(dist, file)
     if (path.startsWith('shell-templates')) continue
     for (const href of hrefs(read(file))) {
       const target = href.replace(SITE, '')
-      const base = disabled.find((b) => target.startsWith(b))
-      if (base) problems.push(`${path} links ${href}, but ${base} is disabled`)
+      const base = forbidden.find((b) => target.startsWith(b))
+      if (base) problems.push(`${path} links ${href}, but that project is disabled`)
     }
   }
 
@@ -125,8 +132,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       for (const p of problems) console.error(`ERROR: ${p}`)
       process.exit(1)
     }
-    const n = sources.filter((s) => s.kind === 'package').length
-    console.log(`site/dist OK — ${n} project page(s), no links to disabled docs`)
+    const n = sources.filter((s) => s.kind === 'package' && s.enabled).length
+    console.log(`site/dist OK — ${n} project page(s), nothing built or linked for disabled ones`)
   } catch (err) {
     console.error(`ERROR: ${err.message}`)
     process.exit(1)

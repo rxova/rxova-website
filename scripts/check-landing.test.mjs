@@ -23,9 +23,8 @@ const overview = (id, { h1s = 1, canonical = `https://rxova.org/projects/${id}/`
 function dist(over = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'rxova-landing-'))
   const files = {
-    'index.html': '<a href="/projects/foo/"></a><a href="/projects/bar/"></a>',
+    'index.html': '<a href="/projects/foo/"></a>',
     'projects/foo/index.html': overview('foo'),
-    'projects/bar/index.html': overview('bar'),
     ...over,
   }
   for (const [path, html] of Object.entries(files)) {
@@ -47,9 +46,18 @@ describe('checkLanding', () => {
     assert.match(problems[0], /no index\.html/)
   })
 
-  it('fails on a missing overview page, even for a disabled project', () => {
-    assert.deepEqual(checkLanding(dist({ 'projects/bar/index.html': null }), sources), [
-      '/projects/bar/ was not built',
+  it('fails on a missing overview page for an enabled project', () => {
+    assert.deepEqual(checkLanding(dist({ 'projects/foo/index.html': null }), sources), [
+      '/projects/foo/ was not built',
+    ])
+  })
+
+  it('fails when a disabled project has a page', () => {
+    const problems = checkLanding(dist({ 'projects/bar/index.html': overview('bar') }), sources)
+    // Its own canonical link is a link to a disabled project too.
+    assert.deepEqual(problems, [
+      '/projects/bar/ was built, but bar is disabled',
+      'projects/bar/index.html links https://rxova.org/projects/bar/, but that project is disabled',
     ])
   })
 
@@ -62,19 +70,20 @@ describe('checkLanding', () => {
   })
 
   it('fails when the home page does not link an overview', () => {
-    const problems = checkLanding(dist({ 'index.html': '<a href="/projects/foo/"></a>' }), sources)
-    assert.deepEqual(problems, ['the home page does not link /projects/bar/'])
+    const problems = checkLanding(dist({ 'index.html': '<a href="/"></a>' }), sources)
+    assert.deepEqual(problems, ['the home page does not link /projects/foo/'])
   })
 
-  it('fails on a link into a disabled mount, relative or absolute', () => {
+  it('fails on a link to a disabled project, relative or absolute', () => {
     const problems = checkLanding(
       dist({
         'about/index.html':
-          '<a href="/packages/bar/"></a><a href="https://rxova.org/packages/bar/x/"></a>',
+          '<a href="/packages/bar/"></a><a href="https://rxova.org/packages/bar/x/"></a>' +
+          '<a href="/projects/bar/"></a>',
       }),
       sources,
     )
-    assert.equal(problems.length, 2)
+    assert.equal(problems.length, 3)
   })
 
   it('ignores the shell templates, which are build inputs', () => {

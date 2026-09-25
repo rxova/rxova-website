@@ -8,9 +8,9 @@
  * this page alone, what the project is, what it looks like in code, and where
  * to go next — without having seen the landing first.
  *
- * Built by this repo, not mounted, so every project gets one — including one
- * whose docs are switched off in sources.json. Its page is where "Docs coming
- * soon" is said plainly, rather than a link to a mount that is not there.
+ * Built by this repo, not mounted, for the same set the landing lists: the
+ * enabled projects. A disabled one has no page, just as it has no card — see
+ * `landingProjects`.
  *
  * Everything on it is read from the same registries as the landing (see
  * ../../lib/projects.ts), so the two cannot describe a project differently.
@@ -20,6 +20,7 @@ import { siteUrl } from '@rxova/brand'
 import { landingProjects, type LandingProject } from '../../lib/projects'
 import { MAINTAINER, PRINCIPLES } from '../../lib/about'
 import BaseLayout from '../../layouts/BaseLayout.astro'
+import Arrow from '../../components/Arrow.astro'
 import InstallLine from '../../components/InstallLine.astro'
 import ProjectLinks from '../../components/ProjectLinks.astro'
 import ProjectTile from '../../components/ProjectTile.astro'
@@ -64,7 +65,7 @@ const jsonLd = {
 const jsonLdText = JSON.stringify(jsonLd).replace(/</g, '\\u003c')
 ---
 
-<BaseLayout title={title} path={p.overview} wide>
+<BaseLayout title={title} path={p.overview}>
   <Fragment slot="head">
     <meta name="description" content={`${p.label}: ${p.tagline}`} />
     <meta property="og:title" content={title} />
@@ -90,27 +91,11 @@ const jsonLdText = JSON.stringify(jsonLd).replace(/</g, '\\u003c')
         ))}
       </ul>
 
-      {/* One primary action. Docs when they are mounted; otherwise the repo,
-          and the honest reason there is no docs button. */}
       <div class="cta-row">
-        {p.docsMounted ? (
-          <a class="btn btn-primary" href={p.mount}>
-            Get started
-            <span aria-hidden="true" class="arrow">
-              →
-            </span>
-          </a>
-        ) : (
-          <>
-            <a class="btn btn-primary" href={p.repo} target="_blank" rel="noopener noreferrer">
-              View on GitHub
-              <span aria-hidden="true" class="arrow">
-                ↗
-              </span>
-            </a>
-            <span class="soon">Docs coming soon</span>
-          </>
-        )}
+        <a class="btn btn-primary" href={p.mount}>
+          Get started
+          <Arrow dir="across" />
+        </a>
       </div>
     </header>
 
@@ -147,9 +132,7 @@ const jsonLdText = JSON.stringify(jsonLd).replace(/</g, '\\u003c')
               <li>
                 <a href={pkg.href} target="_blank" rel="noopener noreferrer">
                   {pkg.name}
-                  <span aria-hidden="true" class="arrow">
-                    ↗
-                  </span>
+                  <Arrow dir="out" />
                 </a>
               </li>
             ))}
@@ -296,11 +279,6 @@ const jsonLdText = JSON.stringify(jsonLd).replace(/</g, '\\u003c')
       outline-offset: 3px;
     }
 
-    .soon {
-      font-size: 0.9rem;
-      color: var(--rx-faint);
-    }
-
     /* --- Body: the code and the claims, with packages and links beside -- */
     .body {
       display: grid;
@@ -391,9 +369,15 @@ const jsonLdText = JSON.stringify(jsonLd).replace(/</g, '\\u003c')
       text-underline-offset: 3px;
     }
 
-    .arrow {
+    .btn :global(.arrow),
+    .packages :global(.arrow) {
+      flex: none;
       opacity: 0.7;
-      font-size: 0.85em;
+      transition: transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+
+    .btn:hover :global(.arrow) {
+      transform: translate(2px, 0);
     }
 
     /* --- Bands --------------------------------------------------------- */
