@@ -1,6 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro'
-// See ../styles/chrome.css for why the reset is imported per surface rather than
+// See ./BaseLayout.astro for why the reset is imported per surface rather than
 // by BaseLayout.
 import '../styles/global.css'
 
@@ -33,6 +33,10 @@ const { title, path } = Astro.props
     }
     .back:hover {
       color: var(--fg);
+    }
+    /* The page is as wide as the header; the text is not. */
+    main.legal > * {
+      max-width: 68ch;
     }
     main.legal h1 {
       font-size: clamp(1.6rem, 4vw, 2.1rem);

@@ -1,9 +1,12 @@
 ---
-// The chrome's stylesheet, not the landing's: this layout also builds the shell
+// The chrome's stylesheets, not the landing's: this layout also builds the shell
 // templates, and everything it links is inherited by the docs pages composed
-// into them. See ../styles/chrome.css. Pages that own their document import
-// ../styles/global.css themselves.
-import '../styles/chrome.css'
+// into them. @rxova/brand's chrome.css carries the tokens, the footer's styles
+// and the short aliases the header is written against, but no reset — a reset
+// arriving from here would flatten every Starlight page it is spliced into.
+// Pages that own their document import @rxova/brand/astro.css themselves.
+import '@rxova/brand/fonts.css'
+import '@rxova/brand/chrome.css'
 import { siteUrl, type ProjectId } from '@rxova/brand'
 import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
 import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
@@ -17,22 +20,9 @@ interface Props {
   path?: string
   project?: ProjectId
   template?: boolean
-  /**
-   * Widen the whole shell to the marketing measure instead of the prose one.
-   *
-   * It sets `--max`, the page's content measure. The header and footer do not
-   * follow it: they sit on the wide measure on every surface this layout owns,
-   * so moving between the landing and /blog, /updates or /about never moves
-   * the chrome. See the chrome block at the end of this file.
-   *
-   * Only the landing sets it. /about, /privacy and /terms are prose and stay on
-   * the prose measure; the shell templates must never take it, since their body
-   * is composed into a full-bleed Starlight document.
-   */
-  wide?: boolean
 }
 
-const { title, robots, path = '/', project, template = false, wide = false } = Astro.props
+const { title, robots, path = '/', project, template = false } = Astro.props
 const footerSurfaces = navSurfaces.map((surface) => ({
   label: surface.label,
   href: siteUrl(surface.href),
@@ -81,12 +71,7 @@ const docsShell = template && project !== undefined
 ---
 
 <!doctype html>
-<html
-  lang="en"
-  data-rxova-shell
-  data-rxova-docs-shell={docsShell ? '' : undefined}
-  data-rxova-wide={wide ? '' : undefined}
->
+<html lang="en" data-rxova-shell data-rxova-docs-shell={docsShell ? '' : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -110,7 +95,7 @@ const docsShell = template && project !== undefined
 
     <style>
       .rx-shell-footer {
-        max-width: var(--rx-chrome-max, var(--max));
+        max-width: var(--max);
         margin: 0 auto;
         padding: 0 1.5rem;
       }
@@ -197,38 +182,15 @@ const docsShell = template && project !== undefined
       }
     </style>
 
-    <!-- The wide measure for the page's own content. See the `wide` prop. -->
-    <style is:global>
-      html[data-rxova-wide] {
-        --max: var(--rx-max-wide);
-      }
-    </style>
-
-    <!-- The chrome sits still while you move between the site's own surfaces.
-
-         Two things used to move it. The header and footer were centred on the
-         page's measure, so going from the landing (72rem) to /blog, /updates or
-         /about (44rem) slid the logo and the nav ~220px inward on a wide screen.
-         They now sit on the wide measure everywhere, and each page keeps its own
-         measure for its content under them.
-
-         And a page short enough not to scroll is a scrollbar-width wider than
-         one that does, so the whole centred layout shifted sideways on every
-         switch between them. `scrollbar-gutter: stable` reserves the track on
-         every page.
-
-         The width does not apply to a docs page: its header is already
-         full-bleed (see the ribbon above), and its footer stays where it was.
-         The gutter does, so leaving the docs for the landing does not jump. -->
+    <!-- A page short enough not to scroll is a scrollbar-width wider than one
+         that does, so the whole centred layout shifted sideways on every switch
+         between them. `scrollbar-gutter: stable` reserves the track on every
+         page, docs included, so leaving the docs for the landing does not jump
+         either. The page width itself is @rxova/brand's: every surface centres
+         on its `--max`. -->
     <style is:global>
       html[data-rxova-shell] {
         scrollbar-gutter: stable;
-      }
-      html[data-rxova-shell]:not([data-rxova-docs-shell]) {
-        --rx-chrome-max: var(--rx-max-wide);
-      }
-      html[data-rxova-shell]:not([data-rxova-docs-shell]) .site__inner {
-        max-width: var(--rx-chrome-max);
       }
     </style>
 
