@@ -320,7 +320,7 @@ const STANDARD_ICONS: Record<string, string> = {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="1.6"
+                stroke-width="1.5"
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 aria-hidden="true"
@@ -814,7 +814,7 @@ const STANDARD_ICONS: Record<string, string> = {
     .standard {
       display: grid;
       grid-template-columns: auto minmax(0, 1fr);
-      column-gap: 0.55rem;
+      column-gap: 0.7rem;
       row-gap: 0.3rem;
       /* Rows keep their content height; slack collects at the bottom.
  
@@ -833,10 +833,11 @@ const STANDARD_ICONS: Record<string, string> = {
     .standard-icon {
       grid-column: 1;
       grid-row: 1;
-      /* Optically matched to the mono label's cap height rather than to its
-         font-size, which would leave the glyph sitting low against the caps. */
-      width: 15px;
-      height: 15px;
+      /* A little larger than the label it sits beside. At the label's cap
+         height (15px) the glyphs were too small to read as icons on a large
+         screen; in rem so they follow the reader's text size. */
+      width: 1.375rem;
+      height: 1.375rem;
       align-self: center;
       color: var(--rx-faint);
     }
