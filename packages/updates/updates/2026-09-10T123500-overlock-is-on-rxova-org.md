@@ -1,12 +1,12 @@
 ---
-title: overlock is on rxova.org
+title: overlock is open source
 date: 2026-09-10T12:35:00Z
-repos: [overlock, brand, rxova-website]
+repos: [overlock]
 authors: [jonatan-kruszewski]
-tags: [docs]
+tags: [release]
 links:
-  - label: Documentation
-    href: https://rxova.org/packages/overlock/
+  - label: Source
+    href: https://github.com/rxova/overlock
   - label: npm
     href: https://www.npmjs.com/package/overlock
 ---
@@ -17,5 +17,3 @@ coding agents, which will happily take that route to a green suite.
 
 Run it with `npx overlock`, or as a Claude Code Stop hook, an MCP server or a GitHub Action. Thirteen
 rules, no network calls, zero runtime dependencies.
-
-Its docs are now live at `/packages/overlock/`, and it leads the rxova.org landing page.
