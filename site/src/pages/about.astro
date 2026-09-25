@@ -12,8 +12,7 @@
  * menu and the footer through `landingSurfaces` in ../lib/projects.ts.
  */
 import { MAINTAINER, PRINCIPLES } from '../lib/about'
-import { siteSurfaces } from '../lib/projects'
-import { PROJECTS } from '@rxova/brand'
+import { landingProjects, siteSurfaces } from '../lib/projects'
 import BaseLayout from '../layouts/BaseLayout.astro'
 // See ../styles/chrome.css for why the reset is imported per page rather than
 // by BaseLayout.
@@ -100,8 +99,9 @@ const description = `Rxova is built and maintained by ${MAINTAINER.name} — sma
     <section class="section" aria-labelledby="principles">
       <h2 id="principles">What the projects share</h2>
       <p class="section-lede">
-        {PROJECTS.map((p) => p.label).join(', ')} solve unrelated problems. These four rules are
-        what make them one ecosystem, and they are stated so you can check the code against them.
+        {landingProjects.map((p) => p.label).join(', ')} solve unrelated problems. These four rules
+        are what make them one ecosystem, and they are stated so you can check the code against
+        them.
       </p>
       <ol class="principles">
         {PRINCIPLES.map((p) => (
@@ -163,7 +163,7 @@ const description = `Rxova is built and maintained by ${MAINTAINER.name} — sma
         , so issues and pull requests belong there rather than here:
       </p>
       <ul class="repos">
-        {PROJECTS.map((p) => (
+        {landingProjects.map((p) => (
           <li>
             <a href={p.repo} target="_blank" rel="noopener noreferrer">
               {p.label}

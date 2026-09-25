@@ -32,17 +32,14 @@ const organizationJsonLd = {
   description: `Independent TypeScript libraries for problems that are harder than they look: ${projectListSentence}.`,
   founder: { '@type': 'Person', name: MAINTAINER.name },
   sameAs: [MAINTAINER.org, ...MAINTAINER.links.map((l) => l.href)],
-  // `url` only where the docs are actually mounted. A project with
-  // `enabled: false` has no page at its mount, and naming it here hands a
-  // crawler a 404 to go and fetch — the same bug the footer had, in the half
-  // of the page a person never sees. The project still belongs in `hasPart`
-  // either way: it exists, it is part of the organisation, and
-  // `codeRepository` is somewhere real to send anyone who follows it.
+  // The same set the page lists: `landingProjects` holds only enabled projects,
+  // so every `url` here has docs mounted behind it. A disabled one is left out
+  // of the structured data exactly as it is left off the page.
   hasPart: landingProjects.map((p) => ({
     '@type': 'SoftwareSourceCode',
     name: p.label,
     description: p.tagline,
-    ...(p.docsMounted ? { url: siteUrl(p.mount) } : {}),
+    url: siteUrl(p.mount),
     codeRepository: p.repo,
     programmingLanguage: 'TypeScript',
     license: 'https://opensource.org/licenses/MIT',
