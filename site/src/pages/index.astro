@@ -1061,12 +1061,18 @@ const STANDARD_ICONS: Record<string, string> = {
       min-width: 0;
     }
 
+    /* Not a card. The project's walkthrough window is the frame on this
+       stage, and a card around it put a frame inside a frame — two borders
+       and two paddings between a phone's edge and the code. The panel is its
+       content, on the page. */
     .panel {
-      border: 1px solid var(--rx-rule);
-      border-radius: var(--rx-radius);
-      background: var(--rx-card);
-      padding: clamp(1.25rem, 3vw, 2rem);
       min-width: 0;
+    }
+
+    /* Without JavaScript every panel is stacked; a rule keeps them apart. */
+    :global(html:not([data-js])) .panel + .panel {
+      border-top: 1px solid var(--rx-rule);
+      padding-top: 2rem;
     }
 
     :global(html[data-js]) .stage {
