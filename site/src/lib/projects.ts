@@ -132,8 +132,8 @@ function build(): LandingProject[] {
       install,
       ...(snippet ? { snippet } : {}),
       links: [
-        // Only link to docs that are actually deployed. A disabled project is
-        // still worth showing — it just has nowhere to point yet.
+        // Only link to docs that are actually deployed. `landingProjects` drops
+        // disabled projects anyway; the guard keeps `build()` honest on its own.
         ...(docsMounted ? [{ label: 'Docs', href: project.mount }] : []),
         ...(mountedStorybooks.has(`storybook-${project.id}`)
           ? [{ label: 'Storybook', href: `/storybook/${project.id}/` }]
@@ -149,7 +149,17 @@ function build(): LandingProject[] {
   })
 }
 
-export const landingProjects: readonly LandingProject[] = build()
+/**
+ * The projects the landing lists: only the enabled ones.
+ *
+ * `build()` still runs over every project, so a brand/sources.json disagreement
+ * fails the build whether or not the project is switched on. But a disabled
+ * project stays off the page entirely rather than showing as a card with no
+ * Docs link — `enabled: false` means "not launched", and a card announces it.
+ * Flipping the flag in sources.json brings the card, the mount and the footer
+ * link in together.
+ */
+export const landingProjects: readonly LandingProject[] = build().filter((p) => p.docsMounted)
 
 /**
  * The projects whose docs are actually mounted, as footer links.
