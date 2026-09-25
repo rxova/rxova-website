@@ -90,6 +90,21 @@ if (featuredIndex === -1) {
  * the label next to each one carries the meaning, so every `<svg>` is
  * `aria-hidden` and nothing here is announced twice.
  */
+/**
+ * The arrow after a link's label: `across` for a page on this site, `out` for
+ * one that opens elsewhere.
+ *
+ * Drawn rather than typed. The `→` and `↗` characters came from the text font
+ * at 0.85em, so they rendered at two different widths, sat a size below the
+ * label and shrank or grew with whichever font the glyph fell back to. Stroked
+ * paths on one 16-unit grid, sized in `em`, keep both the same weight as each
+ * other and as the label beside them.
+ */
+const ARROWS = {
+  across: '<path d="M3 8h10M9 4l4 4-4 4" />',
+  out: '<path d="M4.5 11.5l7-7M5.5 4.5h6v6" />',
+} as const
+
 const STANDARD_ICONS: Record<string, string> = {
   // A target: one thing, aimed at deliberately.
   'one-pain-point': '<circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3.2" />',
@@ -287,9 +302,18 @@ const STANDARD_ICONS: Record<string, string> = {
                     {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                   >
                     {l.label}
-                    <span aria-hidden="true" class="arrow">
-                      {l.external ? '↗' : '→'}
-                    </span>
+                    <svg
+                      class="arrow"
+                      data-dir={l.external ? 'out' : 'across'}
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                      set:html={ARROWS[l.external ? 'out' : 'across']}
+                    />
                   </a>
                 ))}
               </nav>
@@ -395,16 +419,34 @@ const STANDARD_ICONS: Record<string, string> = {
           <nav class="links" aria-label="About the maintainer">
             <a href="/about">
               About Rxova
-              <span aria-hidden="true" class="arrow">
-                →
-              </span>
+              <svg
+                class="arrow"
+                data-dir="across"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                set:html={ARROWS.across}
+              />
             </a>
             {MAINTAINER.links.map((l) => (
               <a href={l.href} target="_blank" rel="noopener noreferrer">
                 {l.label}
-                <span aria-hidden="true" class="arrow">
-                  ↗
-                </span>
+                <svg
+                  class="arrow"
+                  data-dir="out"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                  set:html={ARROWS.out}
+                />
               </a>
             ))}
           </nav>
@@ -432,21 +474,48 @@ const STANDARD_ICONS: Record<string, string> = {
             rel="noopener noreferrer"
           >
             Star on GitHub
-            <span aria-hidden="true" class="arrow">
-              ↗
-            </span>
+            <svg
+              class="arrow"
+              data-dir="out"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              set:html={ARROWS.out}
+            />
           </a>
           <a class="btn btn-ghost" href="/updates">
             What changed
-            <span aria-hidden="true" class="arrow">
-              →
-            </span>
+            <svg
+              class="arrow"
+              data-dir="across"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              set:html={ARROWS.across}
+            />
           </a>
           <a class="btn btn-ghost" href={blogFeed}>
             RSS
-            <span aria-hidden="true" class="arrow">
-              →
-            </span>
+            <svg
+              class="arrow"
+              data-dir="across"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              set:html={ARROWS.across}
+            />
           </a>
         </nav>
       </div>
@@ -742,22 +811,26 @@ const STANDARD_ICONS: Record<string, string> = {
     }
 
     .arrow {
+      flex: none;
+      width: 0.9em;
+      height: 0.9em;
       color: currentColor;
       opacity: 0.7;
-      font-size: 0.85em;
       transition: transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1);
     }
 
-    /* Buttons nudge their arrow diagonally, plain links horizontally — the
-       external-link glyph leans out of the page, the in-page one leads across
-       it. A `.btn` inside a `.links` row is a button first, so it is excluded
-       from the second rule rather than overridden by it. */
-    .btn:hover .arrow {
-      transform: translate(2px, -2px);
+    /* Each arrow nudges the way it points: an in-site link leads across the
+       page, an outbound one leans out of it. This used to go by button versus
+       plain link instead, so the `→` on "What changed" and "RSS" drifted up and
+       to the right on hover as if it opened another site. */
+    .btn:hover .arrow,
+    .links a:hover .arrow {
+      transform: translate(2px, 0);
     }
 
-    .links a:not(.btn):hover .arrow {
-      transform: translate(2px, 0);
+    .btn:hover .arrow[data-dir='out'],
+    .links a:hover .arrow[data-dir='out'] {
+      transform: translate(2px, -2px);
     }
 
     /* ------------------------------------------------------------------
