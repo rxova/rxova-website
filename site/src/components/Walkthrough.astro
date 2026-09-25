@@ -1,19 +1,26 @@
 ---
 /**
- * A project's centrepiece: one job done by hand, then with the project, in a
- * single window with Before and After tabs. Numbered notes pair each problem
- * with its fix, and the same numbers sit in the code's gutter.
+ * A project's centrepiece: one job done by hand, then with the project, told as
+ * a short guided tour. Each note is a step — a problem on the Before side, its
+ * fix on the After side — and the tour shows one at a time: its caption under
+ * the bar, and only its lines highlighted, scrolled into view inside the code.
  *
  * Ported from ts-extended-errors' docs landing page, where it started, and
  * generalised: the story is data (see ../lib/walkthrough.ts and
  * ../showcases/<id>/), so every project tells its own in the same frame.
  *
- * Progressive by design. Without JavaScript both sides show, one above the
- * other, with every note visible. The script adds the tabs and, unless the
- * reader prefers reduced motion, one pass that lights the notes in order. On
- * the landing several of these share a page, one per project panel, so a
- * walkthrough only plays while its panel is the one showing and it is on
- * screen; switching projects pauses it where it was.
+ * Why a tour rather than every note at once: the code is taller than a screen,
+ * so a list of notes above it left the reader matching note 3 to lines they
+ * could not see. With one note showing and the code scrolled to its lines, the
+ * two are always on screen together. The code scrolls inside its own box, never
+ * the page.
+ *
+ * Progressive. Without JavaScript both sides show in full, one above the other,
+ * with every note listed. The script turns that into the tour; it plays by
+ * itself only when the reader has not asked for reduced motion, and the
+ * arrows step through it either way. On the landing several of these share a
+ * page, one per project panel, so a tour only plays while its panel is the one
+ * showing and it is on screen; switching projects pauses it where it was.
  */
 import { Code } from 'astro-expressive-code/components'
 import { lineMarkers, type Showcase } from '../lib/walkthrough'
@@ -38,7 +45,6 @@ const sides = (['before', 'after'] as const).map((key) => {
   const text = side.code.trimEnd()
   return {
     key,
-    tag: key === 'before' ? 'Before' : 'After',
     label: side.label,
     lang: side.lang,
     code: text,
@@ -46,6 +52,11 @@ const sides = (['before', 'after'] as const).map((key) => {
     markers: { [key === 'before' ? 'del' : 'ins']: lineMarkers(text, story.notes, key) },
   }
 })
+
+const icons = {
+  prev: '<path d="M10 3.5 5.5 8l4.5 4.5" />',
+  next: '<path d="M6 3.5 10.5 8 6 12.5" />',
+}
 ---
 
 <section class="walkthrough" aria-labelledby={`${id}-heading`} data-walkthrough>
@@ -55,22 +66,49 @@ const sides = (['before', 'after'] as const).map((key) => {
   <p class="lede">{story.lede}</p>
 
   <div class="window">
-    <div class="window-bar" hidden data-bar>
+    <div class="bar" hidden data-bar>
       <div class="tabs" role="group" aria-label="Show">
         {sides.map((side) => (
           <button
             type="button"
+            class="tab"
             data-show={side.key}
             aria-pressed={side.key === 'before' ? 'true' : 'false'}
           >
-            <span class={`tag ${side.key}`}>{side.tag}</span>
-            <span class="tab-heading">{side.label}</span>
+            <span class={`dot ${side.key}`} aria-hidden="true" />
+            {side.label}
           </button>
         ))}
       </div>
-      {/* A native range, so dragging, clicking, arrow keys and screen readers
-          all work without code of ours; the script draws the fill and ticks. */}
-      <div class="progress" hidden data-progress>
+
+      <div class="controls">
+        <button type="button" class="icon-button" data-prev aria-label="Previous note">
+          <svg viewBox="0 0 16 16" aria-hidden="true" set:html={icons.prev} />
+        </button>
+        <span class="count" data-count aria-live="polite"></span>
+        <button type="button" class="icon-button" data-next aria-label="Next note">
+          <svg viewBox="0 0 16 16" aria-hidden="true" set:html={icons.next} />
+        </button>
+        <button type="button" class="icon-button play" data-play data-state="paused">
+          <svg class="icon pause" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M5.25 3.5v9M10.75 3.5v9"></path>
+          </svg>
+          <svg class="icon resume" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M5 3.2v9.6L12.6 8z"></path>
+          </svg>
+          <svg class="icon replay" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M3.2 8a4.8 4.8 0 1 0 1.4-3.4M4.2 2.4v2.8H7"></path>
+          </svg>
+          <span class="sr-only" data-play-label>
+            Play the walkthrough
+          </span>
+        </button>
+      </div>
+
+      {/* The progress, as the bar's bottom edge. A native range underneath, so
+          dragging, clicking, arrow keys and screen readers all work without
+          code of ours; the line and the fill are drawn over it. */}
+      <div class="progress" data-progress>
         <input
           type="range"
           min="0"
@@ -83,6 +121,11 @@ const sides = (['before', 'after'] as const).map((key) => {
       </div>
     </div>
 
+    <p class="caption" hidden data-caption>
+      <span class="caption-number" data-caption-number></span>
+      <span class="caption-text" data-caption-text></span>
+    </p>
+
     <div class="panes">
       {sides.map((side) => (
         <div
@@ -92,7 +135,8 @@ const sides = (['before', 'after'] as const).map((key) => {
           aria-labelledby={`${id}-${side.key}-label`}
         >
           <p class="label" id={`${id}-${side.key}-label`}>
-            <span class={`tag ${side.key}`}>{side.tag}</span> {side.label}
+            <span class={`dot ${side.key}`} aria-hidden="true" />
+            {side.label}
           </p>
           <ol class="notes">
             {side.notes.map((note) => (
@@ -101,123 +145,96 @@ const sides = (['before', 'after'] as const).map((key) => {
               </li>
             ))}
           </ol>
-          <div class="code">
+          <div class="code" data-code>
             <Code code={side.code} lang={side.lang} {...side.markers} />
           </div>
         </div>
       ))}
-      {/* The walkthrough's control, drawn like a video's: a circle over the
-          code that shows on hover or focus, and stays up while paused so the
-          way back in is obvious. */}
-      <div class="overlay">
-        <button type="button" class="play" hidden data-play data-state="playing">
-          <svg class="icon pause" aria-hidden="true" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"></path>
-          </svg>
-          <svg class="icon resume" aria-hidden="true" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M8 5.14v13.72L19 12z"></path>
-          </svg>
-          <svg class="icon replay" aria-hidden="true" viewBox="0 0 24 24">
-            <path
-              fill="currentColor"
-              d="M12 5V1.5L7 6.5l5 5V8a4 4 0 1 1-4 4H6a6 6 0 1 0 6-7Z"
-              transform="translate(0 1)"
-            ></path>
-          </svg>
-          <span class="sr-only" data-play-label>
-            Pause the walkthrough
-          </span>
-        </button>
-      </div>
     </div>
   </div>
 </section>
 
 <script>
-  // Beats, in milliseconds. Each note stays alone long enough to read it and
-  // find its lines in the code; the turn to "after" gets a beat of its own.
-  const LEAD_MS = 900
-  const NOTE_MS = 2600
-  const TURN_MS = 1600
+  // How long each note stays up: long enough to read it and find its lines.
+  // The first fix gets a little longer, for the turn from Before to After.
+  const NOTE_MS = 3600
+  const TURN_MS = 1200
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-walkthrough]')) {
     // Once per element: in development a hot reload can run this module again
-    // over the same page, and two sequences driving one set of controls is how
+    // over the same page, and two tours driving one set of controls is how
     // Pause ends up stopping one of them while the other carries on.
     if (root.dataset.js !== undefined) continue
 
-    const bar = root.querySelector<HTMLElement>('[data-bar]')
-    const play = root.querySelector<HTMLButtonElement>('[data-play]')
-    const playLabel = root.querySelector('[data-play-label]')
-    const progress = root.querySelector<HTMLElement>('[data-progress]')
-    const scrubber = root.querySelector<HTMLInputElement>('[data-scrubber]')
+    const q = <T extends Element>(selector: string) => root.querySelector<T>(selector)
+    const bar = q<HTMLElement>('[data-bar]')
+    const caption = q<HTMLElement>('[data-caption]')
+    const captionNumber = q<HTMLElement>('[data-caption-number]')
+    const captionText = q<HTMLElement>('[data-caption-text]')
+    const count = q<HTMLElement>('[data-count]')
+    const prev = q<HTMLButtonElement>('[data-prev]')
+    const next = q<HTMLButtonElement>('[data-next]')
+    const play = q<HTMLButtonElement>('[data-play]')
+    const playLabel = q<HTMLElement>('[data-play-label]')
+    const progress = q<HTMLElement>('[data-progress]')
+    const scrubber = q<HTMLInputElement>('[data-scrubber]')
     const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-show]')]
     const panes = [...root.querySelectorAll<HTMLElement>('[data-pane]')]
+    if (
+      !bar ||
+      !caption ||
+      !captionNumber ||
+      !captionText ||
+      !count ||
+      !prev ||
+      !next ||
+      !play ||
+      !playLabel ||
+      !progress ||
+      !scrubber
+    ) {
+      continue
+    }
 
-    // Each note with the code lines it points at. Expressive Code writes a
-    // marker's label into the line's inline `--tmLabel`, so every numbered line
-    // can be tied back to its note and light up with it.
-    const [beforeParts, afterParts] = panes.map((pane) => {
+    // One step per note per side, in order: every problem, then every fix.
+    // Expressive Code writes a marker's label into its line's inline
+    // `--tmLabel`, which is how each note finds the lines it points at.
+    type Step = {
+      side: string
+      index: number
+      html: string
+      lines: HTMLElement[]
+      box: HTMLElement
+    }
+    const steps: Step[] = panes.flatMap((pane) => {
+      const box = pane.querySelector<HTMLElement>('[data-code]')
+      if (!box) return []
       const lines = [...pane.querySelectorAll<HTMLElement>('.ec-line')]
       const labelOf = (line: HTMLElement) =>
         line.style.getPropertyValue('--tmLabel').replace(/\D/g, '')
       return [...pane.querySelectorAll<HTMLElement>('[data-note]')].map((note, index) => {
         const part = lines.filter((line) => labelOf(line) === String(index + 1))
         for (const line of part) line.classList.add('part')
-        return [note, ...part]
+        return { side: pane.dataset.pane ?? '', index, html: note.innerHTML, lines: part, box }
       })
     })
-    if (!bar || !play || !progress || !scrubber || !beforeParts || !afterParts) continue
+    const total = steps.filter((step) => step.side === 'before').length
+    if (steps.length === 0) continue
 
-    // The tabs. CSS shows the chosen side; the other is made inert, so it is
-    // out of the tab order and the accessibility tree, not merely faded.
-    let side = ''
-    const show = (next: string) => {
-      if (next === side) return
-      side = next
-      root.dataset.show = next
-      for (const tab of tabs) tab.setAttribute('aria-pressed', String(tab.dataset.show === next))
-      for (const pane of panes) pane.inert = pane.dataset.pane !== next
-    }
-    root.dataset.js = ''
-    bar.hidden = false
-    show('before')
-
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      for (const tab of tabs) {
-        tab.addEventListener('click', () => {
-          show(tab.dataset.show ?? 'before')
-        })
-      }
-      continue
-    }
-
-    // The walkthrough as a timeline rather than a chain of timers: every
-    // state is a function of one time, so the progress bar can jump anywhere
-    // and the view is simply drawn again for that moment.
-    const total = beforeParts.length
-    const cues: { at: number; part: HTMLElement[]; text: string }[] = []
-    let clock = LEAD_MS
-    for (const [index, part] of beforeParts.entries()) {
-      cues.push({ at: clock, part, text: `Problem ${String(index + 1)} of ${String(total)}` })
-      clock += NOTE_MS
-    }
-    const turnAt = clock
-    clock += TURN_MS
-    for (const [index, part] of afterParts.entries()) {
-      cues.push({ at: clock, part, text: `Fix ${String(index + 1)} of ${String(total)}` })
-      clock += NOTE_MS
+    // The tour as a timeline: every step starts at a time, and the view is a
+    // function of one clock, so the progress line can jump anywhere and the
+    // view is simply drawn again for that moment.
+    const starts: number[] = []
+    let clock = 0
+    for (const [index, step] of steps.entries()) {
+      starts.push(clock)
+      const turning = step.side === 'after' && steps[index - 1]?.side === 'before'
+      clock += NOTE_MS + (turning ? TURN_MS : 0)
     }
     const end = clock
-
     scrubber.max = String(end)
-    for (const cue of [...cues.map((c) => c.at), turnAt]) {
-      const tick = document.createElement('span')
-      tick.className = 'tick'
-      tick.style.left = `${String((cue / end) * 100)}%`
-      progress.append(tick)
-    }
 
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
     type State = 'playing' | 'paused' | 'ended'
     const labels: Record<State, string> = {
       playing: 'Pause the walkthrough',
@@ -228,24 +245,62 @@ const sides = (['before', 'after'] as const).map((key) => {
     let time = 0
     let frame: number | undefined
     let last = 0
+    let current = -1
     let started = false
     let pausedByPage = false
 
-    const draw = () => {
-      for (const cue of cues) {
-        for (const element of cue.part) element.classList.toggle('lit', cue.at <= time)
-      }
-      show(time >= turnAt ? 'after' : 'before')
-      scrubber.value = String(time)
-      progress.style.setProperty('--progress', `${String((time / end) * 100)}%`)
-      const current = cues.findLast((cue) => cue.at <= time)
-      scrubber.setAttribute('aria-valuetext', current ? current.text : 'Start')
+    const stepAt = (t: number) => {
+      let index = 0
+      for (const [i, start] of starts.entries()) if (start <= t) index = i
+      return index
     }
 
-    const setState = (next: State) => {
-      state = next
-      play.dataset.state = next
-      if (playLabel) playLabel.textContent = labels[next]
+    // Brings a step's first line near the top of its code box, with a few lines
+    // of context above it — the box scrolls, the page does not.
+    const reveal = (step: Step) => {
+      const [first] = step.lines
+      if (!first) return
+      const top = first.offsetTop - step.box.clientHeight / 5
+      step.box.scrollTo({ top: Math.max(0, top), behavior: reduced ? 'auto' : 'smooth' })
+    }
+
+    const apply = (index: number) => {
+      const step = steps[index]
+      if (!step || index === current) return
+      current = index
+      root.dataset.show = step.side
+      for (const tab of tabs) {
+        tab.setAttribute('aria-pressed', String(tab.dataset.show === step.side))
+      }
+      for (const pane of panes) pane.inert = pane.dataset.pane !== step.side
+      for (const [i, other] of steps.entries()) {
+        for (const line of other.lines) line.classList.toggle('lit', i === index)
+      }
+      const kind = step.side === 'before' ? 'Problem' : 'Fix'
+      caption.dataset.side = step.side
+      captionNumber.textContent = String(step.index + 1)
+      captionText.innerHTML = step.html
+      count.textContent = `${kind} ${String(step.index + 1)} of ${String(total)}`
+      prev.disabled = index === 0
+      next.disabled = index === steps.length - 1
+      // Retriggers the caption's fade: the new text arrives, not replaces.
+      caption.classList.remove('enter')
+      void caption.offsetWidth
+      caption.classList.add('enter')
+      reveal(step)
+    }
+
+    const draw = () => {
+      apply(stepAt(time))
+      scrubber.value = String(time)
+      progress.style.setProperty('--progress', `${String((time / end) * 100)}%`)
+      scrubber.setAttribute('aria-valuetext', count.textContent ?? '')
+    }
+
+    const setState = (nextState: State) => {
+      state = nextState
+      play.dataset.state = nextState
+      playLabel.textContent = labels[nextState]
     }
 
     const stop = () => {
@@ -253,7 +308,7 @@ const sides = (['before', 'after'] as const).map((key) => {
       frame = undefined
     }
 
-    const step = (now: number) => {
+    const tick = (now: number) => {
       time = Math.min(end, time + (now - last))
       last = now
       draw()
@@ -262,49 +317,66 @@ const sides = (['before', 'after'] as const).map((key) => {
         setState('ended')
         return
       }
-      frame = requestAnimationFrame(step)
+      frame = requestAnimationFrame(tick)
     }
 
     const resume = () => {
       if (time >= end) time = 0
-      root.dataset.anim = ''
       setState('playing')
       last = performance.now()
       stop()
-      frame = requestAnimationFrame(step)
+      frame = requestAnimationFrame(tick)
     }
 
     const pause = () => {
       stop()
-      setState('paused')
+      if (state === 'playing') setState('paused')
     }
+
+    // Taking over — a step, a tab, a drag — stops the tour where the reader
+    // put it, rather than moving the view away from them again.
+    const goTo = (index: number) => {
+      pause()
+      const target = Math.max(0, Math.min(steps.length - 1, index))
+      time = starts[target] ?? 0
+      draw()
+      if (target === steps.length - 1) setState('ended')
+    }
+
+    // The JS layout: the bar and the caption come in, the no-JS note lists go.
+    root.dataset.js = ''
+    bar.hidden = false
+    caption.hidden = false
+    setState('paused')
+    draw()
 
     play.addEventListener('click', () => {
       if (state === 'playing') pause()
       else resume()
     })
-
-    // Dragging jumps the view to that moment. Playback, if it was running,
-    // carries on from there, the way a video's scrubber behaves.
-    scrubber.addEventListener('input', () => {
-      root.dataset.anim = ''
-      time = Number(scrubber.value)
-      last = performance.now()
-      draw()
-      if (state === 'ended' && time < end) setState('paused')
-      if (state !== 'playing' && time >= end) setState('ended')
+    prev.addEventListener('click', () => {
+      goTo(current - 1)
     })
-
-    // Choosing a side is taking over: jump to the end, where everything is lit,
-    // and show that side, rather than moving the view away from the reader again.
+    next.addEventListener('click', () => {
+      goTo(current + 1)
+    })
     for (const tab of tabs) {
       tab.addEventListener('click', () => {
-        stop()
-        time = end
-        draw()
-        setState('ended')
-        show(tab.dataset.show ?? 'before')
+        goTo(steps.findIndex((step) => step.side === tab.dataset.show))
       })
+    }
+    scrubber.addEventListener('input', () => {
+      pause()
+      time = Number(scrubber.value)
+      draw()
+      setState(time >= end ? 'ended' : 'paused')
+    })
+
+    // Reading the code by hand is taking over too.
+    for (const step of steps) {
+      for (const type of ['wheel', 'touchstart'] as const) {
+        step.box.addEventListener(type, pause, { passive: true })
+      }
     }
 
     document.addEventListener('visibilitychange', () => {
@@ -317,25 +389,22 @@ const sides = (['before', 'after'] as const).map((key) => {
       }
     })
 
-    // On the landing each walkthrough sits in a project panel, and only one
-    // panel shows at a time. Hidden panels still take up layout — they share
-    // the stage's grid cell — so an IntersectionObserver alone would start
-    // every project's walkthrough at once. It plays only when both hold: its
-    // panel is the active one, and it has scrolled into view.
+    // On the landing each tour sits in a project panel, and only one panel
+    // shows at a time. Hidden panels still take up layout — they share the
+    // stage's grid cell — so an IntersectionObserver alone would start every
+    // project's tour at once. It plays only when both hold: its panel is the
+    // active one, and it has scrolled into view.
     const panel = root.closest<HTMLElement>('.panel')
     const panelShowing = () => !panel || panel.classList.contains('is-active')
     let inView = false
 
     const update = () => {
       if (!panelShowing()) {
-        if (state === 'playing') pause()
+        pause()
         return
       }
-      if (inView && !started) {
+      if (inView && !started && !reduced) {
         started = true
-        play.hidden = false
-        progress.hidden = false
-        draw()
         resume()
       }
     }
@@ -345,10 +414,9 @@ const sides = (['before', 'after'] as const).map((key) => {
         inView = entries.some((entry) => entry.isIntersecting)
         update()
       },
-      // A trigger line 40% up from the bottom of the viewport, not a ratio of
-      // the section: on a phone the section is taller than the screen, and a
-      // ratio threshold there is never reached.
-      { rootMargin: '0px 0px -40% 0px' },
+      // Most of the window has to be on screen before it starts, so the first
+      // note is not spent while the reader is still scrolling towards it.
+      { threshold: 0.6 },
     ).observe(root)
 
     if (panel) {
@@ -362,34 +430,33 @@ const sides = (['before', 'after'] as const).map((key) => {
 
 <style>
   /* Before and after, as the docs sites colour them (Starlight's red and green
-     low/high pairs), for the tags, the note numbers and nothing else. */
+     pairs): the dots, the caption's number, and nothing else. */
   .walkthrough {
-    --wt-red-low: hsl(339 88% 90%);
-    --wt-red-high: hsl(339 80% 30%);
-    --wt-green-low: hsl(139 88% 90%);
-    --wt-green-high: hsl(139 88% 20%);
-    --wt-bar: color-mix(in srgb, var(--rx-card) 60%, var(--rx-rule));
+    --wt-before: hsl(339 80% 42%);
+    --wt-before-soft: hsl(339 88% 94%);
+    --wt-after: hsl(139 70% 28%);
+    --wt-after-soft: hsl(139 60% 92%);
   }
 
   @media (prefers-color-scheme: dark) {
     :global(html:not([data-theme='light'])) .walkthrough {
-      --wt-red-low: hsl(339 39% 22%);
-      --wt-red-high: hsl(339 100% 87%);
-      --wt-green-low: hsl(139 38% 20%);
-      --wt-green-high: hsl(139 70% 79%);
+      --wt-before: hsl(339 100% 80%);
+      --wt-before-soft: hsl(339 39% 20%);
+      --wt-after: hsl(139 70% 72%);
+      --wt-after-soft: hsl(139 38% 18%);
     }
   }
 
   :global(html[data-theme='dark']) .walkthrough {
-    --wt-red-low: hsl(339 39% 22%);
-    --wt-red-high: hsl(339 100% 87%);
-    --wt-green-low: hsl(139 38% 20%);
-    --wt-green-high: hsl(139 70% 79%);
+    --wt-before: hsl(339 100% 80%);
+    --wt-before-soft: hsl(339 39% 20%);
+    --wt-after: hsl(139 70% 72%);
+    --wt-after-soft: hsl(139 38% 18%);
   }
 
   .walkthrough {
     width: 100%;
-    margin-block: 0.5rem 1.5rem;
+    margin-top: 0.75rem;
   }
 
   .heading {
@@ -408,13 +475,13 @@ const sides = (['before', 'after'] as const).map((key) => {
     text-wrap: pretty;
   }
 
+  /* One frame. The code sits straight in it: no inner box, no second border. */
   .window {
-    /* `clip`, not `hidden`: `hidden` makes the window a scroll container, and
-       the bar's sticky positioning would then track the window, not the page. */
     overflow: clip;
     border: 1px solid var(--rx-rule-strong);
     border-radius: var(--rx-radius);
     background: var(--rx-bg);
+    transition: border-color 0.3s ease;
   }
 
   /* The brand gradient's one placement in the panel: the side worth copying. */
@@ -425,77 +492,183 @@ const sides = (['before', 'after'] as const).map((key) => {
       var(--rx-gradient) border-box;
   }
 
-  /* The tabs and the progress bar stay under the site header while the code
-     scrolls past; the window is taller than most screens. */
-  .window-bar {
-    position: sticky;
-    top: calc(3.5rem + 1px);
-    z-index: 3;
+  /* --- The bar ------------------------------------------------------- */
+  .bar {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    border-bottom: 1px solid var(--rx-rule);
-    background: var(--wt-bar);
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 0.6rem 0.6rem;
   }
 
-  .window-bar[hidden],
-  .progress[hidden],
-  .play[hidden] {
+  .bar[hidden],
+  .caption[hidden] {
     display: none;
   }
 
-  /* The scrubber: a full-width row under the tabs. The input is transparent
-     over a drawn track, so the fill, the ticks and the thumb share one line. */
-  .progress {
-    --progress: 0%;
-    position: relative;
-    flex-basis: 100%;
-    height: 1.5rem;
-    margin-inline: 0.375rem;
+  /* A segmented switch: the two sides are one choice, not two buttons. */
+  .tabs {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: var(--rx-radius-pill);
+    background: var(--rx-card);
+    box-shadow: inset 0 0 0 1px var(--rx-rule);
   }
 
-  .progress::before,
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--rx-fg);
+    outline-offset: 2px;
+  }
+
+  .tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.1rem;
+    padding: 0 0.85rem;
+    border-radius: var(--rx-radius-pill);
+    color: var(--rx-muted);
+    font-size: 0.85rem;
+    font-weight: 550;
+    white-space: nowrap;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .tab:hover {
+    color: var(--rx-fg);
+  }
+
+  .tab[aria-pressed='true'] {
+    background: var(--rx-bg);
+    color: var(--rx-fg);
+    box-shadow:
+      0 0 0 1px var(--rx-rule-strong),
+      0 1px 2px color-mix(in srgb, var(--rx-fg) 8%, transparent);
+  }
+
+  .dot {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+
+  .dot.before {
+    background: var(--wt-before);
+  }
+
+  .dot.after {
+    background: var(--wt-after);
+  }
+
+  .controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    margin-left: auto;
+  }
+
+  .count {
+    min-width: 7.5em;
+    text-align: center;
+    color: var(--rx-muted);
+    font-family: var(--rx-font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .icon-button {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    color: var(--rx-muted);
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .icon-button:hover:not(:disabled) {
+    background: var(--rx-card);
+    color: var(--rx-fg);
+  }
+
+  .icon-button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .icon-button svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .play {
+    margin-left: 0.25rem;
+    box-shadow: inset 0 0 0 1px var(--rx-rule-strong);
+  }
+
+  .play .resume {
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .play .icon {
+    display: none;
+  }
+
+  .play[data-state='playing'] .pause,
+  .play[data-state='paused'] .resume,
+  .play[data-state='ended'] .replay {
+    display: block;
+  }
+
+  /* The progress: the bar's bottom edge, filled in brand violet. The range
+     input spans a taller, invisible strip over it so it is easy to grab. */
+  .progress {
+    --progress: 0%;
+    position: absolute;
+    inset: auto 0 0;
+    height: 2px;
+    background: var(--rx-rule);
+  }
+
   .progress::after {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 0;
-    height: 4px;
-    border-radius: var(--rx-radius-pill);
-    translate: 0 -50%;
-    pointer-events: none;
-  }
-
-  .progress::before {
-    right: 0;
-    background: var(--rx-rule-strong);
-  }
-
-  .progress::after {
+    inset: 0 auto 0 0;
     width: var(--progress);
     background: var(--rx-primary);
-  }
-
-  .progress :global(.tick) {
-    position: absolute;
-    top: 50%;
-    z-index: 1;
-    width: 2px;
-    height: 10px;
-    border-radius: 1px;
-    background: var(--rx-faint);
-    translate: -50% -50%;
     pointer-events: none;
   }
 
   .progress input {
-    position: relative;
-    z-index: 2;
+    position: absolute;
+    inset: -7px 0;
+    z-index: 1;
     width: 100%;
-    height: 100%;
+    height: 16px;
     margin: 0;
     background: transparent;
     cursor: pointer;
@@ -511,135 +684,181 @@ const sides = (['before', 'after'] as const).map((key) => {
     background: transparent;
   }
 
+  /* No thumb until the line is being handled. */
   .progress input::-webkit-slider-thumb {
-    width: 1rem;
-    height: 1rem;
-    margin-top: 0.25rem;
-    border: 2px solid var(--rx-bg);
+    width: 10px;
+    height: 10px;
+    margin-top: 3px;
     border-radius: 50%;
     background: var(--rx-primary);
+    opacity: 0;
     appearance: none;
+    transition: opacity 0.15s ease;
   }
 
   .progress input::-moz-range-thumb {
-    width: 1rem;
-    height: 1rem;
-    border: 2px solid var(--rx-bg);
+    width: 10px;
+    height: 10px;
+    border: 0;
     border-radius: 50%;
     background: var(--rx-primary);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .progress input:hover::-webkit-slider-thumb,
+  .progress input:focus-visible::-webkit-slider-thumb {
+    opacity: 1;
+  }
+
+  .progress input:hover::-moz-range-thumb,
+  .progress input:focus-visible::-moz-range-thumb {
+    opacity: 1;
   }
 
   .progress input:focus-visible {
-    outline: 2px solid var(--rx-primary);
-    outline-offset: 2px;
-    border-radius: var(--rx-radius-sm);
+    outline: none;
   }
 
-  .tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-  }
-
-  button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 2.75rem;
-    padding-inline: 0.875rem;
-    border: 1px solid transparent;
-    border-radius: var(--rx-radius-sm);
-    background: transparent;
-    color: var(--rx-muted);
-    font: inherit;
-    font-size: 0.875rem;
-    cursor: pointer;
-  }
-
-  button:hover {
-    color: var(--rx-fg);
-  }
-
-  button:focus-visible {
+  .progress:has(input:focus-visible) {
     outline: 2px solid var(--rx-fg);
-    outline-offset: 2px;
+    outline-offset: 4px;
   }
 
-  .tabs button[aria-pressed='true'] {
-    border-color: var(--rx-rule-strong);
-    background: var(--rx-bg);
+  /* --- The caption: the one note in play --------------------------- */
+  .caption {
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0.7rem;
+    min-height: 4.4rem;
+    margin: 0;
+    padding: 0.9rem 1.1rem;
+    border-bottom: 1px solid var(--rx-rule);
     color: var(--rx-fg);
+    font-size: 0.95rem;
+    line-height: 1.5;
   }
 
+  .caption-number {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 650;
+  }
+
+  .caption[data-side='before'] .caption-number {
+    background: var(--wt-before-soft);
+    color: var(--wt-before);
+  }
+
+  .caption[data-side='after'] .caption-number {
+    background: var(--wt-after-soft);
+    color: var(--wt-after);
+  }
+
+  .caption :global(code),
+  .note :global(code) {
+    font-family: var(--rx-font-mono);
+    font-size: 0.88em;
+    padding: 0.05em 0.3em;
+    border-radius: 4px;
+    background: var(--rx-card);
+  }
+
+  /* --- The code ------------------------------------------------------ */
   .panes {
-    position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
+  .pane {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
+    padding: 1rem;
   }
 
-  /* Pinned to the middle of the code, the way a video's control sits in the
-     middle of the video. `translate` centres it; `transform` is left free for
-     the scale it animates. Inverted ink, so it reads on either theme. */
-  .play {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    translate: -50% -50%;
+  .pane + .pane {
+    border-top: 1px solid var(--rx-rule);
+  }
+
+  .label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--rx-fg);
+    font-weight: 600;
+  }
+
+  .notes {
     display: grid;
-    place-items: center;
-    width: 4.5rem;
-    height: 4.5rem;
+    gap: 0.5rem;
     margin: 0;
+    padding: 0 0 0 1.4rem;
+    color: var(--rx-muted);
+    font-size: 0.9rem;
+  }
+
+  .code {
+    position: relative;
+    min-width: 0;
+  }
+
+  .code :global(.expressive-code) {
+    margin: 0;
+    /* Room for the note numbers in the gutter, which would otherwise sit on
+       top of the first character of an unindented line. */
+    --ec-codePadInl: 2.25rem;
+  }
+
+  /* The tour. Both sides share one cell, so switching never moves the page;
+     the note lists give way to the caption; and the code gets a fixed height
+     and scrolls inside it, to the lines of the note in play. */
+  .walkthrough[data-js] .pane {
+    grid-area: 1 / 1;
     padding: 0;
-    border: 1px solid color-mix(in srgb, var(--rx-bg) 25%, transparent);
-    border-radius: 50%;
-    background: color-mix(in srgb, var(--rx-fg) 78%, transparent);
-    color: var(--rx-bg);
-    box-shadow: 0 0.5rem 2rem color-mix(in srgb, var(--rx-fg) 25%, transparent);
-    backdrop-filter: blur(6px);
-    opacity: 0;
-    transform: scale(0.85);
-    pointer-events: auto;
+    border-top: 0;
+    transition:
+      opacity 0.35s ease,
+      visibility 0.35s;
   }
 
-  .play:hover {
-    color: var(--rx-bg);
-    background: color-mix(in srgb, var(--rx-fg) 90%, transparent);
-  }
-
-  .window:hover .play,
-  .play:focus-visible,
-  .play[data-state='paused'] {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  /* No hover on a touchscreen, so the control stays in sight, smaller. */
-  @media (hover: none) {
-    .play {
-      width: 3.25rem;
-      height: 3.25rem;
-      opacity: 0.9;
-      transform: none;
-    }
-  }
-
-  .icon {
+  .walkthrough[data-js] .label,
+  .walkthrough[data-js] .notes {
     display: none;
-    width: 1.75rem;
-    height: 1.75rem;
   }
 
-  .play[data-state='playing'] .pause,
-  .play[data-state='paused'] .resume,
-  .play[data-state='ended'] .replay {
-    display: block;
+  .walkthrough[data-show='before'] .pane.after,
+  .walkthrough[data-show='after'] .pane.before {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  .walkthrough[data-js] .code {
+    height: min(26rem, 58vh);
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    padding-block: 0.4rem;
+  }
+
+  /* Only the note in play keeps its highlight, gutter number and accent; the
+     rest of the marked lines read as plain code until their turn. */
+  .walkthrough[data-js] .code :global(.ec-line.part:not(.lit)) {
+    background-color: transparent;
+  }
+
+  .walkthrough[data-js] .code :global(.ec-line.part:not(.lit) .code) {
+    --ecLineBrdCol: transparent;
+  }
+
+  .walkthrough[data-js] .code :global(.ec-line.part:not(.lit) .code::before) {
+    opacity: 0;
   }
 
   .sr-only {
@@ -651,189 +870,79 @@ const sides = (['before', 'after'] as const).map((key) => {
     white-space: nowrap;
   }
 
-  .tag {
-    padding: 0.125rem 0.5rem;
-    border-radius: var(--rx-radius-sm);
-    font-family: var(--rx-font-mono);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
+  @media (prefers-reduced-motion: no-preference) {
+    .code :global(.ec-line.part) {
+      transition: background-color 0.4s ease;
+    }
 
-  .tag.before {
-    background: var(--wt-red-low);
-    color: var(--wt-red-high);
-  }
+    .code :global(.ec-line.part .code::before) {
+      transition: opacity 0.4s ease;
+    }
 
-  .tag.after {
-    background: var(--wt-green-low);
-    color: var(--wt-green-high);
-  }
+    .caption.enter .caption-text,
+    .caption.enter .caption-number {
+      animation: caption-in 0.35s ease both;
+    }
 
-  /* On a phone the tab says "Before" or "After"; the rest would wrap the bar. */
-  @media (max-width: 30rem) {
-    .tab-heading {
-      display: none;
+    @keyframes caption-in {
+      from {
+        opacity: 0;
+        transform: translateY(3px);
+      }
     }
   }
 
-  /* The site header drops to 3.25rem here (see @rxova/brand's Header), and the
-     window already sits inside a padded panel: every rem of padding nested in
-     it is a rem of code a phone cannot show. */
+  @media (prefers-reduced-motion: reduce) {
+    .window,
+    .tab,
+    .icon-button,
+    .walkthrough[data-js] .pane {
+      transition: none;
+    }
+  }
+
+  /* On a phone the bar is two tidy rows rather than one that wraps raggedly:
+     the switch across the full width, halves equal, and the step controls
+     under it, spread edge to edge. The code keeps every rem it can. */
   @media (max-width: 34rem) {
-    .window-bar {
-      top: calc(3.25rem + 1px);
+    .bar {
+      padding-inline: 0.45rem;
+      row-gap: 0.25rem;
     }
 
-    .pane {
-      padding: 0.5rem;
+    .tabs {
+      flex: 1 1 100%;
+    }
+
+    .tab {
+      flex: 1 1 0;
+      justify-content: center;
+      min-width: 0;
+      padding: 0 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .controls {
+      flex: 1 1 100%;
+      justify-content: space-between;
+      margin-left: 0;
+    }
+
+    .count {
+      flex: 1;
+    }
+
+    .walkthrough[data-js] .code {
+      height: min(22rem, 52vh);
+    }
+
+    .caption {
+      padding: 0.75rem 0.8rem;
+      font-size: 0.9rem;
     }
 
     .code :global(.expressive-code) {
       --ec-codePadInl: 1.75rem;
-    }
-  }
-
-  .pane {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    min-width: 0;
-    padding: clamp(0.75rem, 2vw, 1.25rem);
-  }
-
-  .pane + .pane {
-    border-top: 1px solid var(--rx-rule);
-  }
-
-  .label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0;
-    color: var(--rx-fg);
-    font-weight: 600;
-  }
-
-  /* With the script, both sides share one cell — the window is as tall as the
-     longer one, so switching never moves the page — and the tabs name them. */
-  .walkthrough[data-js] .pane {
-    grid-area: 1 / 1;
-    border-top: 0;
-  }
-
-  .walkthrough[data-js] .label {
-    display: none;
-  }
-
-  .walkthrough[data-show='before'] .pane.after,
-  .walkthrough[data-show='after'] .pane.before {
-    visibility: hidden;
-    opacity: 0;
-    transform: translateY(0.5rem);
-  }
-
-  .notes {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
-    gap: 0.5rem 1.25rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    counter-reset: note;
-    color: var(--rx-muted);
-    font-size: 0.85rem;
-    line-height: 1.45;
-  }
-
-  .note {
-    display: grid;
-    grid-template-columns: 1.5rem minmax(0, 1fr);
-    gap: 0.5rem;
-    margin: 0;
-    counter-increment: note;
-  }
-
-  .note::before {
-    content: counter(note);
-    display: grid;
-    place-items: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 50%;
-    font-size: 0.72rem;
-    font-weight: 600;
-  }
-
-  .before .note::before {
-    background: var(--wt-red-low);
-    color: var(--wt-red-high);
-  }
-
-  .after .note::before {
-    background: var(--wt-green-low);
-    color: var(--wt-green-high);
-  }
-
-  .note :global(code) {
-    font-family: var(--rx-font-mono);
-    font-size: 0.9em;
-    color: var(--rx-fg);
-  }
-
-  .code {
-    min-width: 0;
-  }
-
-  .code :global(.expressive-code) {
-    margin: 0;
-    /* Room for the note numbers in the gutter, which would otherwise sit on
-       top of the first character of an unindented line. */
-    --ec-codePadInl: 2.25rem;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .play {
-      transition:
-        opacity 250ms ease,
-        transform 250ms ease;
-    }
-
-    .pane,
-    .note {
-      transition:
-        opacity 600ms ease,
-        transform 600ms ease,
-        visibility 600ms;
-    }
-
-    .code :global(.ec-line.part) {
-      transition: background-color 600ms ease;
-    }
-
-    .code :global(.ec-line.part .code::before) {
-      transition: opacity 600ms ease;
-    }
-
-    /* The sequence. Only present while it runs; its absence is the full view.
-       A note waiting its turn is dimmed, and its lines are plain code — no
-       highlight, no accent, no number — until the note lights. */
-    .walkthrough[data-anim] .note:not(.lit) {
-      opacity: 0.35;
-      transform: translateY(0.25rem);
-    }
-
-    .walkthrough[data-anim] .code :global(.ec-line.part:not(.lit)) {
-      background-color: transparent;
-    }
-
-    .walkthrough[data-anim] .code :global(.ec-line.part:not(.lit) .code) {
-      --ecLineBrdCol: transparent;
-    }
-
-    .walkthrough[data-anim] .code :global(.ec-line.part:not(.lit) .code::before) {
-      opacity: 0;
     }
   }
 </style>
