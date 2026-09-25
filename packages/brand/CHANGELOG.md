@@ -1,5 +1,11 @@
 # @rxova/brand
 
+## 0.15.1
+
+### Patch Changes
+
+- [#61](https://github.com/rxova/rxova-website/pull/61) [`97f0a5d`](https://github.com/rxova/rxova-website/commit/97f0a5d84a72534813bb983cf2b51feaa08779ce) - Point the package's repository, issues and the `brand` repo link in `REPOS` at `rxova/rxova-website`, where the package now lives
+
 ## 0.15.0
 
 ### Minor Changes

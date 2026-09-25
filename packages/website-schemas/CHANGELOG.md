@@ -1,5 +1,11 @@
 # @rxova/website-schemas
 
+## 0.6.2
+
+### Patch Changes
+
+- [#61](https://github.com/rxova/rxova-website/pull/61) [`97f0a5d`](https://github.com/rxova/rxova-website/commit/97f0a5d84a72534813bb983cf2b51feaa08779ce) - Point the package's repository and issues at `rxova/rxova-website`, where the package now lives
+
 ## 0.6.1
 
 ### Patch Changes
