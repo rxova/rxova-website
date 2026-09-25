@@ -1,6 +1,6 @@
 {
   "name": "@rxova/preview",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "private": true,
   "type": "module",
   "description": "Renders @rxova/brand through the real consumer code path, so the theme can be looked at before it ships.",
