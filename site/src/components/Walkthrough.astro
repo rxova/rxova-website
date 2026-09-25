@@ -75,7 +75,6 @@ const icons = {
             data-show={side.key}
             aria-pressed={side.key === 'before' ? 'true' : 'false'}
           >
-            <span class={`dot ${side.key}`} aria-hidden="true" />
             {/* The full label where the window has room for it; "Before" and
                 "After" where it does not — "With ts-extended-errors" is wider
                 than half a phone. See the container query below. */}
@@ -138,8 +137,7 @@ const icons = {
           data-pane={side.key}
           aria-labelledby={`${id}-${side.key}-label`}
         >
-          <p class="label" id={`${id}-${side.key}-label`}>
-            <span class={`dot ${side.key}`} aria-hidden="true" />
+          <p class={`label ${side.key}`} id={`${id}-${side.key}-label`}>
             {side.label}
           </p>
           <ol class="notes">
@@ -433,8 +431,9 @@ const icons = {
 </script>
 
 <style>
-  /* Before and after, as the docs sites colour them (Starlight's red and green
-     pairs): the dots, the caption's number, and nothing else. */
+  /* Before and after, as a danger and a success colour (Starlight's red and
+     green pairs, as the docs sites use them): the switch's labels, the
+     caption's number, and nothing else. */
   .walkthrough {
     --wt-before: hsl(339 80% 42%);
     --wt-before-soft: hsl(339 88% 94%);
@@ -554,35 +553,35 @@ const icons = {
       box-shadow 0.2s ease;
   }
 
+  /* Each side in its own colour, always: Before reads as the danger, After as
+     the success. The chosen one is filled with a tint of it and ringed in it;
+     the other is the coloured word alone, at full strength — dimming it would
+     take the red below AA contrast on the light background. */
+  .tab[data-show='before'] {
+    --tab: var(--wt-before);
+    --tab-soft: var(--wt-before-soft);
+  }
+
+  .tab[data-show='after'] {
+    --tab: var(--wt-after);
+    --tab-soft: var(--wt-after-soft);
+  }
+
+  .tab {
+    color: var(--tab);
+  }
+
   .tab:hover {
-    color: var(--rx-fg);
+    background: color-mix(in srgb, var(--tab-soft) 50%, transparent);
   }
 
   .tab[aria-pressed='true'] {
-    background: var(--rx-bg);
-    color: var(--rx-fg);
-    box-shadow:
-      0 0 0 1px var(--rx-rule-strong),
-      0 1px 2px color-mix(in srgb, var(--rx-fg) 8%, transparent);
+    background: var(--tab-soft);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--tab) 45%, transparent);
   }
 
   .tab-short {
     display: none;
-  }
-
-  .dot {
-    flex: none;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-  }
-
-  .dot.before {
-    background: var(--wt-before);
-  }
-
-  .dot.after {
-    background: var(--wt-after);
   }
 
   .controls {
@@ -802,8 +801,15 @@ const icons = {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--rx-fg);
     font-weight: 600;
+  }
+
+  .label.before {
+    color: var(--wt-before);
+  }
+
+  .label.after {
+    color: var(--wt-after);
   }
 
   .notes {
