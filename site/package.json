@@ -9,16 +9,27 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check:astro": "astro check"
+    "check:astro": "astro check",
+    "typecheck": "tsc -p src/showcases",
+    "test": "vitest run"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.5",
     "@fontsource/space-grotesk": "^5.2.5",
     "@rxova/brand": "workspace:^",
-    "astro": "^7.3.3"
+    "astro": "^7.3.3",
+    "astro-expressive-code": "^0.44.2"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "typescript": "6.0.3"
+    "@rxova/journey-core": "1.0.0-rc.3",
+    "@rxova/react-intl-currency-input": "^1.0.2",
+    "@rxova/react-otp-input": "^1.0.4",
+    "@types/react": "^19.3.0",
+    "react": "^19.3.0",
+    "ts-extended-errors": "^1.0.0",
+    "typescript": "6.0.3",
+    "use-everywhere": "^1.0.2",
+    "vitest": "^5.0.1"
   }
 }

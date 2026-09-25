@@ -1,0 +1,35 @@
+$ npx overlock
+overlock — 6 findings (5 high, 1 low)  (3 files, against HEAD)
+
+✗ HIGH  src/invoice.test.ts:14  TEST_SKIPPED_ADDED
+     .skip added — this test no longer runs.
+     + it.skip('applies the discount before tax', () => {
+     -> Make the test pass, or delete it deliberately and say why.
+
+✗ HIGH  src/invoice.test.ts:11  ASSERTION_WEAKENED
+     An exact assertion was replaced with one that only checks that a value is truthy.
+     - expect(invoiceTotal(lines, 0.2)).toEqual({
+     + expect(invoiceTotal(lines, 0.2)).toBeTruthy()
+     -> Assert the value, not that a value is present.
+
+✗ HIGH  vitest.config.ts:5  SUITE_SCOPE_NARROWED
+     The set the runner collects shrank: "include" lost 1 pattern: test/integration/**/*.test.ts.
+     - include: ['src/**/*.test.ts', 'test/integration/**/*.test.ts'],
+     + include: ['src/**/*.test.ts'],
+     -> Keep the set the runner collected, or say where the tests it no longer reaches are run.
+
+✗ HIGH  vitest.config.ts:9  COVERAGE_THRESHOLD_LOWERED
+     Threshold "lines" lowered from 90 to 60.
+     - lines: 90,
+     + lines: 60,
+     -> Raise the number back and make the code meet it.
+
+✗ HIGH  vitest.config.ts:10  COVERAGE_THRESHOLD_LOWERED
+     Threshold "branches" lowered from 85 to 50.
+     - branches: 85,
+     + branches: 50,
+     -> Raise the number back and make the code meet it.
+
+· LOW   src/invoice.test.ts:1  TEST_AND_IMPL_TOGETHER
+     Changed in the same patch as src/invoice.ts.
+     -> Normal for TDD. Worth a glance if anything else here is flagged.

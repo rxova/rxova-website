@@ -425,13 +425,40 @@ importers:
       astro:
         specifier: ^7.3.3
         version: 7.3.5(@types/node@26.6.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1)
+      astro-expressive-code:
+        specifier: ^0.44.2
+        version: 0.44.2(astro@7.3.5(@types/node@26.6.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.10
         version: 0.9.10(prettier-plugin-astro@1.0.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9))(prettier@3.9.9)(typescript@6.0.3)
+      '@rxova/journey-core':
+        specifier: 1.0.0-rc.3
+        version: 1.0.0-rc.3
+      '@rxova/react-intl-currency-input':
+        specifier: ^1.0.2
+        version: 1.0.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@rxova/react-otp-input':
+        specifier: ^1.0.4
+        version: 1.0.4(react@19.3.0)
+      '@types/react':
+        specifier: ^19.3.0
+        version: 19.3.0
+      react:
+        specifier: ^19.3.0
+        version: 19.3.0
+      ts-extended-errors:
+        specifier: ^1.0.0
+        version: 1.0.0
       typescript:
         specifier: 6.0.3
         version: 6.0.3
+      use-everywhere:
+        specifier: ^1.0.2
+        version: 1.0.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      vitest:
+        specifier: ^5.0.1
+        version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
 
 packages:
 
@@ -1693,6 +1720,22 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
+  '@rxova/journey-core@1.0.0-rc.3':
+    resolution: {integrity: sha512-GDOFQY8/u6hS+gcQEzXOXRAm+7yvk8wFbgJq+J1dQe+kr1NJ4kxJBJYM+9WK2GjJJ3zvzFB3ng+6v9rLzj85Vg==}
+
+  '@rxova/react-intl-currency-input@1.0.2':
+    resolution: {integrity: sha512-t9srl7VSJRVXip+MrCkNo9TCaLJrldn8PubuBsmryfXXG3fk78FebhfhQC8qhdGBq9ZCqwAqVQ6DOP0L2uGecQ==}
+    engines: {node: '>=20.19.0'}
+    peerDependencies:
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
+
+  '@rxova/react-otp-input@1.0.4':
+    resolution: {integrity: sha512-T1K16cqQuZqfXIYMZ4E6sZAcBMRVttqKQAGkwWw5MgQIUpK0D9hZuLH2TycgYJNENuRkNBQUe3LBH9MAufXxrw==}
+    engines: {node: '>=20.19.0'}
+    peerDependencies:
+      react: '>=18.0.0'
+
   '@shikijs/core@4.4.3':
     resolution: {integrity: sha512-QCR4q2ZO/ILJEuwiBMel4wdcTDb1JGwfjKTxPDF6x8ixOaluPrVqIn06C99AcRPhmYlBR56d/Fb+GN58GzExpg==}
     engines: {node: '>=20'}
@@ -1812,6 +1855,9 @@ packages:
   '@types/node@26.6.1':
     resolution: {integrity: sha512-VqGJBMCtdhqkBUCcBLvywI0NJ+KLuVzgNnlBUNFOQjqVxzo2lxLUNg1DSey8+u2u6ktswSAxg+s68QLzWHNOuA==}
 
+  '@types/react@19.3.0':
+    resolution: {integrity: sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==}
+
   '@types/sax@1.2.7':
     resolution: {integrity: sha512-rO73L89PJxeYM3s3pPPjiPgVVcymqU490g0YO5n5By0k2Erzj6tay/4lr1CHAAU4JyOWd1rpQ8bCf6cZfHU96A==}
 
@@ -1882,6 +1928,9 @@ packages:
 
   '@ungap/structured-clone@1.4.0':
     resolution: {integrity: sha512-1mEZtMKPM09vDmQt5y7YvmN2+DFTP7Tg0EWXdic8/C6VRnpb33e4ghisCIE3WZjsE2N8mf+QV1Zqh7ZFYLWInQ==}
+
+  '@use-everywhere/core@1.0.2':
+    resolution: {integrity: sha512-FkkLiwNeoYWpJxKwS0RCuViWwPB7Sh+zeiKmhRyVf+WCinmDGQazKhZj027c5VWimTnND5P8Ep39tz+bUS3dbA==}
 
   '@vitest/coverage-v8@5.0.1':
     resolution: {integrity: sha512-FRC8ACiudC3dI6MTplzRSYWHDRnIv2IPfbzs4FdoJNsMal/35sWV8hwIfV8ZcqzSPy+uXHeMVONt9CEqtOU17w==}
@@ -2357,6 +2406,9 @@ packages:
   csso@5.0.5:
     resolution: {integrity: sha512-0LrrStPOdJj+SPCCrGhzryycLjwcgUSHBtxNA8aIDxf0GLsRh1cKYhB00Gd1lDOS4yGH69+SNn13+TWbVHETFQ==}
     engines: {node: ^10 || ^12.20.0 || ^14.13.0 || >=15.0.0, npm: '>=7.0.0'}
+
+  csstype@3.2.3:
+    resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
   dataloader@2.2.3:
     resolution: {integrity: sha512-y2krtASINtPFS1rSDjacrFgn1dcUuoREVabwlOGOe4SdxenREqwjwjElAdwvbGM7kgZz9a3KVicWR7vcz8rnzA==}
@@ -3267,6 +3319,15 @@ packages:
   radix3@1.1.2:
     resolution: {integrity: sha512-b484I/7b8rDEdSDKckSSBA8knMpcdsXudlE/LNL639wFoHKwLbEkQFZHWEYwDC0wa0FKUcCY+GAF73Z7wxNVFA==}
 
+  react-dom@19.3.0:
+    resolution: {integrity: sha512-JDk8dgif51OjFoDE70+OT9ICyYr+69HlmihNwp1+Nsfbna3t5sIiCa9ZJktDmQ4/1b/rn26hIAR2uYXDMr5r0Q==}
+    peerDependencies:
+      react: ^19.3.0
+
+  react@19.3.0:
+    resolution: {integrity: sha512-E8LUcbtBWt20bbl2YoHfx4ZDBdxVTfOKtCZn9cDSJ4l6/nuoApcpIBcj47t2wZoVX8g2ZHuMHbiShgCR1T5Sog==}
+    engines: {node: '>=0.10.0'}
+
   readdirp@4.1.2:
     resolution: {integrity: sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg==}
     engines: {node: '>= 14.18.0'}
@@ -3364,6 +3425,9 @@ packages:
   sax@1.6.1:
     resolution: {integrity: sha512-42tBVwLWnaQvW5zc4HbZrTuWccECCZfBi92FDuwtqxasH+JbPB3/FOKb1m222K42R4WxuxzzMsTswfzgtSu64Q==}
     engines: {node: '>=11.0.0'}
+
+  scheduler@0.28.0:
+    resolution: {integrity: sha512-juorfCmIkIw8tT+p5BXSm6PJjQF/ycEYmKyzURCIt/RaZIhL+PulbQ9Yu2z1HdOJDdqDTlxA1+xKBmHXJsczAw==}
 
   semver@7.8.5:
     resolution: {integrity: sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==}
@@ -3499,6 +3563,10 @@ packages:
     engines: {node: '>=18.12'}
     peerDependencies:
       typescript: '>=4.8.4'
+
+  ts-extended-errors@1.0.0:
+    resolution: {integrity: sha512-LkkupaGrKJwjZrA/OTifkbZKjcJk0MasoFNGOEvcp9ema+JZwDb5PWOa5WL2Ro4CC8S1BjQ/YxVwBiHun6K4+w==}
+    engines: {node: '>=22.12.0'}
 
   tsdown@0.23.0:
     resolution: {integrity: sha512-BaT+ep1xnj5hdyICLd5r5SYYE+TXnI1ATePLykv9vcKpHpFTWUWRH+x1AF/E2qcu3YB6+vI8IdyxIIIffEqw5Q==}
@@ -3685,6 +3753,15 @@ packages:
   url-extras@0.1.0:
     resolution: {integrity: sha512-8tzwTeXFPuX/5PHuCDQE5Dd9Ts4rwoq2t9aIT+HS4iAVpmj5l4Ao7Q+BuuFjvWRqrLswBhQDk8O96ZicgCqQqw==}
     engines: {node: '>=20'}
+
+  use-everywhere@1.0.2:
+    resolution: {integrity: sha512-YNBLHyy+8FE0/x4AoBN8uBfmyfwgrS3t4ohJQMyxP5q9oBwCBGJ1sUOcAv+7LpRc1cpgKmvweZUv9gTwH2C5pA==}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
@@ -5066,6 +5143,17 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
+  '@rxova/journey-core@1.0.0-rc.3': {}
+
+  '@rxova/react-intl-currency-input@1.0.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+    dependencies:
+      react: 19.3.0
+      react-dom: 19.3.0(react@19.3.0)
+
+  '@rxova/react-otp-input@1.0.4(react@19.3.0)':
+    dependencies:
+      react: 19.3.0
+
   '@shikijs/core@4.4.3':
     dependencies:
       '@shikijs/primitive': 4.4.3
@@ -5185,6 +5273,10 @@ snapshots:
     dependencies:
       undici-types: 8.9.0
 
+  '@types/react@19.3.0':
+    dependencies:
+      csstype: 3.2.3
+
   '@types/sax@1.2.7':
     dependencies:
       '@types/node': 26.6.1
@@ -5285,6 +5377,8 @@ snapshots:
       eslint-visitor-keys: 5.0.1
 
   '@ungap/structured-clone@1.4.0': {}
+
+  '@use-everywhere/core@1.0.2': {}
 
   '@vitest/coverage-v8@5.0.1(vitest@5.0.1)':
     dependencies:
@@ -5771,6 +5865,8 @@ snapshots:
   csso@5.0.5:
     dependencies:
       css-tree: 2.2.1
+
+  csstype@3.2.3: {}
 
   dataloader@2.2.3: {}
 
@@ -6788,6 +6884,13 @@ snapshots:
 
   radix3@1.1.2: {}
 
+  react-dom@19.3.0(react@19.3.0):
+    dependencies:
+      react: 19.3.0
+      scheduler: 0.28.0
+
+  react@19.3.0: {}
+
   readdirp@4.1.2: {}
 
   readdirp@5.0.0: {}
@@ -6935,6 +7038,8 @@ snapshots:
 
   sax@1.6.1: {}
 
+  scheduler@0.28.0: {}
+
   semver@7.8.5: {}
 
   sharp@0.35.4(@types/node@26.6.1):
@@ -7078,6 +7183,8 @@ snapshots:
   ts-api-utils@2.5.0(typescript@6.0.3):
     dependencies:
       typescript: 6.0.3
+
+  ts-extended-errors@1.0.0: {}
 
   tsdown@0.23.0(@volar/typescript@2.4.28(typescript@6.0.3))(publint@0.3.24)(tsx@4.23.13)(typescript@6.0.3):
     dependencies:
@@ -7228,6 +7335,13 @@ snapshots:
       punycode: 2.3.1
 
   url-extras@0.1.0: {}
+
+  use-everywhere@1.0.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+    dependencies:
+      '@use-everywhere/core': 1.0.2
+      react: 19.3.0
+    optionalDependencies:
+      react-dom: 19.3.0(react@19.3.0)
 
   util-deprecate@1.0.2: {}
 

@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config'
+import expressiveCode from 'astro-expressive-code'
 
 // The landing lives at the domain root. Docs are mounted alongside it under
 // /packages/... by the aggregator, so the landing itself always builds at base "/".
@@ -10,6 +11,12 @@ export default defineConfig({
   // CloudFront directory-index function used for the docs subpaths.
   build: { format: 'directory' },
   trailingSlash: 'ignore',
+  integrations: [
+    // The code in each project's walkthrough on the landing — see ./ec.config.mjs.
+    // Options in ./ec.config.mjs: the `<Code>` component needs them as a
+    // module, and the theme selector below is a function, not JSON.
+    expressiveCode(),
+  ],
   vite: {
     ssr: {
       // @rxova/brand ships TypeScript source with no build step. Vite externalises

@@ -8,6 +8,8 @@ import { landingProjects, projectListSentence } from '../lib/projects'
 // long form is /about, and both read from the same module so they cannot drift.
 import { MAINTAINER, PRINCIPLES, STANDARDS } from '../lib/about'
 import BaseLayout from '../layouts/BaseLayout.astro'
+import Walkthrough from '../components/Walkthrough.astro'
+import { showcases } from '../showcases'
 // The reset and base element styling this page's scoped CSS is written against.
 // It lives here rather than in BaseLayout because BaseLayout also builds the
 // shell templates, which must not carry it into a docs page — see the stylesheet.
@@ -272,7 +274,7 @@ const STANDARD_ICONS: Record<string, string> = {
                   nested element onto its own line — which put a blank first line
                   and eight spaces of indentation into every snippet. An element
                   with no children cannot pick up stray text nodes. */}
-              {p.snippet ? (
+              {showcases[p.id] ? null : p.snippet ? (
                 <pre class="snippet" set:text={p.snippet}></pre>
               ) : (
                 /* No snippet in sources.json for this one. Rather than invent an
@@ -317,6 +319,16 @@ const STANDARD_ICONS: Record<string, string> = {
                   </a>
                 ))}
               </nav>
+
+              {/* The project's walkthrough: the same job by hand and with the
+                  project, with numbered notes. It replaces the snippet, and it
+                  comes after the links because it is tall — the Docs and GitHub
+                  links stay in the first screen of the panel. It plays only
+                  while this panel is the one showing. See
+                  ../components/Walkthrough.astro and ../showcases/. */}
+              {showcases[p.id] && (
+                <Walkthrough story={showcases[p.id]} id={`walkthrough-${p.id}`} />
+              )}
             </article>
           ))}
         </div>
