@@ -1,6 +1,6 @@
 {
   "name": "@rxova/brand",
-  "version": "0.15.1",
+  "version": "1.0.0",
   "type": "module",
   "description": "Design tokens, typefaces and project data for rxova.org",
   "keywords": [

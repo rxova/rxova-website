@@ -1,6 +1,6 @@
 {
   "name": "@rxova/blog",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "private": true,
   "type": "module",
   "description": "rxova.org/blog — essays and design rationale, built here and mounted by the aggregator",
