@@ -1,0 +1,114 @@
+---
+/**
+ * Facts a page reads from somewhere else, as a framed table: column headings, a row heading per
+ * row, cells that may render as code. Scrollable and focusable when narrow, so a keyboard can reach it.
+ */
+export type Cell = string | { code: string }
+
+export interface DataRow {
+  label: string
+  cells: readonly Cell[]
+}
+
+interface Props {
+  /** The accessible name of the scrollable region: "Framework compatibility". */
+  label: string
+  columns: readonly string[]
+  rows: readonly DataRow[]
+  /** Where the facts come from, under the table. */
+  caption?: string
+}
+
+const { label, columns, rows, caption } = Astro.props
+---
+
+<div class="rx-table" tabindex="0" role="region" aria-label={label}>
+  <table class="rx-table__table">
+    {caption && <caption class="rx-table__caption">{caption}</caption>}
+    <thead>
+      <tr>
+        {columns.map((column) => (
+          <th scope="col">{column}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          <th scope="row" class="rx-table__label">
+            {row.label}
+          </th>
+          {row.cells.map((cell) => (
+            <td>{typeof cell === 'string' ? cell : <code>{cell.code}</code>}</td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .rx-table {
+    overflow-x: auto;
+    border: 1px solid var(--rx-rule);
+    border-radius: var(--rx-radius);
+  }
+
+  .rx-table__table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .rx-table__caption {
+    padding: 1rem 1.25rem;
+    color: var(--rx-muted);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    text-align: start;
+    caption-side: bottom;
+    border-top: 1px solid var(--rx-rule);
+  }
+
+  .rx-table__table th,
+  .rx-table__table td {
+    padding: 0.85rem 1.25rem;
+    text-align: start;
+    vertical-align: top;
+    color: var(--rx-fg);
+    border-bottom: 1px solid var(--rx-rule);
+  }
+
+  .rx-table__table thead th {
+    background: var(--rx-card);
+    color: var(--rx-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .rx-table__table tbody tr:last-child th,
+  .rx-table__table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .rx-table__label {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .rx-table__table td {
+    color: var(--rx-muted);
+  }
+
+  .rx-table__table code {
+    color: var(--rx-fg);
+    font-family: var(--rx-font-mono);
+    font-size: 0.84rem;
+    white-space: nowrap;
+  }
+</style>
