@@ -103,7 +103,7 @@ jobs:
         if: github.event_name == 'push'
         run: pnpm exec commitlint --last --verbose
 
-  # One job, in `scripts/verify.ts`'s order, so what CI runs and what a
+  # One job, in `packages/tooling/src/repo/verify.ts`'s order, so what CI runs and what a
   # contributor runs before pushing stay the same checks in the same sequence.
   #
   # This used to be three: `checks`, `supply-chain` and `pack-smoke`. Together
@@ -158,7 +158,7 @@ jobs:
       # one lands on the pull request that caused it.
       - name: Typecheck, tests, Astro check, social cards, build, metadata and content
         run: >-
-          pnpm exec turbo run typecheck //#test check:astro check:og build check:exports test
+          pnpm exec turbo run typecheck check:astro check:og build check:exports test
           //#validate:content
 
       # Structural check on the real sources.json. The cross-check against
@@ -246,7 +246,7 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_TITLE: ${{ github.event.pull_request.title }}
-        run: node --import tsx ./scripts/check-changeset.ts
+        run: node --import tsx ./packages/tooling/src/repo/check-changeset.ts
 
   # The one status the default branch requires. Every other job in this file is
   # listed in `needs`, so requiring this single name covers all of them, and a

@@ -31,7 +31,7 @@
         "$TURBO_ROOT$/sources.json",
         "$TURBO_ROOT$/packages/brand/src/**",
         "$TURBO_ROOT$/packages/brand/assets/**",
-        "$TURBO_ROOT$/scripts/sync-brand-og.mjs"
+        "$TURBO_ROOT$/packages/tooling/src/deploy/sync-brand-og.mjs"
       ],
       "outputs": ["dist/**"],
       "outputLogs": "new-only"
@@ -64,21 +64,15 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    // A root task (`//#`): the repo's own tooling under `scripts/`, which is not a
-    // package and so cannot be reached by `turbo run test` above. Keyed on exactly
-    // what this suite reads — every package's tests moved out, so a change in one
-    // no longer invalidates this.
-    // The root scripts import @rxova/website-schemas, which resolves to its dist/.
-    // The root `prepare` builds it once after install; the edge here keeps a
-    // parallel `turbo run build` from cleaning dist/ out from under a running test.
-    "//#test": {
-      "dependsOn": ["@rxova/website-schemas#build"],
-      "outputs": [],
-      "inputs": ["vitest.config.ts", "scripts/**", "sources.json", "redirects.json"],
+    // The tooling's tests read the real registry and redirect map at the repo root, and import
+    // @rxova/website-schemas from its dist/.
+    "@rxova/repo-tooling#test": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/sources.json", "$TURBO_ROOT$/redirects.json"],
       "outputLogs": "new-only"
     },
-    // Every package owns its own vitest config; `//#test` below stays for the
-    // repo's own tooling, which is not a package.
+    // Every package owns its own vitest config.
     //
     // `^test` is what makes the cache honest rather than merely fast. @rxova/blog's
     // tests import @rxova/website-schemas and @rxova/brand *source* — these packages ship
@@ -208,7 +202,7 @@
         "packages/updates/authors/**",
         "packages/website-schemas/src/**",
         "packages/brand/src/sites.ts",
-        "scripts/validate-content.ts"
+        "packages/tooling/src/repo/validate-content.ts"
       ],
       "outputLogs": "new-only"
     },

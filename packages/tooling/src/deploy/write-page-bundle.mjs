@@ -3,10 +3,7 @@
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
-import {
-  PAGE_BUNDLE_FILENAME,
-  createPageBundleManifest,
-} from '../packages/website-schemas/dist/index.js'
+import { PAGE_BUNDLE_FILENAME, createPageBundleManifest } from '@rxova/website-schemas'
 
 const [, , dist, project, base] = process.argv
 if (!dist || !project || !base) {

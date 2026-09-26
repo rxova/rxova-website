@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { runVerify, stepCommand, runStep, steps, type StepResult, type VerifyStep } from './verify'
+import {
+  runVerify,
+  stepCommand,
+  runStep,
+  steps,
+  type StepResult,
+  type VerifyStep,
+} from './verify.ts'
 
 /**
  * Importing this module only works because verify guards its `process.exit`

@@ -28,9 +28,9 @@ import {
   PAGE_BUNDLE_FILENAME,
   pageBundleManifest,
   declaresStandalone,
-} from './page-bundle-contract.mjs'
+} from '../lib/page-bundle-contract.mjs'
 
-import { loadRegistry } from './registry.mjs'
+import { loadRegistry } from '../lib/registry.mjs'
 
 /** The payload shape this aggregator understands. Bump when the contract changes. */
 export const SUPPORTED_SCHEMA = 2
