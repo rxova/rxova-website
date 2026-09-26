@@ -21,10 +21,10 @@ const HEIGHT = 630
 // a second copy of the brand colours is a second thing to forget to update.
 const tokens = readFileSync(join(repoRoot, 'src/tokens.css'), 'utf8')
 const darkBlock = tokens.slice(tokens.indexOf(":root[data-theme='dark']"))
-const token = (name, source = darkBlock) => {
-  const match = source.match(new RegExp(`--${name}:\\s*([^;]+);`))
-  if (!match) throw new Error(`token --${name} not found in tokens.css`)
-  return match[1].trim()
+const token = (name: string, source = darkBlock): string => {
+  const value = source.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1]
+  if (!value) throw new Error(`token --${name} not found in tokens.css`)
+  return value.trim()
 }
 
 const BG = token('rx-bg')
@@ -34,7 +34,7 @@ const [ACCENT_A, ACCENT_B, ACCENT_C] = ['rx-accent-a', 'rx-accent-b', 'rx-accent
   token(n, tokens),
 )
 
-const font = (weight) =>
+const font = (weight: 400 | 700) =>
   readFileSync(
     join(
       repoRoot,
@@ -45,7 +45,12 @@ const font = (weight) =>
 const markDataUri = `data:image/png;base64,${readFileSync(join(repoRoot, 'assets/rxova-logo-256.png')).toString('base64')}`
 
 /** The card. Satori takes React-element-shaped objects; no JSX in a plain .ts script. */
-const card = ({ title, tagline }) => ({
+interface Card {
+  title: string
+  tagline: string
+}
+
+const card = ({ title, tagline }: Card) => ({
   type: 'div',
   props: {
     style: {
@@ -109,8 +114,9 @@ const card = ({ title, tagline }) => ({
   },
 })
 
-async function render(spec) {
-  const svg = await satori(card(spec), {
+async function render(spec: Card) {
+  // Satori takes plain element-shaped objects at runtime; its types only name React's.
+  const svg = await satori(card(spec) as unknown as Parameters<typeof satori>[0], {
     width: WIDTH,
     height: HEIGHT,
     fonts: [

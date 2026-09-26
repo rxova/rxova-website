@@ -31,6 +31,7 @@ try {
     .trim()
     .split('\n')
     .pop()
+  if (!tarball) throw new Error('pnpm pack printed no tarball name')
 
   execFileSync('tar', ['-xzf', tarball, '-C', workDir])
   const packed = join(workDir, 'package')
