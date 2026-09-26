@@ -1,8 +1,5 @@
-// The sitemap is the only file that tells Google the aggregate exists. Its
-// failure mode is silent — a wrong or missing entry looks exactly like a correct
-// one until pages quietly go unindexed for weeks — so what these tests pin down
-// is the set of pages that must NOT be listed, and the delegation to each
-// project's own sitemap.
+// Pins the pages that must NOT be listed and the delegation to each project's own
+// sitemap; a wrong entry fails silently.
 
 import { describe, it, beforeEach, afterAll } from 'vitest'
 import assert from 'node:assert/strict'
@@ -42,11 +39,7 @@ function write(path: string, body: string): void {
 const page = (head = '') =>
   `<!doctype html><html><head>${head}</head><body><main>x</main></body></html>`
 
-/**
- * What @astrojs/sitemap actually writes: an index naming one or more urlsets,
- * never a bare urlset. Absolute locs, because that is what the spec requires and
- * what the producer emits.
- */
+/** What @astrojs/sitemap writes: an index naming one or more urlsets, with absolute locs. */
 const childIndex = (mount: string, files: string[]) =>
   '<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex>' +
   files.map((f) => `<sitemap><loc>${ORIGIN}/${mount}/${f}</loc></sitemap>`).join('') +
@@ -107,9 +100,7 @@ describe('lastmodFor', () => {
     assert.equal(lastmodFor('<time datetime="2026-07-28T12:00:00.000Z">July</time>'), '2026-07-28')
   })
 
-  // The whole point of the field. A page with nothing honest to say omits it,
-  // rather than being stamped with the build date on every deploy — which would
-  // claim the entire site changed daily and train Google to ignore the signal.
+  // A page with no date omits `lastmod` rather than being stamped with the build date.
   it('returns undefined when the page claims no date', () => {
     assert.equal(lastmodFor('<html><body><main>No dates here</main></body></html>'), undefined)
   })
@@ -206,10 +197,8 @@ describe('writeSitemaps', () => {
     ])
   })
 
-  // The regression this whole flattening exists for: a nested sitemap index is
-  // invalid, and a crawler that meets one drops every URL below it. Pinned as an
-  // absence, because the failure is silent on both sides — the file parses, it
-  // just describes nothing.
+  // A nested sitemap index is invalid and a crawler drops every URL below it; pinned as
+  // an absence because the failure is silent.
   it('never lists a child sitemap index in the root index', async () => {
     write('index.html', page())
     write(
@@ -255,9 +244,8 @@ describe('writeSitemaps', () => {
     ])
   })
 
-  // A Storybook build is an app shell plus `iframe.html`, the canvas frame every
-  // story renders inside. Neither is a destination, and both were being offered
-  // to Google because storybook ships no sitemap and so fell into the sweep.
+  // Storybook's app shell and `iframe.html` are not destinations and ship no sitemap,
+  // so they must not fall into the sweep.
   it('excludes a storybook surface entirely rather than sweeping its shell', async () => {
     write('index.html', page())
     write('storybook/react-inputs/index.html', page())
@@ -281,12 +269,8 @@ describe('writeSitemaps', () => {
     assert.match(read('robots.txt'), /^Sitemap: https:\/\/rxova\.org\/sitemap-index\.xml$/m)
   })
 
-  // A comment, not a directive: an unknown robots.txt field risks taking the
-  // whole file down in a strict parser. Pinned so the next refactor of this
-  // string does not drop it silently.
-  // These libraries are meant to be quotable by a model. Google-Extended and
-  // Applebot-Extended grant exactly that and exist nowhere but robots.txt, so
-  // dropping them is a silent revocation with no other symptom.
+  // Google-Extended and Applebot-Extended are consent grants that exist only in robots.txt;
+  // dropping them is a silent revocation.
   it('names the AI agents it allows, including the two that are grants and not crawlers', async () => {
     write('index.html', page())
 
@@ -314,6 +298,7 @@ describe('writeSitemaps', () => {
     for (const block of groups) assert.match(block, /^Allow: \/$/m)
   })
 
+  // A comment, not a directive: a strict parser may reject an unknown robots.txt field.
   it('points humans reading robots.txt at the agent index', async () => {
     write('index.html', page())
 

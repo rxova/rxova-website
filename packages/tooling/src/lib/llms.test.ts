@@ -1,8 +1,5 @@
-// The root llms.txt is the only thing that tells an agent the other projects
-// exist. Its failure mode is the same silent one the sitemap has — a stale or
-// missing entry looks exactly like a correct one — so what these tests pin down
-// is the fallback for a project that ships no index of its own, and that a
-// disabled or non-prose source never appears.
+// Pins the fallback for a project with no llms.txt of its own, and that disabled
+// or non-prose sources never appear (a stale entry fails silently).
 
 import { describe, it, beforeEach, afterAll } from 'vitest'
 import assert from 'node:assert/strict'

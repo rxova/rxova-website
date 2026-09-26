@@ -1,7 +1,5 @@
-// fetch-docs turns the registry into a download plan at deploy time. The gh and
-// tar calls are the workflow's business; what is worth pinning is the mapping —
-// only enabled projects are fetched, and each lands where assemble.ts will read
-// it (artifacts/<artifact>), from the release the ingest side persisted it to.
+// Pins the download plan: only enabled projects are fetched, each from its ingest
+// release into artifacts/<artifact>, where assemble.ts reads it.
 
 import { afterEach, describe, it } from 'vitest'
 import assert from 'node:assert/strict'

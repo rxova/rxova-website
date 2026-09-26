@@ -1,15 +1,7 @@
 ---
 /**
- * Artifact document for rxova.org's non-Starlight page components.
- *
- * It lived in both packages as a 244-line file that differed on four lines, which
- * is exactly how the menu came to render in a different order on each: a fix has to
- * be made twice, and once was enough to forget.
- *
- * This deliberately owns no site header, footer, analytics or theme bootstrap.
- * It gives an independently-built page component a standards-compliant document
- * for its metadata and assets; rxova-website consumes its body and supplies the
- * public shell at deploy time.
+ * Artifact document for rxova.org's non-Starlight pages: metadata and assets only, no header,
+ * footer, analytics or theme bootstrap. rxova-website supplies the public shell at deploy time.
  */
 import '@rxova/brand/fonts.css'
 import '../styles/document.css'
@@ -22,45 +14,22 @@ interface Props {
   /** Canonical path, e.g. `/blog/why-rxova-has-a-blog`. Normalised below. */
   path: string
   ogType?: 'website' | 'article'
-  /**
-   * Absolute URL of the social card. Defaults to the umbrella card.
-   *
-   * A prop rather than something derived here, because what makes the best card
-   * differs per surface and only the caller knows: a post with a cover should
-   * share its cover, an update belongs to a project and should carry that
-   * project's card, and an index has neither.
-   */
+  /** Absolute URL of the social card, chosen by the caller; defaults to the umbrella card. */
   image?: string
   /** Advertises an RSS feed for this surface, as `rel="alternate"`. */
   feed?: { href: string; title: string }
-  /**
-   * JSON-LD for this page, emitted verbatim as `application/ld+json`.
-   *
-   * Structured data is the only way a crawler learns that /blog carries articles
-   * with an author and a date rather than prose it has to infer that from. Typed
-   * as unknown because the shapes differ per surface and schema.org is not worth
-   * modelling in TypeScript for three call sites.
-   */
+  /** JSON-LD for this page, emitted verbatim as `application/ld+json`. */
   jsonLd?: unknown
 }
 
 const { title, description, path, ogType = 'website', image, feed, jsonLd } = Astro.props
 
-// Normalised here rather than at the four call sites: every one of them had
-// dropped the trailing slash, so every blog and updates page was declaring itself
-// canonical at a URL that 301s. A caller can forget again; this cannot.
+// Normalised here so no caller can declare a canonical URL without the trailing slash (a 301).
 const canonical = canonicalUrl(path)
 
 const ogImage = image ?? siteUrl('/og/rxova.png')
 
-/**
- * Serialise JSON-LD for an inline `<script>`.
- *
- * `<` is escaped because a `</script>` anywhere inside a string value — a post
- * title about a tag, a description quoting markup — closes the element early and
- * spills the rest of the payload into the document as text. `<` is valid
- * JSON and parses back to `<`, so the structured data is unchanged.
- */
+/** Serialise JSON-LD for an inline `<script>`; `<` is escaped so a `</script>` cannot close it. */
 const serialiseJsonLd = (value: unknown): string => JSON.stringify(value).replace(/</g, '\\u003c')
 ---
 
@@ -98,10 +67,8 @@ const serialiseJsonLd = (value: unknown): string => JSON.stringify(value).replac
       }
     </style>
 
-    <!-- Prose styling for rendered markdown. Global rather than scoped: the
-         markup comes from <Content /> at build time, so it carries none of
-         Astro's scoping attributes. Kept here so both /blog and /updates read
-         the same. -->
+    <!-- Prose styling for rendered markdown. Global because <Content /> markup carries no Astro
+         scoping attributes. -->
     <style is:global>
       .prose {
         color: var(--rx-muted);

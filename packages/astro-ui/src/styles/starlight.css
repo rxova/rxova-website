@@ -1,18 +1,6 @@
 /**
- * Maps rxova tokens onto Starlight's theme variables.
- *
- * Load this from a Starlight site's `customCss`, which Astro appends after
- * Starlight's own stylesheets — so these declarations win without !important.
- *
- * Every --rx-* neutral already flips between light and dark (see tokens.css),
- * which is why one mapping block covers both modes. Starlight's own defaults
- * are dark-in-:root / light-in-[data-theme='light']; we don't need that split
- * because its inline head script always stamps an explicit data-theme before
- * first paint.
- *
- * Starlight's gray ramp runs 1 (highest contrast) -> 7 (lowest), which is the
- * same direction as our text -> surface ladder, so the mapping is monotonic in
- * both modes.
+ * Maps rxova tokens onto Starlight's theme variables; load via `customCss` so it wins without
+ * !important. One block covers both modes because every --rx-* neutral already flips.
  */
 
 @import '@rxova/brand/tokens.css';
@@ -66,9 +54,8 @@
 
 /* --- Shared chrome ------------------------------------------------------- */
 
-/* The gradient is the brand's only chroma, so it earns exactly two placements:
-   the hairline under the site header, and the current-project dot in the
-   project switcher. Adding a third dilutes both. */
+/* The gradient, the brand's only chroma, gets exactly two placements: the header hairline and
+   the switcher's current-project dot. */
 .site-title::after {
   content: none;
 }
@@ -78,9 +65,8 @@ header.header {
   background: var(--sl-color-bg-nav);
 }
 
-/* In a schema-2 page bundle the umbrella header is rendered by rxova-website
-   outside Starlight's `.page`. Keep Starlight's own sticky documentation bar
-   below it instead of letting the two sticky headers occupy the same top edge. */
+/* In a schema-2 page bundle rxova-website renders the umbrella header outside `.page`; keep
+   Starlight's sticky docs bar below it. */
 html[data-rxova-shell] {
   --rx-shell-header-height: 3.5rem;
 }
@@ -173,6 +159,4 @@ html[data-rxova-shell] .sl-menu-button {
 
 /* --- Footer -------------------------------------------------------------- */
 
-/* Its styles are in footer.css, imported at the top of this file: /blog and
-   /updates render the same footer and load document.css, not this one, so the
-   rules cannot live here. */
+/* Footer styles live in footer.css (imported above) because /blog and /updates need them too. */

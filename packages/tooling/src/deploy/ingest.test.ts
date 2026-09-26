@@ -1,10 +1,5 @@
-// Ingest is where an already-built docs tree, sent from another repo, is first
-// trusted. These tests pin the two gates that trust rests on: gate 2a, which
-// accepts or rejects the dispatch metadata (unknown/disabled project, a base that
-// disagrees with the mount, a ref or run id that is not what it claims), and gate
-// 2b, which accepts or rejects the dist itself (missing, empty, or no index.html).
-// They run in `pnpm test`, so a regression fails on the pull request rather than
-// on the next ingest — which is the only other place this code ever runs.
+// Pins ingest's two trust gates: 2a validates the dispatch metadata (project, base, ref, run id),
+// 2b validates the dist itself (missing, empty, or no index.html).
 
 import { describe, it } from 'vitest'
 import assert from 'node:assert/strict'
@@ -150,10 +145,8 @@ describe('validateDispatch — rejections', () => {
   })
 
   it('accepts a disabled project — the docs are persisted, just not deployed', () => {
-    // The deadlock this removes: refusing a disabled project meant its docs could
-    // not be stored until it was enabled, and enabling it made fetch-docs demand a
-    // release that could not exist yet. Turning a project on always cost one red
-    // deploy. Now the tree is waiting when the flag flips.
+    // Persisting a disabled project's docs means the release already exists when
+    // it is enabled, so fetch-docs does not fail.
     const { source, meta } = validateDispatch(registry, payload({ project: 'off' }))
     assert.equal(source.id, 'off')
     assert.equal(meta.enabled, false)
@@ -161,16 +154,14 @@ describe('validateDispatch — rejections', () => {
 
   it('rejects a base that disagrees with the mount — the classic 404-everything bug', () => {
     rejects({ base: '/packages/journeys/' }, /built for base/)
-    // `/` is refused a step earlier, by the shared contract: no source mounts at
-    // the root, so it is not a mount path at all rather than merely the wrong one.
+    // `/` is refused earlier by the shared contract: no source mounts at the root.
     rejects({ base: '/' }, /base —/)
     rejects({ base: '/../../var/www/' }, /base —/)
   })
 
   it('rejects a sha, ref or run id that is not what it claims to be', () => {
-    // Shapes are the shared contract's job now, so assert on the field rather than
-    // wording nobody here owns. The values are what matters: run_id indexes an API
-    // path, and ref and sha reach release notes.
+    // Shapes belong to the shared contract, so assert on the field, not its wording;
+    // run_id indexes an API path, and ref and sha reach release notes.
     rejects({ sha: 'not-a-sha' }, /sha —/)
     rejects({ sha: undefined }, /sha —/)
     rejects({ ref: 'main; rm -rf /' }, /ref —/)
@@ -279,9 +270,8 @@ describe('checkDist — gate 2b', () => {
     rmSync(dir, { recursive: true, force: true })
   })
 
-  // The playground case: a docs dist may legitimately carry HTML that is an
-  // asset rather than a page — an iframe target has no <main> and must never be
-  // composed. Without the marker the whole use-everywhere bundle was rejected.
+  // The playground case: a dist may carry HTML that is an asset, not a page — an
+  // iframe target has no <main> and must never be composed.
   it('accepts a standalone asset with no <main>', () => {
     dir = make()
     writeFileSync(

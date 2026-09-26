@@ -1,10 +1,6 @@
 /**
- * The pre-merge gate for `content/`: a valid tree, and the author registries.
- *
- * What matters most here is the *failure* behaviour. This gate is the only thing
- * standing between a malformed entry and a broken deploy in another repo, and its
- * contract is that it reports everything in one pass — a validator that stops at
- * the first error turns "five posts have the wrong date" into five round trips.
+ * The pre-merge gate for `content/`: a valid tree and the author registries. Its contract
+ * is to report every error in one pass rather than stop at the first.
  */
 
 import { mkdirSync, writeFileSync } from 'node:fs'

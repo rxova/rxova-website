@@ -1,14 +1,6 @@
 /**
- * Every outbound link in PROJECTS resolves.
- *
- * sites.test.ts checks the shape of these URLs, and a well-shaped URL can still
- * 404: ts-extended-errors shipped with an npm link to `@rxova/ts-extended-errors`
- * after the package had been published unscoped as `ts-extended-errors`. Only
- * asking the network catches that, so this file does.
- *
- * npm is checked through the registry, not www.npmjs.com, which answers 403 to
- * anything that is not a browser. The npm link is pinned to the first package
- * below, so checking the packages checks the link.
+ * Every outbound link in PROJECTS resolves over the network (a well-shaped URL can still 404).
+ * npm is checked via the registry, since www.npmjs.com answers 403 to non-browsers.
  */
 
 import { describe, expect, it } from 'vitest'

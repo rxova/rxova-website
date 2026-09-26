@@ -1,15 +1,6 @@
 /**
- * Styles for `components/SiteFooter.astro`.
- *
- * Its own file because the footer is the one piece of chrome both kinds of
- * surface render: the three Starlight docs sites and the plain Astro ones
- * (/blog, /updates, the landing). It used to live inside starlight.css, which
- * is why /blog and /updates shipped a dot-separated link row instead — the
- * shared footer would have rendered unstyled there.
- *
- * Imported by both `starlight.css` and `chrome.css`; nothing needs to import it
- * directly. Written against `--rx-*` tokens only, so it does not depend on the
- * short aliases chrome.css defines.
+ * Styles for `components/SiteFooter.astro`, shared by Starlight and plain Astro surfaces.
+ * Imported by `starlight.css` and `chrome.css`; uses `--rx-*` tokens only.
  */
 
 @import '@rxova/brand/tokens.css';
@@ -22,19 +13,8 @@
   font-size: 0.875rem;
 }
 
-/* The brand block and the link columns, side by side where there is room.
-   `auto-fit` rather than a media query because what matters is how wide the
-   footer's *container* is, not the viewport: on /blog the page measure is 44rem
-   on any screen, and a viewport query would have put the brand block beside the
-   columns and squeezed them to two cramped tracks on a desktop.
-
-   `min(100%, 20rem)` rather than a bare `20rem` for the track floor. A grid
-   track's minimum is not capped by its container, so a plain `minmax(20rem,
-   1fr)` stayed 320px wide inside a narrower footer and pushed the document
-   past the viewport — every rxova.org surface scrolled sideways on a 320px
-   phone, by the 24px of gutter the footer sits in. `min(100%, …)` lets the
-   floor collapse to the container, which is the same guard
-   `.rx-footer__columns` below already had. */
+/* Brand block and link columns side by side where the container (not viewport) has room.
+   `min(100%, 20rem)` lets the track floor collapse so a narrow footer never overflows the page. */
 .rx-footer__top {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
@@ -71,9 +51,7 @@
   line-height: 1.6;
 }
 
-/* 8rem, not the 11rem this used to be: it is the widest track that still fits
-   two columns on a 360px phone, and one column of five-word links down the
-   whole width of a phone is a lot of scrolling for a footer. */
+/* 8rem: the widest track that still fits two columns on a 360px phone. */
 .rx-footer__columns {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));

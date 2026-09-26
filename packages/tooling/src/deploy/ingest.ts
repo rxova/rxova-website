@@ -1,23 +1,6 @@
 #!/usr/bin/env node
-// Gate 2 of the docs pipeline: validate what a source repo sent, then hand the
-// workflow what it needs to persist that project's docs. Nothing here builds or
-// trusts foreign code — it checks metadata and a directory of static files.
-//
-// A source repo builds its own docs and uploads them (gate 1 — see
-// docs/INPUTS-CONTRACT.md), then fires a `repository_dispatch` naming the run
-// that holds them. This script is the receiver's half of that contract:
-//
-//   node ingest.ts                     # gate 2a: validate $CLIENT_PAYLOAD, emit outputs
-//   node ingest.ts --check-dist <dir>  # gate 2b: validate the downloaded dist
-//
-// The two halves match the two things .github/workflows/ingest.yml does: decide
-// whether to accept the dispatch (and where to fetch/persist), then, once the dist
-// is downloaded, decide whether it is a publishable docs tree.
-//
-// It lives in a script rather than inline in the workflow so the rules — an
-// unknown project is rejected, a base that disagrees with the mount is
-// rejected, a dist with no index.html is rejected — are covered by tests
-// (ingest.test.ts) instead of being YAML that only ever runs in CI.
+// Gate 2 of the docs pipeline: `node ingest.ts` validates $CLIENT_PAYLOAD and emits outputs (2a);
+// `node ingest.ts --check-dist <dir>` validates the downloaded dist (2b).
 
 import { appendFileSync, statSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -40,11 +23,7 @@ export const SUPPORTED_SCHEMA = 2
 /** Informational only, but a typo here usually means a misconfigured sender. */
 export const KNOWN_FRAMEWORKS = ['astro', 'docusaurus', 'storybook', 'other']
 
-/**
- * The fixed name every source repo uploads its dist under. One convention for all
- * senders means the aggregator asks for the same artifact name every time — see
- * docs/INPUTS-CONTRACT.md.
- */
+/** The fixed artifact name every source repo uploads its dist under (docs/INPUTS-CONTRACT.md). */
 export const DIST_ARTIFACT_NAME = 'docs-dist'
 
 export class IngestError extends Error {}
@@ -60,9 +39,8 @@ function htmlFiles(dir: string): string[] {
 }
 
 /**
- * Gate 2a. Validate the dispatch against the registry and return everything the
- * workflow needs to fetch and persist. Pure — no env, no filesystem, no network —
- * so every rejection below is testable without a workflow run.
+ * Gate 2a: validates the dispatch against the registry and returns what the workflow
+ * needs to fetch and persist. Pure — no env, filesystem or network.
  */
 /** The part of a registry source a dispatch is checked against. */
 export type DispatchSource = Pick<
@@ -71,14 +49,8 @@ export type DispatchSource = Pick<
 >
 
 export function validateDispatch(registry: { sources: DispatchSource[] }, payload: unknown) {
-  // Field shapes come from `@rxova/website-schemas`, the contract the senders are
-  // written against — so `run_id` being digits, `ref` being a ref, `sha` being hex
-  // and `version` being semver are stated once, in the package both sides import,
-  // rather than as regexes here that can drift from what brand actually sends.
-  //
-  // What stays below is everything the schema cannot know: whether this repo has
-  // heard of the project, whether it is enabled, and whether the base the sender
-  // built for is the base we will mount it at.
+  // Field shapes come from `@rxova/website-schemas`; below is what the schema cannot
+  // know: whether the project is registered and whether its base matches the mount.
   const requestedSchema = (payload as { schema?: unknown } | null)?.schema ?? 1
   const parsed = dispatchPayload.safeParse(
     requestedSchema === 2 ? { ...(payload as object), schema: 1 } : payload,
@@ -103,22 +75,11 @@ export function validateDispatch(registry: { sources: DispatchSource[] }, payloa
     const known = registry.sources.map((s) => s.id).join(', ') || '(none)'
     throw new IngestError(`unknown project "${id}" — sources.json knows: ${known}`)
   }
-  // A *disabled* project is accepted and persisted; it simply is not deployed.
-  //
-  // Rejecting it conflated two different things. An unknown project is a typo and
-  // must fail loudly. A known-but-disabled one is a deliberate registry state, and
-  // refusing its docs created a deadlock: the aggregator would not store them until
-  // the project was enabled, and enabling it made `fetch-docs.ts` demand a release
-  // that could not exist yet — so turning a project on always cost one red deploy.
-  //
-  // Persisting regardless costs a release asset and nothing else: `fetch-docs.ts`
-  // only ever fetches enabled sources, so the tree sits there unread until the flag
-  // flips, at which point the first deploy already has everything it needs.
+  // A *disabled* project is accepted and persisted, just not deployed: `fetch-docs.ts`
+  // fetches only enabled sources, so its release is ready when the flag flips.
 
-  // Compliance: the base the docs were built for must be the one we mount them at.
-  // The aggregator only relocates the tree — it never rewrites asset paths — so a
-  // mismatch here is a live page with every asset 404ing. `base` is optional in
-  // the payload, but if present it must agree.
+  // An optional `base` must equal the mount: the tree is relocated, never rewritten,
+  // so a mismatch 404s every asset.
   if (parsed.data.base !== undefined && parsed.data.base !== source.base) {
     throw new IngestError(
       `project "${id}" says it built for base ${JSON.stringify(parsed.data.base)}, but it mounts at ${source.base}`,
@@ -131,16 +92,8 @@ export function validateDispatch(registry: { sources: DispatchSource[] }, payloa
     )
   }
 
-  // Path uniqueness / confinement. Ids are unique in the registry and every path
-  // is derived from the id, so this holds by construction — assert it anyway, so a
-  // future change to the derivation that broke it fails here and not on the live
-  // site, and so "the mount is unique and stays inside the tree" is stated where
-  // the dist is about to be trusted.
-  //
-  // Checked against `mountFor` from the shared package rather than a literal
-  // `packages/${id}`, which predated `kind: "site"` and refused every /blog and
-  // /updates ingest outright. Recomputing it here is the point: if the registry ever
-  // derived a mount some other way, this is where the disagreement surfaces.
+  // Holds by construction, asserted anyway: the mount must equal the shared `mountFor`
+  // and stay inside the tree, so a derivation change fails here, not on the live site.
   if (
     source.mount !== mountFor(id, source.kind) ||
     source.mount.startsWith('/') ||
@@ -168,10 +121,8 @@ export function validateDispatch(registry: { sources: DispatchSource[] }, payloa
 }
 
 /**
- * Gate 2b. Validate the directory the sender's artifact extracted to. This is the
- * point where an already-built tree is trusted, so the checks are deliberately
- * concrete: it must be a non-empty directory with an index.html at its root, the
- * same thing that would otherwise 404 silently once deployed.
+ * Gate 2b: the sender's extracted dist must be a non-empty directory with an
+ * index.html at its root.
  */
 /** What the dispatch said the dist is, checked against its page-bundle manifest. */
 export interface ExpectedDist {
