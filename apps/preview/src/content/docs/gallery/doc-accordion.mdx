@@ -1,0 +1,38 @@
+---
+title: DocAccordion
+description: A details stack for a prose page, with no client script.
+---
+
+import Story from '../../../components/Story.astro'
+import DocAccordion from '@rxova/astro-ui/components/DocAccordion.astro'
+import DocAccordionItem from '@rxova/astro-ui/components/DocAccordionItem.astro'
+
+`DocAccordion` stacks `DocAccordionItem`s. Each item is a `<details>`, so the collapsing is the
+browser's and the content stays in the page for search and for print. Made for a docs page:
+the items take the prose measure and Starlight's body styles inside.
+
+<Story title="An FAQ" note="The first item opens by default and carries a summary line.">
+  <DocAccordion>
+    <DocAccordionItem title="Which factory should I use?" summary="Linear or graph" defaultOpen>
+      Use the linear one when declared order is the default forward path, and the graph one when
+      named events or guards choose the destination.
+    </DocAccordionItem>
+    <DocAccordionItem title="Does reaching the last step complete the journey?">
+      No. Completion is a product decision, so it is called explicitly.
+    </DocAccordionItem>
+    <DocAccordionItem title="How does back work?">
+      It moves the realized timeline pointer. It does not search the definition or send a graph
+      event.
+    </DocAccordionItem>
+  </DocAccordion>
+</Story>
+
+## Props
+
+`DocAccordion` takes no props; its default slot is the items.
+
+| `DocAccordionItem` prop | Type      | Default | What it does                    |
+| ----------------------- | --------- | ------- | ------------------------------- |
+| `title`                 | `string`  |         | The summary's heading           |
+| `summary`               | `string`  |         | A second, quieter line under it |
+| `defaultOpen`           | `boolean` | `false` | Renders the item expanded       |
