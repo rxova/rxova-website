@@ -1,0 +1,63 @@
+---
+/**
+ * A page's title and lede, with an optional back link. The default slot is the lede.
+ * `detail` keeps the repo pages' heavier title, which still inherits the body's line height.
+ */
+import BackLink from './BackLink.astro'
+
+interface Props {
+  title: string
+  back?: { href: string; label: string }
+  variant?: 'index' | 'detail'
+  /** The lede's measure: `narrow` is 46ch, `wide` 56ch. */
+  measure?: 'narrow' | 'wide'
+}
+
+const { title, back, variant = 'index', measure = 'wide' } = Astro.props
+---
+
+<header class:list={['head', variant]}>
+  {back && (
+    <BackLink class="back" href={back.href}>
+      {back.label}
+    </BackLink>
+  )}
+  <h1>{title}</h1>
+  <p class:list={['lede', measure]}>
+    <slot />
+  </p>
+</header>
+
+<style>
+  .head {
+    margin-bottom: clamp(2rem, 6vh, 3rem);
+  }
+  .back {
+    margin-bottom: 1.25rem;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.6rem;
+  }
+  /* One title across /about, /blog and /updates, so switching pages does not move it. */
+  .index h1 {
+    line-height: 1.15;
+    font-weight: 650;
+  }
+  .detail h1 {
+    font-weight: 660;
+  }
+  .lede {
+    color: var(--rx-muted);
+  }
+  .narrow {
+    max-width: 46ch;
+  }
+  .wide {
+    max-width: 56ch;
+  }
+  .lede :global(a) {
+    color: var(--rx-fg);
+  }
+</style>

@@ -30,7 +30,7 @@ jev-planner.json
 !.env.example
 
 # synced from packages/brand at build time
-site/public/og/
+apps/landing/public/og/
 
 # local AI assistant state and per-developer instruction files
 .claude/

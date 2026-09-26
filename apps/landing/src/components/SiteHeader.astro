@@ -1,0 +1,31 @@
+---
+/**
+ * The landing's adapter onto @rxova/astro-ui's shared `Header`, supplying only the menu:
+ * derived from what is deployed (Projects + `navSurfaces`), with root-relative links.
+ */
+import Header from '@rxova/astro-ui/components/Header.astro'
+import { navSurfaces } from '../lib/projects'
+
+interface Props {
+  /** Current path, so the active item can be marked. */
+  path: string
+  /**
+   * Render the docs-page variant: a thin ribbon above Starlight's own bar.
+   * Only the menu differs here; the variant's styling lives in BaseLayout.
+   */
+  ribbon?: boolean
+}
+
+const { path, ribbon = false } = Astro.props
+
+// Projects first, then mounted surfaces that have shipped (see `navSurfaces`). On a
+// docs page, Starlight's bar already has the project switcher, so Projects is dropped.
+const surfaces = ribbon ? navSurfaces : [{ label: 'Projects', href: '/' }, ...navSurfaces]
+
+/** `/` matches only itself; everything else matches its whole subtree. */
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href))
+
+const items = surfaces.map((s) => ({ label: s.label, href: s.href, current: isCurrent(s.href) }))
+---
+
+<Header homeHref="/" logoSrc="/rxova-logo-256.png" items={items} />

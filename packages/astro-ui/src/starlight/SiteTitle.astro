@@ -1,0 +1,34 @@
+---
+/**
+ * Starlight `SiteTitle` override: the mark links (absolutely) to rxova.org, the wordmark to this
+ * project's docs root via `siteTitleHref`. The image comes from @rxova/brand.
+ */
+import mark from '@rxova/brand/assets/rxova-logo-256.png'
+import { RXOVA_ORIGIN } from '@rxova/brand'
+
+// Narrowed structurally, not via an `App.Locals` augmentation, which would collide with
+// Starlight's own in the consumer site's build.
+const { siteTitle, siteTitleHref } = (
+  Astro.locals as unknown as {
+    starlightRoute: { siteTitle: string; siteTitleHref: string }
+  }
+).starlightRoute
+---
+
+<div class="rx-site-title">
+  <a href={RXOVA_ORIGIN} class="rx-site-title__mark" aria-label="Rxova home">
+    <img src={mark.src} alt="" width="28" height="28" />
+  </a>
+  <span class="rx-site-title__sep" aria-hidden="true"></span>
+  <a href={siteTitleHref} class="rx-site-title__project" translate="no">
+    {siteTitle}
+  </a>
+</div>
+
+<style>
+  /* Visual styling lives in ../styles/starlight.css so the Astro landing can
+     reuse the same classnames without importing this component. */
+  .rx-site-title__mark {
+    display: inline-flex;
+  }
+</style>

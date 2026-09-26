@@ -1,0 +1,18 @@
+---
+/**
+ * Starlight `SocialIcons` override: the stock icons plus the project switcher, which lands just
+ * before search and the theme toggle.
+ */
+import Default from '@astrojs/starlight/components/SocialIcons.astro'
+import ProjectSwitcher from '../components/ProjectSwitcher.astro'
+import { projectFromBase } from '@rxova/brand'
+
+// Overrides receive no props, so the current project is inferred from the base
+// path the aggregator mounts this site at.
+const current = projectFromBase(import.meta.env.BASE_URL)
+---
+
+<ProjectSwitcher current={current} />
+<Default>
+  <slot />
+</Default>

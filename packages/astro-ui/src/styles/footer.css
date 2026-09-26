@@ -1,0 +1,124 @@
+/**
+ * Styles for `components/SiteFooter.astro`, shared by Starlight and plain Astro surfaces.
+ * Imported by `starlight.css` and `chrome.css`; uses `--rx-*` tokens only.
+ */
+
+@import '@rxova/brand/tokens.css';
+
+.rx-footer {
+  margin-top: 4rem;
+  padding: 3rem 0 2rem;
+  border-top: 1px solid var(--rx-rule);
+  color: var(--rx-muted);
+  font-size: 0.875rem;
+}
+
+/* Brand block and link columns side by side where the container (not viewport) has room.
+   `min(100%, 20rem)` lets the track floor collapse so a narrow footer never overflows the page. */
+.rx-footer__top {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: 2.5rem 3rem;
+}
+
+.rx-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.rx-footer__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--rx-fg);
+  font-size: 1rem;
+  font-weight: 640;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.rx-footer__mark img {
+  display: block;
+  border-radius: 6px;
+}
+
+.rx-footer__blurb {
+  margin: 0;
+  max-width: 30ch;
+  color: var(--rx-faint);
+  line-height: 1.6;
+}
+
+/* 8rem: the widest track that still fits two columns on a 360px phone. */
+.rx-footer__columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: 2rem 1.5rem;
+}
+
+.rx-footer__title {
+  margin-bottom: 0.75rem;
+  color: var(--rx-fg);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.rx-footer__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rx-footer__list a {
+  color: var(--rx-muted);
+  text-decoration: none;
+}
+
+.rx-footer__list a:hover {
+  color: var(--rx-fg);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* The bottom bar: copyright on the left, the legal links on the right, and one
+   column on a phone. */
+.rx-footer__legal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rx-rule);
+  color: var(--rx-faint);
+  font-size: 0.8125rem;
+}
+
+.rx-footer__legal p {
+  margin: 0;
+}
+
+.rx-footer__legal-links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.rx-footer__legal a {
+  color: var(--rx-faint);
+  text-decoration: none;
+}
+
+.rx-footer__legal a:hover {
+  color: var(--rx-fg);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

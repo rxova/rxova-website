@@ -1,14 +1,5 @@
-// The outbound links sources.json puts on the landing resolve.
-//
-// A card's GitHub and npm links come from @rxova/brand, and brand checks those
-// against the network itself. What only this repo holds is the landing copy: a
-// `demo` URL, and a `snippet` whose import names a package. Both can be well
-// formed and still point at nothing. The ts-extended-errors card shipped
-// importing `@rxova/ts-extended-errors` after the package had been published
-// unscoped, which nothing here could notice without asking npm.
-//
-// npm is asked through the registry, not www.npmjs.com, which answers 403 to
-// anything that is not a browser.
+// Checks that each landing `demo` URL and `snippet` import in sources.json resolves.
+// npm is queried via the registry, since www.npmjs.com answers 403 to non-browsers.
 
 import { describe, it } from 'vitest'
 import assert from 'node:assert/strict'
@@ -57,6 +48,9 @@ function snippetImports(snippet: string): string[] {
 
 // Raw, not through loadRegistry: its schema keeps only what the deploy needs and
 // drops `demo` and `snippet`, which the landing reads straight from the file.
+/** Off by default, so a flaky registry cannot fail a pull request; the weekly `links` workflow sets it. */
+const network = process.env.RX_NETWORK_TESTS === '1'
+
 interface LandingEntry {
   id: string
   landing?: { demo?: string; snippet?: string }
@@ -88,7 +82,7 @@ describe.each(withLanding.map((s): [string, LandingEntry] => [s.id, s]))(
     const { demo, snippet } = source.landing ?? {}
 
     if (demo) {
-      it(
+      it.runIf(network)(
         `serves its demo at ${demo}`,
         async () => {
           assert.equal(await status(demo, 'GET'), 200)
@@ -98,7 +92,7 @@ describe.each(withLanding.map((s): [string, LandingEntry] => [s.id, s]))(
     }
 
     for (const pkg of snippet ? snippetImports(snippet) : []) {
-      it(
+      it.runIf(network)(
         `imports ${pkg}, which is published on npm`,
         async () => {
           const url = `https://registry.npmjs.org/${encodeURIComponent(pkg)}`

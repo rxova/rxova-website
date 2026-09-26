@@ -1,0 +1,16 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    // The package ships uncompiled source, so relative imports keep their real .ts extension
+    // and nothing here ever emits.
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "verbatimModuleSyntax": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.astro", "test/**/*.ts", "*.config.js", "*.config.mjs"],
+  "exclude": ["node_modules"]
+}

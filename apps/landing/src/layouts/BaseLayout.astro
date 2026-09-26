@@ -1,0 +1,177 @@
+---
+// Only the chrome's stylesheets: this layout also builds the shell templates, whose docs pages
+// inherit what it links. Pages that own their document import document.css (the reset) themselves.
+import '@rxova/brand/fonts.css'
+import '@rxova/astro-ui/styles/chrome.css'
+import { siteUrl, type ProjectId } from '@rxova/brand'
+import SiteFooter from '@rxova/astro-ui/components/SiteFooter.astro'
+import ThemeScript from '@rxova/astro-ui/components/ThemeScript.astro'
+import CloudflareAnalytics from '../components/CloudflareAnalytics.astro'
+import SiteHeader from '../components/SiteHeader.astro'
+import { mountedProjects, navSurfaces } from '../lib/projects'
+// The same files @rxova/brand/fonts.css points at, so the preloads and the
+// @font-face rules share one URL. See `fontPreloads`.
+import spaceGrotesk400 from '@fontsource/space-grotesk/files/space-grotesk-latin-400-normal.woff2?url'
+import spaceGrotesk500 from '@fontsource/space-grotesk/files/space-grotesk-latin-500-normal.woff2?url'
+import spaceGrotesk600 from '@fontsource/space-grotesk/files/space-grotesk-latin-600-normal.woff2?url'
+import spaceGrotesk700 from '@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2?url'
+import plexMono400 from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url'
+
+interface Props {
+  title: string
+  robots?: string
+  path?: string
+  project?: ProjectId
+  template?: boolean
+}
+
+const { title, robots, path = '/', project, template = false } = Astro.props
+const footerSurfaces = navSurfaces.map((surface) => ({
+  label: surface.label,
+  href: siteUrl(surface.href),
+}))
+
+// Only the projects whose docs this deploy contains; see `mountedProjects`.
+const footerProjects = mountedProjects.map((project) => ({
+  label: project.label,
+  href: siteUrl(project.href),
+}))
+
+// Derived from the URL being built, never a prop, so it cannot drift from the page.
+// Omitted on shell templates, where it would survive into the composed page.
+const canonical = template ? undefined : new URL(Astro.url.pathname, Astro.site).href
+
+// The domain's agent-facing llms.txt, as `rel="alternate"`. Omitted on shell
+// templates, whose package build advertises its own llms.txt in its <head>.
+const llmsIndex = template ? undefined : '/llms.txt'
+
+// True only for a package's shell template, the one case that wraps a Starlight
+// document; the assembler keeps the shell's <html> attributes, so it survives.
+const docsShell = template && project !== undefined
+
+/**
+ * Preloads the brand fonts (`font-display: optional`) so they arrive before first layout.
+ * Not on a docs page, where Starlight's stylesheet loads the package's own copies.
+ */
+const fontPreloads = docsShell
+  ? []
+  : [spaceGrotesk400, spaceGrotesk500, spaceGrotesk600, spaceGrotesk700, plexMono400]
+---
+
+<!doctype html>
+<html lang="en" data-rxova-shell data-rxova-docs-shell={docsShell ? '' : undefined}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {fontPreloads.map((href) => (
+      <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />
+    ))}
+    <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
+    <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
+    <title>{title}</title>
+    {canonical && <link rel="canonical" href={canonical} />}
+    {llmsIndex && <link rel="alternate" type="text/plain" title="llms.txt" href={llmsIndex} />}
+    {robots && <meta name="robots" content={robots} />}
+    <slot name="head" />
+    {template && <meta name="rxova-head-slot" content="" />}
+    <ThemeScript />
+    <CloudflareAnalytics />
+  </head>
+  <body>
+    <SiteHeader path={path} ribbon={docsShell} />
+    {template ? <div data-rxova-page-slot /> : <slot />}
+    <div class="rx-shell-footer">
+      <SiteFooter project={project} site={footerSurfaces} projects={footerProjects} />
+    </div>
+
+    <style>
+      .rx-shell-footer {
+        max-width: var(--rx-max-wide);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+    </style>
+
+    <!-- Global: rules for what the shell makes redundant on the pages it composes.
+         They reach Starlight's header because the assembler splices its body in here. -->
+    <style is:global>
+      /* The header above already carries the rxova mark linking home, so Starlight's
+         site title drops its copy. */
+      html[data-rxova-docs-shell] .rx-site-title__mark,
+      html[data-rxova-docs-shell] .rx-site-title__sep {
+        display: none;
+      }
+
+      /* --- The ribbon ------------------------------------------------------
+         On a docs page the umbrella bar shrinks to a flat ribbon over Starlight's bar. */
+
+      /* Flat and opaque. Nothing scrolls through it any more, and the faint card
+         tint separates it from the bar below without a second rule. */
+      html[data-rxova-docs-shell] header.site {
+        background: var(--rx-card);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+
+      /* Declared rather than left to the tallest child — see the height note
+         below for what that cost the first time. */
+      html[data-rxova-docs-shell] .site__inner {
+        min-height: 0;
+        height: var(--rx-ribbon-height);
+        padding-block: 0;
+        /* Full-bleed on Starlight's nav padding, so both rows start at the same edge. */
+        max-width: none;
+        padding-inline: var(--sl-nav-pad-x);
+      }
+
+      /* Starlight's own picker is one row below this, at the same end of the
+         bar. Hiding the button takes it out of the tab order with it. */
+      html[data-rxova-docs-shell] .theme-toggle {
+        display: none;
+      }
+
+      /* Ribbon scale: the links drop below the docs bar's type, marking it subordinate. */
+      html[data-rxova-docs-shell] .brand img {
+        width: 16px;
+        height: 16px;
+      }
+      html[data-rxova-docs-shell] .brand span,
+      html[data-rxova-docs-shell] nav a {
+        font-size: 0.8rem;
+      }
+    </style>
+
+    <!-- A cross-document view transition with its animations off: an instant swap that
+         stops iOS WebKit painting a header-less frame between full page loads. -->
+    <style is:global>
+      @view-transition {
+        navigation: auto;
+      }
+      ::view-transition-group(*),
+      ::view-transition-old(*),
+      ::view-transition-new(*) {
+        animation: none;
+      }
+    </style>
+
+    <!-- Reserves the scrollbar track on every page, so the centred layout does not
+         shift sideways between pages that scroll and pages that do not. -->
+    <style is:global>
+      html[data-rxova-shell] {
+        scrollbar-gutter: stable;
+      }
+    </style>
+
+    <!-- Two attributes, so this beats @rxova/brand's [data-rxova-shell] declaration
+         whatever order the two stylesheets end up in. -->
+    <style is:global>
+      html[data-rxova-shell][data-rxova-docs-shell] {
+        --rx-ribbon-height: 2.25rem;
+
+        /* The height @rxova/brand pins Starlight's bar, sidebars and mobile TOC at,
+           derived from the ribbon's so the two bars cannot overlap. */
+        --rx-shell-header-height: calc(var(--rx-ribbon-height) + 1px);
+      }
+    </style>
+  </body>
+</html>

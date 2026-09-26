@@ -1,0 +1,24 @@
+---
+import type { HTMLAttributes } from 'astro/types'
+
+/** An "← up one level" link; the caller's class sets its spacing. */
+type Props = HTMLAttributes<'a'> & { href: string }
+
+const { href, class: className, ...rest } = Astro.props
+---
+
+<a class:list={['back-link', className]} href={href} {...rest}>
+  ← <slot />
+</a>
+
+<style>
+  .back-link {
+    display: inline-block;
+    color: var(--rx-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+  }
+  .back-link:hover {
+    color: var(--rx-fg);
+  }
+</style>

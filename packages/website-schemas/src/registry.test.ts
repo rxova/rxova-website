@@ -64,9 +64,7 @@ describe('sourceEntry', () => {
     expect(sourceEntry.safeParse({ ...site, landing: { blurb: 'x' } }).success).toBe(false)
   })
 
-  // A site mounts at /<id>/, so its id is a top-level path. One colliding with the
-  // landing's own pages or the docs tree would shadow or be shadowed depending on
-  // copy order — a failure nobody would think to look for.
+  // A site mounts at /<id>/, so a reserved id would shadow (or be shadowed by) existing pages.
   it.each(RESERVED_PATHS)('refuses a site claiming the reserved path %s', (id) => {
     expect(sourceEntry.safeParse({ id, kind: 'site' }).success).toBe(false)
   })

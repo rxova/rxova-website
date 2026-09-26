@@ -1,0 +1,72 @@
+---
+import { siteUrl } from '@rxova/brand'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Follow from '../components/home/Follow.astro'
+import Intro from '../components/home/Intro.astro'
+import Maintainer from '../components/home/Maintainer.astro'
+import Principles from '../components/home/Principles.astro'
+import Showcase from '../components/home/Showcase.astro'
+import Standards from '../components/home/Standards.astro'
+import { MAINTAINER } from '../lib/about'
+import { featuredIndex, organizationJsonLd, scriptJson } from '../lib/home'
+import { landingProjects, projectListSentence } from '../lib/projects'
+// The reset this page's scoped CSS is written against; not in BaseLayout, which also builds the shell templates.
+import '../styles/global.css'
+
+const organizationJson = scriptJson(
+  organizationJsonLd(landingProjects, MAINTAINER, projectListSentence),
+)
+const blogFeed = siteUrl('/blog/rss.xml')
+---
+
+<BaseLayout title="Rxova — take one package, keep the rest of your stack" path="/">
+  <Fragment slot="head">
+    <!-- Built from the registry, so a new project updates the descriptions too. -->
+    <meta
+      name="description"
+      content={`Independent TypeScript libraries for problems that are harder than they look: ${projectListSentence}.`}
+    />
+    <meta property="og:title" content="Rxova" />
+    <meta
+      property="og:description"
+      content={`Take one package, keep the rest of your stack. Independent TypeScript libraries: ${projectListSentence}.`}
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={siteUrl('/')} />
+    <!-- A 1200x630 card; a square logo gets centre-cropped by Slack and Twitter. -->
+    <meta property="og:image" content={siteUrl('/og/rxova.png')} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- The blog is its own surface, so only the domain root can advertise its feed. -->
+    <link rel="alternate" type="application/rss+xml" title="Rxova Blog" href={blogFeed} />
+    <script type="application/ld+json" is:inline set:html={organizationJson}></script>
+    <!-- Before first paint: the one switch for the enhanced layouts. Without it the page is
+         complete, just stacked and unanimated. -->
+    <script is:inline>
+      document.documentElement.dataset.js = ''
+    </script>
+  </Fragment>
+
+  <main>
+    <Intro />
+    <Showcase projects={landingProjects} featured={featuredIndex(landingProjects)} />
+    <Standards />
+    <Principles />
+    <Maintainer />
+    <Follow feed={blogFeed} />
+  </main>
+
+  <style>
+    /* The page centres on the brand's page width, like the header and footer. */
+    main {
+      max-width: var(--rx-max-wide);
+      margin: 0 auto;
+      padding-block: 0 5rem;
+      padding-inline: 1.5rem;
+    }
+    @media (max-width: 40rem) {
+      main {
+        padding-inline: 1.25rem;
+      }
+    }
+  </style>
+</BaseLayout>

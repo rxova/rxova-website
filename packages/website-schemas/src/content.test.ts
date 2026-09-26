@@ -52,9 +52,7 @@ describe('postBase', () => {
     )
   })
 
-  // Absent means "decorative", which the renderer turns into `alt=""`. An empty
-  // string would mean the same thing while looking like someone tried to describe
-  // the image and stopped — so it is rejected rather than quietly accepted.
+  // Decorative covers omit coverAlt; an empty string looks like an unfinished description.
   it('rejects an empty coverAlt rather than reading it as decorative', () => {
     expect(postBase.safeParse({ ...post, coverAlt: '' }).success).toBe(false)
   })
@@ -79,15 +77,12 @@ describe('updateBase', () => {
     expect(updateBase.safeParse({ ...update, draft: 'yes' }).success).toBe(false)
   })
 
-  // Non-empty because the updates page is a filterable stream: an entry about
-  // nothing can never be filtered to, and only ever shows in the unfiltered view.
+  // Non-empty so every entry can be reached through the updates page's repo filter.
   it('requires at least one repo', () => {
     expect(updateBase.safeParse({ ...update, repos: [] }).success).toBe(false)
   })
 
-  // The schema checks shape only. Whether an id is a *real* repo is checked by
-  // `unknownRepos` against @rxova/brand's REPOS — this package is published and
-  // must not reach into the design system to find out. See `repoId`.
+  // The schema checks shape only; `unknownRepos` checks ids against @rxova/brand's REPOS.
   it('accepts any well-formed id, leaving the registry check to unknownRepos', () => {
     expect(updateBase.safeParse({ ...update, repos: ['not-a-repo'] }).success).toBe(true)
     expect(updateBase.safeParse({ ...update, repos: ['Not A Repo'] }).success).toBe(false)

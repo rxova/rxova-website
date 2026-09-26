@@ -1,19 +1,5 @@
-// The root llms.txt for the assembled tree.
-//
-// https://llmstxt.org — a plain-markdown index a coding agent reads to find out
-// what a site offers, at a well-known path, without spending a context window on
-// rendered HTML.
-//
-// This belongs here for the same reason `sitemap.ts` does: it is a file only the
-// aggregator can write. Each project publishes its own `llms.txt` under its mount
-// describing its own API; nothing points at those, so an agent that lands on
-// rxova.org has no path to them. This module writes the one index that does.
-//
-// A project that ships an `llms.txt` is linked to it. A project that ships none is
-// linked to its docs root instead — the same tolerance `writeSitemaps` has for a
-// project with no sitemap of its own. That is deliberate: it means this repo and a
-// project repo can ship in either order, and a project lights up the moment it
-// adds the file, with no change here.
+// The root llms.txt (https://llmstxt.org) for the assembled tree, linking each project's
+// own llms.txt, or its docs root when it ships none.
 
 import { access, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -24,11 +10,7 @@ import { RXOVA_ORIGIN } from './sitemap.ts'
 /** The well-known filename, both here and under each project's mount. */
 export const LLMS_FILE = 'llms.txt'
 
-/**
- * The site's own summary. Written here rather than imported from @rxova/brand for
- * the reason sitemap.ts documents: brand ships TypeScript source with no build
- * step, and these scripts run under bare `node` in CI.
- */
+/** The site's summary, inlined because bare `node` in CI cannot import @rxova/brand's TS source. */
 const SUMMARY = [
   'Small, focused TypeScript libraries for the hard parts of the browser.',
   'Each is zero- or few-dependency, typed, accessible, and documented with a',
@@ -44,14 +26,6 @@ async function exists(p: string): Promise<boolean> {
   }
 }
 
-/**
- * Where to send an agent for one project: its own llms.txt when it publishes one,
- * otherwise its docs root.
- *
- * Returns the URL and whether it is the richer target, so the caller can say so in
- * the note — an agent choosing between two links deserves to know one is an index
- * built for it and the other is a landing page it will have to crawl.
- */
 /** The part of a registry source the index reads. */
 export type LlmsSource = Pick<Source, 'id' | 'kind' | 'base' | 'mount'> & {
   landing?: { blurb?: string }
@@ -63,6 +37,7 @@ export interface LlmsEntry {
   note?: string
 }
 
+/** An agent's entry for one project: its llms.txt (`indexed`) if published, else its docs root. */
 export async function projectEntry(
   outDir: string,
   source: Pick<LlmsSource, 'base' | 'mount'>,
@@ -77,12 +52,7 @@ export async function projectEntry(
 const link = ({ label, url, note }: LlmsEntry): string =>
   `- [${label}](${url})${note ? `: ${note}` : ''}`
 
-/**
- * Build the document. Pure, so the shape is testable without a tree on disk.
- *
- * `projects` and `sites` are already-resolved entries: the caller has done the
- * filesystem probing, which is the only part that needs a real directory.
- */
+/** Builds the document from already-resolved entries; pure, so testable without a tree on disk. */
 export function llmsIndex(
   { projects, sites }: { projects: LlmsEntry[]; sites: LlmsEntry[] },
   origin: string,
@@ -113,12 +83,7 @@ export function llmsIndex(
   return lines.join('\n')
 }
 
-/**
- * Write the root llms.txt into `outDir`.
- *
- * Returns what it wrote so the caller can log it and the tests can assert on it
- * without re-parsing the document.
- */
+/** Writes the root llms.txt into `outDir` and returns the entries it wrote. */
 export async function writeLlms(
   outDir: string,
   sources: LlmsSource[],
@@ -134,9 +99,8 @@ export async function writeLlms(
 
     const { url } = await projectEntry(outDir, source, origin)
     const entry: LlmsEntry = {
-      // The id, not a prettier label: it is the URL segment and the npm scope,
-      // which is what an agent needs to act on. The human-facing labels live in
-      // @rxova/brand's PROJECTS, which bare `node` cannot import (see above).
+      // The id (URL segment and npm scope), since brand's human-facing labels
+      // cannot be imported under bare `node`.
       label: source.id,
       url,
       note: source.landing?.blurb,

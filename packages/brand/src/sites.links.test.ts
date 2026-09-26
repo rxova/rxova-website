@@ -1,14 +1,6 @@
 /**
- * Every outbound link in PROJECTS resolves.
- *
- * sites.test.ts checks the shape of these URLs, and a well-shaped URL can still
- * 404: ts-extended-errors shipped with an npm link to `@rxova/ts-extended-errors`
- * after the package had been published unscoped as `ts-extended-errors`. Only
- * asking the network catches that, so this file does.
- *
- * npm is checked through the registry, not www.npmjs.com, which answers 403 to
- * anything that is not a browser. The npm link is pinned to the first package
- * below, so checking the packages checks the link.
+ * Every outbound link in PROJECTS resolves over the network (a well-shaped URL can still 404).
+ * npm is checked via the registry, since www.npmjs.com answers 403 to non-browsers.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -37,6 +29,9 @@ async function status(url: string, method: 'GET' | 'HEAD'): Promise<number> {
   return last
 }
 
+/** Off by default, so a flaky registry cannot fail a pull request; the weekly `links` workflow sets it. */
+const network = process.env.RX_NETWORK_TESTS === '1'
+
 const registryUrl = (pkg: string) => `https://registry.npmjs.org/${encodeURIComponent(pkg)}`
 
 describe.each(PROJECTS.map((p) => [p.id, p] as const))('%s links', (_, project) => {
@@ -44,7 +39,7 @@ describe.each(PROJECTS.map((p) => [p.id, p] as const))('%s links', (_, project) 
     expect(project.npm).toBe(`https://www.npmjs.com/package/${project.packages[0]}`)
   })
 
-  it.each(project.packages)(
+  it.runIf(network).each(project.packages)(
     'publishes %s on npm',
     async (pkg) => {
       expect(await status(registryUrl(pkg), 'GET')).toBe(200)
@@ -52,7 +47,7 @@ describe.each(PROJECTS.map((p) => [p.id, p] as const))('%s links', (_, project) 
     TIMEOUT * 3,
   )
 
-  it(
+  it.runIf(network)(
     'has a public GitHub repo',
     async () => {
       expect(await status(project.repo, 'HEAD')).toBe(200)

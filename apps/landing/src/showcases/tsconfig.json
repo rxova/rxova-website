@@ -1,0 +1,16 @@
+{
+  // Typechecks each walkthrough's `after` against the published packages, with React JSX
+  // (the site types JSX as Astro's). The `before` sides are plain text, never compiled.
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "types": []
+  },
+  "include": ["*/after.ts", "*/after.tsx"]
+}

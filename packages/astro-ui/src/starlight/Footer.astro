@@ -1,0 +1,16 @@
+---
+/**
+ * Starlight `Footer` override: keeps Starlight's pagination, edit link and last-updated, and adds
+ * the shared rxova site footer beneath them.
+ */
+import Default from '@astrojs/starlight/components/Footer.astro'
+import SiteFooter from '../components/SiteFooter.astro'
+import { projectFromBase } from '@rxova/brand'
+
+const project = projectFromBase(import.meta.env.BASE_URL)
+---
+
+<Default>
+  <slot />
+</Default>
+<SiteFooter project={project} />
