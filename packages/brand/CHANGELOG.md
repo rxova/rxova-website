@@ -1,5 +1,11 @@
 # @rxova/brand
 
+## 1.0.0
+
+### Major Changes
+
+- [#75](https://github.com/rxova/rxova-website/pull/75) [`8370a29`](https://github.com/rxova/rxova-website/commit/8370a29628a6f4d9aba6d257f844db525bed761e) - Reduce the package to tokens and data. The components, `astro.css`, `chrome.css`, `starlight.css` and `sharedStarlightConfig` move to `@rxova/astro-ui`; `projectFromBase` is now exported from the entry point.
+
 ## 0.15.1
 
 ### Patch Changes
