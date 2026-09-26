@@ -1,0 +1,13 @@
+/**
+ * Gallery pages: the docs measure is right for prose and too narrow for a card grid or a stat
+ * band, so a page that carries a story takes the brand's wide bound and keeps its sidebar.
+ */
+
+html:has([data-story]) .sl-container {
+  max-width: var(--rx-max-wide);
+}
+
+/* A story's markup owns its own rhythm; Starlight's gap between top-level children would stack on it. */
+html:has([data-story]) .sl-markdown-content > figure + figure {
+  margin-top: 2rem;
+}

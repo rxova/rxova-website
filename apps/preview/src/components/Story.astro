@@ -1,0 +1,55 @@
+---
+/**
+ * One rendered state of a component on a gallery page, in a labelled frame. The screenshot
+ * script captures every `[data-story]` on the page, so keep each frame self-contained.
+ */
+interface Props {
+  title: string
+  /** One line on what this state shows or why it exists. */
+  note?: string
+}
+
+const { title, note } = Astro.props
+---
+
+<figure class="story not-content" data-story>
+  <figcaption class="story__label">
+    <span class="story__title">{title}</span>
+    {note && <span class="story__note">{note}</span>}
+  </figcaption>
+  <div class="story__stage">
+    <slot />
+  </div>
+</figure>
+
+<style>
+  .story {
+    margin: 2rem 0 0;
+    border: 1px dashed var(--rx-rule-strong);
+    border-radius: var(--rx-radius);
+  }
+
+  .story__label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.75rem;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px dashed var(--rx-rule-strong);
+    font-family: var(--rx-font-mono);
+    font-size: 0.75rem;
+  }
+
+  .story__title {
+    color: var(--rx-fg);
+    font-weight: 500;
+  }
+
+  .story__note {
+    color: var(--rx-muted);
+  }
+
+  .story__stage {
+    padding: 1.5rem;
+  }
+</style>

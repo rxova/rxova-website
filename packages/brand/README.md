@@ -30,12 +30,12 @@ pnpm add @rxova/brand
 
 ## What's in it
 
-| Export                    | What it is                                                             |
-| ------------------------- | ---------------------------------------------------------------------- |
-| `@rxova/brand`            | `PROJECTS`, `REPOS`, `docsUrl()`, `siteUrl()`, `canonicalUrl()`, feeds |
-| `@rxova/brand/tokens.css` | The `--rx-*` custom properties. Everything derives from these.         |
-| `@rxova/brand/fonts.css`  | Self-hosted Space Grotesk + IBM Plex Mono                              |
-| `@rxova/brand/assets/*`   | The mark, logos and per-project OG images                              |
+| Export                    | What it is                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------------------ |
+| `@rxova/brand`            | `PROJECTS`, `REPOS`, `docsUrl()`, `siteUrl()`, `canonicalUrl()`, feeds                     |
+| `@rxova/brand/tokens.css` | The `--rx-*` custom properties, `--rx-on-primary` included. Everything derives from these. |
+| `@rxova/brand/fonts.css`  | Self-hosted Space Grotesk + IBM Plex Mono                                                  |
+| `@rxova/brand/assets/*`   | The mark, logos and per-project OG images                                                  |
 
 ## The palette
 

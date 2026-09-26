@@ -1,0 +1,55 @@
+/**
+ * The rules a Starlight splash landing needs around the landing components. Load it through
+ * `customCss`; every rule is gated on `[data-has-hero]`, which Starlight sets only on a page with a hero.
+ */
+
+/* Starlight's 45rem prose measure is wrong for a stat band or a card grid; take the brand's wide bound. */
+html[data-has-hero] .sl-container {
+  max-width: var(--rx-max-wide);
+}
+
+/* The sections carry their own rhythm, so Starlight's 1.5rem between top-level children compounds. */
+html[data-has-hero] .sl-container > * + * {
+  margin-top: 0;
+}
+
+/* Starlight's clamp tops out at 10rem of padding, which pushes the first call to action below the fold. */
+html[data-has-hero] .hero {
+  padding-block: clamp(2.5rem, 1rem + 6vmin, 5rem);
+}
+
+/* Without a hero image the second grid column is dead space holding the headline off to one side. */
+html[data-has-hero] .hero:not(:has(img)) {
+  grid-template-columns: 1fr;
+}
+
+/* Starlight caps every hero child at 50ch: right for the tagline, far too wide for a display headline. */
+html[data-has-hero] .hero h1 {
+  max-width: 22ch;
+  text-wrap: balance;
+}
+
+html[data-has-hero] .hero .tagline {
+  max-width: 56ch;
+  text-wrap: pretty;
+}
+
+/* The first section's 7rem margin is separating from the hero, which already ends in its own padding. */
+html[data-has-hero] .sl-markdown-content > :first-child {
+  margin-top: 2rem;
+}
+
+/* A pill above the headline, for a version: the hero title is frontmatter HTML, so it is styled by class. */
+html[data-has-hero] .hero .rx-tag {
+  display: inline-block;
+  margin-bottom: 0.9rem;
+  padding: 0.28rem 0.7rem;
+  color: var(--rx-primary);
+  background: var(--rx-tag-bg);
+  border-radius: var(--rx-radius-pill);
+  font-family: var(--rx-font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
