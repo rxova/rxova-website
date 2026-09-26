@@ -259,10 +259,32 @@ jobs:
   #
   # The PR-title re-check on `edited` is not in here: it runs in pr-title.yml,
   # on the event this workflow does not listen to.
+  e2e:
+    name: e2e
+    needs: [commitlint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-pnpm
+      - uses: ./.github/actions/turbo-cache
+      - run: pnpm install --frozen-lockfile
+      - name: Install Chromium
+        run: pnpm --filter @rxova/repo-tooling exec playwright install --with-deps chromium
+      # Builds and assembles the site the way the deploy does, then drives it in Chromium.
+      - name: Run the behaviour specs
+        run: pnpm run e2e
+      - name: Keep the traces of failed specs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-traces
+          path: packages/tooling/test-results
+          retention-days: 7
+
   all-checks:
     name: all checks
     if: always()
-    needs: [commitlint, checks, changeset]
+    needs: [commitlint, checks, changeset, e2e]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
