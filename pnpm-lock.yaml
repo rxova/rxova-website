@@ -238,6 +238,49 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
 
+  apps/blog:
+    dependencies:
+      '@rxova/brand':
+        specifier: workspace:^
+        version: link:../../packages/brand
+      '@rxova/website-schemas':
+        specifier: workspace:^
+        version: link:../../packages/website-schemas
+      astro:
+        specifier: ^7.3.2
+        version: 7.3.5(@types/node@26.6.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1)
+      sharp:
+        specifier: '>=0.35.0'
+        version: 0.35.4(@types/node@26.6.1)
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@astrojs/check':
+        specifier: ^0.9.10
+        version: 0.9.10(prettier-plugin-astro@1.0.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9))(prettier@3.9.9)(typescript@6.0.3)
+      '@playwright/test':
+        specifier: 1.63.0
+        version: 1.63.0
+      '@rxova/repo-tooling':
+        specifier: workspace:*
+        version: link:../../packages/tooling
+      '@types/node':
+        specifier: ^26.6.1
+        version: 26.6.1
+      '@vitest/coverage-v8':
+        specifier: ^5.0.1
+        version: 5.0.1(vitest@5.0.1)
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: ^5.0.1
+        version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
+
   apps/e2e:
     devDependencies:
       '@playwright/test':
@@ -252,6 +295,64 @@ importers:
       typescript:
         specifier: 6.0.3
         version: 6.0.3
+
+  apps/landing:
+    dependencies:
+      '@fontsource/ibm-plex-mono':
+        specifier: ^5.2.5
+        version: 5.3.0
+      '@fontsource/space-grotesk':
+        specifier: ^5.2.5
+        version: 5.3.0
+      '@rxova/brand':
+        specifier: workspace:^
+        version: link:../../packages/brand
+      astro:
+        specifier: ^7.3.3
+        version: 7.3.5(@types/node@26.6.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1)
+      astro-expressive-code:
+        specifier: ^0.44.2
+        version: 0.44.2(astro@7.3.5(@types/node@26.6.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
+    devDependencies:
+      '@astrojs/check':
+        specifier: ^0.9.10
+        version: 0.9.10(prettier-plugin-astro@1.0.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9))(prettier@3.9.9)(typescript@6.0.3)
+      '@playwright/test':
+        specifier: 1.63.0
+        version: 1.63.0
+      '@rxova/journey-core':
+        specifier: 1.0.0-rc.3
+        version: 1.0.0-rc.3
+      '@rxova/react-intl-currency-input':
+        specifier: ^1.0.2
+        version: 1.0.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@rxova/react-otp-input':
+        specifier: ^1.0.4
+        version: 1.0.4(react@19.3.0)
+      '@rxova/repo-tooling':
+        specifier: workspace:*
+        version: link:../../packages/tooling
+      '@types/react':
+        specifier: ^19.3.0
+        version: 19.3.0
+      '@vitest/coverage-v8':
+        specifier: ^5.0.1
+        version: 5.0.1(vitest@5.0.1)
+      react:
+        specifier: ^19.3.0
+        version: 19.3.0
+      ts-extended-errors:
+        specifier: ^1.0.0
+        version: 1.0.0
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      use-everywhere:
+        specifier: ^1.0.2
+        version: 1.0.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      vitest:
+        specifier: ^5.0.1
+        version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
 
   apps/preview:
     dependencies:
@@ -272,20 +373,17 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
 
-  packages/blog:
+  apps/updates:
     dependencies:
       '@rxova/brand':
         specifier: workspace:^
-        version: link:../brand
+        version: link:../../packages/brand
       '@rxova/website-schemas':
         specifier: workspace:^
-        version: link:../website-schemas
+        version: link:../../packages/website-schemas
       astro:
         specifier: ^7.3.2
         version: 7.3.5(@types/node@26.6.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1)
-      sharp:
-        specifier: '>=0.35.0'
-        version: 0.35.4(@types/node@26.6.1)
       zod:
         specifier: ^4.6.5
         version: 4.6.5
@@ -298,7 +396,7 @@ importers:
         version: 1.63.0
       '@rxova/repo-tooling':
         specifier: workspace:*
-        version: link:../tooling
+        version: link:../../packages/tooling
       '@types/node':
         specifier: ^26.6.1
         version: 26.6.1
@@ -398,46 +496,6 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
 
-  packages/updates:
-    dependencies:
-      '@rxova/brand':
-        specifier: workspace:^
-        version: link:../brand
-      '@rxova/website-schemas':
-        specifier: workspace:^
-        version: link:../website-schemas
-      astro:
-        specifier: ^7.3.2
-        version: 7.3.5(@types/node@26.6.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1)
-      zod:
-        specifier: ^4.6.5
-        version: 4.6.5
-    devDependencies:
-      '@astrojs/check':
-        specifier: ^0.9.10
-        version: 0.9.10(prettier-plugin-astro@1.0.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9))(prettier@3.9.9)(typescript@6.0.3)
-      '@playwright/test':
-        specifier: 1.63.0
-        version: 1.63.0
-      '@rxova/repo-tooling':
-        specifier: workspace:*
-        version: link:../tooling
-      '@types/node':
-        specifier: ^26.6.1
-        version: 26.6.1
-      '@vitest/coverage-v8':
-        specifier: ^5.0.1
-        version: 5.0.1(vitest@5.0.1)
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
-      vitest:
-        specifier: ^5.0.1
-        version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
-      yaml:
-        specifier: ^2.9.1
-        version: 2.9.1
-
   packages/website-schemas:
     devDependencies:
       '@types/node':
@@ -464,64 +522,6 @@ importers:
       zod:
         specifier: ^4.6.5
         version: 4.6.5
-
-  site:
-    dependencies:
-      '@fontsource/ibm-plex-mono':
-        specifier: ^5.2.5
-        version: 5.3.0
-      '@fontsource/space-grotesk':
-        specifier: ^5.2.5
-        version: 5.3.0
-      '@rxova/brand':
-        specifier: workspace:^
-        version: link:../packages/brand
-      astro:
-        specifier: ^7.3.3
-        version: 7.3.5(@types/node@26.6.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1)
-      astro-expressive-code:
-        specifier: ^0.44.2
-        version: 0.44.2(astro@7.3.5(@types/node@26.6.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
-    devDependencies:
-      '@astrojs/check':
-        specifier: ^0.9.10
-        version: 0.9.10(prettier-plugin-astro@1.0.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9))(prettier@3.9.9)(typescript@6.0.3)
-      '@playwright/test':
-        specifier: 1.63.0
-        version: 1.63.0
-      '@rxova/journey-core':
-        specifier: 1.0.0-rc.3
-        version: 1.0.0-rc.3
-      '@rxova/react-intl-currency-input':
-        specifier: ^1.0.2
-        version: 1.0.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@rxova/react-otp-input':
-        specifier: ^1.0.4
-        version: 1.0.4(react@19.3.0)
-      '@rxova/repo-tooling':
-        specifier: workspace:*
-        version: link:../packages/tooling
-      '@types/react':
-        specifier: ^19.3.0
-        version: 19.3.0
-      '@vitest/coverage-v8':
-        specifier: ^5.0.1
-        version: 5.0.1(vitest@5.0.1)
-      react:
-        specifier: ^19.3.0
-        version: 19.3.0
-      ts-extended-errors:
-        specifier: ^1.0.0
-        version: 1.0.0
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
-      use-everywhere:
-        specifier: ^1.0.2
-        version: 1.0.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      vitest:
-        specifier: ^5.0.1
-        version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
 
 packages:
 

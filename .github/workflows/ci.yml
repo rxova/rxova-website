@@ -7,8 +7,8 @@ on:
     # prose file, a CHANGELOG is changesets' own output, and neither is ever
     # the whole of a version commit — every `chore: version packages` carries
     # the package.json bumps beside them, so a release can never be filtered
-    # away here. Content markdown is deliberately absent: `packages/blog/posts`
-    # and `packages/updates/updates` are loaded by Astro and asserted on by
+    # away here. Content markdown is deliberately absent: `apps/blog/posts`
+    # and `apps/updates/updates` are loaded by Astro and asserted on by
     # posts.test.ts and updates.test.ts, so a post is source and gets a run.
     #
     # Push only. On `pull_request` a skipped workflow never reports, so a

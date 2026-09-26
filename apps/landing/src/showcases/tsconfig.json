@@ -1,6 +1,6 @@
 {
   // The `after` side of every walkthrough, checked against the packages it
-  // imports — the published ones, pinned in site/package.json — so a snippet
+  // imports — the published ones, pinned in apps/landing/package.json — so a snippet
   // that stops compiling fails `pnpm typecheck` instead of shipping.
   //
   // Separate from the site's tsconfig because two of them are React

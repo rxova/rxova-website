@@ -24,8 +24,8 @@ describe('cover', () => {
         content({
           ...valid,
           posts: { '2026-07-27T143005-a-post.md': post({ cover: '../images/a-post/hero.png' }) },
-          dirs: ['packages/blog/images/a-post'],
-          files: { 'packages/blog/images/a-post/hero.png': 'not really a png' },
+          dirs: ['apps/blog/images/a-post'],
+          files: { 'apps/blog/images/a-post/hero.png': 'not really a png' },
         }),
       ),
     ).toEqual([])
@@ -35,9 +35,9 @@ describe('cover', () => {
   // caught rather than silently ignored. Covers live under content/images.
   it('does not let an image sit in posts/', () => {
     const errors = validateContent(
-      content({ ...valid, files: { 'packages/blog/posts/hero.png': 'not really a png' } }),
+      content({ ...valid, files: { 'apps/blog/posts/hero.png': 'not really a png' } }),
     )
-    expect(errors).toEqual(['packages/blog/posts/hero.png: only .md files belong here'])
+    expect(errors).toEqual(['apps/blog/posts/hero.png: only .md files belong here'])
   })
 
   it('fails when it does not resolve, and says where it looked', () => {
@@ -65,8 +65,8 @@ describe('coverAlt', () => {
               coverAlt: 'A bar chart of build times, falling.',
             }),
           },
-          dirs: ['packages/blog/images/a-post'],
-          files: { 'packages/blog/images/a-post/hero.png': 'not really a png' },
+          dirs: ['apps/blog/images/a-post'],
+          files: { 'apps/blog/images/a-post/hero.png': 'not really a png' },
         }),
       ),
     ).toEqual([])
@@ -80,8 +80,8 @@ describe('coverAlt', () => {
         content({
           ...valid,
           posts: { '2026-07-27T143005-a-post.md': post({ cover: '../images/a-post/hero.png' }) },
-          dirs: ['packages/blog/images/a-post'],
-          files: { 'packages/blog/images/a-post/hero.png': 'not really a png' },
+          dirs: ['apps/blog/images/a-post'],
+          files: { 'apps/blog/images/a-post/hero.png': 'not really a png' },
         }),
       ),
     ).toEqual([])
@@ -95,7 +95,7 @@ describe('coverAlt', () => {
       }),
     )
     expect(errors).toEqual([
-      'packages/blog/posts/2026-07-27T143005-a-post.md: ' +
+      'apps/blog/posts/2026-07-27T143005-a-post.md: ' +
         'coverAlt — set without a cover; add `cover:` or drop the alt text',
     ])
   })
@@ -122,8 +122,8 @@ describe('embedded images', () => {
       validateContent(
         content({
           ...withBody('![A diagram](../images/a-post/diagram.png)'),
-          dirs: ['packages/blog/images/a-post'],
-          files: { 'packages/blog/images/a-post/diagram.png': 'not really a png' },
+          dirs: ['apps/blog/images/a-post'],
+          files: { 'apps/blog/images/a-post/diagram.png': 'not really a png' },
         }),
       ),
     ).toEqual([])
@@ -143,7 +143,7 @@ describe('embedded images', () => {
       }),
     )
     expect(errors).toHaveLength(1)
-    expect(errors[0]).toContain('packages/updates/updates/2026-07-27T090000-an-update.md')
+    expect(errors[0]).toContain('apps/updates/updates/2026-07-27T090000-an-update.md')
   })
 
   it('reports every broken embed, not just the first', () => {
@@ -210,7 +210,7 @@ describe('bodyImages', () => {
   it('agrees with the render fixture about what it embeds', () => {
     const fixture = join(
       defaultContentRoot(),
-      'packages/blog/test/fixtures/posts/2026-01-01T000000-cover-described.md',
+      'apps/blog/test/fixtures/posts/2026-01-01T000000-cover-described.md',
     )
     const source = readFileSync(fixture, 'utf8')
     const body = source.slice(source.indexOf('\n---', 3))
