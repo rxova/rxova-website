@@ -12,7 +12,6 @@ const IGNORED = new Set(['pnpm-lock.yaml'])
 export const ALLOWED: ReadonlySet<string> = new Set([
   'apps/landing/src/components/Walkthrough.astro',
   'apps/landing/src/pages/index.astro',
-  'apps/updates/src/components/UpdatesStream.astro',
 ])
 
 export interface SourceFile {

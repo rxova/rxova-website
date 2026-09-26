@@ -17,7 +17,8 @@ import { siteUrl, canonicalUrl } from '@rxova/brand'
 
 import PageHeader from '@rxova/astro-ui/components/PageHeader.astro'
 import Content from '@rxova/astro-ui/components/SiteShell.astro'
-import UpdatesStream, { type StreamItem } from '../../components/UpdatesStream.astro'
+import UpdatesStream from '../../components/UpdatesStream.astro'
+import type { StreamItem } from '../../components/stream/Entry.astro'
 import { getUpdates, resolveAuthors, REPOS, href } from '../../lib/content'
 
 export async function getStaticPaths() {
