@@ -1,0 +1,254 @@
+---
+/**
+ * The projects: a rail of one line each beside a stage showing one panel. Without JS the rail
+ * is in-page links and every panel is stacked; the script upgrades the rail to a tablist.
+ */
+import type { LandingProject } from '../../lib/projects'
+import Eyebrow from './Eyebrow.astro'
+import ProjectPanel from './ProjectPanel.astro'
+
+interface Props {
+  projects: readonly LandingProject[]
+  /** The index of the panel the page opens on. */
+  featured: number
+}
+
+const { projects, featured } = Astro.props
+---
+
+<section class="showcase" id="projects" aria-labelledby="projects-heading">
+  <Eyebrow id="projects-heading">Projects</Eyebrow>
+
+  <div class="showcase-body">
+    <div class="rail" id="project-rail" aria-label="Projects">
+      {projects.map((p, i) => (
+        <a
+          class={i === featured ? 'rail-item is-active' : 'rail-item'}
+          href={`#project-${p.id}`}
+          data-rail={p.id}
+        >
+          <span class="rail-bar" aria-hidden="true" />
+          <span class="rail-text">
+            <span class="rail-name">{p.label}</span>
+            <span class="rail-tagline">{p.tagline}</span>
+          </span>
+        </a>
+      ))}
+    </div>
+
+    <div class="stage">
+      {projects.map((p, i) => (
+        <ProjectPanel project={p} active={i === featured} />
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  interface RailTab extends HTMLAnchorElement {
+    dataset: DOMStringMap & { rail: string }
+  }
+
+  /** The rail becomes a tablist: tab roles, automatic activation, arrows, Home and End. */
+  function enhanceRail(): void {
+    const rail = document.getElementById('project-rail')
+    const stage = document.querySelector<HTMLElement>('.stage')
+    if (!rail || !stage) return
+
+    const tabs = [...rail.querySelectorAll<RailTab>('.rail-item')]
+    const panels = new Map(
+      [...stage.querySelectorAll<HTMLElement>('.panel')].map((p) => [p.dataset.panel ?? '', p]),
+    )
+    if (tabs.length === 0 || panels.size === 0) return
+
+    rail.setAttribute('role', 'tablist')
+    rail.setAttribute('aria-orientation', 'vertical')
+
+    const select = (next: RailTab, focus: boolean): void => {
+      for (const tab of tabs) {
+        const on = tab === next
+        tab.setAttribute('aria-selected', String(on))
+        tab.tabIndex = on ? 0 : -1
+        tab.classList.toggle('is-active', on)
+
+        const panel = panels.get(tab.dataset.rail)
+        if (!panel) continue
+        panel.classList.toggle('is-active', on)
+        // Out of the accessibility tree too, so only the visible panel is read.
+        panel.setAttribute('aria-hidden', String(!on))
+      }
+      if (focus) next.focus()
+    }
+
+    // The tab the build marked active (the featured project), else the first.
+    const initial = tabs.find((tab) => tab.classList.contains('is-active')) ?? tabs[0]
+
+    tabs.forEach((tab) => {
+      tab.setAttribute('role', 'tab')
+      tab.setAttribute('aria-controls', `project-${tab.dataset.rail}`)
+      // A tab is no longer a link: the href would jump the page on activation.
+      tab.removeAttribute('href')
+      tab.tabIndex = tab === initial ? 0 : -1
+
+      tab.addEventListener('click', () => select(tab, false))
+      tab.addEventListener('keydown', (event: KeyboardEvent) => {
+        const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[event.key]
+        let target: RailTab | undefined
+        if (step) target = tabs[(tabs.indexOf(tab) + step + tabs.length) % tabs.length]
+        else if (event.key === 'Home') target = tabs[0]
+        else if (event.key === 'End') target = tabs[tabs.length - 1]
+        else if (event.key === ' ' || event.key === 'Enter') target = tab
+        if (!target) return
+        event.preventDefault()
+        select(target, true)
+      })
+    })
+
+    for (const panel of panels.values()) panel.setAttribute('role', 'tabpanel')
+    select(initial, false)
+
+    // `/#project-journey` still names a panel, now that the tabs own the anchors.
+    const fromHash = tabs.find((t) => `#project-${t.dataset.rail}` === location.hash)
+    if (fromHash) select(fromHash, false)
+  }
+
+  enhanceRail()
+</script>
+
+<style>
+  /* Less above than below: the opening line already sits over this. */
+  .showcase {
+    padding-block: 0 clamp(3.5rem, 9vh, 5.5rem);
+  }
+  .showcase-body {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
+    align-items: start;
+  }
+  .rail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    /* A grid item's minimum is its content; without this the longest tagline widens the page. */
+    min-width: 0;
+    /* Stays in view while the reader works through a tall panel. */
+    position: sticky;
+    top: 5rem;
+  }
+  .rail-item {
+    display: flex;
+    gap: 0.85rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: var(--rx-radius);
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    background: transparent;
+    transition:
+      background-color 0.2s ease,
+      transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .rail-item:hover {
+    background: var(--rx-card);
+    transform: translateX(2px);
+  }
+  .rail-item:focus-visible {
+    outline: 2px solid var(--rx-fg);
+    outline-offset: 2px;
+  }
+  /* Grows rather than appears, so a switch reads as a selection, not a repaint. */
+  .rail-bar {
+    flex: none;
+    width: 2px;
+    border-radius: var(--rx-radius-pill);
+    background: var(--rx-rule-strong);
+    transition:
+      background 0.25s ease,
+      transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transform: scaleY(0.45);
+  }
+  .rail-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+  .rail-name {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--rx-muted);
+    transition: color 0.2s ease;
+  }
+  .rail-tagline {
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--rx-faint);
+  }
+  .rail-item.is-active {
+    background: var(--rx-card);
+  }
+  .rail-item.is-active .rail-bar {
+    background: var(--rx-gradient);
+    transform: scaleY(1);
+  }
+  .rail-item.is-active .rail-name {
+    color: var(--rx-fg);
+  }
+  .stage {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+  }
+  /* One grid cell for every panel, so the stage is as tall as the one showing. `minmax(0, 1fr)`,
+     because an unsized area takes the widest panel's max-content width. */
+  :global(html[data-js]) .stage {
+    display: grid;
+    grid-template-areas: 'panel';
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rail-item,
+    .rail-bar {
+      transition: none;
+    }
+  }
+  @media (max-width: 52rem) {
+    .showcase-body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    /* The rail becomes a scrollable strip of names above the stage. */
+    .rail {
+      position: static;
+      flex-direction: row;
+      gap: 0.4rem;
+      overflow-x: auto;
+      /* Room for the focus ring inside the scroll container. */
+      padding: 0.25rem;
+      margin: -0.25rem;
+      scrollbar-width: thin;
+    }
+    .rail-item {
+      flex: none;
+      gap: 0.55rem;
+      padding: 0.5rem 0.8rem;
+      border: 1px solid var(--rx-rule);
+    }
+    .rail-item:hover {
+      transform: none;
+    }
+    .rail-tagline {
+      display: none;
+    }
+    .rail-bar {
+      width: 2px;
+      transform: scaleY(0.7);
+    }
+    .rail-name {
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+  }
+</style>

@@ -11,7 +11,6 @@ const IGNORED = new Set(['pnpm-lock.yaml'])
 /** Files over the limit today, each removed as it is split. Shrinks only. */
 export const ALLOWED: ReadonlySet<string> = new Set([
   'apps/landing/src/components/Walkthrough.astro',
-  'apps/landing/src/pages/index.astro',
 ])
 
 export interface SourceFile {
