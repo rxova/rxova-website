@@ -1,0 +1,52 @@
+---
+/** The opening line and the page's one `h1`: what this is, then straight to the projects. */
+---
+
+<header class="intro">
+  <h1 class="rise">
+    <strong>Rxova</strong> publishes independent TypeScript libraries — one problem each, adopted
+    one at a time.
+  </h1>
+</header>
+
+<style>
+  .intro {
+    padding-block: clamp(2.25rem, 6vh, 3.5rem) clamp(1.75rem, 4vh, 2.5rem);
+  }
+  .intro h1 {
+    font-size: clamp(1.2rem, 2.2vw, 1.45rem);
+    line-height: 1.45;
+    font-weight: 450;
+    letter-spacing: -0.012em;
+    color: var(--rx-muted);
+    max-width: 46rem;
+    text-wrap: pretty;
+  }
+  .intro h1 strong {
+    color: var(--rx-fg);
+    font-weight: 600;
+  }
+  /* The load animation: pure CSS that ends at rest, so it always completes. */
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .rise {
+    animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: var(--d, 0ms);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rise {
+      animation: none;
+      transition: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

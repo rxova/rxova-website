@@ -1,0 +1,52 @@
+---
+/** Who is behind the projects, named, with where to find them. */
+import { MAINTAINER } from '../../lib/about'
+import Arrow from './Arrow.astro'
+import Eyebrow from './Eyebrow.astro'
+import LinkRow from './LinkRow.astro'
+import Reveal from './Reveal.astro'
+import SectionHeading from './SectionHeading.astro'
+---
+
+<Reveal as="section" class="maintainer" aria-labelledby="maintainer-heading">
+  <div class="maintainer-inner">
+    <div class="maintainer-copy">
+      <Eyebrow>Who builds this</Eyebrow>
+      <SectionHeading id="maintainer-heading">{MAINTAINER.name}</SectionHeading>
+      <p class="maintainer-role">{MAINTAINER.role}</p>
+      <p class="maintainer-summary">{MAINTAINER.summary}</p>
+      <LinkRow label="About the maintainer">
+        <a href="/about">
+          About Rxova
+          <Arrow dir="across" />
+        </a>
+        {MAINTAINER.links.map((l) => (
+          <a href={l.href} target="_blank" rel="noopener noreferrer">
+            {l.label}
+            <Arrow dir="out" />
+          </a>
+        ))}
+      </LinkRow>
+    </div>
+  </div>
+</Reveal>
+
+<style>
+  .maintainer {
+    padding-block: clamp(3.5rem, 9vh, 5.5rem);
+    border-top: 1px solid var(--rx-rule);
+  }
+  .maintainer-role {
+    font-family: var(--rx-font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    color: var(--rx-faint);
+    margin-top: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  .maintainer-summary {
+    max-width: 40rem;
+    color: var(--rx-muted);
+    margin-bottom: 1.5rem;
+  }
+</style>
