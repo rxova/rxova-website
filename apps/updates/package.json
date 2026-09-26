@@ -1,6 +1,6 @@
 {
   "name": "@rxova/updates",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "private": true,
   "type": "module",
   "description": "rxova.org/updates — what is moving across the projects, built here and mounted by the aggregator",
