@@ -1,0 +1,110 @@
+---
+/**
+ * A project's walkthrough: one job by hand, then with the project, as a guided tour of numbered
+ * notes. Without JS both sides show in full with every note listed; the script makes it the tour.
+ */
+import type { Showcase } from '../../lib/walkthrough'
+import Bar from './Bar.astro'
+import Caption from './Caption.astro'
+import Panes from './Panes.astro'
+
+interface Props {
+  story: Showcase
+  /** Prefixes the ids inside, which must be unique on a page with several. */
+  id: string
+  /** An ancestor showing one tour at a time: the tour plays only while it has `is-active`. */
+  host?: string
+}
+
+const { story, id, host } = Astro.props
+---
+
+<section class="walkthrough" aria-labelledby={`${id}-heading`} data-walkthrough data-host={host}>
+  <h4 class="heading" id={`${id}-heading`}>
+    {story.heading}
+  </h4>
+  <p class="lede">{story.lede}</p>
+
+  <div class="window">
+    <Bar labels={{ before: story.before.label, after: story.after.label }} />
+    <Caption />
+    <Panes story={story} id={id} />
+  </div>
+</section>
+
+<script>
+  import { enhanceWalkthroughs } from '../../scripts/walkthrough'
+
+  enhanceWalkthroughs()
+</script>
+
+<style>
+  /* Before and after as a danger and a success colour, as the docs sites use them. */
+  .walkthrough {
+    --wt-before: hsl(339 80% 42%);
+    --wt-before-soft: hsl(339 88% 94%);
+    --wt-after: hsl(139 70% 28%);
+    --wt-after-soft: hsl(139 60% 92%);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme='light'])) .walkthrough {
+      --wt-before: hsl(339 100% 80%);
+      --wt-before-soft: hsl(339 39% 20%);
+      --wt-after: hsl(139 70% 72%);
+      --wt-after-soft: hsl(139 38% 18%);
+    }
+  }
+
+  :global(html[data-theme='dark']) .walkthrough {
+    --wt-before: hsl(339 100% 80%);
+    --wt-before-soft: hsl(339 39% 20%);
+    --wt-after: hsl(139 70% 72%);
+    --wt-after-soft: hsl(139 38% 18%);
+  }
+
+  .walkthrough {
+    width: 100%;
+    margin-top: 0.75rem;
+  }
+
+  .heading {
+    font-size: clamp(1.1rem, 1.8vw, 1.3rem);
+    font-weight: 620;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  .lede {
+    max-width: 42rem;
+    margin: 0.4rem 0 1rem;
+    color: var(--rx-muted);
+    font-size: 0.95rem;
+    text-wrap: pretty;
+  }
+
+  /* One frame, and a size container, so the bar lays out for the window's width. */
+  .window {
+    container-type: inline-size;
+    overflow: clip;
+    border: 1px solid var(--rx-rule-strong);
+    border-radius: var(--rx-radius);
+    background: var(--rx-bg);
+    transition: border-color 0.3s ease;
+  }
+
+  /* The brand gradient's one placement in the panel: the side worth copying. */
+  .walkthrough[data-show='after'] .window {
+    border-color: transparent;
+    background:
+      linear-gradient(var(--rx-bg), var(--rx-bg)) padding-box,
+      var(--rx-gradient) border-box;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .window {
+      transition: none;
+    }
+  }
+</style>

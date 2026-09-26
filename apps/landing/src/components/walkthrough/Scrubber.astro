@@ -1,0 +1,97 @@
+---
+/** The tour's progress as the bar's bottom edge; a native range underneath, so dragging, keys and screen readers just work. */
+---
+
+<div class="progress" data-progress>
+  <input
+    type="range"
+    min="0"
+    max="1"
+    step="50"
+    value="0"
+    aria-label="Walkthrough progress"
+    data-scrubber
+  />
+</div>
+
+<style>
+  /* The line, filled in brand violet; the input is a taller invisible strip over it, easy to grab. */
+  .progress {
+    --progress: 0%;
+    position: absolute;
+    inset: auto 0 0;
+    height: 2px;
+    background: var(--rx-rule);
+  }
+
+  .progress::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--progress);
+    background: var(--rx-primary);
+    pointer-events: none;
+  }
+
+  .progress input {
+    position: absolute;
+    inset: -7px 0;
+    z-index: 1;
+    width: 100%;
+    height: 16px;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+  }
+
+  .progress input::-webkit-slider-runnable-track {
+    height: 100%;
+    background: transparent;
+  }
+
+  .progress input::-moz-range-track {
+    background: transparent;
+  }
+
+  /* No thumb until the line is being handled. */
+  .progress input::-webkit-slider-thumb {
+    width: 10px;
+    height: 10px;
+    margin-top: 3px;
+    border-radius: 50%;
+    background: var(--rx-primary);
+    opacity: 0;
+    appearance: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .progress input::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--rx-primary);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .progress input:hover::-webkit-slider-thumb,
+  .progress input:focus-visible::-webkit-slider-thumb {
+    opacity: 1;
+  }
+
+  .progress input:hover::-moz-range-thumb,
+  .progress input:focus-visible::-moz-range-thumb {
+    opacity: 1;
+  }
+
+  .progress input:focus-visible {
+    outline: none;
+  }
+
+  .progress:has(input:focus-visible) {
+    outline: 2px solid var(--rx-fg);
+    outline-offset: 4px;
+  }
+</style>

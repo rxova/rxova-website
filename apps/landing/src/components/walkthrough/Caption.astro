@@ -1,0 +1,88 @@
+---
+/** The note in play: its number in the side's colour, then its text. Filled in by the script. */
+---
+
+<p class="caption" hidden data-caption>
+  <span class="caption-marker">
+    <span class="caption-number" data-caption-number></span>
+  </span>
+  <span class="caption-text" data-caption-text></span>
+</p>
+
+<style>
+  .caption {
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0.7rem;
+    min-height: 4.4rem;
+    margin: 0;
+    padding: 0.9rem 1.1rem;
+    border-bottom: 1px solid var(--rx-rule);
+    color: var(--rx-fg);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .caption[hidden] {
+    display: none;
+  }
+
+  /* One text line tall (`1lh`) with the circle centred in it, level with the first line at any font size.
+     Flex, not grid: a grid row would grow to fit the circle. */
+  .caption-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 1lh;
+  }
+
+  .caption-number {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 650;
+  }
+
+  .caption[data-side='before'] .caption-number {
+    background: var(--wt-before-soft);
+    color: var(--wt-before);
+  }
+
+  .caption[data-side='after'] .caption-number {
+    background: var(--wt-after-soft);
+    color: var(--wt-after);
+  }
+
+  .caption :global(code) {
+    font-family: var(--rx-font-mono);
+    font-size: 0.88em;
+    padding: 0.05em 0.3em;
+    border-radius: 4px;
+    background: var(--rx-card);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .caption.enter .caption-text,
+    .caption.enter .caption-number {
+      animation: caption-in 0.35s ease both;
+    }
+
+    @keyframes caption-in {
+      from {
+        opacity: 0;
+        transform: translateY(3px);
+      }
+    }
+  }
+
+  @container (max-width: 36rem) {
+    .caption {
+      padding: 0.75rem 0.8rem;
+      font-size: 0.9rem;
+    }
+  }
+</style>

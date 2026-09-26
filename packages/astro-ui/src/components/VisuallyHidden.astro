@@ -1,8 +1,13 @@
 ---
 /** Text only screen readers get; unlike `display: none`, it stays in the accessibility tree. */
+import type { HTMLAttributes } from 'astro/types'
+
+type Props = HTMLAttributes<'span'>
+
+const { class: className, ...rest } = Astro.props
 ---
 
-<span class="visually-hidden">
+<span class:list={['visually-hidden', className]} {...rest}>
   <slot />
 </span>
 

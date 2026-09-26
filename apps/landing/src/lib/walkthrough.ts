@@ -1,7 +1,7 @@
 /**
  * A project's walkthrough: one job done by hand, then with the project, with
  * numbered notes pairing each problem on the first side with its fix on the
- * second. Rendered by ../components/Walkthrough.astro; each project's story
+ * second. Rendered by ../components/walkthrough/; each project's story
  * lives in ../showcases/<id>/.
  *
  * Plain TypeScript with no imports, so vitest can load it without Astro.
@@ -62,3 +62,43 @@ export function lineMarkers(
       .map((line) => ({ range: String(line), label: String(index + 1) }))
   })
 }
+
+/** How long each note stays up, and the extra pause at the turn from Before to After. */
+export const NOTE_MS = 3600
+export const TURN_MS = 1200
+
+/** When each step starts and when the tour ends: the view is a function of one clock. */
+export function timeline(
+  sides: readonly string[],
+  noteMs = NOTE_MS,
+  turnMs = TURN_MS,
+): { starts: number[]; end: number } {
+  const starts: number[] = []
+  let clock = 0
+  sides.forEach((side, index) => {
+    starts.push(clock)
+    const turning = side === 'after' && sides[index - 1] === 'before'
+    clock += noteMs + (turning ? turnMs : 0)
+  })
+  return { starts, end: clock }
+}
+
+/** The step in play at time `t`: the last one to have started. */
+export function stepAt(starts: readonly number[], t: number): number {
+  let index = 0
+  for (const [i, start] of starts.entries()) if (start <= t) index = i
+  return index
+}
+
+export type PlayState = 'playing' | 'paused' | 'ended'
+
+/** The play button's accessible name in each state. */
+export const PLAY_LABELS: Record<PlayState, string> = {
+  playing: 'Pause the walkthrough',
+  paused: 'Play the walkthrough',
+  ended: 'Replay the walkthrough',
+}
+
+/** "Problem 2 of 4" on the Before side, "Fix 2 of 4" on the After. */
+export const stepCount = (side: string, index: number, total: number): string =>
+  `${side === 'before' ? 'Problem' : 'Fix'} ${String(index + 1)} of ${String(total)}`
