@@ -115,10 +115,16 @@ const blogJsonLd = {
   .head {
     margin-bottom: clamp(2rem, 6vh, 3rem);
   }
+  /* One page title, on every surface the header crosses: the landing's
+     /about, the blog and the updates stream. Each used to set its own, and
+     the blog and updates inherited the body's 1.65 line height where /about
+     set 1.15 — so switching between them moved the title's text ~8px under
+     a header that stays still. Keep these three in step. */
   .head h1 {
     font-size: clamp(1.8rem, 5vw, 2.4rem);
+    line-height: 1.15;
     letter-spacing: -0.02em;
-    font-weight: 660;
+    font-weight: 650;
     margin-bottom: 0.6rem;
   }
   .lede {
