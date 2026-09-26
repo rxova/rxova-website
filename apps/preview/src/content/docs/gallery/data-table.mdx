@@ -1,0 +1,58 @@
+---
+title: DataTable
+description: A plain table in Starlight's wrapper, with a row heading per row.
+---
+
+import Story from '../../../components/Story.astro'
+import DataTable from '@rxova/astro-ui/components/DataTable.astro'
+
+For tabular facts a page reads from somewhere else (a manifest, a config) rather than writes
+by hand: the frame, header row and caption `SizeTable` uses, with the columns and rows passed
+in. The first column is a row heading; a cell given as `{ code }` renders in `<code>`. The box
+scrolls sideways when narrow and is focusable, so a keyboard can reach it.
+
+<Story
+  title="Framework matrix"
+  note="Three frameworks, one code cell per row, a caption under the table."
+>
+  <DataTable
+    label="Framework compatibility"
+    caption="Read from the fixture manifests when this page was built."
+    columns={['Framework', 'Tested dependency range', 'Rendering path', 'Browser proof']}
+    rows={[
+      {
+        label: 'Next.js',
+        cells: [
+          { code: '^16.0.0' },
+          'App Router, server and client components',
+          'Chromium, hydrated',
+        ],
+      },
+      { label: 'Remix', cells: [{ code: '^2.15.0' }, 'Route modules, SSR', 'Chromium, hydrated'] },
+      { label: 'Vite', cells: [{ code: '^8.0.0' }, 'Client only', 'Chromium'] },
+    ]}
+  />
+</Story>
+
+<Story title="No caption" note="The caption is optional.">
+  <DataTable
+    label="Browsers"
+    columns={['Browser', 'Engine']}
+    rows={[
+      { label: 'Chromium', cells: ['Blink'] },
+      { label: 'Firefox', cells: ['Gecko'] },
+    ]}
+  />
+</Story>
+
+## Props
+
+| Prop      | Type                 | What it does                               |
+| --------- | -------------------- | ------------------------------------------ |
+| `label`   | `string`             | The scrollable region's accessible name    |
+| `columns` | `readonly string[]`  | The header row                             |
+| `rows`    | `readonly DataRow[]` | One per row                                |
+| `caption` | `string`             | Where the facts come from, under the table |
+
+`DataRow` is `{ label: string, cells: readonly Cell[] }` and `Cell` is `string | { code: string }`.
+`label` renders as the row's `<th scope="row">`.
