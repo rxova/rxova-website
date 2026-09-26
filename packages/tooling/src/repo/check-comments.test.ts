@@ -142,6 +142,22 @@ describe('astroBlocks', () => {
     ])
   })
 
+  it('reads tags in any case, closing tags with spaces, and the `--!>` comment end', () => {
+    const upper = [
+      '<SCRIPT>',
+      '  // a',
+      '  // b',
+      '  // c',
+      '</SCRIPT >',
+      '<!-- d --!>',
+      '<p>e</p>',
+    ].join('\n')
+    expect(astroBlocks(upper)).toEqual([
+      { line: 2, lines: 3 },
+      { line: 6, lines: 1 },
+    ])
+  })
+
   it('handles a file without frontmatter', () => {
     expect(astroBlocks('<p>hi</p>\n<!-- x -->')).toEqual([{ line: 2, lines: 1 }])
   })

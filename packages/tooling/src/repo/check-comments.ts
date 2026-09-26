@@ -31,7 +31,7 @@ const lineAt = (text: string, offset: number): number => text.slice(0, offset).s
 export function proseLines(comment: string): number {
   return comment
     .replace(/^\{?\s*(\/\*\*?|<!--|\/\/|#)/, '')
-    .replace(/(\*\/|-->)\s*\}?$/, '')
+    .replace(/(\*\/|--!?>)\s*\}?$/, '')
     .split('\n')
     .map((line) =>
       line
@@ -144,15 +144,15 @@ export function astroBlocks(source: string): Block[] {
   let rest = lift(source, /^(---\n)([\s\S]*?)\n---/g, (start, body) => {
     blocks.push(...scriptBlocks(body, start, source))
   })
-  rest = lift(rest, /(<script\b[^>]*>)([\s\S]*?)<\/script>/g, (start, body, open) => {
-    if (!/type="application\/(ld\+)?json"/.test(open)) {
+  rest = lift(rest, /(<script\b[^>]*>)([\s\S]*?)<\/script\s*>/gi, (start, body, open) => {
+    if (!/type="application\/(ld\+)?json"/i.test(open)) {
       blocks.push(...scriptBlocks(body, start, source))
     }
   })
-  rest = lift(rest, /(<style\b[^>]*>)([\s\S]*?)<\/style>/g, (start, body) => {
+  rest = lift(rest, /(<style\b[^>]*>)([\s\S]*?)<\/style\s*>/gi, (start, body) => {
     blocks.push(...cssBlocks(body, start, source))
   })
-  for (const m of rest.matchAll(/<!--[\s\S]*?-->|\{\s*\/\*[\s\S]*?\*\/\s*\}/g)) {
+  for (const m of rest.matchAll(/<!--[\s\S]*?--!?>|\{\s*\/\*[\s\S]*?\*\/\s*\}/g)) {
     blocks.push({ line: lineAt(source, m.index), lines: proseLines(m[0]) })
   }
   return blocks.sort((a, b) => a.line - b.line)
