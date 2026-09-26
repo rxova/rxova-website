@@ -9,7 +9,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check:astro": "astro check",
-    "screenshots": "node scripts/screenshots.ts"
+    "screenshots": "node scripts/screenshots.ts",
+    "test": "vitest run --coverage"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.1",
@@ -20,6 +21,9 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@playwright/test": "1.63.0",
-    "typescript": "6.0.3"
+    "@rxova/repo-tooling": "workspace:*",
+    "@vitest/coverage-v8": "^5.0.1",
+    "typescript": "6.0.3",
+    "vitest": "^5.0.1"
   }
 }
