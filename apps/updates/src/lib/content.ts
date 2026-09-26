@@ -9,7 +9,7 @@ import { getCollection, getEntry, type CollectionEntry } from 'astro:content'
 
 import { REPOS, type RepoId } from '@rxova/brand'
 
-import { newestFirst, usedValues, byline, formatDate, isoDate } from './entries'
+import { newestFirst, usedValues, byline, formatDate, isoDate } from '@rxova/astro-ui/lib/entries'
 
 export { REPOS, type RepoId }
 export { byline, formatDate, isoDate }

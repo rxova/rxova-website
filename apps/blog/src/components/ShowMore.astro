@@ -13,8 +13,7 @@
  *
  * The updates stream has its own copy of this rather than importing it: there the
  * limit is one variable in a filter state machine, and the two only look alike from
- * a distance. Same reasoning that keeps `lib/entries.ts` duplicated across the two
- * packages.
+ * a distance.
  */
 ---
 
@@ -99,7 +98,7 @@
 </style>
 
 <script>
-  import { nextLimit } from '../lib/entries'
+  import { nextLimit } from '@rxova/astro-ui/lib/entries'
   ;(function () {
     const found = {
       list: document.querySelector<HTMLElement>('[data-reveal-list]'),

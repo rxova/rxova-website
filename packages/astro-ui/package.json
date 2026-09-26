@@ -30,6 +30,7 @@
   ],
   "exports": {
     "./components/*": "./src/components/*",
+    "./lib/entries": "./src/lib/entries.ts",
     "./starlight": "./src/starlight/index.ts",
     "./starlight/*": "./src/starlight/*",
     "./styles/*": "./src/styles/*",
