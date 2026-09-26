@@ -4,6 +4,7 @@ import { Image } from 'astro:assets'
 
 import { canonicalUrl, siteUrl } from '@rxova/brand'
 
+import BackLink from '@rxova/astro-ui/components/BackLink.astro'
 import Content from '@rxova/astro-ui/components/SiteShell.astro'
 import { getPosts, resolveAuthors, byline, formatDate, isoDate, href } from '../lib/content'
 
@@ -64,9 +65,9 @@ const jsonLd = {
 >
   <article>
     <header class="head">
-      <a class="back" href={href()}>
-        ← Blog
-      </a>
+      <BackLink class="back" href={href()}>
+        Blog
+      </BackLink>
       <h1>{post.data.title}</h1>
       <p class="meta">
         <time datetime={isoDate(post.data.pubDate)}>{formatDate(post.data.pubDate)}</time>
@@ -111,14 +112,7 @@ const jsonLd = {
     margin-bottom: 2.5rem;
   }
   .back {
-    display: inline-block;
     margin-bottom: 1.5rem;
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 0.95rem;
-  }
-  .back:hover {
-    color: var(--fg);
   }
   .head h1 {
     font-size: clamp(1.8rem, 5vw, 2.4rem);
