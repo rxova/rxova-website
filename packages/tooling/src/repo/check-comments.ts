@@ -144,12 +144,12 @@ export function astroBlocks(source: string): Block[] {
   let rest = lift(source, /^(---\n)([\s\S]*?)\n---/g, (start, body) => {
     blocks.push(...scriptBlocks(body, start, source))
   })
-  rest = lift(rest, /(<script\b[^>]*>)([\s\S]*?)<\/script\s*>/gi, (start, body, open) => {
+  rest = lift(rest, /(<script\b[^>]*>)([\s\S]*?)<\/script\b[^>]*>/gi, (start, body, open) => {
     if (!/type="application\/(ld\+)?json"/i.test(open)) {
       blocks.push(...scriptBlocks(body, start, source))
     }
   })
-  rest = lift(rest, /(<style\b[^>]*>)([\s\S]*?)<\/style\s*>/gi, (start, body) => {
+  rest = lift(rest, /(<style\b[^>]*>)([\s\S]*?)<\/style\b[^>]*>/gi, (start, body) => {
     blocks.push(...cssBlocks(body, start, source))
   })
   for (const m of rest.matchAll(/<!--[\s\S]*?--!?>|\{\s*\/\*[\s\S]*?\*\/\s*\}/g)) {
