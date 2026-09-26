@@ -51,7 +51,7 @@ runs:
     # not this one. It shipped exactly that way once.
     - name: Check it was built for its mount
       shell: bash
-      run: node apps/${{ inputs.surface }}/scripts/check-base.mjs
+      run: node packages/tooling/src/deploy/check-base.ts
         apps/${{ inputs.surface }}/dist /${{ inputs.surface }}/
 
     - name: Mark the page-component bundle

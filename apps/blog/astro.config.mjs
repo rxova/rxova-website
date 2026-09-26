@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config'
+import { RXOVA_ORIGIN } from '@rxova/brand'
 
 /**
  * Built for the base URL the aggregator will mount this at, never for `/`.
@@ -13,7 +14,7 @@ import { defineConfig } from 'astro/config'
  * function rxova-website derives its mount from — so the two cannot disagree.
  */
 export default defineConfig({
-  site: 'https://rxova.org',
+  site: RXOVA_ORIGIN,
   base: process.env.DOCS_BASE_URL ?? '/',
   // Directory-style URLs, to match the CloudFront directory-index function the
   // aggregator's other subpaths are served behind.
