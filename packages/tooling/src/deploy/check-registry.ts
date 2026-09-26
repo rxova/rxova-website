@@ -11,7 +11,8 @@
 // build is the natural place for it. `pnpm build` runs in CI, so both halves are
 // covered on every pull request.
 
-import { loadRegistry, enabledSources } from '../lib/registry.mjs'
+import { errorMessage } from '../lib/errors.ts'
+import { loadRegistry, enabledSources } from '../lib/registry.ts'
 
 try {
   const registry = loadRegistry()
@@ -26,6 +27,6 @@ try {
     console.log('\nNote: no projects are enabled; the site will deploy as landing-only.')
   }
 } catch (err) {
-  console.error(`ERROR: ${err.message}`)
+  console.error(`ERROR: ${errorMessage(err)}`)
   process.exit(1)
 }

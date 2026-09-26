@@ -10,12 +10,12 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { assemble } from './assemble.mjs'
-import { composeDocument } from './assemble.mjs'
-import { resolveSource } from '../lib/registry.mjs'
+import { assemble } from './assemble.ts'
+import { composeDocument } from './assemble.ts'
+import { resolveSource, type Registry } from '../lib/registry.ts'
 
-const roots = []
-let root
+const roots: string[] = []
+let root: string
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), 'rxova-assemble-'))
   roots.push(root)
@@ -24,7 +24,7 @@ afterAll(() => {
   for (const dir of roots) rmSync(dir, { recursive: true, force: true })
 })
 
-const registry = (...raw) => ({
+const registry = (...raw: Record<string, unknown>[]): Registry => ({
   landing: { artifact: 'landing', mount: '.' },
   // `landing` copy is required of a package by the shared schema, so the fixture
   // carries it; these tests are about mounting, not about the home page.
@@ -34,7 +34,7 @@ const registry = (...raw) => ({
 })
 
 /** Write an artifact directory as download-artifact would leave it. */
-function artifact(name, files) {
+function artifact(name: string, files: Record<string, string>): void {
   for (const [path, body] of Object.entries(files)) {
     const full = join(root, 'artifacts', name, path)
     mkdirSync(join(full, '..'), { recursive: true })
@@ -42,9 +42,9 @@ function artifact(name, files) {
   }
 }
 
-const run = (config) => assemble(config, join(root, 'artifacts'), join(root, '_site'))
-const site = (...parts) => join(root, '_site', ...parts)
-const read = (...parts) => readFileSync(site(...parts), 'utf8')
+const run = (config: Registry) => assemble(config, join(root, 'artifacts'), join(root, '_site'))
+const site = (...parts: string[]) => join(root, '_site', ...parts)
+const read = (...parts: string[]) => readFileSync(site(...parts), 'utf8')
 
 describe('assemble', () => {
   it('puts the landing at the root and each project under its mount', () => {
@@ -91,7 +91,7 @@ describe('assemble', () => {
 
   it('names every missing project, not just the first', async () => {
     artifact('landing', { 'index.html': 'landing' })
-    await assert.rejects(run(registry({ id: 'a' }, { id: 'b' })), (err) => {
+    await assert.rejects(run(registry({ id: 'a' }, { id: 'b' })), (err: Error) => {
       assert.match(err.message, /\ba\b/)
       assert.match(err.message, /\bb\b/)
       return true

@@ -7,8 +7,8 @@
 // docs/INPUTS-CONTRACT.md), then fires a `repository_dispatch` naming the run
 // that holds them. This script is the receiver's half of that contract:
 //
-//   node scripts/ingest.mjs                     # gate 2a: validate $CLIENT_PAYLOAD, emit outputs
-//   node scripts/ingest.mjs --check-dist <dir>  # gate 2b: validate the downloaded dist
+//   node ingest.ts                     # gate 2a: validate $CLIENT_PAYLOAD, emit outputs
+//   node ingest.ts --check-dist <dir>  # gate 2b: validate the downloaded dist
 //
 // The two halves match the two things .github/workflows/ingest.yml does: decide
 // whether to accept the dispatch (and where to fetch/persist), then, once the dist
@@ -17,7 +17,7 @@
 // It lives in a script rather than inline in the workflow so the rules — an
 // unknown project is rejected, a base that disagrees with the mount is
 // rejected, a dist with no index.html is rejected — are covered by tests
-// (scripts/ingest.test.mjs) instead of being YAML that only ever runs in CI.
+// (ingest.test.ts) instead of being YAML that only ever runs in CI.
 
 import { appendFileSync, statSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -28,9 +28,10 @@ import {
   PAGE_BUNDLE_FILENAME,
   pageBundleManifest,
   declaresStandalone,
-} from '../lib/page-bundle-contract.mjs'
+} from '../lib/page-bundle-contract.ts'
 
-import { loadRegistry } from '../lib/registry.mjs'
+import { errorMessage } from '../lib/errors.ts'
+import { loadRegistry, type Source } from '../lib/registry.ts'
 
 /** The payload shape this aggregator understands. Bump when the contract changes. */
 export const SUPPORTED_SCHEMA = 2
@@ -47,8 +48,8 @@ export const DIST_ARTIFACT_NAME = 'docs-dist'
 
 export class IngestError extends Error {}
 
-function htmlFiles(dir) {
-  const found = []
+function htmlFiles(dir: string): string[] {
+  const found: string[] = []
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name)
     if (entry.isDirectory()) found.push(...htmlFiles(path))
@@ -62,7 +63,13 @@ function htmlFiles(dir) {
  * workflow needs to fetch and persist. Pure — no env, no filesystem, no network —
  * so every rejection below is testable without a workflow run.
  */
-export function validateDispatch(registry, payload) {
+/** The part of a registry source a dispatch is checked against. */
+export type DispatchSource = Pick<
+  Source,
+  'id' | 'kind' | 'enabled' | 'base' | 'mount' | 'repo' | 'releaseTag' | 'releaseAsset'
+>
+
+export function validateDispatch(registry: { sources: DispatchSource[] }, payload: unknown) {
   // Field shapes come from `@rxova/website-schemas`, the contract the senders are
   // written against — so `run_id` being digits, `ref` being a ref, `sha` being hex
   // and `version` being semver are stated once, in the package both sides import,
@@ -71,9 +78,9 @@ export function validateDispatch(registry, payload) {
   // What stays below is everything the schema cannot know: whether this repo has
   // heard of the project, whether it is enabled, and whether the base the sender
   // built for is the base we will mount it at.
-  const requestedSchema = payload?.schema ?? 1
+  const requestedSchema = (payload as { schema?: unknown } | null)?.schema ?? 1
   const parsed = dispatchPayload.safeParse(
-    requestedSchema === 2 ? { ...payload, schema: 1 } : payload,
+    requestedSchema === 2 ? { ...(payload as object), schema: 1 } : payload,
   )
   if (!parsed.success) {
     throw new IngestError(
@@ -100,10 +107,10 @@ export function validateDispatch(registry, payload) {
   // Rejecting it conflated two different things. An unknown project is a typo and
   // must fail loudly. A known-but-disabled one is a deliberate registry state, and
   // refusing its docs created a deadlock: the aggregator would not store them until
-  // the project was enabled, and enabling it made `fetch-docs.mjs` demand a release
+  // the project was enabled, and enabling it made `fetch-docs.ts` demand a release
   // that could not exist yet — so turning a project on always cost one red deploy.
   //
-  // Persisting regardless costs a release asset and nothing else: `fetch-docs.mjs`
+  // Persisting regardless costs a release asset and nothing else: `fetch-docs.ts`
   // only ever fetches enabled sources, so the tree sits there unread until the flag
   // flips, at which point the first deploy already has everything it needs.
 
@@ -150,7 +157,7 @@ export function validateDispatch(registry, payload) {
       ref,
       sha,
       runId,
-      framework: payload.framework ?? 'other',
+      framework: (payload as { framework?: string }).framework ?? 'other',
       // The workflow gates the deploy on this: there is nothing to publish for a
       // project the assembler will not mount.
       enabled: source.enabled,
@@ -165,8 +172,15 @@ export function validateDispatch(registry, payload) {
  * concrete: it must be a non-empty directory with an index.html at its root, the
  * same thing that would otherwise 404 silently once deployed.
  */
-export function checkDist(dir, expected = {}) {
-  let entries
+/** What the dispatch said the dist is, checked against its page-bundle manifest. */
+export interface ExpectedDist {
+  schema?: number
+  project?: string
+  base?: string
+}
+
+export function checkDist(dir: string, expected: ExpectedDist = {}): { entries: number } {
+  let entries: string[]
   try {
     if (!statSync(dir).isDirectory()) throw new Error('not a directory')
     entries = readdirSync(dir)
@@ -176,7 +190,7 @@ export function checkDist(dir, expected = {}) {
   if (entries.length === 0) {
     throw new IngestError(`dist ${JSON.stringify(dir)} is empty — nothing was uploaded`)
   }
-  let hasIndex
+  let hasIndex: boolean
   try {
     hasIndex = statSync(join(dir, 'index.html')).isFile()
   } catch {
@@ -194,7 +208,7 @@ export function checkDist(dir, expected = {}) {
     throw new IngestError(`schema 2 dist has no ${PAGE_BUNDLE_FILENAME}`)
   }
   if (hasManifest) {
-    let raw
+    let raw: unknown
     try {
       raw = JSON.parse(readFileSync(manifestPath, 'utf8'))
     } catch {
@@ -233,7 +247,7 @@ export function checkDist(dir, expected = {}) {
   return { entries: entries.length }
 }
 
-function emit(lines) {
+function emit(lines: string[]): void {
   const text = lines.join('\n') + '\n'
   if (!process.env.GITHUB_OUTPUT) {
     console.log(text.trimEnd())
@@ -242,11 +256,11 @@ function emit(lines) {
   appendFileSync(process.env.GITHUB_OUTPUT, text)
 }
 
-function main(argv, env) {
+function main(argv: string[], env: NodeJS.ProcessEnv): void {
   const distFlag = argv.indexOf('--check-dist')
   if (distFlag !== -1) {
     const dir = argv[distFlag + 1]
-    if (!dir) throw new IngestError('usage: ingest.mjs --check-dist <dir>')
+    if (!dir) throw new IngestError('usage: ingest.ts --check-dist <dir>')
     const schema = env.EXPECTED_SCHEMA ? Number(env.EXPECTED_SCHEMA) : undefined
     const { entries } = checkDist(dir, {
       schema,
@@ -294,7 +308,7 @@ if (import.meta.filename === process.argv[1]) {
   try {
     main(process.argv.slice(2), process.env)
   } catch (err) {
-    console.error(`ERROR: ${err.message}`)
+    console.error(`ERROR: ${errorMessage(err)}`)
     process.exit(1)
   }
 }

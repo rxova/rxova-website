@@ -6,7 +6,7 @@ name: Ingest docs
 # it points at, persists the dist as the project's canonical release asset, and
 # redeploys. The aggregator never checks a project out and never builds it.
 #
-# Two gates, both in packages/tooling/src/deploy/ingest.mjs so they are unit-tested:
+# Two gates, both in packages/tooling/src/deploy/ingest.ts so they are unit-tested:
 #   2a  the dispatch metadata — known & enabled project, base matches the mount,
 #       ref/sha/run_id are what they claim to be
 #   2b  the downloaded dist — a non-empty tree with an index.html at its root
@@ -54,7 +54,7 @@ jobs:
         name: Validate dispatch (gate 2a)
         env:
           CLIENT_PAYLOAD: ${{ toJSON(github.event.client_payload) }}
-        run: node packages/tooling/src/deploy/ingest.mjs
+        run: node packages/tooling/src/deploy/ingest.ts
 
       # The sender's dist, fetched from its own workflow run. Cross-repo artifact
       # download needs a token with actions:read on the source repo; the dispatch
@@ -76,7 +76,7 @@ jobs:
           EXPECTED_SCHEMA: ${{ steps.validate.outputs.schema }}
           EXPECTED_PROJECT: ${{ steps.validate.outputs.project }}
           EXPECTED_BASE: ${{ steps.validate.outputs.base }}
-        run: node packages/tooling/src/deploy/ingest.mjs --check-dist incoming
+        run: node packages/tooling/src/deploy/ingest.ts --check-dist incoming
 
       # Persist as the project's canonical asset. Replace the asset in place if the
       # release exists, create the release the first time a project is ingested.

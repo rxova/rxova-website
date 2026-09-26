@@ -11,7 +11,7 @@ import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { resolveSource, loadRegistry, enabledSources, SOURCES_FILE } from './registry.mjs'
+import { resolveSource, loadRegistry, enabledSources, SOURCES_FILE } from './registry.ts'
 
 /**
  * Minimum *valid* entry; individual tests override the field under test.
@@ -29,7 +29,7 @@ const entry = (over = {}) => ({
   ...over,
 })
 
-function writeRegistry(contents) {
+function writeRegistry(contents: unknown): string {
   const dir = mkdtempSync(join(tmpdir(), 'rxova-registry-'))
   const file = join(dir, 'sources.json')
   writeFileSync(file, typeof contents === 'string' ? contents : JSON.stringify(contents))
@@ -103,7 +103,7 @@ describe('resolveSource — validation', () => {
   it('prefixes every error with the file, so CI output says where to look', () => {
     assert.throws(
       () => resolveSource({}),
-      (err) => err.message.startsWith('sources.json: '),
+      (err: Error) => err.message.startsWith('sources.json: '),
     )
   })
 })

@@ -21,7 +21,7 @@
  *
  * `validateContent` is exported and returns its errors rather than exiting, so the
  * tests can assert on them; the CLI at the bottom owns the exit code. Same shape as
- * rxova-website's `scripts/assemble.mjs`, for the same reason.
+ * rxova-website's `assemble.ts`, for the same reason.
  */
 
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs'

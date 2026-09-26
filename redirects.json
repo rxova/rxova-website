@@ -3,7 +3,7 @@
     "Legacy URLs that Google still holds, mapped to where that page lives now.",
     "",
     "rxova.org is served by GitHub Pages, which has no redirect rules — it serves static",
-    "files and nothing else. So packages/tooling/src/lib/redirects.mjs materialises each `from` as a stub",
+    "files and nothing else. So packages/tooling/src/lib/redirects.ts materialises each `from` as a stub",
     "document carrying <meta http-equiv=\"refresh\"> plus a canonical link to `to`, which",
     "is what a search engine reads as a redirect. Browsers follow the refresh.",
     "",

@@ -31,7 +31,7 @@
         "$TURBO_ROOT$/sources.json",
         "$TURBO_ROOT$/packages/brand/src/**",
         "$TURBO_ROOT$/packages/brand/assets/**",
-        "$TURBO_ROOT$/packages/tooling/src/deploy/sync-brand-og.mjs"
+        "$TURBO_ROOT$/packages/tooling/src/deploy/sync-brand-og.ts"
       ],
       "outputs": ["dist/**"],
       "outputLogs": "new-only"

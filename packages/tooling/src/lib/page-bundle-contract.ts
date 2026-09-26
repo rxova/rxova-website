@@ -35,7 +35,7 @@ export const STANDALONE_MARKER = 'rxova-standalone'
  * Text-level rather than parsed, because both callers want it before deciding
  * whether to parse at all — and the ingest gate has no parser in its path.
  */
-export const declaresStandalone = (html) =>
+export const declaresStandalone = (html: string): boolean =>
   new RegExp(`<meta[^>]+name=["']${STANDALONE_MARKER}["']`, 'i').test(html)
 
 export const pageBundleManifest = z

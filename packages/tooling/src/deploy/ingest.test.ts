@@ -13,15 +13,16 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import {
+  type DispatchSource,
   validateDispatch,
   checkDist,
   IngestError,
   SUPPORTED_SCHEMA,
   DIST_ARTIFACT_NAME,
-} from './ingest.mjs'
+} from './ingest.ts'
 
 /** A registry stub with just the fields validateDispatch reads. */
-const registry = {
+const registry: { sources: DispatchSource[] } = {
   sources: [
     {
       id: 'journey',
@@ -126,7 +127,7 @@ describe('validateDispatch — the happy path', () => {
 })
 
 describe('validateDispatch — rejections', () => {
-  const rejects = (over, re) =>
+  const rejects = (over: Record<string, unknown>, re: RegExp) =>
     assert.throws(
       () => validateDispatch(registry, payload(over)),
       (e) => e instanceof IngestError && re.test(e.message),
@@ -187,7 +188,7 @@ describe('validateDispatch — rejections', () => {
 })
 
 describe('checkDist — gate 2b', () => {
-  let dir
+  let dir: string
   const make = () => mkdtempSync(join(tmpdir(), 'rxova-dist-'))
 
   it('accepts a directory with an index.html at its root', () => {

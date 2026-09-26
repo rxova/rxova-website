@@ -2,9 +2,9 @@
 // derives the paths, and refuses to return anything malformed.
 //
 // Everything that needs to know "what projects make up rxova.org" goes through
-// here — `assemble.mjs` (which copies artifacts into the final tree), `ingest.mjs`
+// here — `assemble.ts` (which copies artifacts into the final tree), `ingest.ts`
 // (which validates and persists a project's freshly-built docs) and
-// `fetch-docs.mjs` (which pulls those persisted docs back at deploy time). None
+// `fetch-docs.ts` (which pulls those persisted docs back at deploy time). None
 // of them re-reads the JSON itself, so there is no second place for the shape of
 // an entry to be understood slightly differently.
 //
@@ -58,16 +58,18 @@ export const SOURCES_FILE = join(repoRoot, 'sources.json')
  */
 import { sourceEntry, mountFor, baseFor } from '@rxova/website-schemas'
 
+import { errorMessage } from './errors.ts'
+
 /**
  * Git refs reach us from a `repository_dispatch` payload, i.e. from outside this
  * repo. They end up in release notes and log lines, so constrain them to what a
  * branch name or SHA can actually contain rather than trusting the sender.
- * Exported for ingest.mjs, which validates the ref a source repo sends.
+ * Exported for ingest.ts, which validates the ref a source repo sends.
  */
 export const REF_PATTERN = /^[A-Za-z0-9._/-]+$/
 
 class RegistryError extends Error {
-  constructor(message) {
+  constructor(message: string) {
     super(`sources.json: ${message}`)
     this.name = 'RegistryError'
   }
@@ -77,7 +79,7 @@ class RegistryError extends Error {
  * Resolve one raw entry into its full form: paths derived, nothing trusted.
  * Exported for tests and for anything that wants the derivation without the file.
  */
-export function resolveSource(raw) {
+export function resolveSource(raw: unknown) {
   // The schema owns the shape, the defaults and the cross-field rules — an unknown
   // kind, a site claiming a reserved top-level path, a package with no landing copy,
   // and any key nobody modelled. It is `.strict()`, so a typo'd field is refused
@@ -85,7 +87,8 @@ export function resolveSource(raw) {
   // `enable` and a project quietly stop deploying.
   const parsed = sourceEntry.safeParse(raw)
   if (!parsed.success) {
-    const id = typeof raw?.id === 'string' ? raw.id : JSON.stringify(raw?.id)
+    const rawId = (raw as { id?: unknown } | null)?.id
+    const id = typeof rawId === 'string' ? rawId : JSON.stringify(rawId)
     throw new RegistryError(
       `${id} is invalid:\n` +
         parsed.error.issues
@@ -119,18 +122,28 @@ export function resolveSource(raw) {
   }
 }
 
+export type Source = ReturnType<typeof resolveSource>
+
+export interface Registry {
+  landing: { artifact: string; mount: string }
+  sources: Source[]
+  /** Set by the assembler and tests; the file carries neither. */
+  origin?: string
+  redirects?: Record<string, string>
+}
+
 /** Read and validate the registry. Throws `RegistryError` on anything malformed. */
-export function loadRegistry(file = SOURCES_FILE) {
-  let raw
+export function loadRegistry(file = SOURCES_FILE): Registry {
+  let raw: { landing?: Registry['landing']; sources?: unknown[] }
   try {
-    raw = JSON.parse(readFileSync(file, 'utf8'))
+    raw = JSON.parse(readFileSync(file, 'utf8')) as typeof raw
   } catch (err) {
-    throw new RegistryError(`could not be read or parsed — ${err.message}`)
+    throw new RegistryError(`could not be read or parsed — ${errorMessage(err)}`)
   }
 
   const sources = (raw.sources ?? []).map((s) => resolveSource(s))
 
-  const seen = new Set()
+  const seen = new Set<string>()
   for (const s of sources) {
     if (seen.has(s.id)) throw new RegistryError(`duplicate id "${s.id}"`)
     seen.add(s.id)
@@ -143,6 +156,6 @@ export function loadRegistry(file = SOURCES_FILE) {
 }
 
 /** Only the projects that should actually be built and mounted right now. */
-export function enabledSources(registry) {
+export function enabledSources<S extends Pick<Source, 'enabled'>>(registry: { sources: S[] }): S[] {
   return registry.sources.filter((s) => s.enabled)
 }
