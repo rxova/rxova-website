@@ -12,6 +12,6 @@
     "verbatimModuleSyntax": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "src/**/*.astro", "*.config.js", "*.config.mjs"],
+  "include": ["src/**/*.ts", "src/**/*.astro", "test/**/*.ts", "*.config.js", "*.config.mjs"],
   "exclude": ["node_modules"]
 }
