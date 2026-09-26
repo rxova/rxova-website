@@ -1,15 +1,6 @@
 /**
- * rxova design tokens — the single source of truth for every rxova.org surface.
- *
- * Seeded from the original landing page (rxova-website/site/src/styles/global.css),
- * which was the de-facto brand before this package existed.
- *
- * The palette is a warm monochrome: warm near-black ink on warm paper, with the
- * logo's blue -> violet -> magenta gradient as the ONLY chroma in the system.
- * Resist adding a second accent hue — the restraint is the identity.
- *
- * Every neutral flips between light and dark, so downstream mappings (see
- * starlight.css) can reference a token once and get both modes for free.
+ * rxova design tokens: warm near-black ink on warm paper, with the logo's gradient as the only chroma.
+ * Every neutral flips between light and dark, so a mapping references a token once for both modes.
  */
 
 :root,
@@ -67,24 +58,8 @@
   --rx-shadow-soft: 0 20px 60px -30px rgb(0 0 0 / 0.6);
 }
 
-/* --- On the size of the dark steps ---------------------------------------
- *
- * The dark surfaces used to sit 2.5 L* apart (bg #100f0d, card #17150f), which
- * is a contrast ratio of 1.05 — a card edge nobody can see. Every panel, code
- * block and quote floated on the page with only a 1px rule to define it, and
- * that rule was itself only 1.18 against the card. The light theme gets away
- * with a comparable step (1.7 L*) because a dark edge on a light ground reads
- * strongly; near black the same step disappears, and ambient glare finishes it.
- *
- * So the dark ramp is deliberately spaced wider than its light counterpart
- * rather than being a mirror of it: card sits 7.2 L* above bg, and the rule
- * 12.9 above card. Judge changes here in L*, not in contrast ratio — ratio is
- * compressed at the dark end and will happily report a 7 L* step as "1.1" and
- * therefore fine.
- *
- * Text was never the problem and is unchanged in kind: fg 15.2, muted 8.3 and
- * faint 5.6 against card.
- */
+/* The dark ramp is spaced wider than the light one (card 7.2 L* over bg, rule 12.9 over card) so edges
+   stay visible near black; judge changes here in L*, not contrast ratio. */
 
 /* OS preference wins only when no explicit choice has been stored. */
 @media (prefers-color-scheme: dark) {
