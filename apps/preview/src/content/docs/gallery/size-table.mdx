@@ -1,0 +1,47 @@
+---
+title: SizeTable
+description: Per-package bundle budgets as a table.
+---
+
+import Story from '../../../components/Story.astro'
+import SizeTable from '@rxova/astro-ui/components/SizeTable.astro'
+
+A real table rather than cards: these are numbers people compare against whatever they ship
+today, and a column of right-aligned tabular figures is the shape that supports comparing.
+The box scrolls sideways on a narrow viewport and is focusable, so a keyboard can reach it.
+
+<Story
+  title="Nine budgets"
+  note="The caption sits under the table and says where the numbers come from."
+>
+  <SizeTable
+    compression="brotli"
+    caption="Read from each package's size-limit configuration when this page was built. CI checks the same numbers on every commit."
+    rows={[
+      { pkg: '@rxova/react-inputs', entry: 'everything', limitKb: 10 },
+      { pkg: '@rxova/react-intl-currency-input', entry: 'CurrencyInput', limitKb: 3 },
+      { pkg: '@rxova/react-otp-input', entry: 'OtpInput', limitKb: 3 },
+      { pkg: '@rxova/react-rating-input', entry: 'Rating', limitKb: 2 },
+      { pkg: '@rxova/react-phone-input', entry: 'PhoneInput', limitKb: 4 },
+    ]}
+  />
+</Story>
+
+<Story title="One row" note="The shape holds at any length.">
+  <SizeTable
+    compression="gzip"
+    caption="A single package."
+    rows={[{ pkg: 'ts-extended-errors', entry: 'ExtendedError', limitKb: 2 }]}
+  />
+</Story>
+
+## Props
+
+| Prop          | Type                 | What it does                                  |
+| ------------- | -------------------- | --------------------------------------------- |
+| `rows`        | `readonly SizeRow[]` | One per package                               |
+| `compression` | `string`             | The figure column's heading: `brotli`, `gzip` |
+| `caption`     | `string`             | Where the numbers come from                   |
+
+`SizeRow` is `{ pkg: string, entry: string, limitKb: number }`; the figure renders as
+`≤ <limitKb> kB`.
