@@ -101,6 +101,15 @@ describe('writeRedirects', () => {
     assert.match(stub, /url=\/packages\/journey\/bridge\/protocol\//)
   })
 
+  it('checks a target that is a file, not a directory, at that file', async () => {
+    write('packages/journey/llms.txt', 'index')
+
+    await writeRedirects(root, { '/docs/llms/': '/packages/journey/llms.txt' }, ORIGIN)
+
+    const stub = readFileSync(join(root, 'docs/llms/index.html'), 'utf8')
+    assert.match(stub, /url=\/packages\/journey\/llms\.txt/)
+  })
+
   it('refuses to publish a redirect into a 404', async () => {
     await assert.rejects(
       writeRedirects(

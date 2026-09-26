@@ -22,7 +22,7 @@ export interface SourceFile {
 }
 
 export const isChecked = (path: string): boolean =>
-  CHECKED.test(path) && !IGNORED.has(path.split('/').at(-1) ?? path)
+  CHECKED.test(path) && !IGNORED.has(path.slice(path.lastIndexOf('/') + 1))
 
 /** Problems with `files`: any over the limit, and any allowlisted one that no longer needs it. */
 export function sizeProblems(
