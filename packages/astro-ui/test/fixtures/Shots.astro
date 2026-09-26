@@ -1,0 +1,12 @@
+---
+import ScreenshotGrid from '../../src/components/ScreenshotGrid.astro'
+import card from '@rxova/brand/assets/og/journey.png'
+---
+
+<ScreenshotGrid
+  shots={[
+    { src: card, alt: 'The card', title: 'Timeline', body: 'The realized path.' },
+    { src: card, alt: 'The card', title: 'Log', body: 'Every event.' },
+  ]}
+  link={{ href: 'https://example.com/', text: 'Get it', external: true }}
+/>
