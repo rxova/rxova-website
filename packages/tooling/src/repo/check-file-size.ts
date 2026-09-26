@@ -9,9 +9,7 @@ const CHECKED = /\.(ts|tsx|js|mjs|cjs|astro|css|ya?ml|json)$/
 const IGNORED = new Set(['pnpm-lock.yaml'])
 
 /** Files over the limit today, each removed as it is split. Shrinks only. */
-export const ALLOWED: ReadonlySet<string> = new Set([
-  'apps/landing/src/components/Walkthrough.astro',
-])
+export const ALLOWED: ReadonlySet<string> = new Set([])
 
 export interface SourceFile {
   path: string
