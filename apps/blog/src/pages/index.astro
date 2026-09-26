@@ -8,11 +8,7 @@ import VisuallyHidden from '@rxova/astro-ui/components/VisuallyHidden.astro'
 import { getPosts, resolveAuthors, byline, formatDate, isoDate, href } from '../lib/content'
 import { excerpt } from '@rxova/astro-ui/lib/entries'
 
-/**
- * How many posts before the index starts batching. Higher than the updates stream's
- * because a post is one card here, not a whole entry rendered in full — ten of these
- * is a shorter page than eight updates.
- */
+/** How many posts before the index starts batching; a card is shorter than a full update entry. */
 const PAGE_SIZE = 10
 
 /** About two to three lines of a card; real text, so "Read more" can follow the ellipsis inline. */
@@ -28,9 +24,8 @@ const items = await Promise.all(
   posts.map(async (post) => ({
     post,
     authors: await resolveAuthors(post.data.authors),
-    // The opening of the post itself, not `description` — that is a summary written
-    // for search results and social cards, and reads like ad copy in a list of
-    // posts. A reader scanning the index wants the writing.
+    // The post's opening, not `description`, which is written for search results
+    // and social cards.
     lead: excerpt(post.body ?? '', EXCERPT_CHARS),
   })),
 )
@@ -38,12 +33,8 @@ const items = await Promise.all(
 const feedUrl = `${canonicalUrl('/blog')}rss.xml`
 
 /**
- * The index as a `Blog`, with its posts as `BlogPosting`s.
- *
- * Listing the posts here rather than only on each post's own page is what tells a
- * crawler these are dated articles by a named author before it has fetched any of
- * them — which is the difference between /blog reading as a set of articles and
- * reading as one page that happens to contain links.
+ * The index as a `Blog`, with its posts as `BlogPosting`s, so a crawler sees dated
+ * articles by named authors before fetching any of them.
  */
 const blogJsonLd = {
   '@context': 'https://schema.org',
@@ -153,9 +144,7 @@ const blogJsonLd = {
     text-decoration: underline;
     text-underline-offset: 4px;
   }
-  /* Only ever rendered by `pnpm dev` — drafts are filtered out of the production
-     build — but it is the difference between previewing a draft and thinking you
-     published one. */
+  /* Only rendered by `pnpm dev`: drafts are filtered out of the production build. */
   .draft {
     font-size: 0.7rem;
     text-transform: uppercase;

@@ -1,7 +1,5 @@
 /**
- * Each project's walkthrough, by project id. See ../lib/walkthrough.ts for the
- * shape, and ./<id>/story.ts for each one.
- *
+ * Each project's walkthrough, by project id; the shape is in ../lib/walkthrough.ts.
  * A project without an entry here shows its snippet on the landing instead.
  */
 import type { Showcase } from '../lib/walkthrough'

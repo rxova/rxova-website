@@ -2,12 +2,8 @@
 import { defineEcConfig } from 'astro-expressive-code'
 
 /**
- * The code in each project's walkthrough on the landing. The same engine the
- * docs sites use through Starlight, with the same Night Owl pair, so a snippet
- * reads the same on the landing as in the docs it links to.
- *
- * In its own file rather than astro.config.mjs because the `<Code>` component
- * loads it as a module, and `themeCssSelector` is a function.
+ * The code in each project's walkthrough, with the docs sites' Night Owl pair.
+ * Its own file because `<Code>` loads it as a module and `themeCssSelector` is a function.
  */
 export default defineEcConfig({
   themes: ['night-owl', 'night-owl-light'],
@@ -21,11 +17,8 @@ export default defineEcConfig({
     borderRadius: '0',
     borderColor: 'transparent',
     borderWidth: '0',
-    // The window's own background, @rxova/brand's --rx-bg, as a real colour
-    // rather than `transparent`: Expressive Code adjusts token colours for
-    // contrast against it, and against `transparent` it dimmed the text on
-    // highlighted lines in the dark theme. Keep these two in step with
-    // packages/brand/src/tokens.css.
+    // @rxova/brand's --rx-bg as a real colour, not `transparent`, which dimmed highlighted
+    // lines in dark; keep in step with packages/brand/src/tokens.css.
     codeBackground: ({ theme }) => (theme.type === 'dark' ? '#0b0a08' : '#ffffff'),
     codeFontFamily: 'var(--rx-font-mono)',
     codeFontSize: '0.8rem',

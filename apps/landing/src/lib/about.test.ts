@@ -1,8 +1,6 @@
 /**
  * The maintainer, standards and principles copy shared by the landing and /about.
- *
- * It is prose, so the checks are on what the pages build from it: ids that key
- * icons and anchors, links that must leave rxova.org, and copy that is present.
+ * Checks what the pages build from it: ids for icons and anchors, external links, present copy.
  */
 
 import { describe, expect, it } from 'vitest'

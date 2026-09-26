@@ -1,18 +1,6 @@
 /**
- * Who maintains rxova, and what the projects have in common.
- *
- * Two things live here, because two surfaces need the same words: the landing
- * shows the short form of each (a maintainer strip, a "Why rxova" grid) and
- * /about shows the long form. Written twice they would drift, and this is copy
- * where drift is expensive — a principle stated one way on the home page and
- * another way a click later reads as marketing rather than as a rule the code
- * follows.
- *
- * Not in `sources.json`: that file says what rxova.org is *assembled from* —
- * which projects exist, whether they are on, how they are mounted — and every
- * script in `packages/tooling/` reads it. None of them has any business parsing a bio.
- * This is landing prose, so it sits with the landing, typed, next to
- * `projects.ts`.
+ * Who maintains rxova and what the projects share: one source for the landing's short
+ * form and /about's long form. Landing prose, so it lives here rather than in `sources.json`.
  */
 
 export interface MaintainerLink {
@@ -22,14 +10,7 @@ export interface MaintainerLink {
   external: true
 }
 
-/**
- * The person behind the projects.
- *
- * Deliberately singular. rxova is one maintainer's work, and saying so is both
- * true and more useful to a reader deciding whether to depend on it than an
- * invented "we" would be — it sets the right expectation about scope, response
- * times and bus factor.
- */
+/** The person behind the projects: deliberately singular, since rxova is one maintainer's work. */
 export const MAINTAINER = {
   name: 'Jonatan Kruszewski',
   role: 'Senior Frontend Engineer',
@@ -53,18 +34,8 @@ export const MAINTAINER = {
 } as const
 
 /**
- * What the projects are built to, as opposed to what they do.
- *
- * `PRINCIPLES` below is about API shape — what goes in a library and what stays
- * out. This is the other half: how the work is made and kept. A reader deciding
- * whether to take a dependency is weighing both, and the landing used to answer
- * neither — the slot this fills carried a strip of counts ("5 projects, 17 npm
- * packages"), which tells you the size of the catalogue and nothing about
- * whether any of it is safe to install.
- *
- * Each is short enough to sit in a strip and specific enough to be checked. Add
- * to this list rather than reaching for an adjective: "production grade" on its
- * own is a claim, "nothing publishes from a red build" is a rule.
+ * What the projects are built to, as opposed to what they do (`PRINCIPLES` covers API shape).
+ * Each item must be short enough for a strip and specific enough to be checked.
  */
 export interface Standard {
   /**
@@ -79,9 +50,7 @@ export interface Standard {
 }
 
 export const STANDARDS: readonly Standard[] = [
-  // First because it is the whole proposition, not one attribute among six:
-  // each library exists for one specific pain point and is judged on whether
-  // it removes it. Everything below is a constraint on how that is done.
+  // First: the whole proposition, each library judged on removing one pain point.
   {
     id: 'one-pain-point',
     label: 'One pain point each',
@@ -95,11 +64,8 @@ export const STANDARDS: readonly Standard[] = [
   {
     id: 'zero-dependencies',
     label: 'Zero runtime dependencies',
-    // Stated precisely because it is the one claim here a reader can disprove
-    // in thirty seconds with `npm view <pkg> dependencies`. Every package in
-    // the family declares no third-party dependency at all; where a manifest
-    // lists one it is another rxova package, and React is always a peer rather
-    // than something installed on your behalf.
+    // Precise because `npm view <pkg> dependencies` can disprove it: only rxova
+    // packages are ever listed, and React is always a peer.
     detail: 'No third-party packages — only our own, with React always a peer.',
   },
   {
@@ -135,13 +101,8 @@ export interface Principle {
 }
 
 /**
- * What journey, react-inputs and use-everywhere have in common.
- *
- * The landing used to assert that the libraries were "focused and
- * dependency-light" and leave it there, which is a claim rather than a
- * standard. These are the four rules the projects are actually built to, each
- * stated so that a reader can check it against the code and catch us failing
- * it.
+ * What journey, react-inputs and use-everywhere have in common: four rules, each
+ * stated so a reader can check it against the code.
  */
 export const PRINCIPLES: readonly Principle[] = [
   {

@@ -1,15 +1,7 @@
 ---
 /**
- * /about — who maintains rxova, why it exists, and what the projects are held to.
- *
- * The landing carries the short form of all three (a "Why rxova" grid and a
- * maintainer strip); this is the long form. Both read the same module, so the
- * principles cannot be worded one way here and another way there — see
- * ../lib/about.ts.
- *
- * A page of the landing's own build rather than a mounted surface, so unlike
- * /blog and /updates it needs no entry in sources.json. It is listed in the
- * menu and the footer through `landingSurfaces` in ../lib/projects.ts.
+ * /about: who maintains rxova, why it exists, and what the projects are held to.
+ * The long form of the landing's copy, read from the same ../lib/about.ts.
  */
 import { siteUrl } from '@rxova/brand'
 import { MAINTAINER, PRINCIPLES } from '../lib/about'
@@ -48,9 +40,7 @@ const description = `Rxova is built and maintained by ${MAINTAINER.name} — sma
       </p>
     </header>
 
-    {/* The maintainer first. Someone who clicked "About" from a package page
-          is usually deciding whether to depend on this, and the first thing
-          that decision needs is a name. */}
+    {/* The maintainer first: a reader deciding whether to depend on this needs a name. */}
     <section class="section" aria-labelledby="maintainer">
       <h2 id="maintainer">{MAINTAINER.name}</h2>
       <p class="role">{MAINTAINER.role}</p>

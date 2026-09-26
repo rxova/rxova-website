@@ -1,16 +1,6 @@
 /**
- * RSS 2.0 for /updates.
- *
- * Every item links to `/updates/#<id>` rather than to a page of its own, because
- * that is genuinely where the entry lives: the stream renders each update in
- * full and `UpdatesStream.astro` already gives every one a stable `#slug`
- * anchor. Those anchors are what make the guids unique — without them a reader
- * would collapse the whole feed into one item pointing at the index.
- *
- * The description is derived from the body. An update has no `description` in
- * its frontmatter (the stream shows the whole thing, so there was never a
- * summary to write), and deriving one beats adding a field to every entry
- * already published.
+ * RSS 2.0 for /updates. Items link to their stable `/updates/#<id>` anchor, which keeps guids unique.
+ * Descriptions are derived from the body, since updates have no `description` field.
  */
 import type { APIRoute } from 'astro'
 
