@@ -1,0 +1,124 @@
+---
+/**
+ * A numbered progression of modes, each a prose column beside a code pane. Panes are named slots
+ * (one per `mode.slot`), so a page writes fenced blocks and gets the docs' Shiki highlighting.
+ */
+export interface Mode {
+  name: string
+  /** The named slot holding this mode's code. */
+  slot: string
+  summary: string
+}
+
+interface Props {
+  modes: readonly Mode[]
+}
+
+const { modes } = Astro.props
+const panes = await Promise.all(
+  modes.map(async (mode) => ({
+    ...mode,
+    html: Astro.slots.has(mode.slot) ? await Astro.slots.render(mode.slot) : '',
+  })),
+)
+---
+
+<ol class="rx-modes">
+  {panes.map((mode, index) => (
+    <li class="rx-modes__item">
+      <div class="rx-modes__prose">
+        <div class="rx-modes__head">
+          <span class="rx-modes__step" aria-hidden="true">
+            {index + 1}
+          </span>
+          <h3 class="rx-modes__name">{mode.name}</h3>
+        </div>
+        <p class="rx-modes__summary">{mode.summary}</p>
+      </div>
+      <div class="rx-modes__code" set:html={mode.html} />
+    </li>
+  ))}
+</ol>
+
+<style>
+  .rx-modes {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Full-width rows, not columns: snippets are wider than a third of the page and would truncate. */
+  .rx-modes__item {
+    display: grid;
+    gap: 1.25rem;
+    min-width: 0;
+    padding: 1.5rem;
+    background: var(--rx-card);
+    border: 1px solid var(--rx-rule);
+    border-radius: var(--rx-radius);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 50rem) {
+    .rx-modes__item {
+      grid-template-columns: 17rem 1fr;
+      align-items: start;
+      gap: 2rem;
+    }
+  }
+
+  .rx-modes__head {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .rx-modes__step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    flex: none;
+    color: var(--rx-primary);
+    background: var(--rx-tag-bg);
+    border-radius: var(--rx-radius-pill);
+    font-family: var(--rx-font-mono);
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .rx-modes__name {
+    margin: 0;
+    color: var(--rx-fg);
+    font-size: 1.05rem;
+    font-weight: 620;
+    letter-spacing: -0.01em;
+  }
+
+  .rx-modes__summary {
+    margin: 0.7rem 0 0;
+    color: var(--rx-muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  /* min-width: 0 so a long line scrolls inside the pane instead of widening the card past the page. */
+  .rx-modes__code {
+    min-width: 0;
+  }
+
+  .rx-modes__code :global(pre) {
+    margin: 0;
+    padding: 0.95rem 1.1rem;
+    background: var(--rx-bg);
+    border: 1px solid var(--rx-rule);
+    border-radius: var(--rx-radius-sm);
+    overflow-x: auto;
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+</style>
