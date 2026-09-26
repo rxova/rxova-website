@@ -9,7 +9,16 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { newestFirst, byline, usedValues, formatDate, isoDate, nextLimit } from './entries'
+import {
+  newestFirst,
+  byline,
+  usedValues,
+  formatDate,
+  isoDate,
+  excerpt,
+  nextLimit,
+  FEED_EXCERPT_CHARS,
+} from './entries'
 
 const at = (id: string, iso: string) => ({ id, date: new Date(iso) })
 const byDate = (e: { date: Date }) => e.date
@@ -111,6 +120,67 @@ describe('isoDate', () => {
 
   it('rolls to the UTC day, not the local one', () => {
     expect(isoDate(new Date('2026-07-27T23:30:05-05:00'))).toBe('2026-07-28')
+  })
+})
+
+describe('excerpt', () => {
+  it('returns the opening prose whole when it fits', () => {
+    expect(excerpt('Short and complete.', 160)).toBe('Short and complete.')
+  })
+
+  // Shorter than the blog's: a feed reader shows this under a headline.
+  it('defaults to the feed budget', () => {
+    const long = 'word '.repeat(80)
+    expect(excerpt(long)).toBe(excerpt(long, FEED_EXCERPT_CHARS))
+    expect(excerpt(long).length).toBeLessThanOrEqual(FEED_EXCERPT_CHARS + 1)
+  })
+
+  it('flows across paragraphs', () => {
+    expect(excerpt('A hook.\n\nThen the actual point.', 160)).toBe('A hook. Then the actual point.')
+  })
+
+  // Unlike the blog's, the ellipsis is part of the result: a feed has no "Read more".
+  it('cuts on a word boundary and marks the cut with an ellipsis', () => {
+    expect(excerpt('alpha bravo charlie delta', 14)).toBe('alpha bravo…')
+  })
+
+  it('drops trailing punctuation left dangling by the cut', () => {
+    expect(excerpt('one two three, four five', 15)).toBe('one two three…')
+  })
+
+  it('cuts mid-word only when the opening word alone overruns the budget', () => {
+    expect(excerpt('supercalifragilistic', 5)).toBe('super…')
+  })
+
+  it.each([
+    ['links, keeping the text', 'See [the docs](https://x.dev) now.', 'See the docs now.'],
+    ['inline code', 'Run `pnpm build` first.', 'Run pnpm build first.'],
+    ['bold', 'This is **important** here.', 'This is important here.'],
+    ['italic', 'This is _subtle_ here.', 'This is subtle here.'],
+    ['images', 'Look ![alt](a.png) here.', 'Look here.'],
+  ])('strips %s', (_label, input, expected) => {
+    expect(excerpt(input, 160)).toBe(expected)
+  })
+
+  it.each([
+    ['a heading', '# Title\n\nThe real opening.'],
+    ['a blockquote', '> Someone else said this.\n\nThe real opening.'],
+    ['a code fence', '```js\nconst x = 1\n```\n\nThe real opening.'],
+    ['a list', '- one\n- two\n\nThe real opening.'],
+    ['a numbered list', '1. one\n2. two\n\nThe real opening.'],
+    ['a table', '| a | b |\n\nThe real opening.'],
+    ['a rule', '---\n\nThe real opening.'],
+  ])('skips %s', (_label, body) => {
+    expect(excerpt(body, 160)).toBe('The real opening.')
+  })
+
+  it('collapses whitespace, including hard-wrapped source', () => {
+    expect(excerpt('one\ntwo   three', 160)).toBe('one two three')
+  })
+
+  it('is empty for an entry with no prose at all', () => {
+    expect(excerpt('', 160)).toBe('')
+    expect(excerpt('# Only a heading', 160)).toBe('')
   })
 })
 
