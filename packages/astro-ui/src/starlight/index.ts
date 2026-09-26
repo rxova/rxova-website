@@ -14,14 +14,14 @@
  * at once over a type-only change.
  */
 
-import { RXOVA_ORIGIN, getProject, type ProjectId } from './sites.ts'
+import { RXOVA_ORIGIN, getProject, type ProjectId } from '@rxova/brand'
 
 export interface SharedStarlightOptions {
   /** Which project's docs this site is. */
   project: ProjectId
   /** Starlight sidebar config — the one thing every site defines itself. */
   sidebar: unknown[]
-  /** Extra stylesheets, appended after the brand ones so they win. */
+  /** Extra stylesheets, appended after the shared ones so they win. */
   customCss?: string[]
   /** Extra Starlight component overrides, merged over the shared ones. */
   components?: Record<string, string>
@@ -54,7 +54,7 @@ export function sharedStarlightConfig({
     favicon: '/favicon.svg',
 
     // No `logo` here on purpose: the SiteTitle override renders the mark from
-    // this package's own assets, so adopting the shared chrome does not also
+    // @rxova/brand's assets, so adopting the shared chrome does not also
     // mean copying an image into three repos and keeping it in sync.
 
     social: [
@@ -67,23 +67,23 @@ export function sharedStarlightConfig({
     },
 
     // Order matters: fonts, then tokens+mapping, then per-site overrides.
-    customCss: ['@rxova/brand/fonts.css', '@rxova/brand/starlight.css', ...customCss],
+    customCss: ['@rxova/brand/fonts.css', '@rxova/astro-ui/styles/starlight.css', ...customCss],
 
     components: {
       // The rxova mark + project wordmark, with the mark linking back to the
       // umbrella site. This is the only "you are inside rxova.org" affordance
       // on a docs page, so it ships shared rather than per-repo.
-      SiteTitle: '@rxova/brand/components/SiteTitle.astro',
+      SiteTitle: '@rxova/astro-ui/starlight/SiteTitle.astro',
       // Appends the cross-project switcher to the social icons. Without it the
       // three docs sites are three islands under one domain.
-      SocialIcons: '@rxova/brand/components/SocialIcons.astro',
+      SocialIcons: '@rxova/astro-ui/starlight/SocialIcons.astro',
       // Starlight's default footer (pagination, edit link, last updated) plus
       // the shared four-column site footer beneath it.
-      ...(!pageComponent ? { Footer: '@rxova/brand/components/Footer.astro' } : {}),
+      ...(!pageComponent ? { Footer: '@rxova/astro-ui/starlight/Footer.astro' } : {}),
       // Starlight's own picker, plus a resync when a page is restored from the
       // back/forward cache — without it, changing the theme on one rxova.org
       // surface and pressing Back leaves the restored page on the old theme.
-      ThemeSelect: '@rxova/brand/components/ThemeSelect.astro',
+      ThemeSelect: '@rxova/astro-ui/starlight/ThemeSelect.astro',
       ...components,
     },
 

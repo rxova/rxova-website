@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url'
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../../../..')
 
-/** Copies the cards into `<root>/site/public/og`, resolving @rxova/brand from `<root>/site`. */
+/** Copies the cards into `<root>/apps/landing/public/og`, resolving @rxova/brand from there. */
 export function syncBrandOg(root = repoRoot, log: (message: string) => void = console.log): void {
   // Resolve from apps/landing/, which is where @rxova/brand is a dependency — this script
   // lives at the repo root, where it is not installed. Going through the package's

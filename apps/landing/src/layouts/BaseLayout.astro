@@ -1,15 +1,15 @@
 ---
 // The chrome's stylesheets, not the landing's: this layout also builds the shell
 // templates, and everything it links is inherited by the docs pages composed
-// into them. @rxova/brand's chrome.css carries the tokens, the footer's styles
+// into them. @rxova/astro-ui's chrome.css carries the tokens, the footer's styles
 // and the short aliases the header is written against, but no reset — a reset
 // arriving from here would flatten every Starlight page it is spliced into.
-// Pages that own their document import @rxova/brand/astro.css themselves.
+// Pages that own their document import @rxova/astro-ui/styles/document.css themselves.
 import '@rxova/brand/fonts.css'
-import '@rxova/brand/chrome.css'
+import '@rxova/astro-ui/styles/chrome.css'
 import { siteUrl, type ProjectId } from '@rxova/brand'
-import SiteFooter from '@rxova/brand/components/SiteFooter.astro'
-import ThemeScript from '@rxova/brand/components/ThemeScript.astro'
+import SiteFooter from '@rxova/astro-ui/components/SiteFooter.astro'
+import ThemeScript from '@rxova/astro-ui/components/ThemeScript.astro'
 import CloudflareAnalytics from '../components/CloudflareAnalytics.astro'
 import SiteHeader from '../components/SiteHeader.astro'
 import { mountedProjects, navSurfaces } from '../lib/projects'

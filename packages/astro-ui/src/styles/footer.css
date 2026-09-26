@@ -12,7 +12,7 @@
  * short aliases chrome.css defines.
  */
 
-@import './tokens.css';
+@import '@rxova/brand/tokens.css';
 
 .rx-footer {
   margin-top: 4rem;

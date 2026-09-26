@@ -30,7 +30,8 @@ Which projects are mounted is `sources.json` — see [Adding a project](#adding-
 | `apps/landing`                                  | Astro landing page (builds to `apps/landing/dist`)      |
 | `apps/blog`                                     | `/blog`, built here and ingested like a project's docs  |
 | `apps/updates`                                  | `/updates`, built the same way                          |
-| `packages/brand`                                | `@rxova/brand` on npm: tokens, Starlight theme, chrome  |
+| `packages/brand`                                | `@rxova/brand` on npm: tokens, fonts and project data   |
+| `packages/astro-ui`                             | `@rxova/astro-ui`: components, Starlight preset, chrome |
 | `packages/website-schemas`                      | `@rxova/website-schemas` on npm: the content contracts  |
 | `apps/preview`                                  | A Starlight site that renders `@rxova/brand` for review |
 | `packages/tooling/src/lib/registry.ts`          | Reads/validates `sources.json`; derives every path      |

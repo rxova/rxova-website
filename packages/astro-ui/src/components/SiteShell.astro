@@ -11,10 +11,10 @@
  * for its metadata and assets; rxova-website consumes its body and supplies the
  * public shell at deploy time.
  */
-import '../fonts.css'
-import '../astro.css'
+import '@rxova/brand/fonts.css'
+import '../styles/document.css'
 
-import { canonicalUrl, siteUrl } from '../sites.ts'
+import { canonicalUrl, siteUrl } from '@rxova/brand'
 
 interface Props {
   title: string
