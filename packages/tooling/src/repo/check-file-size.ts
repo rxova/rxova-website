@@ -10,7 +10,6 @@ const IGNORED = new Set(['pnpm-lock.yaml'])
 
 /** Files over the limit today, each removed as it is split. Shrinks only. */
 export const ALLOWED: ReadonlySet<string> = new Set([
-  'packages/tooling/src/repo/validate-content.test.ts',
   'packages/updates/src/components/UpdatesStream.astro',
   'site/src/components/Walkthrough.astro',
   'site/src/pages/index.astro',
