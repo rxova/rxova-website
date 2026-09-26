@@ -22,10 +22,6 @@ export function maskScopeIds(text: string): string {
   return text.replace(/data-astro-cid-[a-z0-9]+/g, 'data-cid')
 }
 
-export function stripHtmlComments(html: string): string {
-  return html.replace(/<!--[\s\S]*?-->/g, '')
-}
-
 export function stripCssComments(css: string): string {
   return css.replace(/\/\*[\s\S]*?\*\//g, '')
 }
@@ -81,6 +77,15 @@ async function pretty(text: string, parser: 'html' | 'css' | 'json'): Promise<st
     // Minified output Prettier cannot parse still diffs usefully as it is.
     return text
   }
+}
+
+/** Drops comment nodes from parsed markup, so no comment text survives to the diff. */
+export function stripHtmlComments(html: string): string {
+  const document = parse(html)
+  for (const { node, parent } of walk(document)) {
+    if (node.nodeName === '#comment') parent.childNodes.splice(parent.childNodes.indexOf(node), 1)
+  }
+  return serialize(document)
 }
 
 /** The comparable form of an HTML page's markup. */
