@@ -1,13 +1,7 @@
 name: Publish updates
 
-# Build /updates and hand it to rxova.org.
-#
-# A separate file from publish-blog.yml, not a second matrix leg beside it, so
-# that this surface gets its own workflow run and therefore its own `run_id` and
-# its own `docs-dist` artifact. The full reasoning, and the bug that made it
-# necessary, is in publish-blog.yml — this was the surface that broke.
-#
-# The steps live once, in ../actions/publish-surface.
+# Build /updates and hand it to rxova.org. A separate file from publish-blog.yml so it gets its own
+# run and `docs-dist` artifact (reasoning in publish-blog.yml; steps in ../actions/publish-surface).
 
 on:
   push:

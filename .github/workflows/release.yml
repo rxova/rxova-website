@@ -1,8 +1,7 @@
 name: Release
 
-# Gated on CI having gone green for the exact commit being released, mirroring
-# the pattern in rxova/react-inputs — a push to main cannot publish something a
-# PR would have been blocked on, without running the whole gate twice.
+# Gated on CI having gone green for the exact commit being released, so a push to main
+# cannot publish something a PR would have been blocked on.
 on:
   workflow_run:
     workflows: [CI]
@@ -14,38 +13,14 @@ permissions:
   contents: read
 
 jobs:
-  # Publishing and opening the version PR used to be one `changesets/action`
-  # step against main's tip, and that is what stranded @rxova/brand@0.9.0.
-  #
-  # The action decides between the two on whether `.changeset/` is empty —
-  # `case hasChangesets:` runs version and wins over the publish script, so a
-  # tip carrying any changeset never publishes. Checking out main's *tip* rather
-  # than the commit CI validated meant a changeset-bearing commit merged during
-  # a version commit's CI (a ~3 minute window) took that version's only chance
-  # to publish with it, and the next version bump then rolled straight over it.
-  #
-  # Splitting them removes the race instead of narrowing it: publish answers for
-  # the commit CI actually validated, version answers for the tip. Each runs the
-  # action in one of its two documented modes.
+  # Publish and version are separate jobs: publish runs on the commit CI validated, version on
+  # main's tip, so a changeset merged mid-CI can't pre-empt a publish.
   publish:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Serialised, and deliberately not keyed per commit. Main pushes are no
-    # longer cancelled, so two publish jobs can now genuinely overlap — and a
-    # version commit's successor carries the same version in package.json until
-    # the next bump, so both would resolve the same unpublished version and race
-    # `npm publish`. One wins, the other takes a 403 and goes red over a release
-    # that in fact succeeded.
-    #
-    # Queuing removes the race: `changeset publish` only publishes versions the
-    # registry lacks, so the second job finds nothing to do and exits clean.
-    #
-    # The cost is that a third run cancels a pending one. That is survivable
-    # here because a commit's successor carries the same versions — the newer
-    # run covers what the dropped one would have done. It is only lossy if the
-    # third run is a version commit that supersedes the dropped one's version,
-    # which needs a version PR merged inside the ~40s a publish takes.
+    # Serialised, not keyed per commit: overlapping jobs would race `npm publish` on the same version.
+    # The queued run finds nothing left to publish; a cancelled pending one is covered by its successor.
     concurrency:
       group: publish-${{ github.ref }}
       cancel-in-progress: false
@@ -57,9 +32,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          # The commit CI signed off on, not whatever main has moved on to.
-          # Detached HEAD is fine here: the publish path only pushes tags and
-          # creates releases through the API, neither of which needs a branch.
+          # The commit CI signed off on, not main's tip. Detached HEAD is fine: this
+          # path only pushes tags and creates releases through the API.
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 0
       - uses: ./.github/actions/setup-pnpm
@@ -69,9 +43,8 @@ jobs:
         run: npm install -g npm@^11.5.1
       - run: pnpm install --frozen-lockfile
 
-      # Without this the action would take `case hasChangesets:` and try to open
-      # a version PR from a detached HEAD, duplicating the version job against a
-      # commit that is no longer the tip.
+      # Otherwise the action would try to open a version PR from a detached HEAD,
+      # duplicating the version job.
       - name: Look for pending changesets
         id: pending
         run: |
@@ -79,18 +52,14 @@ jobs:
           echo "count=$count" >> "$GITHUB_OUTPUT"
           echo "Pending changesets: $count"
 
-      # `changeset publish` publishes only versions the registry does not
-      # already have, so this is a no-op on a commit that changed nothing
-      # publishable and a recovery on one whose release was previously missed.
+      # Publishes only versions the registry lacks: a no-op on a commit with nothing
+      # publishable, a recovery on one whose release was missed.
       - name: Publish
         if: ${{ steps.pending.outputs.count == '0' }}
         uses: changesets/action@v2
         with:
-          # v2 renamed every input this step passes and stopped reading the
-          # token from the `GITHUB_TOKEN` env var. Actions does not fail a job
-          # over an unknown input, so keeping the v1 names would have left the
-          # action running on its defaults rather than going red — a bad
-          # release, not a red check.
+          # v2 input names. Actions ignores unknown inputs, so v1 names would silently
+          # fall back to defaults instead of failing.
           github-token: ${{ secrets.GITHUB_TOKEN }}
           publish-script: pnpm exec changeset publish
         env:
@@ -127,9 +96,8 @@ jobs:
       - name: Create or update the version PR
         uses: changesets/action@v2
         with:
-          # v2 input names: `version` -> `version-script`, `commit` ->
-          # `commit-message`, `title` -> `pr-title`, and the token now comes
-          # from the `github-token` input rather than the env var.
+          # v2 input names (`version-script`, `commit-message`, `pr-title`); the token
+          # now comes from the `github-token` input, not the env var.
           github-token: ${{ secrets.GITHUB_TOKEN }}
           version-script: pnpm exec changeset version
           commit-message: 'chore: version packages'

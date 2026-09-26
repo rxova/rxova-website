@@ -1,16 +1,7 @@
 name: PR title
 
-# The squash-merge subject is the PR *title*: no commit in the branch contains
-# it, and it can be changed after CI has already gone green. So it has to be
-# checked, and it has to be re-checked on every edit.
-#
-# It lives here rather than in CI's `types:` because `edited` also fires on
-# *body* edits, and there is no trigger-level way to tell the two apart. In CI
-# that cost the entire graph: adding a cross-reference to a description
-# cancelled the in-flight run and started a fresh one, and a cancelled job still
-# bills its minute rounded up. Here the same edit costs one job doing one thing.
-#
-# Its own concurrency group, so re-titling can never cancel a CI run.
+# Re-checks the squash-merge subject (the PR title) on every edit. Separate from CI because `edited`
+# also fires on body edits, and its own concurrency group means a retitle never cancels CI.
 
 on:
   pull_request:

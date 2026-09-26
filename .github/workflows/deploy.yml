@@ -1,16 +1,7 @@
 name: Deploy rxova.org
 
-# Builds this repo's Astro landing, gathers every enabled project's docs from its
-# content release, assembles them into one tree, and publishes to GitHub Pages.
-#
-# Nothing foreign is built here. Docs are built by their own repos and sent here
-# already built, then validated and persisted as release assets by ingest.yml (see
-# that workflow and docs/INPUTS-CONTRACT.md). This workflow only ever moves
-# already-built trees: it fetches each project's persisted dist and lays it out.
-#
-# Adding a project should NOT require editing this file. Which projects exist and
-# whether they are enabled live in sources.json; packages/tooling/src/deploy/fetch-docs.ts turns that
-# into the set of release assets to download.
+# Builds the landing, fetches every enabled project's persisted docs (built elsewhere, see ingest.yml),
+# assembles one tree and publishes to Pages. Adding a project only needs sources.json, not this file.
 
 on:
   # Called by ingest.yml right after it persists a new dist, so a docs push shows
@@ -64,10 +55,8 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
-      # The same pinned pnpm as the build job, not a bare setup-node: the scripts
-      # below import @rxova/website-schemas — the contract shared with the senders —
-      # so this job needs the workspace installed. It used to get away with plain
-      # node because registry.mjs had no dependencies at all.
+      # The scripts below import @rxova/website-schemas, so this job needs the workspace
+      # installed, not a bare setup-node.
       - uses: ./.github/actions/setup-pnpm
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -79,10 +68,8 @@ jobs:
           name: landing
           path: artifacts/landing
 
-      # Every enabled project's persisted docs, pulled from its content-<id>
-      # release into artifacts/docs-<id> — exactly where assemble.mjs reads them.
-      # A missing release fails here, naming the project, rather than silently
-      # publishing a site with a hole in it.
+      # Pulls each enabled project's content-<id> release into artifacts/docs-<id>, where
+      # assemble reads it; a missing release fails here, naming the project.
       - name: Gather persisted docs
         env:
           GH_TOKEN: ${{ github.token }}
