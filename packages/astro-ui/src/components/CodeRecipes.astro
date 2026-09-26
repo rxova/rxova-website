@@ -1,0 +1,28 @@
+---
+/** Titled source listings, one per recipe: a linked heading and the source in Starlight's code frame. */
+export interface Recipe {
+  id: string
+  label: string
+  href: string
+  source: string
+}
+
+interface Props {
+  recipes: readonly Recipe[]
+  /** Heading ids are `<idPrefix>-<recipe.id>`, so a page can link to one recipe. */
+  idPrefix?: string
+}
+
+const { recipes, idPrefix = 'recipe' } = Astro.props
+---
+
+{recipes.map(({ id, label, href, source }) => (
+  <section class="rx-recipe">
+    <h3 id={`${idPrefix}-${id}`}>
+      <a href={href}>{label}</a>
+    </h3>
+    <pre class="astro-code">
+        <code>{source}</code>
+      </pre>
+  </section>
+))}

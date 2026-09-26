@@ -1,0 +1,118 @@
+---
+/**
+ * Per-package bundle budgets as a real table: right-aligned tabular figures are the shape that
+ * supports comparing against whatever the reader ships today.
+ */
+export interface SizeRow {
+  pkg: string
+  entry: string
+  limitKb: number
+}
+
+interface Props {
+  rows: readonly SizeRow[]
+  /** The column heading: "brotli", "gzip". */
+  compression: string
+  caption: string
+}
+
+const { rows, compression, caption } = Astro.props
+---
+
+{/* Focusable and labelled: the box scrolls sideways on a narrow viewport, and a scrollable region needs a tab stop. */}
+<div class="rx-sizes" tabindex="0" role="region" aria-label="Bundle size budgets">
+  <table class="rx-sizes__table">
+    <caption class="rx-sizes__caption">{caption}</caption>
+    <thead>
+      <tr>
+        <th scope="col">Package</th>
+        <th scope="col">You import</th>
+        <th scope="col" class="rx-sizes__num">
+          {compression}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          <th scope="row" class="rx-sizes__pkg">
+            {row.pkg}
+          </th>
+          <td>
+            <code>{row.entry}</code>
+          </td>
+          <td class="rx-sizes__num">≤ {row.limitKb} kB</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .rx-sizes {
+    overflow-x: auto;
+    border: 1px solid var(--rx-rule);
+    border-radius: var(--rx-radius);
+  }
+
+  .rx-sizes__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .rx-sizes__caption {
+    padding: 1rem 1.25rem;
+    /* --rx-muted, not --rx-faint: faint on the card is ~3.4:1 and fails AA here. */
+    color: var(--rx-muted);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    text-align: start;
+    caption-side: bottom;
+    border-top: 1px solid var(--rx-rule);
+  }
+
+  .rx-sizes__table th,
+  .rx-sizes__table td {
+    padding: 0.85rem 1.25rem;
+    text-align: start;
+    border-bottom: 1px solid var(--rx-rule);
+  }
+
+  .rx-sizes__table thead th {
+    background: var(--rx-card);
+    color: var(--rx-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .rx-sizes__table tbody tr:last-child th,
+  .rx-sizes__table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .rx-sizes__pkg {
+    color: var(--rx-fg);
+    font-family: var(--rx-font-mono);
+    font-size: 0.84rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .rx-sizes__table code {
+    color: var(--rx-muted);
+    font-family: var(--rx-font-mono);
+    font-size: 0.84rem;
+    white-space: nowrap;
+  }
+
+  .rx-sizes__num {
+    text-align: end;
+    color: var(--rx-fg);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+</style>

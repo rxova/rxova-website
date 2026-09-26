@@ -16,11 +16,15 @@ export default defineConfig({
         // and OG image from it, so a fake id would preview chrome no site renders.
         project: 'journey',
         editLinkBase: 'apps/preview',
+        customCss: ['@rxova/astro-ui/styles/landing.css'],
         sidebar: [
           { label: 'Preview', items: [{ autogenerate: { directory: 'preview' } }] },
           {
             label: 'Other surfaces',
-            items: [{ label: 'Plain Astro page', link: '/plain/' }],
+            items: [
+              { label: 'Landing page', link: '/landing/' },
+              { label: 'Plain Astro page', link: '/plain/' },
+            ],
           },
         ],
       }),

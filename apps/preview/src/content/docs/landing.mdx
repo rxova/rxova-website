@@ -1,0 +1,185 @@
+---
+title: The landing set
+description: Every landing component on one splash page, the way a project site composes them.
+template: splash
+editUrl: false
+hero:
+  title: '<span class="rx-tag">1.0.0</span><br />A landing page, from the set'
+  tagline: >-
+    The hero is Starlight's own. Everything below it is `@rxova/astro-ui`, styled by
+    `landing.css` and the tokens, so a change to either shows up here first.
+---
+
+import CtaBand from '@rxova/astro-ui/components/CtaBand.astro'
+import ModeTabs from '@rxova/astro-ui/components/ModeTabs.astro'
+import ProofStats from '@rxova/astro-ui/components/ProofStats.astro'
+import QuickStart from '@rxova/astro-ui/components/QuickStart.astro'
+import ScreenshotGrid from '@rxova/astro-ui/components/ScreenshotGrid.astro'
+import Section from '@rxova/astro-ui/components/Section.astro'
+import SizeTable from '@rxova/astro-ui/components/SizeTable.astro'
+import ValueGrid from '@rxova/astro-ui/components/ValueGrid.astro'
+import card from '@rxova/brand/assets/og/journey.png'
+
+<CtaBand
+  title="Model the flow, not the click handlers"
+  lede="One primary action, the rest minimal. External links get the marker."
+  actions={[
+    { text: 'Start here', href: '/preview/prose/', variant: 'primary' },
+    { text: 'Tokens', href: '/preview/tokens/' },
+    { text: 'GitHub', href: 'https://github.com/rxova', external: true },
+  ]}
+/>
+
+<Section
+  title="One import to a running machine"
+  lede="QuickStart: the install command with its copy button, beside a slotted fenced block."
+>
+  <QuickStart command="npm i @rxova/astro-ui">
+
+```ts
+import { sharedStarlightConfig } from '@rxova/astro-ui/starlight'
+
+export default sharedStarlightConfig({ project: 'journey', sidebar: [] })
+```
+
+  </QuickStart>
+</Section>
+
+<Section
+  eyebrow="Three modes, one field"
+  title="Start as a list. Become a graph."
+  lede="ModeTabs: a numbered progression, each mode's code in the named slot it points at."
+>
+  <ModeTabs
+    modes={[
+      { name: 'Linear', slot: 'linear', summary: 'A fixed sequence, as an array of step names.' },
+      { name: 'Graph', slot: 'graph', summary: 'Branching, keyed by step and then by event.' },
+    ]}
+  >
+    <Fragment slot="linear">
+
+```ts
+steps: ['account', 'details', 'review']
+```
+
+    </Fragment>
+    <Fragment slot="graph">
+
+```ts
+steps: {
+  login: { on: { submit: [{ to: 'admin', when: isAdmin }, { to: 'home' }] } },
+}
+```
+
+    </Fragment>
+
+  </ModeTabs>
+</Section>
+
+<Section
+  eyebrow="Why this one"
+  title="Six cards, three across"
+  lede="ValueGrid: a Lucide icon name per card, inlined at build time; bodies may carry inline code."
+>
+  <ValueGrid
+    items={[
+      { icon: 'braces', title: 'Typed', body: 'Invalid names are compile errors.' },
+      {
+        icon: 'history',
+        title: 'History',
+        body: 'The realized path, so <code>back</code> is deterministic.',
+      },
+      { icon: 'timer', title: 'Async', body: 'Loading, failure and retry are part of the flow.' },
+      { icon: 'blocks', title: 'Plugins', body: 'Extend without adding to the base cost.' },
+      { icon: 'unplug', title: 'Zero dependencies', body: 'Nothing to inherit, nothing to audit.' },
+      { icon: 'layers', title: 'Framework-agnostic', body: 'Vanilla TypeScript at the core.' },
+    ]}
+  />
+</Section>
+
+<Section
+  accent
+  eyebrow="Proof"
+  title="The numbers, and where to check them"
+  lede="ProofStats: the one section that spends the gradient. The figures count up once, on scroll."
+>
+  <ProofStats
+    stats={[
+      { value: '0', label: 'Runtime dependencies', note: 'Across every published package' },
+      {
+        value: '7.58 kB',
+        label: 'Core, brotli',
+        note: 'Measured by size-limit on the built output',
+      },
+      {
+        value: '95%',
+        label: 'Coverage floor, per file',
+        note: 'Statements, branches, functions, lines',
+      },
+      { value: '4', label: 'Published packages', note: 'Each independently installable' },
+      {
+        value: 'MIT',
+        label: 'Licensed, every package',
+        note: 'Left alone: no leading digit to count',
+      },
+    ]}
+  />
+</Section>
+
+<Section
+  eyebrow="Budgets"
+  title="A ceiling, not an aspiration"
+  lede="SizeTable: right-aligned tabular figures, a caption beneath, scrollable and focusable when narrow."
+>
+  <SizeTable
+    compression="brotli"
+    caption="Read from each package's size-limit configuration at build time."
+    rows={[
+      { pkg: '@rxova/react-otp-input', entry: 'OtpInput', limitKb: 3 },
+      { pkg: '@rxova/react-rating-input', entry: 'Rating', limitKb: 2 },
+    ]}
+  />
+</Section>
+
+<Section
+  eyebrow="DevTools"
+  title="Shown rather than described"
+  lede="ScreenshotGrid: captioned images in card frames, with an optional link beneath. The social card stands in for a screenshot."
+>
+  <ScreenshotGrid
+    shots={[
+      {
+        src: card,
+        alt: 'The journey social card',
+        title: 'Timeline and state',
+        body: 'The realized timeline and the context behind it.',
+      },
+      {
+        src: card,
+        alt: 'The journey social card',
+        title: 'Transition log',
+        body: 'Every event and the diff it committed.',
+      },
+      {
+        src: card,
+        alt: 'The journey social card',
+        title: 'Live commands',
+        body: 'Send events in and watch the snapshot answer.',
+      },
+    ]}
+    link={{
+      href: 'https://chromewebstore.google.com/',
+      text: 'Get it from the Chrome Web Store',
+      external: true,
+    }}
+  />
+</Section>
+
+<CtaBand
+  title="Take it for a flow"
+  lede="The closing band: the same component as the opener, with the ask reordered."
+  actions={[
+    { text: 'Prose', href: '/preview/prose/', variant: 'primary' },
+    { text: 'Star on GitHub', href: 'https://github.com/rxova', external: true },
+  ]}
+/>

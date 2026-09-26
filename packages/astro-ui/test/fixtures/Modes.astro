@@ -1,0 +1,14 @@
+---
+import ModeTabs from '../../src/components/ModeTabs.astro'
+---
+
+<ModeTabs
+  modes={[
+    { name: 'Linear', slot: 'linear', summary: 'A fixed sequence.' },
+    { name: 'Graph', slot: 'graph', summary: 'Branching.' },
+    { name: 'Missing', slot: 'nope', summary: 'No pane.' },
+  ]}
+>
+  <pre slot="linear">steps: []</pre>
+  <pre slot="graph">steps: graph</pre>
+</ModeTabs>

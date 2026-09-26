@@ -1,0 +1,59 @@
+---
+title: Docs blocks
+description: The components a prose page can drop in, rendered inside the docs measure.
+---
+
+import CodeRecipes from '@rxova/astro-ui/components/CodeRecipes.astro'
+import DataTable from '@rxova/astro-ui/components/DataTable.astro'
+import DocAccordion from '@rxova/astro-ui/components/DocAccordion.astro'
+import DocAccordionItem from '@rxova/astro-ui/components/DocAccordionItem.astro'
+
+## Accordion
+
+`DocAccordion` stacks `DocAccordionItem`s; `<details>` does the collapsing, so there is no script.
+
+<DocAccordion>
+
+<DocAccordionItem title="Which factory should I use?" summary="Linear or graph" defaultOpen>
+
+Use the linear one when declared order is the default forward path, and the graph one when
+named events or guards choose the destination.
+
+</DocAccordionItem>
+
+<DocAccordionItem title="Does reaching the last step complete the journey?">
+
+No. Completion is a product decision, so it is called explicitly.
+
+</DocAccordionItem>
+
+</DocAccordion>
+
+## Table
+
+`DataTable` is a plain table in Starlight's wrapper, with a row heading per row.
+
+<DataTable
+  columns={['Framework', 'Tested dependency range', 'Rendering path', 'Browser proof']}
+  rows={[
+    { label: 'Next.js', cells: [{ code: '^16.0.0' }, 'App Router, RSC boundary', 'Chromium'] },
+    { label: 'Vite', cells: [{ code: '^8.0.0' }, 'Client only', 'Chromium'] },
+  ]}
+/>
+
+## Recipes
+
+`CodeRecipes` renders titled source listings, each heading linked and anchored under the prefix.
+
+<CodeRecipes
+  idPrefix="integration"
+  recipes={[
+    {
+      id: 'shadcn',
+      label: 'shadcn/ui',
+      href: 'https://ui.shadcn.com/docs',
+      source:
+        "import { OtpInput } from '@rxova/react-otp-input'\n\nexport const Field = () => <OtpInput length={6} />",
+    },
+  ]}
+/>

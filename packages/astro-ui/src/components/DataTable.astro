@@ -1,0 +1,38 @@
+---
+/** A plain table in Starlight's wrapper: column headings, then rows of a row heading plus cells. */
+export type Cell = string | { code: string }
+
+export interface DataRow {
+  label: string
+  cells: readonly Cell[]
+}
+
+interface Props {
+  columns: readonly string[]
+  rows: readonly DataRow[]
+}
+
+const { columns, rows } = Astro.props
+---
+
+<div class="sl-table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        {columns.map((column) => (
+          <th>{column}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          <th scope="row">{row.label}</th>
+          {row.cells.map((cell) => (
+            <td>{typeof cell === 'string' ? cell : <code>{cell.code}</code>}</td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

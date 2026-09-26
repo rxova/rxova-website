@@ -1,0 +1,126 @@
+---
+/**
+ * A grid of cards, each with a Lucide icon, a title and a body. `icon` is a `lucide-static` icon
+ * name, inlined at build time; `body` may carry inline `<code>`.
+ */
+import { lucideGlyph } from '../lib/icons.ts'
+
+export interface ValueItem {
+  title: string
+  body: string
+  icon: string
+}
+
+interface Props {
+  items: readonly ValueItem[]
+}
+
+const { items } = Astro.props
+---
+
+<ul class="rx-vg">
+  {items.map((item) => (
+    <li class="rx-vg__item">
+      <span class="rx-vg__badge">
+        <svg
+          class="rx-vg__icon"
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          set:html={lucideGlyph(item.icon)}
+        />
+      </span>
+      <h3 class="rx-vg__title">{item.title}</h3>
+      <p class="rx-vg__body" set:html={item.body} />
+    </li>
+  ))}
+</ul>
+
+<style>
+  /* Explicit column counts: auto-fit lands on four at this width and leaves a half-empty last row. */
+  .rx-vg {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 38rem) {
+    .rx-vg {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 60rem) {
+    .rx-vg {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .rx-vg__item {
+    padding: 1.5rem;
+    background: var(--rx-card);
+    border: 1px solid var(--rx-rule);
+    border-radius: var(--rx-radius);
+    transition: border-color 0.25s ease;
+  }
+
+  .rx-vg__item:hover {
+    border-color: var(--rx-rule-strong);
+  }
+
+  /* A tinted well behind the glyph, so the icon reads as an object rather than a stray mark. */
+  .rx-vg__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--rx-primary);
+    background: var(--rx-tag-bg);
+    border-radius: var(--rx-radius-sm);
+  }
+
+  .rx-vg__icon {
+    display: block;
+  }
+
+  .rx-vg__title {
+    margin: 1rem 0 0;
+    color: var(--rx-fg);
+    font-size: 1.05rem;
+    font-weight: 620;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .rx-vg__body {
+    margin: 0.5rem 0 0;
+    color: var(--rx-muted);
+    font-size: 0.95rem;
+    line-height: 1.62;
+    text-wrap: pretty;
+  }
+
+  .rx-vg__body :global(code) {
+    padding: 0.1em 0.35em;
+    background: var(--rx-tag-bg);
+    border-radius: var(--rx-radius-sm);
+    font-family: var(--rx-font-mono);
+    font-size: 0.86em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rx-vg__item {
+      transition: none;
+    }
+  }
+</style>

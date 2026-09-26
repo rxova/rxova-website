@@ -381,6 +381,9 @@ importers:
       '@astrojs/check':
         specifier: ^0.9.10
         version: 0.9.10(prettier-plugin-astro@1.0.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9))(prettier@3.9.9)(typescript@6.0.3)
+      sharp:
+        specifier: '>=0.35.0'
+        version: 0.35.4(@types/node@26.6.1)
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -433,6 +436,9 @@ importers:
       '@rxova/brand':
         specifier: workspace:^
         version: link:../brand
+      lucide-static:
+        specifier: ^1.45.0
+        version: 1.48.0
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.10
@@ -3146,6 +3152,9 @@ packages:
   lru-cache@11.5.2:
     resolution: {integrity: sha512-4pfM1Ff0x50o0tQwb5ucw/RzNyD0/YJME6IVcStalZuMWxdt3sR3huStTtxz4PUmvZfRguvDejasvQ2kifR11g==}
     engines: {node: 20 || >=22}
+
+  lucide-static@1.48.0:
+    resolution: {integrity: sha512-ZUGgZ4rzlLfVbhN2Zi37TMrTaSpXAbWx6Y/xZxKSDLPiqxtTK7Mw2M+oBJa0gjV8p3+CWBHh48u+IC9+jKlUjA==}
 
   magic-string@1.4.1:
     resolution: {integrity: sha512-8lyCu36ErXR0J9uaGKlKQoiLZKmtI63YGLE8G2o9jyRPdr4X47LusSOwgOJOzcVtp81fTAAjxR7BwKz682Jhow==}
@@ -6651,6 +6660,8 @@ snapshots:
   longest-streak@3.1.0: {}
 
   lru-cache@11.5.2: {}
+
+  lucide-static@1.48.0: {}
 
   magic-string@1.4.1:
     dependencies:
