@@ -14,12 +14,8 @@ import {
 } from './verify.ts'
 
 /**
- * Importing this module only works because verify guards its `process.exit`
- * behind an entrypoint check — without it, merely importing the gate would run
- * the whole gate and then kill the test process.
- *
- * The runner is injected, so these tests assert the ordering and short-circuit
- * behaviour without shelling out to pnpm or Turbo.
+ * Imports safely thanks to verify's entrypoint guard; the runner is injected, so ordering
+ * and short-circuiting are asserted without shelling out to pnpm or Turbo.
  */
 
 const ok = (): StepResult => ({ status: 0 })

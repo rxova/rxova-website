@@ -1,14 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
-/**
- * The decision-making half of pack-smoke, split out so it can be tested.
- *
- * The entry script derives its own repo root from `import.meta.url`, so running
- * it in a throwaway directory still points it at this package — it cannot be
- * spawn-tested against a fixture. These functions take the unpacked directory as
- * an argument instead, which makes every branch reachable from a test.
- */
+/** The testable half of pack-smoke: each check takes the unpacked directory as an argument. */
 
 /** Filesystem probes, injectable so tests need no real tarball. */
 export interface Fs {
@@ -25,10 +18,7 @@ export const nodeFs: Fs = {
 
 /**
  * Every declared export must resolve inside the packed tree.
- *
- * A wildcard subpath cannot be resolved key by key, so the check is that its
- * directory exists and is non-empty — an empty directory is the real failure
- * mode when a `files` entry drops a folder.
+ * A wildcard subpath passes when its directory exists and is non-empty.
  */
 export const checkExportsResolve = (
   exports: Readonly<Record<string, unknown>>,

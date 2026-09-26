@@ -1,9 +1,5 @@
-// Small parse5 helpers shared by the scripts that read assembled HTML.
-//
-// These lived inside assemble.ts while it was the only reader. sitemap.ts now
-// needs the same two questions answered — "does this document say noindex?" and
-// "is it a redirect stub?" — and a second hand-rolled copy of `attribute` is how
-// the two ends up disagreeing about, say, attribute-name casing.
+// Small parse5 helpers shared by the scripts that read assembled HTML
+// (noindex and redirect-stub detection), so every reader agrees on attribute casing.
 import type { DefaultTreeAdapterTypes } from 'parse5'
 
 export type Node = DefaultTreeAdapterTypes.Node

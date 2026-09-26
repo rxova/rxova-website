@@ -1,23 +1,7 @@
 ---
 /**
- * The rxova.org header — the one every plain-Astro surface renders.
- *
- * There used to be two copies of this markup and its styles: one inside
- * `SiteShell` (for /blog and /updates) and a hand-rolled twin in the website
- * repo (for the landing at `/`). They drifted — the landing missed the sticky
- * update the shell got — which is exactly the failure mode of a header that
- * lives in more than one place. This is the single copy; `SiteShell` renders it,
- * and the website imports it over npm and renders it too.
- *
- * It takes the menu as data rather than owning it. The two surfaces resolve their
- * URLs differently — the shell links absolutely through `siteUrl` because /blog
- * and /updates are mounted at their own base paths, while the landing sits at the
- * root and links relatively — and the landing's menu is derived from what is
- * actually deployed. So each caller passes a fully-resolved list; this owns how
- * the header *looks and behaves*, which is the part that was drifting.
- *
- * Not for the docs sites at /packages/*: those are Starlight and take their
- * chrome from `sharedStarlightConfig`, not from an Astro component.
+ * The single rxova.org header, rendered by `SiteShell` and the website landing; callers pass
+ * the menu fully resolved. Not for the Starlight docs sites, which use `sharedStarlightConfig`.
  */
 import ThemeToggle from './ThemeToggle.astro'
 
@@ -41,9 +25,7 @@ interface Props {
 const { homeHref, logoSrc, items } = Astro.props
 ---
 
-{/* Outside <main> in every shell so it can span the viewport while its contents
-    stay on the page's measure. Sticky rather than fixed: it still takes part in
-    layout, so nothing below needs a compensating top margin. */}
+{/* Outside <main> so it spans the viewport; sticky, not fixed, so nothing needs a top margin. */}
 <header class="site">
   <div class="site__inner">
     <a class="brand" href={homeHref}>
@@ -63,10 +45,7 @@ const { homeHref, logoSrc, items } = Astro.props
 </header>
 
 <style>
-  /* Sticky, translucent, full-bleed. It was a plain in-flow row with the theme
-     button floating over its right end, which on a phone put the button on top
-     of the nav links and left the header behind as soon as you scrolled — a long
-     post gave you no way back without scrolling to the top. */
+  /* Sticky, translucent, full-bleed. */
   .site {
     position: sticky;
     top: 0;
@@ -75,9 +54,8 @@ const { homeHref, logoSrc, items } = Astro.props
     background: color-mix(in srgb, var(--rx-bg) 88%, transparent);
   }
 
-  /* The blur is what keeps text legible as it passes under the bar. Where it is
-     unsupported the background falls back to nearly opaque, which is why the mix
-     above is 88% and not 60%. */
+  /* The blur keeps text legible under the bar; where unsupported, the 88% mix above stays
+     nearly opaque. */
   @supports (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px)) {
     .site {
       background: color-mix(in srgb, var(--rx-bg) 72%, transparent);

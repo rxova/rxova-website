@@ -1,15 +1,6 @@
 #!/usr/bin/env node
-// Fail CI when sources.json is malformed, before a bad entry reaches a deploy.
-//
-// This is the structural half of the registry check: id syntax, duplicate ids,
-// derived paths that agree with themselves — everything `loadRegistry` enforces.
-//
-// The other half — that sources.json and @rxova/brand's PROJECTS describe the
-// same set of projects — is asserted inside the Astro build instead, by
-// apps/landing/src/lib/projects.ts. That check needs to import the brand package, whose
-// TypeScript source Node cannot load from node_modules; Vite can, so the landing
-// build is the natural place for it. `pnpm build` runs in CI, so both halves are
-// covered on every pull request.
+// Fails CI when sources.json breaks anything `loadRegistry` enforces (ids, derived paths).
+// Its match with @rxova/brand's PROJECTS is checked in apps/landing/src/lib/projects.ts.
 
 import { errorMessage } from '../lib/errors.ts'
 import { loadRegistry, enabledSources, type Registry } from '../lib/registry.ts'

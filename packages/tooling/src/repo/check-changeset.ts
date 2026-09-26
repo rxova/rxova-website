@@ -4,15 +4,8 @@ import path from 'node:path'
 import process from 'node:process'
 
 /**
- * PR gate: fails when a change to a published package lands without a
- * changeset. Escape hatches: the `skip-changeset` label, `[skip-changeset]`
- * in the PR title, or a diff that only touches docs/CI/config.
- *
- * Shared, near-verbatim, across the four rxova repos. Keep the differences to
- * the two constants below so the copies stay diffable — this is one of the
- * files earmarked for @rxova/repo-tooling. Its behaviour is pinned by
- * check-changeset.test.ts, which spawns it against a throwaway git repo, and
- * its rules by check-changeset.unit.test.ts, which calls them in-process.
+ * PR gate: fails when a published package changes without a changeset, unless skipped by
+ * label, PR title or a docs/CI/config-only diff. Shared across rxova repos; keep diffs minimal.
  */
 
 /** Directory prefixes of packages that are published to npm. */
@@ -23,13 +16,8 @@ export const publishedPackageDirs = [
 ]
 
 /**
- * Files that never require a changeset when they are the whole diff.
- *
- * The directory alternatives carry a `/.*` suffix on purpose. An earlier
- * version wrote them as `^(docs\/|\.github\/|…)$`, where the `$` meant each
- * branch could only ever match the bare directory string — never a path
- * beneath it — so those prefixes were dead and files were only skipped when
- * they happened to carry one of the listed extensions.
+ * Files that never require a changeset when they are the whole diff. The directory
+ * branches need their `/.*` suffix to match paths beneath the directory.
  */
 export const allowedPattern =
   /^((apps\/(?:landing|preview|e2e)|\.github|\.changeset|\.husky|packages\/tooling)\/.*|\.[\w-]*ignore|[\w.-]+\.config\.(js|mjs|cjs|ts)|.*\.(md|txt|yml|yaml|json))$/
@@ -93,9 +81,8 @@ export const extractFrontmatterPackageCount = (markdown: string): number => {
   const packageLines = frontmatter
     .split('\n')
     .map((line) => line.trim())
-    // Both quote styles: `changeset add` writes double quotes, but Prettier
-    // with singleQuote rewrites them, and a double-quote-only pattern then
-    // counts zero packages and fails a perfectly valid changeset.
+    // Both quote styles: `changeset add` writes double quotes, Prettier (singleQuote)
+    // rewrites them to single.
     .filter((line) => /^("[^"]+"|'[^']+')\s*:\s*(patch|minor|major)(?:\s+#.*)?$/.test(line))
 
   return packageLines.length
@@ -151,9 +138,8 @@ export const getLabels = (
       .map((line) => line.trim())
       .filter(Boolean)
   } catch {
-    // Deliberately not fatal: a transient API blip should not block a PR. Note
-    // that a *permissions* problem looks the same from here, so the changeset
-    // job must grant `pull-requests: read` or the label hatch silently no-ops.
+    // Not fatal, so an API blip does not block a PR; the job must grant
+    // `pull-requests: read` or the label hatch silently no-ops.
     warn('Warning: failed to fetch labels via GH API, proceeding without labels.')
     return []
   }

@@ -1,14 +1,7 @@
 ---
 /**
- * Cross-project navigation.
- *
- * rxova.org serves four surfaces from one origin, and before this existed there
- * was no way to get from one project's docs to another's without going back to
- * the landing. Every href is absolute — a relative one would resolve under the
- * current site's base path.
- *
- * Rendered as a `<details>` so it works with zero JavaScript; the current
- * project gets the gradient dot (see `.rx-switcher__current` in starlight.css).
+ * Cross-project navigation as a zero-JS `<details>`. Every href is absolute: a relative one would
+ * resolve under the current site's base path.
  */
 import { PROJECTS, RXOVA_ORIGIN, type ProjectId } from '@rxova/brand'
 
