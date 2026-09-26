@@ -1,18 +1,6 @@
 #!/usr/bin/env node
-// Deploy-time counterpart to ingest: pull every enabled project's persisted docs
-// out of its content release and lay them out where assemble.ts expects them.
-// No project is built here — the aggregator only ever moves already-built trees.
-//
-// Usage: node fetch-docs.ts [artifactsDir=artifacts]
-//
-// For each enabled source it downloads the release asset docs-<id>.tgz from tag
-// content-<id> and extracts it to <artifactsDir>/docs-<id>/ (which is
-// <artifactsDir>/<source.artifact>, i.e. exactly where assemble.ts reads it).
-//
-// A missing release is fatal. An enabled project with nothing persisted is a hole
-// in the site — either it was never ingested, or it should be disabled — the same
-// failure assemble.ts refuses at the next step, surfaced here with the release it
-// looked for so the fix is obvious.
+// Unpacks each enabled project's docs-<id>.tgz (release content-<id>) into <artifactsDir>/docs-<id>
+// Usage: node fetch-docs.ts [artifactsDir=artifacts]. A missing release is fatal.
 
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync } from 'node:fs'

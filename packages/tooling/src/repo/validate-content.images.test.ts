@@ -154,9 +154,8 @@ describe('embedded images', () => {
   })
 })
 
-// A post about markdown quotes markdown. Scanning the raw source would make the
-// syntax unwritable — the reason this is a unit test and not another fixture is
-// that the interesting cases are all about what must NOT be treated as an embed.
+// A post about markdown quotes markdown, so these cases pin what must NOT be
+// treated as an embed.
 describe('bodyImages', () => {
   it('finds relative embeds', () => {
     expect(bodyImages('![a](./x.png) and ![b](../images/y.jpg)')).toEqual([
@@ -199,13 +198,8 @@ describe('bodyImages', () => {
   })
 
   /**
-   * The same fixture the render suite builds, read off disk.
-   *
-   * Hand-written strings are where the edge cases live, but they are also where a
-   * test can quietly drift from the file format it claims to describe. This reads
-   * the real post — frontmatter, fences, inline code and all — and pins the answer
-   * against the images that post genuinely embeds. If the two suites ever disagree
-   * about what that file means, one of them is wrong and this is where it shows.
+   * Reads the render suite's real fixture post off disk, so this suite and that one
+   * cannot disagree about what the file embeds.
    */
   it('agrees with the render fixture about what it embeds', () => {
     const fixture = join(
@@ -215,9 +209,8 @@ describe('bodyImages', () => {
     const source = readFileSync(fixture, 'utf8')
     const body = source.slice(source.indexOf('\n---', 3))
 
-    // Twice: once described, once decorative. The remote URL, the fenced sample and
-    // the inline-code sample are all absent, and the fenced one names a file that
-    // does not exist — so a miss here is a broken build, not a cosmetic diff.
+    // Twice: once described, once decorative. The remote URL and the fenced and
+    // inline-code samples are absent (the fenced one names a nonexistent file).
     expect(bodyImages(body)).toEqual([
       '../images/cover-described/diagram.png',
       '../images/cover-described/diagram.png',

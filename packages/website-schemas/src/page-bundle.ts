@@ -1,10 +1,6 @@
 /**
- * The static-document contract consumed by rxova-website.
- *
- * Schema 1 artifacts are complete sites and are copied as-is. Schema 2 artifacts
- * are still ordinary, independently-built HTML trees, but their document bodies
- * contain only the surface's page UI. The aggregator supplies the rxova.org
- * header, footer, global head elements and analytics at deploy time.
+ * The static-document contract consumed by rxova-website. Schema 1 artifacts are copied as-is;
+ * schema 2 bodies hold only page UI, and the aggregator adds the rxova.org chrome at deploy.
  */
 
 import { z } from 'zod'

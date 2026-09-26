@@ -1,25 +1,13 @@
 ---
 /**
- * Starlight `SiteTitle` override.
- *
- * The mark links to rxova.org, not to the local docs home. That is deliberate:
- * on an aggregated site the mark means "the umbrella", and the wordmark beside
- * it says which project you are in — and links to that project's docs root.
- *
- * The mark's href is absolute because the four surfaces sit at four base paths.
- * The wordmark uses Starlight's own `siteTitleHref`, which already accounts for
- * the base and the locale.
- *
- * The image is imported from @rxova/brand rather than read from each site's
- * `public/`, so adopting the shared chrome does not also mean copying assets
- * into three repos and keeping them in sync.
+ * Starlight `SiteTitle` override: the mark links (absolutely) to rxova.org, the wordmark to this
+ * project's docs root via `siteTitleHref`. The image comes from @rxova/brand.
  */
 import mark from '@rxova/brand/assets/rxova-logo-256.png'
 import { RXOVA_ORIGIN } from '@rxova/brand'
 
-// Narrowed structurally rather than by declaring an `App.Locals` augmentation
-// here: a consumer site already gets Starlight's own augmentation, and two
-// declarations of the same property would collide at their build time.
+// Narrowed structurally, not via an `App.Locals` augmentation, which would collide with
+// Starlight's own in the consumer site's build.
 const { siteTitle, siteTitleHref } = (
   Astro.locals as unknown as {
     starlightRoute: { siteTitle: string; siteTitleHref: string }

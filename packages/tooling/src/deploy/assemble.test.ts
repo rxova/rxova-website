@@ -1,8 +1,5 @@
-// The assembler is the last step before a deploy, and its most valuable
-// behaviour is refusing: an enabled project whose artifact never arrived means
-// its build job failed to upload, and publishing anyway ships a site with a
-// section missing and its landing link 404ing. That refusal is what these tests
-// mostly cover — the happy path is a `cp -r`.
+// The assembler must refuse to publish when an enabled project's artifact is missing;
+// these tests mostly cover that refusal — the happy path is a `cp -r`.
 
 import { describe, it, beforeEach, afterAll } from 'vitest'
 import assert from 'node:assert/strict'
@@ -61,9 +58,8 @@ describe('assemble', () => {
     })
   })
 
-  // The index is written from the finished tree, so it can only be right if it
-  // runs after the projects are mounted. Assert it sees a project's own llms.txt
-  // that arrived in that project's artifact.
+  // The index is built from the finished tree, so it must see a project's own
+  // llms.txt from that project's artifact.
   it('writes the agent index once every project is mounted', async () => {
     artifact('landing', { 'index.html': 'landing' })
     artifact('docs-journey', { 'index.html': 'journey docs' })
@@ -183,8 +179,7 @@ describe('page-component composition', () => {
     assert.match(output, /Continue/)
   })
 
-  // The playground case. A frame target that gained the site header and footer
-  // inside a 300px iframe would be a quiet visual bug rather than a loud one,
+  // The playground case: a frame target must not gain the site header and footer,
   // so this asserts on what is absent as much as on what survives.
   it('publishes a standalone asset verbatim, never composed', async () => {
     artifact('landing', {

@@ -1,9 +1,6 @@
 /**
- * The Starlight config every rxova docs site spreads from.
- *
- * The docs sites live in other repos and read this over npm, so its output is a
- * contract: each module path must resolve through its package's exports, and
- * each option must change only what it documents.
+ * The Starlight config every rxova docs site spreads from. It ships over npm, so module paths
+ * must resolve through package exports and each option must change only what it documents.
  */
 
 import { existsSync, readFileSync } from 'node:fs'

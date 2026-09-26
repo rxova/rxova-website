@@ -39,21 +39,15 @@ body {
     background-color 0.2s ease,
     color 0.2s ease;
 
-  /* At least a screen tall, with `main` taking the slack, so a short page —
-     /blog with two posts — keeps its footer at the bottom of the window instead
-     of halfway up it. A column of flex items rather than a grid because the
-     number of children varies: the shell's header and footer are spliced
-     around a producer's `main` at deploy time. */
+  /* At least a screen tall, with `main` taking the slack, so a short page keeps its footer at the
+     bottom. Flex rather than grid because the number of children varies. */
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
 }
 
-/* A flex item with `margin: 0 auto` shrinks to its content instead of filling
-   the row the way a block does, so a short `main` or footer would narrow and
-   drift off the header's edges. Full width restores the block behaviour, and
-   `max-width` plus the auto margins centre it as before. `:where()` keeps both
-   rules at zero specificity, so any component's own width still wins. */
+/* Flex items with `margin: 0 auto` shrink to their content; full width restores block behaviour.
+   `:where()` keeps both rules at zero specificity. */
 :where(body > *) {
   width: 100%;
 }

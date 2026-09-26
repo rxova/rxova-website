@@ -1,29 +1,10 @@
-/**
- * What rxova-website's `sources.json` may contain.
- *
- * It describes the other repo's inputs but lives here because a contract belongs
- * with the thing that has to keep it, and this repo is a sender: `@rxova/blog` and
- * `@rxova/updates` are two of the entries it governs.
- */
+/** What rxova-website's `sources.json` may contain. */
 
 import { z } from 'zod'
 
 /**
- * What a source is, which decides where it mounts.
- *
- * `package`   — a project's docs, at `/packages/<id>/`.
- * `site`      — a standalone surface of rxova.org, at `/<id>/`, currently `blog`
- *               and `updates`, both built in this repo.
- * `storybook` — a project's Storybook workshop, at `/storybook/<project>/`. Its id
- *               is `storybook-<project>` so ids stay globally unique (release tags
- *               and artifact names derive from them), and the mount nests every
- *               workshop under the one `/storybook/` tree — react-inputs today,
- *               use-everywhere or any later project without touching the schema.
- *
- * The mount is *derived* from the id and the kind; `sources.json` never writes a
- * path. That is what makes it impossible for a mount to disagree with the base URL
- * its tree was built against — a bug whose symptom is a live page with every
- * stylesheet 404ing.
+ * Source kinds and their mounts: `package` at `/packages/<id>/`, `site` at `/<id>/`, `storybook`
+ * (id `storybook-<project>`) at `/storybook/<project>/`. Mounts are always derived, never written.
  */
 export const SOURCE_KINDS = ['package', 'site', 'storybook'] as const
 export type SourceKind = (typeof SOURCE_KINDS)[number]
@@ -38,16 +19,8 @@ export const sourceId = z
   .regex(/^[a-z0-9][a-z0-9-]*$/, 'lowercase letters, digits and dashes; must not start with a dash')
 
 /**
- * Top-level paths a `site` source must not claim.
- *
- * A site mounts at `/<id>/`, so its id is a top-level path — and one that collides
- * with the landing's own pages or with the docs tree would either shadow them or be
- * shadowed, depending on the order the assembler happened to copy things. Neither
- * is a failure anyone would think to look for.
- *
- * `storybook` is reserved for the same reason: it is the root every storybook-kind
- * surface mounts under, so a site claiming it wholesale would shadow every
- * project's workshop at once.
+ * Top-level paths a `site` source must not claim, since a site mounts at `/<id>/` and would
+ * shadow (or be shadowed by) the landing's pages, the docs tree or the storybook root.
  */
 export const RESERVED_PATHS = ['packages', 'privacy', 'terms', 'og', 'assets', 'storybook'] as const
 
@@ -61,11 +34,7 @@ export const sourceEntry = z
      */
     enabled: z.boolean().default(false),
     /** Defaults to `rxova/<id>` — set it for anything built somewhere else. */
-    /**
-     * `owner/name`. The segment pattern excludes `.` and `..` outright: the old one
-     * matched `../..`, which walks up an API path if this is ever interpolated into
-     * one, and that is exactly how it is used.
-     */
+    /** `owner/name`; `.` and `..` segments are rejected since it is interpolated into API paths. */
     repo: z
       .string()
       .regex(/^(?!-)[A-Za-z0-9._-]+\/(?!-)[A-Za-z0-9._-]+$/, 'must look like owner/name')
@@ -107,9 +76,8 @@ export const sourceEntry = z
       })
     }
     if (entry.kind === 'storybook') {
-      // The prefix is what keeps ids unique across kinds (the project id alone
-      // would collide with the package entry it belongs to) and what the mount
-      // derivation strips — an unprefixed id would silently mount one level up.
+      // The prefix keeps ids unique across kinds and is what `mountFor` strips;
+      // an unprefixed id would silently mount one level up.
       if (!entry.id.startsWith(STORYBOOK_PREFIX) || entry.id === STORYBOOK_PREFIX) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -117,9 +85,8 @@ export const sourceEntry = z
           message: `a storybook surface's id must be "${STORYBOOK_PREFIX}<project>"`,
         })
       }
-      // The default repo derivation is rxova/<id>, and rxova/storybook-<project>
-      // is nowhere: the workshop is built by the project's own repo. Requiring it
-      // here turns a wrong ingest-permission surprise into a schema error.
+      // The default `rxova/<id>` does not exist for a workshop; it is built by the
+      // project's own repo, so `repo` is required.
       if (!entry.repo) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -144,9 +111,7 @@ export type SourceEntry = z.infer<typeof sourceEntry>
 export function mountFor(id: string, kind: SourceKind = 'package'): string {
   if (kind === 'site') return id
   if (kind === 'storybook') {
-    // `storybook-react-inputs` -> `storybook/react-inputs`. The schema guarantees
-    // the prefix; stripping it here (rather than requiring the caller to) keeps
-    // the id the only thing a source entry writes.
+    // `storybook-react-inputs` -> `storybook/react-inputs`; the schema guarantees the prefix.
     return `${STORYBOOK_ROOT}/${id.startsWith(STORYBOOK_PREFIX) ? id.slice(STORYBOOK_PREFIX.length) : id}`
   }
   return `packages/${id}`

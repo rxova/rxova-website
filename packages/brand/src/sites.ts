@@ -1,14 +1,6 @@
 /**
- * The rxova.org site map.
- *
- * rxova.org is an aggregator: an Astro landing at `/`, plus each project's docs
- * built in its own repo and mounted as a static tree under `/packages/<name>/`.
- * That means every surface lives on one origin at its own base path, so
- * **every cross-project link must be absolute**. A relative href would resolve
- * against the local base and produce `/packages/journey/packages/react-inputs/`.
- *
- * This module is imported from `astro.config.mjs` under Node, so it must never
- * import CSS or a component.
+ * The rxova.org site map. Each surface has its own base path, so cross-project links are absolute.
+ * Imported from `astro.config.mjs` under Node, so it must never import CSS or a component.
  */
 
 /** Canonical origin. Override for a staging deploy (e.g. https://web.rxova.org). */
@@ -33,11 +25,7 @@ export interface Project {
 
 /**
  * Display order, shared by the landing's project rail and the docs switcher.
- *
- * overlock sits last deliberately. It is the newest of these and the only one
- * that is not a library you import — a CLI and a CI gate — so leading the list
- * with it put the least representative project in front of every reader of
- * every surface.
+ * overlock stays last: it is a CLI and CI gate, not a library you import.
  */
 export const PROJECTS: readonly Project[] = [
   {
@@ -105,17 +93,8 @@ export function getProject(id: ProjectId): Project {
 }
 
 /**
- * Every rxova repo a changelog entry can be about — the published projects plus
- * the ones that ship no package.
- *
- * `PROJECTS` deliberately stays what it is: the things with docs, an npm package
- * and a landing card. But "we rebuilt the deploy pipeline" is exactly the kind of
- * progress `/changelog` exists to record, and it belongs to `rxova-website`, which
- * is not a project and never will be. Validating changelog entries against
- * `PROJECTS` would make those entries unrepresentable.
- *
- * Order is display order for the changelog's repo filter: projects first, then
- * infrastructure.
+ * Every rxova repo a changelog entry can be about: the projects, then repos that ship no package.
+ * Order is the changelog repo filter's display order.
  */
 export const REPOS = [
   ...PROJECTS.map((p) => ({ id: p.id, label: p.label, repo: p.repo, project: true as const })),
@@ -155,16 +134,8 @@ export function siteUrl(path = '/'): string {
 }
 
 /**
- * Absolute canonical URL for a *page* on the umbrella site.
- *
- * Trailing slash, always — which is the whole reason this is not `siteUrl`.
- * rxova.org is published as a directory-style tree on GitHub Pages, so `/blog`
- * answers 301 and only `/blog/` answers 200. A self-referencing canonical naming
- * the redirecting form points a crawler at a URL that does not serve the page,
- * which is the one thing a canonical must never do. `siteUrl` stays as it is:
- * a nav link may follow a redirect, a canonical may not.
- *
- * Pages only. Assets keep their exact path and want `siteUrl`.
+ * Absolute canonical URL for a page, always with a trailing slash (GitHub Pages 301s `/blog`).
+ * Pages only; assets keep their exact path and use `siteUrl`.
  */
 export function canonicalUrl(path = '/'): string {
   const rooted = path.startsWith('/') ? path : `/${path}`
@@ -173,12 +144,7 @@ export function canonicalUrl(path = '/'): string {
 
 /**
  * Which project a page belongs to, inferred from Astro's `BASE_URL`.
- *
- * Component overrides can't be given props, so the shared chrome works this out
- * for itself rather than making every repo declare it twice (once in the
- * Starlight config, once in the override). Returns `undefined` on a standalone
- * build where the base is `/` and there is nothing to infer from — the current
- * marker is simply omitted, which is correct off the aggregator.
+ * Returns `undefined` on a standalone build, where the base is `/`.
  */
 export function projectFromBase(base: string): ProjectId | undefined {
   const normalised = base.endsWith('/') ? base : `${base}/`

@@ -5,11 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 import { checkCssImports, checkExportsResolve, type Fs } from './pack-smoke-helpers'
 
-/**
- * A fake filesystem standing in for an unpacked tarball, so every branch is
- * reachable without running `pnpm pack`. Directories are inferred from the file
- * paths, which is enough for the wildcard check.
- */
+/** A fake unpacked tarball; directories are inferred from the file paths. */
 const fakeFs = (files: Readonly<Record<string, string>>): Fs => {
   const paths = Object.keys(files)
   const dirs = new Set(

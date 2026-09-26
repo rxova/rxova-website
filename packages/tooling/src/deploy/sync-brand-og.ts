@@ -1,14 +1,6 @@
 /**
- * Copies the generated social cards out of @rxova/brand into the landing's
- * public/ directory.
- *
- * All four cards are served from the apex — the docs sites at /packages/* point
- * their og:image at `https://rxova.org/og/<project>.png` rather than shipping
- * their own copy, so a card lives in exactly one place and a rebrand is one
- * package bump instead of four.
- *
- * Copied at build time rather than committed so they cannot drift from the
- * installed version of the package. public/og/ is gitignored.
+ * Copies @rxova/brand's social cards into the landing's public/og (gitignored) at build time;
+ * every site's og:image points at `https://rxova.org/og/<project>.png`.
  */
 
 import { cpSync, mkdirSync } from 'node:fs'
@@ -20,10 +12,8 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../../../..')
 
 /** Copies the cards into `<root>/apps/landing/public/og`, resolving @rxova/brand from there. */
 export function syncBrandOg(root = repoRoot, log: (message: string) => void = console.log): void {
-  // Resolve from apps/landing/, which is where @rxova/brand is a dependency — this script
-  // lives at the repo root, where it is not installed. Going through the package's
-  // own exports rather than guessing at a node_modules path also keeps this
-  // working under pnpm's non-flat layout.
+  // Resolve via the package's exports from apps/landing/, where @rxova/brand is installed
+  // (it is not at the repo root, and pnpm's layout is non-flat).
   const require = createRequire(join(root, 'apps', 'landing', 'package.json'))
   const source = dirname(require.resolve('@rxova/brand/assets/og/rxova.png'))
   const target = join(root, 'apps/landing/public/og')

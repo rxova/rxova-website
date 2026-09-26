@@ -1,28 +1,9 @@
 /**
- * RSS 2.0 for the rxova.org surfaces that publish a stream.
- *
- * Hand-written rather than `@astrojs/rss`, for the same reason rxova-website
- * hand-writes its sitemaps: this is a few hundred bytes of well-specified XML,
- * both consumers are static Astro builds where the feed is one prerendered
- * endpoint, and the dependency would be carried by two packages to save a
- * `map()`. The escaping is the only part with teeth, and it is one function
- * with its own tests.
- *
- * Deliberately in `@rxova/brand` rather than in either consumer: /blog and
- * /updates are separate Astro projects that already share this package for
- * their chrome, and a feed each would be the same file twice — which is how
- * their two document shells came to differ before `SiteShell` existed.
- *
- * Node-only imports are avoided so this stays importable from an Astro
- * endpoint in any runtime.
+ * Hand-written RSS 2.0 for the rxova.org surfaces that publish a stream (/blog and /updates).
+ * No Node-only imports, so it stays importable from an Astro endpoint in any runtime.
  */
 
-/**
- * Escape text for an XML text node or attribute value.
- *
- * `&` first, or the ampersands introduced by the later replacements get escaped
- * a second time and `<` ships as `&amp;lt;`.
- */
+/** Escapes text for an XML node or attribute; `&` goes first so entities aren't double-escaped. */
 export const escapeXml = (value: string): string =>
   value
     .replace(/&/g, '&amp;')
@@ -54,25 +35,12 @@ export interface FeedOptions {
   lastBuildDate?: Date
 }
 
-/**
- * RFC 822, which is what RSS 2.0 requires — not ISO 8601.
- *
- * `toUTCString()` produces exactly this shape ("Sun, 09 Aug 2026 09:00:00 GMT")
- * and is locale-independent, so it is used directly rather than assembled from
- * day and month tables that would need their own test.
- */
+/** RFC 822 date, as RSS 2.0 requires; `toUTCString()` yields exactly that, locale-independent. */
 export const rfc822 = (date: Date): string => date.toUTCString()
 
 /**
- * A complete RSS 2.0 document.
- *
- * `dc:creator` carries bylines because RSS's own `<author>` element is specified
- * as an email address, and publishing the maintainer's address to every
- * aggregator that has ever scraped a feed is not worth a byline.
- *
- * Items are emitted in the order given; both callers hand them over newest-first
- * already, and re-sorting here would quietly disagree with the page the feed
- * describes.
+ * A complete RSS 2.0 document; bylines use `dc:creator` because `<author>` must be an email.
+ * Items are emitted in the order given (callers pass them newest-first).
  */
 export function renderFeed({
   title,

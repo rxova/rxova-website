@@ -1,17 +1,6 @@
 /**
- * Shared Starlight configuration for the rxova docs sites.
- *
- * Each project's `astro.config.mjs` supplies only what is genuinely its own —
- * its sidebar, its extra plugins — and spreads the rest from here, so the three
- * doc sites cannot drift apart in the ways that made them feel like three
- * unrelated products.
- *
- * Imported from `astro.config.mjs` under Node: no CSS, no component imports.
- *
- * The return type is structural rather than Starlight's own `StarlightUserConfig`.
- * Spreading into `starlight({ ... })` still type-checks the merged object at the
- * call site, and this way a Starlight minor release cannot break every consumer
- * at once over a type-only change.
+ * Shared Starlight configuration for the rxova docs sites; each site adds only its sidebar and
+ * extras. Imported under Node (no CSS or components) and typed structurally, not as Starlight's.
  */
 
 import { RXOVA_ORIGIN, getProject, type ProjectId } from '@rxova/brand'
@@ -27,11 +16,7 @@ export interface SharedStarlightOptions {
   components?: Record<string, string>
   /** Path under the repo root that holds the docs site, for the edit link. */
   editLinkBase?: string
-  /**
-   * Build body-only documentation for rxova-website to place in its global
-   * shell. Starlight's search, sidebar and page navigation remain page UI; only
-   * the umbrella footer is omitted.
-   */
+  /** Build body-only docs for rxova-website's shell: Starlight's page UI stays, the footer goes. */
   pageComponent?: boolean
 }
 
@@ -48,14 +33,11 @@ export function sharedStarlightConfig({
   return {
     title: self.label,
     description: self.tagline,
-    // One origin, one tab icon. Each site must have this file in `public/` —
-    // Starlight resolves `favicon` against the site's own static directory, so
-    // it cannot come from this package.
+    // One origin, one tab icon. Each site must have this file in `public/`: Starlight resolves
+    // `favicon` against the site's own static directory.
     favicon: '/favicon.svg',
 
-    // No `logo` here on purpose: the SiteTitle override renders the mark from
-    // @rxova/brand's assets, so adopting the shared chrome does not also
-    // mean copying an image into three repos and keeping it in sync.
+    // No `logo` on purpose: the SiteTitle override renders the mark from @rxova/brand's assets.
 
     social: [
       { icon: 'github' as const, label: 'GitHub', href: self.repo },
@@ -70,9 +52,7 @@ export function sharedStarlightConfig({
     customCss: ['@rxova/brand/fonts.css', '@rxova/astro-ui/styles/starlight.css', ...customCss],
 
     components: {
-      // The rxova mark + project wordmark, with the mark linking back to the
-      // umbrella site. This is the only "you are inside rxova.org" affordance
-      // on a docs page, so it ships shared rather than per-repo.
+      // The rxova mark (linking back to the umbrella site) plus the project wordmark.
       SiteTitle: '@rxova/astro-ui/starlight/SiteTitle.astro',
       // Appends the cross-project switcher to the social icons. Without it the
       // three docs sites are three islands under one domain.
@@ -80,9 +60,7 @@ export function sharedStarlightConfig({
       // Starlight's default footer (pagination, edit link, last updated) plus
       // the shared four-column site footer beneath it.
       ...(!pageComponent ? { Footer: '@rxova/astro-ui/starlight/Footer.astro' } : {}),
-      // Starlight's own picker, plus a resync when a page is restored from the
-      // back/forward cache — without it, changing the theme on one rxova.org
-      // surface and pressing Back leaves the restored page on the old theme.
+      // Starlight's own picker, plus a resync when a page is restored from the bfcache.
       ThemeSelect: '@rxova/astro-ui/starlight/ThemeSelect.astro',
       ...components,
     },
@@ -96,17 +74,8 @@ export function sharedStarlightConfig({
         tag: 'meta' as const,
         attrs: { name: 'twitter:card', content: 'summary_large_image' },
       },
-      // What this project *is*, in the vocabulary a crawler already parses.
-      //
-      // Every field is read from PROJECTS, so a project that changes its tagline
-      // or adds a package updates its structured data with it — the failure this
-      // avoids is the usual one for hand-written JSON-LD, which is that it
-      // describes the site as it was when someone last remembered to edit it.
-      //
-      // Emitted on every page of the docs rather than only the root: Starlight
-      // has no "site index only" hook, and repeating an identical
-      // SoftwareSourceCode across a subtree is well-formed — each page really is
-      // documentation for that one piece of software.
+      // SoftwareSourceCode JSON-LD built from PROJECTS, on every docs page: Starlight has no
+      // "site index only" hook.
       {
         tag: 'script' as const,
         attrs: { type: 'application/ld+json' },

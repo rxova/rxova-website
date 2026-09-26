@@ -1,7 +1,5 @@
-// A redirect is a promise about a URL that is already out in the world — in a
-// search index, in someone's bookmarks. The expensive mistake is not a missing
-// redirect but a confidently wrong one, so most of what is tested here is the
-// refusal to publish a stub that would land on a 404 or bury a real page.
+// Mostly tests the refusal to publish a stub that would land on a 404 or bury a
+// real page: a wrong redirect costs more than a missing one.
 
 import { describe, it, beforeEach, afterAll } from 'vitest'
 import assert from 'node:assert/strict'

@@ -1,27 +1,6 @@
 /**
- * The pre-merge gate for `content/`.
- *
- * rxova-website renders this content and validates it again through Astro's
- * content collections, so this script is not the only gate — but it is the one
- * that runs *here*, on the pull request that introduces the problem, rather than
- * failing a deploy in another repo an hour later.
- *
- * It shares its schema with the apps that render it (`packages/website-schemas`), so the two
- * cannot disagree about the plain fields. It then checks what Astro expresses with
- * `reference()` and `image()` and a plain Node script would otherwise miss:
- *
- *   - every `authors:` id has a file in content/authors
- *   - every `cover:` path resolves on disk
- *   - every `![](…)` a body embeds resolves on disk
- *
- * which makes this gate strictly stronger than the build gate, not a lossy copy.
- *
- * Reports every problem in one pass. A validator that stops at the first error
- * turns "five posts have the wrong date format" into five round trips.
- *
- * `validateContent` is exported and returns its errors rather than exiting, so the
- * tests can assert on them; the CLI at the bottom owns the exit code. Same shape as
- * rxova-website's `assemble.ts`, for the same reason.
+ * Pre-merge gate for `content/`: the shared schema plus authors, covers and body images resolving
+ * on disk. Reports every problem in one pass and returns errors; the CLI owns the exit code.
  */
 
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs'
@@ -41,9 +20,8 @@ import {
   unknownRepos,
   AUTHOR_FILENAME,
 } from '../../../website-schemas/src/index.ts'
-// The registry itself, which @rxova/website-schemas deliberately cannot see: it is
-// published, and reaching into the design system for REPO_IDS made its entry point
-// unresolvable once installed. The check lives here, where both are on disk.
+// REPO_IDS lives in brand, which the published @rxova/website-schemas must not import,
+// so the repo check happens here.
 import { REPO_IDS } from '../../../brand/src/sites.ts'
 
 /** On-disk shapes: what Astro expresses with reference() and image(), as strings. */
@@ -76,13 +54,7 @@ interface Doc {
 
 type Parsed = { slug: string; stamp: string }
 
-/**
- * Split `---\n...\n---\n` off the front of a markdown file.
- *
- * Deliberately not gray-matter: the only thing needed here is the YAML block, and
- * a dependency that also caches, excerpts and supports four other delimiters is
- * more surface than the job has.
- */
+/** Splits `---\n...\n---\n` off the front of a markdown file (only the YAML block is needed). */
 function frontmatter(source: string): { data: unknown; body: string } | { error: string } {
   if (!source.startsWith('---')) {
     return { error: 'no frontmatter block — the file must start with `---`' }
@@ -102,20 +74,8 @@ function frontmatter(source: string): { data: unknown; body: string } | { error:
 }
 
 /**
- * The relative image paths a markdown body embeds.
- *
- * Astro resolves these through the same asset pipeline as `cover` — optimising
- * them, hashing them and rewriting the src to sit under the surface's base — but
- * only at build time, and only in another job. A typo'd path is worth catching on
- * the pull request that writes it, which is the whole reason this gate exists.
- *
- * Code is stripped before scanning. A post about markdown that quotes an image in
- * a fenced block is showing the syntax, not embedding a file, and a validator that
- * cannot tell the difference makes writing about markdown impossible.
- *
- * Only relative paths come back. Absolute ones, `/`-rooted ones and remote URLs are
- * all passthrough as far as Astro is concerned — there is no local file to check,
- * and guessing at one would reject links that work.
+ * The relative image paths a markdown body embeds, ignoring code spans and fences.
+ * Absolute, `/`-rooted and remote URLs are skipped: there is no local file to check.
  */
 export function bodyImages(body: string): string[] {
   const prose = body
@@ -140,14 +100,7 @@ const parseAuthor = (name: string): Parsed | null => {
   return m ? { slug: m[1]!, stamp: '' } : null
 }
 
-/**
- * The two surfaces, each self-contained.
- *
- * Authors are duplicated between them on purpose: each package validates its own
- * registry, so a typo'd byline still fails, and the worst a divergence costs is a
- * stale bio on one page. Sharing them would have meant a third package for four
- * lines of frontmatter.
- */
+/** The two surfaces, each self-contained: each validates its own duplicated author registry. */
 export const SURFACES = [
   { pkg: 'apps/blog', entries: 'posts', label: 'post' },
   { pkg: 'apps/updates', entries: 'updates', label: 'update' },
@@ -229,9 +182,7 @@ function validateSurface(
     )
   }
 
-  // `authors` is already known to be a non-empty string array — the zod parse ran
-  // first and this is only reached on success, so the defensive shape guards this
-  // used to carry were unreachable.
+  // Only reached after a successful zod parse, so `authors` is a non-empty string array.
   function checkAuthors(doc: Doc, authors: readonly string[]): void {
     for (const id of authors) {
       if (!authorIds.has(id)) {
@@ -245,13 +196,8 @@ function validateSurface(
   }
 
   /**
-   * The filename prefix and the frontmatter must be the same instant.
-   *
-   * Not a nicety: the prefix exists so the directory sorts the way the site does,
-   * and the moment the two disagree it is sorting by something that is not true.
-   *
-   * UTC throughout — a local offset near midnight would otherwise disagree with its
-   * own filename for reasons that take ten minutes to work out.
+   * The filename prefix and the frontmatter must be the same instant (in UTC), so the
+   * directory sorts the way the site does.
    */
   function checkPrefix(doc: Doc, date: Date, field: string): void {
     const want = isoToStamp(date)
@@ -286,9 +232,8 @@ function validateSurface(
 
     checkAuthors(doc, parsed.data.authors)
 
-    // Both surfaces render markdown through Astro, which resolves an embedded
-    // `![](./…)` through the same asset pipeline as a cover — so both can break the
-    // same way, and neither finds out until the build.
+    // Astro resolves an embedded `![](./…)` like a cover on both surfaces, so check
+    // it here rather than at build time.
     for (const src of bodyImages(doc.body)) checkResolves(doc, 'image', src)
 
     if (isPost) {
@@ -298,10 +243,8 @@ function validateSurface(
       // broken path is worth catching on the pull request that writes it.
       if (post.cover) checkResolves(doc, 'cover', post.cover)
 
-      // Alt text describes a cover, so alt text with no cover describes nothing.
-      // Always a mistake — a deleted cover whose alt survived it, or alt text
-      // written before the image was added — and silent, because the renderer
-      // reads `coverAlt` only inside the `cover &&` branch.
+      // Alt text without a cover is always a mistake, and silent: the renderer reads
+      // `coverAlt` only inside the `cover &&` branch.
       if (post.coverAlt && !post.cover) {
         fail(doc.rel, 'coverAlt — set without a cover; add `cover:` or drop the alt text')
       }
@@ -348,13 +291,7 @@ export function countContent(repoRoot: string): {
   }
 }
 
-/**
- * The CLI body, with its output injected so a test can read it.
- *
- * Returns the exit code rather than calling `process.exit`, which keeps the only
- * genuinely untestable line in the file down to the `import.meta.filename` guard
- * below — a two-line wrapper whose behaviour is "run the program".
- */
+/** The CLI body, with its output injected so a test can read it; returns the exit code. */
 export function runCli(
   contentRoot: string,
   out: { log: (m: string) => void; error: (m: string) => void } = console,

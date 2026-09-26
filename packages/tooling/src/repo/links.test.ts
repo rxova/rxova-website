@@ -1,14 +1,5 @@
-// The outbound links sources.json puts on the landing resolve.
-//
-// A card's GitHub and npm links come from @rxova/brand, and brand checks those
-// against the network itself. What only this repo holds is the landing copy: a
-// `demo` URL, and a `snippet` whose import names a package. Both can be well
-// formed and still point at nothing. The ts-extended-errors card shipped
-// importing `@rxova/ts-extended-errors` after the package had been published
-// unscoped, which nothing here could notice without asking npm.
-//
-// npm is asked through the registry, not www.npmjs.com, which answers 403 to
-// anything that is not a browser.
+// Checks that each landing `demo` URL and `snippet` import in sources.json resolves.
+// npm is queried via the registry, since www.npmjs.com answers 403 to non-browsers.
 
 import { describe, it } from 'vitest'
 import assert from 'node:assert/strict'

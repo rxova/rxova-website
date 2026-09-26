@@ -1,9 +1,6 @@
 /**
- * Fixtures for the validate-content suites, which are split by topic.
- *
- * Fixtures on disk rather than mocked `fs`: the script reads directories, resolves
- * relative cover paths and stats files, and a mock of all that would be asserting
- * against my model of the filesystem instead of the filesystem.
+ * On-disk fixtures for the validate-content suites (not a mocked `fs`: the script reads
+ * directories, resolves relative cover paths and stats files).
  */
 
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
@@ -35,11 +32,8 @@ export interface Fixture {
 }
 
 /**
- * A repo root holding both surfaces.
- *
- * `authors` is written into each package, because that is how they actually live:
- * self-contained, with the registry duplicated rather than shared. A fixture that
- * put them in one place would be testing a layout that does not exist.
+ * A repo root holding both surfaces, with `authors` duplicated into each package as
+ * in the real layout.
  */
 export function content(fixture: Fixture): string {
   const root = emptyRoot()
