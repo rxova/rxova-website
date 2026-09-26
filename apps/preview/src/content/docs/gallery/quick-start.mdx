@@ -1,0 +1,47 @@
+---
+title: QuickStart
+description: An install command with a copy button, beside a slotted snippet.
+---
+
+import Story from '../../../components/Story.astro'
+import QuickStart from '@rxova/astro-ui/components/QuickStart.astro'
+
+Two panes: the install command in a terminal-looking box with a copy button, and a "Use" pane
+holding whatever the page slots in. Write the snippet as a fenced block, so it gets the same
+Shiki highlighting as the rest of the docs.
+
+<Story title="Command beside a snippet" note="The command region is focusable and labelled: on a narrow screen it scrolls.">
+  <QuickStart command="npm i @rxova/journey-core">
+
+```ts
+import { createLinearJourney } from '@rxova/journey-core'
+
+const machine = createLinearJourney({
+  context: { name: '' },
+  steps: ['account', 'review'],
+})
+
+await machine.navigate.goToNextStep()
+```
+
+  </QuickStart>
+</Story>
+
+<Story title="Long command" note="A command wider than its pane scrolls inside the box instead of wrapping.">
+  <QuickStart command="pnpm add @rxova/react-otp-input @rxova/react-rating-input @rxova/react-intl-currency-input @rxova/react-phone-input">
+
+```tsx
+import { OtpInput } from '@rxova/react-otp-input'
+```
+
+  </QuickStart>
+</Story>
+
+## Props
+
+| Prop      | Type     | What it does                                       |
+| --------- | -------- | -------------------------------------------------- |
+| `command` | `string` | The install line, also what the copy button copies |
+
+The default slot is the "Use" pane. The copy button is the only client script; when the
+clipboard is unavailable it stays silent rather than claiming a copy that did not happen.
