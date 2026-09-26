@@ -1,22 +1,6 @@
 /**
- * Renders the 1200x630 social cards for every rxova.org surface.
- *
- * These are generated rather than hand-designed so they cannot drift from the
- * brand: the colours come from tokens.css and the taglines from sites.ts, so a
- * palette change or a reworded tagline is one `pnpm run og` away from being
- * correct everywhere, and a new project gets a card for free.
- *
- * Output is committed — consumers install this package and read the PNGs
- * directly, so nothing downstream needs a render step.
- *
- * Usage: pnpm run og [--check]
- *   --check  fail if the committed cards are stale (CI).
- *
- * `--check` compares a hash of the *inputs* — the palette, the taglines, this
- * script — against a committed manifest, rather than re-rendering and diffing
- * the PNGs. resvg ships per-platform native builds and font rasterisation is
- * not guaranteed byte-identical across them, so an output diff would fail on
- * CI for cards that are perfectly correct.
+ * Renders the 1200x630 social cards from tokens.css and sites.ts. `--check` fails if they are stale,
+ * comparing a hash of the inputs rather than the PNGs, which resvg rasterises differently per platform.
  */
 
 import { createHash } from 'node:crypto'
@@ -25,6 +9,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import satori from 'satori'
 import { Resvg } from '@resvg/resvg-js'
+import ts from 'typescript'
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
 const checkOnly = process.argv.includes('--check')
@@ -145,19 +130,22 @@ const cards = [
     // here; the title is the brand name as it is written.
     file: 'rxova.png',
     title: 'Rxova',
-    // The umbrella card is the only tagline written here; the rest come from
-    // PROJECTS. It said "Open-source React libraries — each does one thing
-    // well", which was both a claim the card cannot support and wrong about
-    // scope — see SiteFooter's blurb for the same correction.
+    // The only tagline written here; the rest come from PROJECTS.
     tagline: 'Small TypeScript libraries and developer tools.',
   },
   ...PROJECTS.map((p) => ({ file: `${p.id}.png`, title: p.label, tagline: p.tagline })),
 ]
 
 const manifestPath = join(repoRoot, 'scripts/og-manifest.json')
+// Comments are left out, so editing one never marks the cards stale.
+const script = readFileSync(join(repoRoot, 'scripts/generate-og.ts'), 'utf8')
 const fingerprint = createHash('sha256')
-  .update(tokens)
-  .update(readFileSync(join(repoRoot, 'scripts/generate-og.ts')))
+  .update(tokens.replace(/\/\*[\s\S]*?\*\//g, ''))
+  .update(
+    ts
+      .createPrinter({ removeComments: true })
+      .printFile(ts.createSourceFile('generate-og.ts', script, ts.ScriptTarget.Latest)),
+  )
   .update(JSON.stringify(cards))
   .digest('hex')
 
