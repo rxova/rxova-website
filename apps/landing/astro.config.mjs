@@ -25,7 +25,7 @@ export default defineConfig({
       // and Node refuses to strip types under node_modules ("Stripping types is
       // currently unsupported for files under node_modules"). Inlining the package
       // routes it through esbuild instead, which transpiles it fine.
-      noExternal: ['@rxova/brand'],
+      noExternal: ['@rxova/brand', '@rxova/astro-ui'],
     },
     server: {
       // src/lib/projects.ts imports the repo-root sources.json, which is outside

@@ -3,7 +3,7 @@
  *
  * `Header`, `SiteFooter` and `ThemeToggle` are rendered on two kinds of page:
  * plain Astro surfaces that own their whole document (the landing, /blog,
- * /updates — see astro.css), and rxova-website's shell templates, whose body is
+ * /updates — see document.css), and rxova-website's shell templates, whose body is
  * composed into an already-complete Starlight document at deploy time.
  *
  * The second case is why this file exists. It carries the tokens, the footer's
@@ -15,11 +15,11 @@
  * it has, whatever the specificity. That is not a hypothetical — it flattened
  * every /packages/* docs page on rxova.org.
  *
- * So: load this to render the chrome, and astro.css (which is this plus the
+ * So: load this to render the chrome, and document.css (which is this plus the
  * reset) to own a document.
  */
 
-@import './tokens.css';
+@import '@rxova/brand/tokens.css';
 /* The shared site footer, which /blog, /updates and the landing all render. It
    is the one piece of chrome common to these surfaces and the Starlight ones,
    so its rules sit in their own file and both entry points pull them in. */

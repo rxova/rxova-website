@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
-import { RXOVA_ORIGIN, sharedStarlightConfig } from '@rxova/brand'
+import { RXOVA_ORIGIN } from '@rxova/brand'
+import { sharedStarlightConfig } from '@rxova/astro-ui/starlight'
 
 /**
  * The preview site.

@@ -14,4 +14,4 @@
  */
 
 @import '@rxova/brand/fonts.css';
-@import '@rxova/brand/astro.css';
+@import '@rxova/astro-ui/styles/document.css';

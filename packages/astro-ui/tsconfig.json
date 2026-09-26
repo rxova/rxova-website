@@ -1,0 +1,17 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    // The package ships uncompiled source (Astro resolves .ts and .astro from
+    // node_modules — Starlight itself does the same), so relative imports carry
+    // their real .ts extension and nothing here ever emits.
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "verbatimModuleSyntax": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.astro", "test/**/*.ts", "*.config.js", "*.config.mjs"],
+  "exclude": ["node_modules"]
+}

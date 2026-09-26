@@ -21,7 +21,7 @@
     },
     // The landing reads files outside its own directory, which Turbo does not hash
     // on its own: the repo-root sources.json (projects.ts and the shell templates
-    // import it), and @rxova/brand's source and social cards, which it consumes
+    // import it), and @rxova/brand's and @rxova/astro-ui's source and brand's social cards, which it consumes
     // unbuilt through the workspace and copies into public/og in `prebuild`.
     // Without these a registry or brand change would replay yesterday's landing.
     "@rxova/landing#build": {
@@ -31,6 +31,7 @@
         "$TURBO_ROOT$/sources.json",
         "$TURBO_ROOT$/packages/brand/src/**",
         "$TURBO_ROOT$/packages/brand/assets/**",
+        "$TURBO_ROOT$/packages/astro-ui/src/**",
         "$TURBO_ROOT$/packages/tooling/src/deploy/sync-brand-og.ts"
       ],
       "outputs": ["dist/**"],
@@ -41,7 +42,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/sources.json",
-        "$TURBO_ROOT$/packages/brand/src/**"
+        "$TURBO_ROOT$/packages/brand/src/**",
+        "$TURBO_ROOT$/packages/astro-ui/src/**"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -195,8 +197,7 @@
         "pnpm-workspace.yaml",
         "package.json",
         "packages/*/package.json",
-        "apps/*/package.json",
-        "apps/landing/package.json"
+        "apps/*/package.json"
       ],
       "outputLogs": "new-only"
     },

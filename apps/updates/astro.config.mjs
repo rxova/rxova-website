@@ -25,7 +25,7 @@ export default defineConfig({
       // @rxova/brand and @rxova/website-schemas both ship uncompiled TypeScript, and Node
       // refuses to strip types under node_modules. Inlining routes them through
       // esbuild, which transpiles them fine.
-      noExternal: ['@rxova/brand', '@rxova/website-schemas'],
+      noExternal: ['@rxova/brand', '@rxova/astro-ui', '@rxova/website-schemas'],
     },
   },
 })

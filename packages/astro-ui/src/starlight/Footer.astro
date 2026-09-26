@@ -8,8 +8,8 @@
  * which is load-bearing navigation on a docs site.
  */
 import Default from '@astrojs/starlight/components/Footer.astro'
-import SiteFooter from './SiteFooter.astro'
-import { projectFromBase } from '../sites.ts'
+import SiteFooter from '../components/SiteFooter.astro'
+import { projectFromBase } from '@rxova/brand'
 
 const project = projectFromBase(import.meta.env.BASE_URL)
 ---

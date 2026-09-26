@@ -13,17 +13,17 @@
  * rather than in a column because that is where a reader looks for them, and it
  * keeps the columns to things someone might actually want to click.
  *
- * Styles are in `../footer.css`, imported by both `astro.css` and
+ * Styles are in `../styles/footer.css`, imported by both `document.css` and
  * `starlight.css` — see that file for why they are not scoped here.
  *
- * All cross-project hrefs are absolute; see sites.ts for why.
+ * All cross-project hrefs are absolute; see sites.ts in @rxova/brand for why.
  */
-import { PROJECTS, RXOVA_ORIGIN, getProject, siteUrl, type ProjectId } from '../sites.ts'
+import { PROJECTS, RXOVA_ORIGIN, getProject, siteUrl, type ProjectId } from '@rxova/brand'
 
 /** A standalone surface of rxova.org, for the "Site" column. */
 export interface SiteLink {
   label: string
-  /** Absolute — see sites.ts. */
+  /** Absolute — see sites.ts in @rxova/brand. */
   href: string
 }
 
