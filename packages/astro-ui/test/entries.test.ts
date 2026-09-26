@@ -170,6 +170,13 @@ describe('excerpt', () => {
     expect(excerpt(body, 200).text).toBe('The real opening.')
   })
 
+  it('stays linear on unclosed image syntax', () => {
+    const start = performance.now()
+    excerpt(`${'![](![]('.repeat(20_000)} tail`, 200)
+    excerpt(`${'!['.repeat(40_000)} tail`, 200)
+    expect(performance.now() - start).toBeLessThan(500)
+  })
+
   it('collapses whitespace, including hard-wrapped source', () => {
     expect(excerpt('one\ntwo   three', 200).text).toBe('one two three')
   })

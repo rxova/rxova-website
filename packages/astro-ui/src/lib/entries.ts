@@ -53,7 +53,7 @@ export function excerpt(body: string, max: number): { text: string; truncated: b
     .join(' ')
 
   const plain = prose
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/!\[[^[\]]*\]\([^()]*\)/g, '')
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
     .replace(/`([^`]+)`/g, '$1')
     .replace(/(\*\*|__)(.*?)\1/g, '$2')
