@@ -64,12 +64,17 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    // The tooling's tests read the real registry and redirect map at the repo root, and import
+    // The tooling's tests read the real registry, redirect map and CI workflow at the repo root, and import
     // @rxova/website-schemas from its dist/.
     "@rxova/repo-tooling#test": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/sources.json", "$TURBO_ROOT$/redirects.json"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/sources.json",
+        "$TURBO_ROOT$/redirects.json",
+        "$TURBO_ROOT$/.github/workflows/ci.yml"
+      ],
       "outputLogs": "new-only"
     },
     // Every package owns its own vitest config.
