@@ -25,13 +25,7 @@ import { parse } from 'parse5'
 import { attribute, element, walkNodes } from './html.ts'
 import type { Source } from './registry.ts'
 
-/**
- * Canonical origin, matching `RXOVA_ORIGIN` in @rxova/brand.
- *
- * Not imported from there: brand ships TypeScript source with no build step, and
- * these scripts run under bare `node` in CI. Kept as an env override for the same
- * reason brand has one — a staging deploy needs its sitemaps to point at itself.
- */
+/** Canonical origin; mirrors `RXOVA_ORIGIN` in @rxova/brand, which depends on this package. */
 export const RXOVA_ORIGIN = process.env.RXOVA_ORIGIN ?? 'https://rxova.org'
 
 /** The file a Starlight/Astro subtree publishes, and the name of our root index. */
