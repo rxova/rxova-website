@@ -22,7 +22,8 @@ import { join, relative, sep } from 'node:path'
 
 import { parse } from 'parse5'
 
-import { attribute, walkNodes } from './html.mjs'
+import { attribute, element, walkNodes } from './html.ts'
+import type { Source } from './registry.ts'
 
 /**
  * Canonical origin, matching `RXOVA_ORIGIN` in @rxova/brand.
@@ -39,7 +40,7 @@ export const SITEMAP_INDEX = 'sitemap-index.xml'
 /** The urlset holding everything not covered by a project's own sitemap. */
 export const SITEMAP_PAGES = 'sitemap-pages.xml'
 
-async function exists(p) {
+async function exists(p: string): Promise<boolean> {
   try {
     await access(p)
     return true
@@ -48,16 +49,19 @@ async function exists(p) {
   }
 }
 
-const posix = (p) => p.split(sep).join('/')
+const posix = (p: string): string => p.split(sep).join('/')
 
-const escapeXml = (value) =>
+const escapeXml = (value: string): string =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
-const XML_ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" }
+const XML_ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" }
 
 /** The inverse, for reading a `<loc>` out of a sitemap somebody else wrote. */
-const unescapeXml = (value) =>
-  value.replace(/&(amp|lt|gt|quot|apos);/g, (whole, name) => XML_ENTITIES[name] ?? whole)
+const unescapeXml = (value: string): string =>
+  value.replace(
+    /&(amp|lt|gt|quot|apos);/g,
+    (whole: string, name: string) => XML_ENTITIES[name] ?? whole,
+  )
 
 /**
  * The URL path a built file is served at, given the tree is directory-style.
@@ -66,7 +70,7 @@ const unescapeXml = (value) =>
  *   about/index.html  -> /about/
  *   404.html          -> /404.html   (filtered out before it gets here)
  */
-export function urlForFile(relPath) {
+export function urlForFile(relPath: string): string {
   const path = posix(relPath)
   if (path === 'index.html') return '/'
   if (path.endsWith('/index.html')) return `/${path.slice(0, -'index.html'.length)}`
@@ -81,10 +85,10 @@ export function urlForFile(relPath) {
  * a crawler's face. A redirect stub is not a destination at all — the sitemap
  * should carry its target, which it does under the target's own entry.
  */
-export function isIndexable(html) {
+export function isIndexable(html: string): boolean {
   let indexable = true
   walkNodes(parse(html), (node) => {
-    if (node.tagName !== 'meta') return
+    if (!element('meta')(node)) return
     if (attribute(node, 'http-equiv')?.toLowerCase() === 'refresh') indexable = false
     if (
       attribute(node, 'name')?.toLowerCase() === 'robots' &&
@@ -109,11 +113,11 @@ export function isIndexable(html) {
  * `lastmod` is optional per URL, so a page with nothing honest to say simply
  * omits it. That is why this returns undefined rather than a fallback.
  */
-export function lastmodFor(html) {
+export function lastmodFor(html: string): string | undefined {
   const ld = [...html.matchAll(/<script[^>]+application\/ld\+json[^>]*>(.*?)<\/script>/gis)]
   for (const [, body] of ld) {
     try {
-      const data = JSON.parse(body.replace(/\\u003c/gi, '<'))
+      const data = JSON.parse((body ?? '').replace(/\\u003c/gi, '<'))
       for (const node of Array.isArray(data) ? data : [data]) {
         const stamp = node?.dateModified ?? node?.datePublished
         if (typeof stamp === 'string' && /^\d{4}-\d{2}-\d{2}/.test(stamp)) return stamp.slice(0, 10)
@@ -152,13 +156,13 @@ export function lastmodFor(html) {
  * to name a file in the root index, which makes it the place to check rather
  * than assume.
  */
-export function childSitemapPaths(xml, mount) {
+export function childSitemapPaths(xml: string, mount: string): string[] {
   if (!/<sitemapindex(?=[\s/>])/i.test(xml)) return [`${mount}/${SITEMAP_INDEX}`]
 
   const prefix = `${mount}/`
-  const paths = []
+  const paths: string[] = []
   for (const [, raw] of xml.matchAll(/<loc>\s*([^<]*?)\s*<\/loc>/gi)) {
-    const loc = unescapeXml(raw)
+    const loc = unescapeXml(raw ?? '')
     // Only the path is ours to read. The child was built by its own repo against
     // its own `site`, which under a staging deploy is not the origin we are
     // writing — so the origin is re-derived when the index is written, and a
@@ -176,9 +180,14 @@ export function childSitemapPaths(xml, mount) {
   return paths
 }
 
-async function indexablePages(outDir, skipDirs) {
-  const found = []
-  async function visit(dir) {
+interface Page {
+  path: string
+  lastmod: string | undefined
+}
+
+async function indexablePages(outDir: string, skipDirs: Set<string>): Promise<Page[]> {
+  const found: Page[] = []
+  async function visit(dir: string): Promise<void> {
     for (const entry of await readdir(dir, { withFileTypes: true })) {
       const path = join(dir, entry.name)
       if (entry.isDirectory()) {
@@ -189,7 +198,7 @@ async function indexablePages(outDir, skipDirs) {
         continue
       }
       // `.html` only, deliberately. A docs site may also serve a `.md` twin of
-      // every page for agents (see scripts/llms.mjs); listing both would offer a
+      // every page for agents (see llms.ts); listing both would offer a
       // crawler two URLs for one page, which is the textbook duplicate-content
       // signal. Sitemaps are for indexable pages — the markdown is for readers
       // that ask for it by name.
@@ -206,7 +215,7 @@ async function indexablePages(outDir, skipDirs) {
   return found.sort((a, b) => a.path.localeCompare(b.path))
 }
 
-const urlset = (pages, origin) =>
+const urlset = (pages: Page[], origin: string): string =>
   '<?xml version="1.0" encoding="UTF-8"?>\n' +
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
   pages
@@ -217,7 +226,7 @@ const urlset = (pages, origin) =>
     .join('') +
   '</urlset>\n'
 
-const sitemapIndex = (files, origin) =>
+const sitemapIndex = (files: string[], origin: string): string =>
   '<?xml version="1.0" encoding="UTF-8"?>\n' +
   '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
   files.map((f) => `  <sitemap><loc>${escapeXml(`${origin}/${f}`)}</loc></sitemap>\n`).join('') +
@@ -276,7 +285,7 @@ export const AI_USER_AGENTS = [
   'YouBot',
 ]
 
-const robotsTxt = (origin) =>
+const robotsTxt = (origin: string): string =>
   [
     'User-agent: *',
     'Allow: /',
@@ -300,9 +309,13 @@ const robotsTxt = (origin) =>
  * Returns what it wrote so the caller can log it and the tests can assert on it
  * without re-parsing XML.
  */
-export async function writeSitemaps(outDir, sources, origin = RXOVA_ORIGIN) {
-  const children = []
-  const skipDirs = new Set()
+export async function writeSitemaps(
+  outDir: string,
+  sources: (Pick<Source, 'mount'> & Partial<Pick<Source, 'kind'>>)[],
+  origin = RXOVA_ORIGIN,
+): Promise<{ pages: Page[]; children: string[] }> {
+  const children: string[] = []
+  const skipDirs = new Set<string>()
 
   for (const source of sources) {
     // A showcase is not a page set. Storybook builds one app shell plus

@@ -19,10 +19,10 @@ import {
   childSitemapPaths,
   AI_USER_AGENTS,
   SITEMAP_PAGES,
-} from './sitemap.mjs'
+} from './sitemap.ts'
 
-const roots = []
-let root
+const roots: string[] = []
+let root: string
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), 'rxova-sitemap-'))
   roots.push(root)
@@ -33,7 +33,7 @@ afterAll(() => {
 
 const ORIGIN = 'https://rxova.org'
 
-function write(path, body) {
+function write(path: string, body: string): void {
   const full = join(root, path)
   mkdirSync(join(full, '..'), { recursive: true })
   writeFileSync(full, body)
@@ -47,13 +47,13 @@ const page = (head = '') =>
  * never a bare urlset. Absolute locs, because that is what the spec requires and
  * what the producer emits.
  */
-const childIndex = (mount, files) =>
+const childIndex = (mount: string, files: string[]) =>
   '<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex>' +
   files.map((f) => `<sitemap><loc>${ORIGIN}/${mount}/${f}</loc></sitemap>`).join('') +
   '</sitemapindex>\n'
 
-const read = (name) => readFileSync(join(root, name), 'utf8')
-const locs = (xml) => [...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1])
+const read = (name: string) => readFileSync(join(root, name), 'utf8')
+const locs = (xml: string) => [...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1])
 
 describe('urlForFile', () => {
   it('maps directory-style build output onto the URLs it is served at', () => {
@@ -83,7 +83,7 @@ describe('isIndexable', () => {
 })
 
 describe('lastmodFor', () => {
-  const ld = (obj) => `<script type="application/ld+json">${JSON.stringify(obj)}</script>`
+  const ld = (obj: unknown) => `<script type="application/ld+json">${JSON.stringify(obj)}</script>`
 
   it('prefers dateModified over datePublished', () => {
     const html = ld({
@@ -317,9 +317,9 @@ describe('writeSitemaps', () => {
 })
 
 describe('childSitemapPaths', () => {
-  const index = (locs) =>
+  const index = (locs: string[]) =>
     `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex>${locs
-      .map((loc) => `<sitemap><loc>${loc}</loc></sitemap>`)
+      .map((loc: string) => `<sitemap><loc>${loc}</loc></sitemap>`)
       .join('')}</sitemapindex>\n`
 
   it('flattens a child index to the urlsets it names', () => {

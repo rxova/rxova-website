@@ -15,6 +15,8 @@ import { join, dirname } from 'node:path'
 
 import { z } from 'zod'
 
+import { errorMessage } from './errors.ts'
+
 /** A rooted, directory-style path — the only shape the assembled tree can serve. */
 const FROM_PATTERN = /^\/(?:[\w.-]+\/)+$/
 
@@ -31,19 +33,19 @@ const redirectsFile = z
   .strict()
 
 class RedirectError extends Error {
-  constructor(message) {
+  constructor(message: string) {
     super(`redirects.json: ${message}`)
     this.name = 'RedirectError'
   }
 }
 
 /** Read and validate redirects.json. Throws `RedirectError` on anything malformed. */
-export async function loadRedirects(file) {
-  let raw
+export async function loadRedirects(file: string): Promise<Record<string, string>> {
+  let raw: unknown
   try {
     raw = JSON.parse(await readFile(file, 'utf8'))
   } catch (err) {
-    throw new RedirectError(`could not be read or parsed — ${err.message}`)
+    throw new RedirectError(`could not be read or parsed — ${errorMessage(err)}`)
   }
 
   const parsed = redirectsFile.safeParse(raw)
@@ -73,7 +75,7 @@ export async function loadRedirects(file) {
   return parsed.data.redirects
 }
 
-async function exists(p) {
+async function exists(p: string): Promise<boolean> {
   try {
     await access(p)
     return true
@@ -83,10 +85,10 @@ async function exists(p) {
 }
 
 /** Where a rooted URL path is served from in the built tree. */
-const fileFor = (outDir, path) =>
+const fileFor = (outDir: string, path: string): string =>
   path.endsWith('/') ? join(outDir, path, 'index.html') : join(outDir, path)
 
-export function stubDocument(to, origin) {
+export function stubDocument(to: string, origin: string): string {
   const target = escapeHtml(to)
   const canonical = escapeHtml(new URL(to, origin).href)
   return `<!doctype html>
@@ -104,7 +106,7 @@ export function stubDocument(to, origin) {
 `
 }
 
-const escapeHtml = (value) =>
+const escapeHtml = (value: string): string =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 /**
@@ -115,7 +117,11 @@ const escapeHtml = (value) =>
  * a broken redirect published silently is worse than a deploy that stops and says
  * which entry is wrong.
  */
-export async function writeRedirects(outDir, redirects, origin) {
+export async function writeRedirects(
+  outDir: string,
+  redirects: Record<string, string>,
+  origin: string,
+): Promise<string[]> {
   const broken = []
   const colliding = []
 

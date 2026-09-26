@@ -33,13 +33,13 @@ Which projects are mounted is `sources.json` — see [Adding a project](#adding-
 | `packages/blog`                                 | `/blog`, built here and ingested like a project's docs  |
 | `packages/updates`                              | `/updates`, built the same way                          |
 | `apps/preview`                                  | A Starlight site that renders `@rxova/brand` for review |
-| `packages/tooling/src/lib/registry.mjs`         | Reads/validates `sources.json`; derives every path      |
-| `packages/tooling/src/deploy/ingest.mjs`        | Gate 2: validates a sender's dispatch and its dist      |
-| `packages/tooling/src/deploy/fetch-docs.mjs`    | Deploy-time: pulls persisted docs from content releases |
-| `packages/tooling/src/deploy/assemble.mjs`      | Copies the gathered docs into the final `_site/` tree   |
-| `packages/tooling/src/lib/sitemap.mjs`          | Root sitemap index + `robots.txt` for the whole tree    |
-| `packages/tooling/src/lib/redirects.mjs`        | Static stubs for URLs that used to exist                |
-| `packages/tooling/src/lib/html.mjs`             | parse5 helpers shared by the readers of built HTML      |
+| `packages/tooling/src/lib/registry.ts`          | Reads/validates `sources.json`; derives every path      |
+| `packages/tooling/src/deploy/ingest.ts`         | Gate 2: validates a sender's dispatch and its dist      |
+| `packages/tooling/src/deploy/fetch-docs.ts`     | Deploy-time: pulls persisted docs from content releases |
+| `packages/tooling/src/deploy/assemble.ts`       | Copies the gathered docs into the final `_site/` tree   |
+| `packages/tooling/src/lib/sitemap.ts`           | Root sitemap index + `robots.txt` for the whole tree    |
+| `packages/tooling/src/lib/redirects.ts`         | Static stubs for URLs that used to exist                |
+| `packages/tooling/src/lib/html.ts`              | parse5 helpers shared by the readers of built HTML      |
 | `packages/tooling/src/**/*.test.*`              | Tests for all of the above — `pnpm test`                |
 | `packages/tooling/src/repo/verify.ts`           | The pre-push gate, the same list CI runs                |
 | `packages/tooling/src/repo/validate-content.ts` | Pre-merge check of blog and updates frontmatter         |
@@ -54,7 +54,7 @@ Which projects are mounted is `sources.json` — see [Adding a project](#adding-
 
 Every question the deploy asks about a project — where it lives, whether it is on, where it
 mounts, which release holds its docs — is answered by `sources.json` through
-`packages/tooling/src/lib/registry.mjs`. Neither `deploy.yml` nor `ingest.yml` holds per-project knowledge or
+`packages/tooling/src/lib/registry.ts`. Neither `deploy.yml` nor `ingest.yml` holds per-project knowledge or
 changes when a project is added, enabled or disabled.
 
 ## Develop
@@ -108,7 +108,7 @@ Two gates, and the aggregator builds nothing.
    }
    ```
 
-2. **Gate 2 — this repo validates and persists** (`ingest.yml` + `packages/tooling/src/deploy/ingest.mjs`). It
+2. **Gate 2 — this repo validates and persists** (`ingest.yml` + `packages/tooling/src/deploy/ingest.ts`). It
    checks the metadata (known & enabled project, base matches the mount, ref/sha/run_id are
    what they claim), downloads the `docs-dist` artifact from that run, checks it is a real
    docs tree (`index.html` at its root), then stores it as the project's canonical release
@@ -117,7 +117,7 @@ Two gates, and the aggregator builds nothing.
 A rejection at either gate fails the ingest and **leaves the live site untouched** — a bad
 push can't take rxova.org down, it just doesn't publish.
 
-At deploy time `packages/tooling/src/deploy/fetch-docs.mjs` pulls every _enabled_ project's persisted docs from
+At deploy time `packages/tooling/src/deploy/fetch-docs.ts` pulls every _enabled_ project's persisted docs from
 its content release and assembles the whole tree (Pages publishes a whole tree, so every
 mounted project must be present). Only the project that just changed is re-persisted; the rest
 are served from their last persisted dist — nothing is rebuilt here.
@@ -129,10 +129,10 @@ nothing has the whole picture. Each Starlight docs site emits a perfectly good
 `sitemap-index.xml` for its own subtree, but a crawler that has never seen those files
 cannot use them. So the last two steps of the assemble know things no single project does:
 
-- `packages/tooling/src/lib/redirects.mjs` writes a stub for every entry in `redirects.json`, since GitHub
+- `packages/tooling/src/lib/redirects.ts` writes a stub for every entry in `redirects.json`, since GitHub
   Pages serves files rather than redirect rules. It **fails the deploy** on a target that is
   not in the tree — a redirect into a 404 is worse than the 404 it replaced.
-- `packages/tooling/src/lib/sitemap.mjs` writes `/sitemap-index.xml`, `/sitemap-pages.xml` and `/robots.txt`.
+- `packages/tooling/src/lib/sitemap.ts` writes `/sitemap-index.xml`, `/sitemap-pages.xml` and `/robots.txt`.
   A project that ships its own sitemap is _referenced_ (it knows its own subtree best); one
   that ships none is swept into `sitemap-pages.xml`. Either way, adding a project costs no
   code change here. `noindex` pages, redirect stubs and `404.html` are never listed.

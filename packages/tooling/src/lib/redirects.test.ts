@@ -9,10 +9,10 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { loadRedirects, writeRedirects, stubDocument } from './redirects.mjs'
+import { loadRedirects, writeRedirects, stubDocument } from './redirects.ts'
 
-const roots = []
-let root
+const roots: string[] = []
+let root: string
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), 'rxova-redirects-'))
   roots.push(root)
@@ -23,14 +23,14 @@ afterAll(() => {
 
 const ORIGIN = 'https://rxova.org'
 
-function write(path, body) {
+function write(path: string, body: string): void {
   const full = join(root, path)
   mkdirSync(join(full, '..'), { recursive: true })
   writeFileSync(full, body)
 }
 
 /** Write redirects.json into the temp root and load it back through the validator. */
-function config(redirects) {
+function config(redirects: unknown) {
   write('redirects.json', JSON.stringify({ redirects }))
   return loadRedirects(join(root, 'redirects.json'))
 }

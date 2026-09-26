@@ -1,15 +1,15 @@
 // fetch-docs turns the registry into a download plan at deploy time. The gh and
 // tar calls are the workflow's business; what is worth pinning is the mapping —
-// only enabled projects are fetched, and each lands where assemble.mjs will read
+// only enabled projects are fetched, and each lands where assemble.ts will read
 // it (artifacts/<artifact>), from the release the ingest side persisted it to.
 
 import { describe, it } from 'vitest'
 import assert from 'node:assert/strict'
 
-import { fetchPlan } from './fetch-docs.mjs'
-import { loadRegistry } from '../lib/registry.mjs'
+import { fetchPlan, type FetchSource } from './fetch-docs.ts'
+import { loadRegistry } from '../lib/registry.ts'
 
-const registry = {
+const registry: { sources: FetchSource[] } = {
   sources: [
     {
       id: 'journey',
@@ -40,9 +40,9 @@ describe('fetchPlan', () => {
     ])
   })
 
-  it('extracts into artifacts/<artifact>, exactly where assemble.mjs reads it', () => {
+  it('extracts into artifacts/<artifact>, exactly where assemble.ts reads it', () => {
     const [plan] = fetchPlan(registry)
-    assert.equal(plan.dest, registry.sources[0].artifact)
+    assert.equal(plan?.dest, registry.sources[0]?.artifact)
   })
 
   it('returns nothing for a landing-only registry', () => {

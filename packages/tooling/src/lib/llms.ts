@@ -4,7 +4,7 @@
 // what a site offers, at a well-known path, without spending a context window on
 // rendered HTML.
 //
-// This belongs here for the same reason `sitemap.mjs` does: it is a file only the
+// This belongs here for the same reason `sitemap.ts` does: it is a file only the
 // aggregator can write. Each project publishes its own `llms.txt` under its mount
 // describing its own API; nothing points at those, so an agent that lands on
 // rxova.org has no path to them. This module writes the one index that does.
@@ -18,14 +18,15 @@
 import { access, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
-import { RXOVA_ORIGIN } from './sitemap.mjs'
+import type { Source } from './registry.ts'
+import { RXOVA_ORIGIN } from './sitemap.ts'
 
 /** The well-known filename, both here and under each project's mount. */
 export const LLMS_FILE = 'llms.txt'
 
 /**
  * The site's own summary. Written here rather than imported from @rxova/brand for
- * the reason sitemap.mjs documents: brand ships TypeScript source with no build
+ * the reason sitemap.ts documents: brand ships TypeScript source with no build
  * step, and these scripts run under bare `node` in CI.
  */
 const SUMMARY = [
@@ -34,7 +35,7 @@ const SUMMARY = [
   'reference generated from its own source.',
 ]
 
-async function exists(p) {
+async function exists(p: string): Promise<boolean> {
   try {
     await access(p)
     return true
@@ -51,14 +52,30 @@ async function exists(p) {
  * the note — an agent choosing between two links deserves to know one is an index
  * built for it and the other is a landing page it will have to crawl.
  */
-export async function projectEntry(outDir, source, origin) {
+/** The part of a registry source the index reads. */
+export type LlmsSource = Pick<Source, 'id' | 'kind' | 'base' | 'mount'> & {
+  landing?: { blurb?: string }
+}
+
+export interface LlmsEntry {
+  label: string
+  url: string
+  note?: string
+}
+
+export async function projectEntry(
+  outDir: string,
+  source: Pick<LlmsSource, 'base' | 'mount'>,
+  origin: string,
+): Promise<{ url: string; indexed: boolean }> {
   const url = `${origin}${source.base}`
   return (await exists(join(outDir, source.mount, LLMS_FILE)))
     ? { url: `${url}${LLMS_FILE}`, indexed: true }
     : { url, indexed: false }
 }
 
-const link = ({ label, url, note }) => `- [${label}](${url})${note ? `: ${note}` : ''}`
+const link = ({ label, url, note }: LlmsEntry): string =>
+  `- [${label}](${url})${note ? `: ${note}` : ''}`
 
 /**
  * Build the document. Pure, so the shape is testable without a tree on disk.
@@ -66,7 +83,10 @@ const link = ({ label, url, note }) => `- [${label}](${url})${note ? `: ${note}`
  * `projects` and `sites` are already-resolved entries: the caller has done the
  * filesystem probing, which is the only part that needs a real directory.
  */
-export function llmsIndex({ projects, sites }, origin) {
+export function llmsIndex(
+  { projects, sites }: { projects: LlmsEntry[]; sites: LlmsEntry[] },
+  origin: string,
+): string {
   const lines = ['# Rxova', '', ...SUMMARY.map((l) => `> ${l}`), '']
 
   if (projects.length > 0) {
@@ -99,9 +119,13 @@ export function llmsIndex({ projects, sites }, origin) {
  * Returns what it wrote so the caller can log it and the tests can assert on it
  * without re-parsing the document.
  */
-export async function writeLlms(outDir, sources, origin = RXOVA_ORIGIN) {
-  const projects = []
-  const sites = []
+export async function writeLlms(
+  outDir: string,
+  sources: LlmsSource[],
+  origin = RXOVA_ORIGIN,
+): Promise<{ projects: LlmsEntry[]; sites: LlmsEntry[] }> {
+  const projects: LlmsEntry[] = []
+  const sites: LlmsEntry[] = []
 
   for (const source of sources) {
     // Storybook is a rendered component explorer: there is no prose for an agent
@@ -109,7 +133,7 @@ export async function writeLlms(outDir, sources, origin = RXOVA_ORIGIN) {
     if (source.kind === 'storybook') continue
 
     const { url } = await projectEntry(outDir, source, origin)
-    const entry = {
+    const entry: LlmsEntry = {
       // The id, not a prettier label: it is the URL segment and the npm scope,
       // which is what an agent needs to act on. The human-facing labels live in
       // @rxova/brand's PROJECTS, which bare `node` cannot import (see above).
@@ -120,7 +144,7 @@ export async function writeLlms(outDir, sources, origin = RXOVA_ORIGIN) {
     ;(source.kind === 'site' ? sites : projects).push(entry)
   }
 
-  const sortByLabel = (a, b) => a.label.localeCompare(b.label, 'en')
+  const sortByLabel = (a: LlmsEntry, b: LlmsEntry) => a.label.localeCompare(b.label, 'en')
   projects.sort(sortByLabel)
   sites.sort(sortByLabel)
 

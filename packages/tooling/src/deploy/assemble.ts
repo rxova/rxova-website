@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Assemble the combined rxova.org site from downloaded build artifacts.
 //
-// Usage: node scripts/assemble.mjs [artifactsDir=artifacts] [outDir=_site]
+// Usage: node assemble.ts [artifactsDir=artifacts] [outDir=_site]
 //
 // Layout of `artifactsDir` — one folder per artifact:
 //   artifacts/landing/           <- Astro `site/dist`, downloaded from this run
@@ -9,10 +9,10 @@
 //   artifacts/docs-react-inputs/ <- react-inputs docs, from release content-react-inputs
 //
 // The landing is a workflow artifact; the docs folders are put there by
-// scripts/fetch-docs.mjs, which pulls each enabled project's persisted dist from
+// fetch-docs.ts, which pulls each enabled project's persisted dist from
 // its content release. Either way the folder names are the sources' `artifact`.
 //
-// Mounts are data-driven from sources.json (via scripts/registry.mjs) so adding a
+// Mounts are data-driven from sources.json (via registry.ts) so adding a
 // project is a config change, not a code change. Each project's persisted dist was
 // already built to match its `base` URL. Schema-1 trees are relocated unchanged;
 // schema-2 HTML is composed into the website shell while non-HTML assets keep
@@ -27,17 +27,29 @@ import {
   PAGE_BUNDLE_FILENAME,
   pageBundleManifest,
   declaresStandalone,
-} from '../lib/page-bundle-contract.mjs'
+} from '../lib/page-bundle-contract.ts'
 
-import { findNode, element, attribute, hasClass, walkNodes } from '../lib/html.mjs'
-import { loadRedirects, writeRedirects } from '../lib/redirects.mjs'
-import { loadRegistry, enabledSources } from '../lib/registry.mjs'
-import { writeSitemaps, RXOVA_ORIGIN } from '../lib/sitemap.mjs'
-import { writeLlms } from '../lib/llms.mjs'
+import {
+  attribute,
+  element,
+  findNode,
+  hasClass,
+  walkNodes,
+  withAttribute,
+  type ChildNode,
+  type Element,
+  type Node,
+  type ParentNode,
+} from '../lib/html.ts'
+import { errorMessage } from '../lib/errors.ts'
+import { loadRedirects, writeRedirects } from '../lib/redirects.ts'
+import { loadRegistry, enabledSources, type Registry, type Source } from '../lib/registry.ts'
+import { writeSitemaps, RXOVA_ORIGIN } from '../lib/sitemap.ts'
+import { writeLlms } from '../lib/llms.ts'
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../../../..')
 
-async function exists(p) {
+async function exists(p: string): Promise<boolean> {
   try {
     await access(p)
     return true
@@ -46,7 +58,7 @@ async function exists(p) {
   }
 }
 
-async function copyInto(src, dest, { label }) {
+async function copyInto(src: string, dest: string, { label }: { label: string }): Promise<boolean> {
   if (!(await exists(src))) return false
   await mkdir(dirname(dest) === dest ? dest : dirname(dest), { recursive: true })
   await mkdir(dest, { recursive: true })
@@ -55,16 +67,17 @@ async function copyInto(src, dest, { label }) {
   return true
 }
 
-function mergeAttributes(target, source) {
-  const byName = new Map((target.attrs ?? []).map((attr) => [attr.name, attr]))
-  for (const attr of source.attrs ?? []) {
+function mergeAttributes(target: Element, source: Element): void {
+  const byName = new Map(target.attrs.map((attr) => [attr.name, attr]))
+  for (const attr of source.attrs) {
     if (attr.name === 'data-rxova-shell') continue
-    if (attr.name === 'class' && byName.has('class')) {
-      const values = new Set(`${byName.get('class').value} ${attr.value}`.trim().split(/\s+/))
-      byName.get('class').value = [...values].join(' ')
+    const existing = byName.get(attr.name)
+    if (attr.name === 'class' && existing) {
+      const values = new Set(`${existing.value} ${attr.value}`.trim().split(/\s+/))
+      existing.value = [...values].join(' ')
       continue
     }
-    if (byName.has(attr.name)) byName.get(attr.name).value = attr.value
+    if (existing) existing.value = attr.value
     else {
       const copy = { ...attr }
       target.attrs.push(copy)
@@ -73,20 +86,20 @@ function mergeAttributes(target, source) {
   }
 }
 
-function isShellOwnedHeadNode(node) {
-  if (node.tagName === 'title') return false
-  if (node.tagName === 'meta') {
+function isShellOwnedHeadNode(node: Node): boolean {
+  if (element('title')(node)) return false
+  if (element('meta')(node)) {
     const name = attribute(node, 'name')?.toLowerCase()
     return attribute(node, 'charset') !== undefined || name === 'viewport'
   }
-  if (node.tagName === 'link') {
+  if (element('link')(node)) {
     const rel = (attribute(node, 'rel') ?? '').toLowerCase().split(/\s+/)
     return rel.includes('icon') || rel.includes('apple-touch-icon')
   }
   return false
 }
 
-export function composeDocument(sourceText, shellText, label = 'page') {
+export function composeDocument(sourceText: string, shellText: string, label = 'page'): string {
   const source = parse(sourceText)
   const shell = parse(shellText)
   const sourceHtml = findNode(source, element('html'))
@@ -97,9 +110,10 @@ export function composeDocument(sourceText, shellText, label = 'page') {
   const shellBody = findNode(shell, element('body'))
   const headSlot = findNode(
     shell,
-    (node) => node.tagName === 'meta' && attribute(node, 'name') === 'rxova-head-slot',
+    (node): node is Element =>
+      element('meta')(node) && attribute(node, 'name') === 'rxova-head-slot',
   )
-  const pageSlot = findNode(shell, (node) => attribute(node, 'data-rxova-page-slot') !== undefined)
+  const pageSlot = findNode(shell, withAttribute('data-rxova-page-slot'))
 
   if (
     !sourceHtml ||
@@ -116,8 +130,7 @@ export function composeDocument(sourceText, shellText, label = 'page') {
   const isRedirect = Boolean(
     findNode(
       sourceHead,
-      (node) =>
-        node.tagName === 'meta' && attribute(node, 'http-equiv')?.toLowerCase() === 'refresh',
+      (node) => element('meta')(node) && attribute(node, 'http-equiv')?.toLowerCase() === 'refresh',
     ),
   )
   if (!findNode(sourceBody, element('main')) && !isRedirect) {
@@ -126,12 +139,12 @@ export function composeDocument(sourceText, shellText, label = 'page') {
 
   walkNodes(source, (node) => {
     if (
-      node.tagName === 'script' &&
+      element('script')(node) &&
       (attribute(node, 'src') ?? '').includes('static.cloudflareinsights.com/beacon.min.js')
     ) {
       throw new Error(`${label}: page-component bundles must not include Cloudflare Analytics`)
     }
-    if (hasClass(node, 'rx-footer') || (node.tagName === 'header' && hasClass(node, 'site'))) {
+    if (hasClass(node, 'rx-footer') || (element('header')(node) && hasClass(node, 'site'))) {
       throw new Error(`${label}: page-component bundles must not include global Rxova chrome`)
     }
   })
@@ -141,27 +154,28 @@ export function composeDocument(sourceText, shellText, label = 'page') {
 
   const headIndex = shellHead.childNodes.indexOf(headSlot)
   const producerHead = sourceHead.childNodes.filter((node) => !isShellOwnedHeadNode(node))
-  for (const node of producerHead) node.parentNode = shellHead
+  for (const node of producerHead) (node as ChildNode).parentNode = shellHead
   shellHead.childNodes.splice(headIndex, 1, ...producerHead)
 
   // The shell template's placeholder title and noindex are for the private
   // template route only. Route-specific producer metadata replaces both.
   shellHead.childNodes = shellHead.childNodes.filter((node) => {
-    if (node.tagName === 'title') return producerHead.includes(node)
-    return !(node.tagName === 'meta' && attribute(node, 'name') === 'robots')
+    if (element('title')(node)) return producerHead.includes(node)
+    return !(element('meta')(node) && attribute(node, 'name') === 'robots')
   })
 
-  const slotParent = pageSlot.parentNode
+  // Found under the shell's root, so it always has one.
+  const slotParent = pageSlot.parentNode as ParentNode
   const slotIndex = slotParent.childNodes.indexOf(pageSlot)
-  for (const node of sourceBody.childNodes) node.parentNode = slotParent
+  for (const node of sourceBody.childNodes) (node as ChildNode).parentNode = slotParent
   slotParent.childNodes.splice(slotIndex, 1, ...sourceBody.childNodes)
 
   return serialize(shell)
 }
 
-async function htmlFiles(root) {
-  const found = []
-  async function visit(dir) {
+async function htmlFiles(root: string): Promise<string[]> {
+  const found: string[] = []
+  async function visit(dir: string): Promise<void> {
     for (const entry of await readdir(dir, { withFileTypes: true })) {
       const path = join(dir, entry.name)
       if (entry.isDirectory()) await visit(path)
@@ -172,14 +186,14 @@ async function htmlFiles(root) {
   return found
 }
 
-async function readPageBundle(src, source) {
+async function readPageBundle(src: string, source: Source) {
   const path = join(src, PAGE_BUNDLE_FILENAME)
   if (!(await exists(path))) return undefined
-  let raw
+  let raw: unknown
   try {
     raw = JSON.parse(await readFile(path, 'utf8'))
   } catch (error) {
-    throw new Error(`${source.id}: invalid ${PAGE_BUNDLE_FILENAME} — ${error.message}`, {
+    throw new Error(`${source.id}: invalid ${PAGE_BUNDLE_FILENAME} — ${errorMessage(error)}`, {
       cause: error,
     })
   }
@@ -195,7 +209,7 @@ async function readPageBundle(src, source) {
   return parsed.data
 }
 
-async function composeInto(src, dest, shellPath, source) {
+async function composeInto(src: string, dest: string, shellPath: string, source: Source) {
   await cp(src, dest, { recursive: true })
   const shell = await readFile(shellPath, 'utf8')
   let composed = 0
@@ -228,7 +242,7 @@ async function composeInto(src, dest, shellPath, source) {
  * can assert on the failures — which are the point of this script: a missing
  * artifact must stop the deploy, not quietly publish a site with a hole in it.
  */
-export async function assemble(config, artifactsDir, outDir) {
+export async function assemble(config: Registry, artifactsDir: string, outDir: string) {
   // Fresh output tree.
   await rm(outDir, { recursive: true, force: true })
   await mkdir(outDir, { recursive: true })

@@ -56,7 +56,7 @@ runs:
 
     - name: Mark the page-component bundle
       shell: bash
-      run: node packages/tooling/src/deploy/write-page-bundle.mjs
+      run: node packages/tooling/src/deploy/write-page-bundle.ts
         packages/${{ inputs.surface }}/dist ${{ inputs.surface }} /${{ inputs.surface }}/
 
     - name: Read the version

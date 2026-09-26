@@ -7,7 +7,7 @@ import { PAGE_BUNDLE_FILENAME, createPageBundleManifest } from '@rxova/website-s
 
 const [, , dist, project, base] = process.argv
 if (!dist || !project || !base) {
-  throw new Error('usage: write-page-bundle.mjs <dist> <project> <base>')
+  throw new Error('usage: write-page-bundle.ts <dist> <project> <base>')
 }
 
 const manifest = createPageBundleManifest(project, base)

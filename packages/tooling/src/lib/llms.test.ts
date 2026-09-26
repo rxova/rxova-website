@@ -10,10 +10,10 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { writeLlms, llmsIndex, LLMS_FILE } from './llms.mjs'
+import { writeLlms, llmsIndex, LLMS_FILE, type LlmsSource } from './llms.ts'
 
-const roots = []
-let root
+const roots: string[] = []
+let root: string
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), 'rxova-llms-'))
   roots.push(root)
@@ -24,17 +24,18 @@ afterAll(() => {
 
 const ORIGIN = 'https://rxova.org'
 
-function write(path, body) {
+function write(path: string, body: string): void {
   const full = join(root, path)
   mkdirSync(join(full, '..'), { recursive: true })
   writeFileSync(full, body)
 }
 
 const read = () => readFileSync(join(root, LLMS_FILE), 'utf8')
-const links = (doc) => [...doc.matchAll(/^- \[([^\]]*)\]\(([^)]*)\)/gm)].map((m) => [m[1], m[2]])
+const links = (doc: string) =>
+  [...doc.matchAll(/^- \[([^\]]*)\]\(([^)]*)\)/gm)].map((m) => [m[1], m[2]])
 
-/** A resolved source, shaped as scripts/registry.mjs hands them over. */
-const source = (id, over = {}) => ({
+/** A resolved source, shaped as registry.ts hands them over. */
+const source = (id: string, over: Partial<LlmsSource> = {}): LlmsSource => ({
   id,
   kind: 'package',
   base: `/packages/${id}/`,
@@ -50,7 +51,7 @@ describe('llmsIndex', () => {
 
     assert.equal(lines[0], '# Rxova')
     assert.equal(lines[1], '')
-    assert.match(lines[2], /^> /)
+    assert.match(lines[2] ?? '', /^> /)
   })
 
   it('omits a section that has no entries rather than printing an empty heading', () => {
