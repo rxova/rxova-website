@@ -48,52 +48,58 @@ export interface LandingProject extends Project {
   docsMounted: boolean
 }
 
-interface RawSource {
+/** One entry of `sources.json`'s `sources` list, as far as the landing reads it. */
+export interface RawSource {
   id: string
   kind?: string
   enabled?: boolean
   landing?: { blurb?: string; tags?: string[]; demo?: string; snippet?: string }
 }
 
-// Only the packages. `sources.json` also carries `kind: "site"` entries — /blog and
-// /updates, built in the brand monorepo and mounted like any other dist — and those
-// are surfaces of rxova.org rather than projects: no npm package, no docs, no
-// landing card, and deliberately absent from @rxova/brand's PROJECTS.
-const rawSources: RawSource[] = (sources.sources ?? []).filter(
-  (s: RawSource) => (s.kind ?? 'package') === 'package',
-)
+const allSources = (sources.sources ?? []) as RawSource[]
 
-// Storybook surfaces (`kind: "storybook"`, id `storybook-<project>`, mounted at
-// /storybook/<project>/) are neither packages nor site surfaces: each belongs to
-// a project, so it surfaces as a link on that project's card rather than as a
-// menu entry of its own. Same gating as everything else — the link only renders
-// once the surface is enabled, so the card cannot advertise a 404.
-const mountedStorybooks = new Set(
-  ((sources.sources ?? []) as RawSource[])
-    .filter((s) => s.kind === 'storybook' && s.enabled === true)
-    .map((s) => s.id),
-)
+/**
+ * Joins brand `projects` with `sources.json`'s entries, one card per project in
+ * brand order, enabled or not — and throws if the two disagree.
+ */
+export function buildLandingProjects(
+  projects: readonly Project[],
+  sourceList: readonly RawSource[],
+): LandingProject[] {
+  // Only the packages. `sources.json` also carries `kind: "site"` entries — /blog and
+  // /updates, built in the brand monorepo and mounted like any other dist — and those
+  // are surfaces of rxova.org rather than projects: no npm package, no docs, no
+  // landing card, and deliberately absent from @rxova/brand's PROJECTS.
+  const rawSources = sourceList.filter((s) => (s.kind ?? 'package') === 'package')
 
-function fail(message: string): never {
-  throw new Error(
-    `[landing] sources.json and @rxova/brand disagree: ${message}\n` +
-      `  brand PROJECTS: ${PROJECTS.map((p) => p.id).join(', ') || '(none)'}\n` +
-      `  sources.json:   ${rawSources.map((s) => s.id).join(', ') || '(none)'}\n` +
-      `Add the project to both, or remove it from both.`,
+  // Storybook surfaces (`kind: "storybook"`, id `storybook-<project>`, mounted at
+  // /storybook/<project>/) are neither packages nor site surfaces: each belongs to
+  // a project, so it surfaces as a link on that project's card rather than as a
+  // menu entry of its own. Same gating as everything else — the link only renders
+  // once the surface is enabled, so the card cannot advertise a 404.
+  const mountedStorybooks = new Set(
+    sourceList.filter((s) => s.kind === 'storybook' && s.enabled === true).map((s) => s.id),
   )
-}
 
-function build(): LandingProject[] {
+  function fail(message: string): never {
+    throw new Error(
+      `[landing] sources.json and @rxova/brand disagree: ${message}\n` +
+        `  brand PROJECTS: ${projects.map((p) => p.id).join(', ') || '(none)'}\n` +
+        `  sources.json:   ${rawSources.map((s) => s.id).join(', ') || '(none)'}\n` +
+        `Add the project to both, or remove it from both.`,
+    )
+  }
+
   // A project in sources.json with no brand entry would build and mount docs that
   // no switcher links to, and that the landing cannot describe. Catch it here.
   for (const s of rawSources) {
-    if (!PROJECTS.some((p) => p.id === s.id))
+    if (!projects.some((p) => p.id === s.id))
       fail(`"${s.id}" is in sources.json but not in PROJECTS`)
   }
 
   // Brand order is display order — it is what the docs switcher uses, so the
   // landing lists projects the same way round.
-  return PROJECTS.map((project) => {
+  return projects.map((project) => {
     const source = rawSources.find((s) => s.id === project.id)
     if (!source) fail(`"${project.id}" is in PROJECTS but not in sources.json`)
 
@@ -133,7 +139,7 @@ function build(): LandingProject[] {
       ...(snippet ? { snippet } : {}),
       links: [
         // Only link to docs that are actually deployed. `landingProjects` drops
-        // disabled projects anyway; the guard keeps `build()` honest on its own.
+        // disabled projects anyway; the guard keeps the builder honest on its own.
         ...(docsMounted ? [{ label: 'Docs', href: project.mount }] : []),
         ...(mountedStorybooks.has(`storybook-${project.id}`)
           ? [{ label: 'Storybook', href: `/storybook/${project.id}/` }]
@@ -152,14 +158,17 @@ function build(): LandingProject[] {
 /**
  * The projects the landing lists: only the enabled ones.
  *
- * `build()` still runs over every project, so a brand/sources.json disagreement
+ * The builder still runs over every project, so a brand/sources.json disagreement
  * fails the build whether or not the project is switched on. But a disabled
  * project stays off the page entirely rather than showing as a card with no
  * Docs link — `enabled: false` means "not launched", and a card announces it.
  * Flipping the flag in sources.json brings the card, the mount and the footer
  * link in together.
  */
-export const landingProjects: readonly LandingProject[] = build().filter((p) => p.docsMounted)
+export const landingProjects: readonly LandingProject[] = buildLandingProjects(
+  PROJECTS,
+  allSources,
+).filter((p) => p.docsMounted)
 
 /**
  * The projects whose docs are actually mounted, as footer links.
@@ -195,9 +204,14 @@ export interface SiteSurface {
 
 const LABELS: Record<string, string> = { blog: 'Blog', updates: 'Updates' }
 
-export const siteSurfaces: readonly SiteSurface[] = ((sources.sources ?? []) as RawSource[])
-  .filter((s) => s.kind === 'site' && s.enabled === true)
-  .map((s) => ({ id: s.id, label: LABELS[s.id] ?? s.id, href: `/${s.id}` }))
+/** The enabled `kind: "site"` entries, as menu links. */
+export function buildSiteSurfaces(sourceList: readonly RawSource[]): SiteSurface[] {
+  return sourceList
+    .filter((s) => s.kind === 'site' && s.enabled === true)
+    .map((s) => ({ id: s.id, label: LABELS[s.id] ?? s.id, href: `/${s.id}` }))
+}
+
+export const siteSurfaces: readonly SiteSurface[] = buildSiteSurfaces(allSources)
 
 /**
  * Surfaces this repo builds itself, rather than mounts.
@@ -221,10 +235,12 @@ export const landingSurfaces: readonly SiteSurface[] = [
  */
 export const navSurfaces: readonly SiteSurface[] = [...siteSurfaces, ...landingSurfaces]
 
-/** "journey, react-inputs, and use-everywhere" — for the page's meta descriptions. */
-export const projectListSentence: string = (() => {
-  const labels = landingProjects.map((p) => p.label)
+/** "a" · "a and b" · "a, b, and c" */
+export function listSentence(labels: readonly string[]): string {
   if (labels.length <= 1) return labels[0] ?? ''
   if (labels.length === 2) return `${labels[0]} and ${labels[1]}`
   return `${labels.slice(0, -1).join(', ')}, and ${labels[labels.length - 1]}`
-})()
+}
+
+/** "journey, react-inputs, and use-everywhere" — for the page's meta descriptions. */
+export const projectListSentence: string = listSentence(landingProjects.map((p) => p.label))
