@@ -1,15 +1,16 @@
-/**
- * Ordering, bylines, dates and facets for /blog and /updates.
- *
- * The one that earns its keep is `newestFirst`. Its contract is that the same
- * content always produces the same order — without that, CI and a local build can
- * disagree about what the index looks like, and nothing about the page would tell
- * you which one was right.
- */
+/** The helpers /blog and /updates share. `newestFirst` must give the same order on every machine. */
 
 import { describe, expect, it } from 'vitest'
 
-import { newestFirst, byline, usedValues, formatDate, isoDate, excerpt, nextLimit } from './entries'
+import {
+  newestFirst,
+  byline,
+  usedValues,
+  formatDate,
+  isoDate,
+  excerpt,
+  nextLimit,
+} from '../src/lib/entries.ts'
 
 const at = (id: string, iso: string) => ({ id, date: new Date(iso) })
 const byDate = (e: { date: Date }) => e.date
@@ -162,6 +163,9 @@ describe('excerpt', () => {
     ['a blockquote', '> Someone else said this.\n\nThe real opening.'],
     ['a code fence', '```js\nconst x = 1\n```\n\nThe real opening.'],
     ['a list', '- one\n- two\n\nThe real opening.'],
+    ['a numbered list', '1. one\n2. two\n\nThe real opening.'],
+    ['a table', '| a | b |\n\nThe real opening.'],
+    ['a rule', '---\n\nThe real opening.'],
   ])('skips %s', (_label, body) => {
     expect(excerpt(body, 200).text).toBe('The real opening.')
   })
