@@ -1,0 +1,54 @@
+---
+/**
+ * The updates stream: every entry in full, newest first, filterable by repo and tag.
+ * Filtering and batching are show/hide over markup already in the DOM; without JS everything shows.
+ */
+import ShowMore from '@rxova/astro-ui/components/ShowMore.astro'
+import Entry, { type StreamItem } from './stream/Entry.astro'
+import Filters from './stream/Filters.astro'
+
+interface Props {
+  items: StreamItem[]
+  /** Repo ids offered as filters. Empty hides the repo row (e.g. on a repo page). */
+  repos?: { id: string; label: string }[]
+  tags?: string[]
+  /** Pre-applied repo, on `/updates/repos/<id>`. Disables the filter UI. */
+  activeRepo?: string
+  /** How many entries to reveal at a time. The controls stay away below this. */
+  pageSize?: number
+}
+
+const { items, repos = [], tags = [], activeRepo, pageSize = 8 } = Astro.props
+const filterable = !activeRepo && (repos.length > 0 || tags.length > 0)
+---
+
+{filterable && <Filters repos={repos} tags={tags} />}
+
+<ol class="stream" data-stream data-page-size={pageSize}>
+  {items.map((item) => (
+    <Entry {...item} />
+  ))}
+</ol>
+
+<p class="none" data-none hidden>
+  No entries match those filters.
+</p>
+
+<ShowMore noun="updates" />
+
+<style>
+  .stream {
+    list-style: none;
+    display: grid;
+    gap: 2.5rem;
+  }
+  .none {
+    color: var(--faint);
+  }
+</style>
+
+<script>
+  import { enhanceStream } from '../scripts/updates-stream'
+
+  enhanceStream()
+</script>

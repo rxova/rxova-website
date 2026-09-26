@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+
 import { describe, expect, it } from 'vitest'
 
 import { checkCssImports, checkExportsResolve, type Fs } from './pack-smoke-helpers'
@@ -107,11 +110,51 @@ describe('checkCssImports', () => {
     expect(checkCssImports({ '.': './src/index.ts' }, 'pkg', fs)).toEqual([])
   })
 
+  // checkExportsResolve already reports these; reading them here would only fail louder.
+  it('skips wildcard, missing and conditional stylesheet exports', () => {
+    const fs = fakeFs({ 'pkg/styles/a.css': "@import './nope.css';\n" })
+
+    expect(
+      checkCssImports(
+        {
+          './styles/*': './styles/*.css',
+          './gone.css': './src/gone.css',
+          './theme.css': { import: './src/theme.css' },
+        },
+        'pkg',
+        fs,
+      ),
+    ).toEqual([])
+  })
+
   it('reports every dangling import in one file', () => {
     const fs = fakeFs({
       'pkg/src/theme.css': "@import './a.css';\n@import './b.css';\n",
     })
 
     expect(checkCssImports({ './theme.css': './src/theme.css' }, 'pkg', fs)).toHaveLength(2)
+  })
+})
+
+// The default filesystem, against this package's own tree: what pack-smoke sees
+// once the tarball is unpacked, minus the packing.
+describe('against the package source with the real filesystem', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url))
+  const { exports } = JSON.parse(readFileSync(`${root}package.json`, 'utf8')) as {
+    exports: Record<string, unknown>
+  }
+
+  it('resolves every declared export', () => {
+    expect(checkExportsResolve(exports, root)).toEqual([])
+  })
+
+  it('resolves every relative @import in the exported stylesheets', () => {
+    expect(checkCssImports(exports, root)).toEqual([])
+  })
+
+  it('reports what is missing from a directory that is not the package', () => {
+    expect(checkExportsResolve({ './x': './nope.ts' }, `${root}src`)).toEqual([
+      './x -> ./nope.ts: missing from the tarball',
+    ])
   })
 })

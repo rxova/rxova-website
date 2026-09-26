@@ -1,0 +1,79 @@
+---
+/**
+ * One repo's slice of the updates feed.
+ *
+ * Pre-rendered rather than left to the index's client-side filter because this is
+ * the facet with a small, known set of values: it gives crawlers something to
+ * index, gives a no-JS visitor a working filter, and gives each project's docs
+ * site a stable URL to point at for "what has been happening here".
+ *
+ * A repo with no entries yet still gets a page — REPOS is the source of truth for
+ * what may be linked to, and a 404 on a link the docs sites render is worse than
+ * an honestly empty page.
+ */
+import { render } from 'astro:content'
+
+import { siteUrl, canonicalUrl } from '@rxova/brand'
+
+import PageHeader from '@rxova/astro-ui/components/PageHeader.astro'
+import Content from '@rxova/astro-ui/components/SiteShell.astro'
+import UpdatesStream from '../../components/UpdatesStream.astro'
+import type { StreamItem } from '../../components/stream/Entry.astro'
+import { getUpdates, resolveAuthors, REPOS, href } from '../../lib/content'
+
+export async function getStaticPaths() {
+  const entries = await getUpdates()
+  return REPOS.map((repo) => ({
+    params: { id: repo.id },
+    props: {
+      repo,
+      entries: entries.filter((e) => (e.data.repos as string[]).includes(repo.id)),
+    },
+  }))
+}
+
+const { repo, entries } = Astro.props
+
+// This page is about exactly one repo, so when that repo is a project it can
+// share that project's card rather than the umbrella one. `project` is already
+// the flag distinguishing the three projects from the infrastructure repos, and
+// only the projects have a card rendered for them.
+const ogImage = repo.project ? siteUrl(`/og/${repo.id}.png`) : undefined
+const feedUrl = `${canonicalUrl('/updates')}rss.xml`
+
+const items: StreamItem[] = await Promise.all(
+  entries.map(async (entry) => ({
+    entry,
+    Body: (await render(entry)).Content,
+    authorNames: (await resolveAuthors(entry.data.authors)).map((a) => a.name),
+  })),
+)
+---
+
+<Content
+  title={`${repo.label} updates — Rxova`}
+  description={`What is moving in ${repo.label} — releases, fixes and infrastructure.`}
+  path={`/updates/repos/${repo.id}`}
+  image={ogImage}
+  feed={{ href: feedUrl, title: 'Rxova Updates' }}
+>
+  <PageHeader title={repo.label} back={{ href: href(), label: 'All repos' }} variant="detail">
+    Updates mentioning {repo.label}. See{' '}
+    <a href={repo.repo} target="_blank" rel="noopener noreferrer">
+      the repository ↗
+    </a>{' '}
+    for commits and releases.
+  </PageHeader>
+
+  {items.length === 0 ? (
+    <p class="empty">Nothing logged for {repo.label} yet.</p>
+  ) : (
+    <UpdatesStream items={items} activeRepo={repo.id} />
+  )}
+</Content>
+
+<style>
+  .empty {
+    color: var(--faint);
+  }
+</style>
