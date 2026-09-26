@@ -18,14 +18,25 @@ beforeAll(async () => {
   container = await AstroContainer.create()
 })
 
-/** Rendered HTML without Astro's scope attributes and inline scripts, which change with the file's path. */
+/** Drops Astro's inline `<script>` elements, so assertions see only the markup. Not a sanitizer. */
+const withoutScripts = (html: string): string => {
+  const start = html.indexOf('<script')
+  if (start === -1) return html
+  const end = html.indexOf('</script>', start) + '</script>'.length
+  return withoutScripts(html.slice(0, start) + html.slice(end))
+}
+
+/** Rendered HTML without Astro's scope attributes, which change with the file's path, or its scripts. */
 const render = async (
   component: Parameters<AstroContainer['renderToString']>[0],
   options: Parameters<AstroContainer['renderToString']>[1] = {},
 ) =>
-  (await container.renderToString(component, options))
-    .replace(/ data-astro-cid-[a-z0-9]+(="true")?/g, '')
-    .replace(/<script[\s\S]*?<\/script>/g, '')
+  withoutScripts(
+    (await container.renderToString(component, options)).replace(
+      / data-astro-cid-[a-z0-9]+(="true")?/g,
+      '',
+    ),
+  )
 
 describe('Section', () => {
   it('renders the heading, opts out of prose styling and takes an id', async () => {
