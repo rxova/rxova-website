@@ -52,7 +52,8 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@rxova/brand": "workspace:^"
+    "@rxova/brand": "workspace:^",
+    "lucide-static": "^1.45.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
