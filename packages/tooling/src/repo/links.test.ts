@@ -57,6 +57,9 @@ function snippetImports(snippet: string): string[] {
 
 // Raw, not through loadRegistry: its schema keeps only what the deploy needs and
 // drops `demo` and `snippet`, which the landing reads straight from the file.
+/** Off by default, so a flaky registry cannot fail a pull request; the weekly `links` workflow sets it. */
+const network = process.env.RX_NETWORK_TESTS === '1'
+
 interface LandingEntry {
   id: string
   landing?: { demo?: string; snippet?: string }
@@ -88,7 +91,7 @@ describe.each(withLanding.map((s): [string, LandingEntry] => [s.id, s]))(
     const { demo, snippet } = source.landing ?? {}
 
     if (demo) {
-      it(
+      it.runIf(network)(
         `serves its demo at ${demo}`,
         async () => {
           assert.equal(await status(demo, 'GET'), 200)
@@ -98,7 +101,7 @@ describe.each(withLanding.map((s): [string, LandingEntry] => [s.id, s]))(
     }
 
     for (const pkg of snippet ? snippetImports(snippet) : []) {
-      it(
+      it.runIf(network)(
         `imports ${pkg}, which is published on npm`,
         async () => {
           const url = `https://registry.npmjs.org/${encodeURIComponent(pkg)}`

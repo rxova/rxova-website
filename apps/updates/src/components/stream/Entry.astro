@@ -1,0 +1,179 @@
+---
+/** One update, rendered in full; its `#id` is the permalink. */
+import type { UpdateEntry } from '../../lib/content'
+import { repoLabel, formatDate, isoDate, byline, href } from '../../lib/content'
+
+export interface StreamItem {
+  entry: UpdateEntry
+  Body: import('astro/runtime/server/index.js').AstroComponentFactory
+  authorNames: string[]
+}
+
+type Props = StreamItem
+
+const { entry, Body, authorNames } = Astro.props
+---
+
+<li
+  class="entry"
+  id={entry.id}
+  data-repos={entry.data.repos.join(' ')}
+  data-tags={entry.data.tags.join(' ')}
+>
+  <div class="when">
+    <time datetime={isoDate(entry.data.date)}>{formatDate(entry.data.date)}</time>
+  </div>
+  <div class="what">
+    <h2>
+      <a href={`#${entry.id}`} class="anchor">
+        {entry.data.title}
+      </a>
+    </h2>
+    <p class="meta">
+      {entry.data.draft && <span class="draft">Draft</span>}
+      {entry.data.repos.map((r) => (
+        <a class="repo" href={href(`repos/${r}`)}>
+          {repoLabel(r)}
+        </a>
+      ))}
+      {entry.data.tags.map((t) => (
+        <span class="tag">{t}</span>
+      ))}
+      {entry.data.version && <span class="version">{entry.data.version}</span>}
+    </p>
+    <div class="prose">
+      <Body />
+    </div>
+    {entry.data.links.length > 0 && (
+      <nav class="links" aria-label={`${entry.data.title} links`}>
+        {entry.data.links.map((l) => (
+          <a href={l.href} target="_blank" rel="noopener noreferrer">
+            {l.label} <span aria-hidden="true">↗</span>
+          </a>
+        ))}
+      </nav>
+    )}
+    <p class="by">{byline(authorNames)}</p>
+  </div>
+</li>
+
+<style>
+  .entry {
+    display: grid;
+    gap: 0.35rem 2rem;
+    /* Date beside the entry on wide screens, above it on narrow. */
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 46rem) {
+    .entry {
+      grid-template-columns: 9rem minmax(0, 1fr);
+    }
+  }
+  .when time {
+    color: var(--faint);
+    font-size: 0.85rem;
+    font-family: var(--mono);
+  }
+  /* The entry's own measure. The page is as wide as the header, so without it
+     an entry's prose ran past 100 characters a line on a large screen; 68ch is
+     the blog post's measure, so the two read the same. */
+  .what {
+    max-width: 68ch;
+  }
+  .what h2 {
+    font-size: 1.1rem;
+    font-weight: 640;
+    letter-spacing: -0.01em;
+  }
+  .anchor {
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .anchor:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .meta {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin: 0.4rem 0 0.75rem;
+    font-size: 0.78rem;
+  }
+  .repo,
+  .tag,
+  .version {
+    border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+    background: var(--tag-bg);
+    color: var(--muted);
+  }
+  .repo {
+    text-decoration: none;
+    border: 1px solid var(--rule);
+  }
+  .repo:hover {
+    color: var(--fg);
+  }
+  .version {
+    font-family: var(--mono);
+    background: none;
+    color: var(--faint);
+    padding-left: 0;
+  }
+  /* Only ever rendered by `pnpm dev` — sketches are filtered out of the production
+     build — but it is the difference between previewing a sketch and thinking you
+     published one. First in the row for the same reason. */
+  .draft {
+    border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--faint);
+    border: 1px solid var(--rule);
+  }
+  .links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 0.9rem;
+    font-size: 0.9rem;
+  }
+  .links a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .links a:hover {
+    color: var(--fg);
+  }
+  .by {
+    margin-top: 0.9rem;
+    color: var(--faint);
+    font-size: 0.82rem;
+  }
+  .entry[hidden] {
+    display: none;
+  }
+  /* Batched away, as opposed to filtered away. Two mechanisms because they mean
+     different things: `hidden` says "you asked not to see this", `.beyond` says
+     "not yet". Print keeps the first and drops the second. */
+  .entry.beyond {
+    display: none;
+  }
+
+  /* An entry the script revealed and then focused. Without JS nothing is focused
+     here, so this never fires on the initial page. */
+  .entry:focus {
+    outline: none;
+  }
+  /* Paper has no "show more". Print everything that passes the filters, batched
+     or not — but still honour the filters themselves. */
+  @media print {
+    .entry.beyond {
+      display: grid;
+    }
+    .entry[hidden] {
+      display: none;
+    }
+  }
+</style>
