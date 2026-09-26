@@ -1,16 +1,6 @@
 {
-  "compilerOptions": {
-    "target": "ES2024",
-    "lib": ["ES2024", "DOM"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "skipLibCheck": true,
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "types": ["node"]
-  },
+  "extends": "@rxova/repo-tooling/tsconfig.base.json",
+  // Specs pass functions to the page, so they see the DOM too.
+  "compilerOptions": { "lib": ["ES2024", "DOM"] },
   "include": ["e2e/**/*.ts", "playwright.config.ts"]
 }

@@ -333,6 +333,9 @@ importers:
       '@resvg/resvg-js':
         specifier: ^2.6.2
         version: 2.6.2
+      '@rxova/repo-tooling':
+        specifier: workspace:*
+        version: link:../tooling
       '@types/node':
         specifier: ^26.6.1
         version: 26.6.1

@@ -5,7 +5,9 @@
   "description": "Repo tooling for rxova-website: the behaviour lock, and later the deploy and repo scripts.",
   "type": "module",
   "exports": {
-    "./playwright": "./config/playwright.ts"
+    "./playwright": "./config/playwright.ts",
+    "./vitest": "./config/vitest.ts",
+    "./tsconfig.base.json": "./config/tsconfig.base.json"
   },
   "scripts": {
     "test": "vitest run --coverage",
