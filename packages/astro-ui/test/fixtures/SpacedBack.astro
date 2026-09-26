@@ -1,0 +1,17 @@
+---
+import BackLink from '../../src/components/BackLink.astro'
+import VisuallyHidden from '../../src/components/VisuallyHidden.astro'
+---
+
+<p>
+  Read more<VisuallyHidden> of “A post”</VisuallyHidden>
+</p>
+<BackLink class="gap" href="/">
+  rxova.org
+</BackLink>
+
+<style>
+  .gap {
+    margin-bottom: 2rem;
+  }
+</style>

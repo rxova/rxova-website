@@ -15,6 +15,7 @@ import { render } from 'astro:content'
 
 import { siteUrl, canonicalUrl } from '@rxova/brand'
 
+import PageHeader from '@rxova/astro-ui/components/PageHeader.astro'
 import Content from '@rxova/astro-ui/components/SiteShell.astro'
 import UpdatesStream, { type StreamItem } from '../../components/UpdatesStream.astro'
 import { getUpdates, resolveAuthors, REPOS, href } from '../../lib/content'
@@ -55,19 +56,13 @@ const items: StreamItem[] = await Promise.all(
   image={ogImage}
   feed={{ href: feedUrl, title: 'Rxova Updates' }}
 >
-  <header class="head">
-    <a class="back" href={href()}>
-      ← All repos
-    </a>
-    <h1>{repo.label}</h1>
-    <p class="lede">
-      Updates mentioning {repo.label}. See{' '}
-      <a href={repo.repo} target="_blank" rel="noopener noreferrer">
-        the repository ↗
-      </a>{' '}
-      for commits and releases.
-    </p>
-  </header>
+  <PageHeader title={repo.label} back={{ href: href(), label: 'All repos' }} variant="detail">
+    Updates mentioning {repo.label}. See{' '}
+    <a href={repo.repo} target="_blank" rel="noopener noreferrer">
+      the repository ↗
+    </a>{' '}
+    for commits and releases.
+  </PageHeader>
 
   {items.length === 0 ? (
     <p class="empty">Nothing logged for {repo.label} yet.</p>
@@ -77,32 +72,6 @@ const items: StreamItem[] = await Promise.all(
 </Content>
 
 <style>
-  .head {
-    margin-bottom: clamp(2rem, 6vh, 3rem);
-  }
-  .back {
-    display: inline-block;
-    margin-bottom: 1.25rem;
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 0.95rem;
-  }
-  .back:hover {
-    color: var(--fg);
-  }
-  .head h1 {
-    font-size: clamp(1.8rem, 5vw, 2.4rem);
-    letter-spacing: -0.02em;
-    font-weight: 660;
-    margin-bottom: 0.6rem;
-  }
-  .lede {
-    color: var(--muted);
-    max-width: 56ch;
-  }
-  .lede a {
-    color: var(--fg);
-  }
   .empty {
     color: var(--faint);
   }

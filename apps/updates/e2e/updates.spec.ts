@@ -54,9 +54,9 @@ test('reveals the stream a batch at a time', async ({ page }) => {
 
   const shown = page.locator('[data-stream] .entry:not([hidden]):not(.beyond)')
   await expect(shown).toHaveCount(pageSize)
-  await page.locator('[data-more]').click()
+  await page.locator('[data-reveal-more]').click()
   await expect(shown).toHaveCount(Math.min(total, pageSize * 2))
-  await page.locator('[data-more-all]').click()
+  await page.locator('[data-reveal-all]').click()
   await expect(shown).toHaveCount(total)
-  await expect(page.locator('[data-more-row]')).toBeHidden()
+  await expect(page.locator('[data-reveal-controls]')).toBeHidden()
 })

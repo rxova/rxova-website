@@ -31,6 +31,7 @@
   "exports": {
     "./components/*": "./src/components/*",
     "./lib/entries": "./src/lib/entries.ts",
+    "./scripts/show-more": "./src/scripts/show-more.ts",
     "./starlight": "./src/starlight/index.ts",
     "./starlight/*": "./src/starlight/*",
     "./styles/*": "./src/styles/*",
@@ -46,7 +47,6 @@
     }
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
     "check:astro": "astro check",
     "check:exports": "publint --strict",
     "pack:smoke": "node --import tsx ../brand/scripts/pack-smoke.ts",
@@ -62,6 +62,7 @@
     "@types/node": "^26.6.1",
     "@vitest/coverage-v8": "^5.0.1",
     "astro": "^7.3.2",
+    "happy-dom": "^20.14.5",
     "publint": "^0.3.24",
     "tsx": "^4.23.13",
     "typescript": "6.0.3",

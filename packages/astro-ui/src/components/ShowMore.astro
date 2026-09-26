@@ -1,0 +1,82 @@
+---
+/**
+ * "Show more" controls for a batched list; they ship `hidden` until a script drives them.
+ * `enhanceShowMore` from `@rxova/astro-ui/scripts/show-more` batches a plain list.
+ */
+import VisuallyHidden from './VisuallyHidden.astro'
+
+interface Props {
+  /** What the list holds, for the button's accessible name: "Show more posts". */
+  noun: string
+}
+
+const { noun } = Astro.props
+---
+
+<div class="more" data-reveal-controls hidden>
+  <button class="more-btn" type="button" data-reveal-more>
+    Show more<VisuallyHidden>{` ${noun}`}</VisuallyHidden>
+  </button>
+  <button class="show-all" type="button" data-reveal-all>
+    Show all
+  </button>
+  <p class="progress" data-reveal-progress></p>
+</div>
+
+<style>
+  .more {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+  /* `display: flex` outranks the UA's `[hidden]` rule. */
+  .more[hidden] {
+    display: none;
+  }
+  .more-btn {
+    font: inherit;
+    font-size: 0.9rem;
+    color: var(--fg);
+    background: var(--tag-bg);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.35rem 1rem;
+    cursor: pointer;
+  }
+  .more-btn:hover {
+    border-color: var(--accent);
+  }
+  .show-all {
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: none;
+    border: 0;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .show-all:hover {
+    color: var(--fg);
+  }
+  .more-btn:focus-visible,
+  .show-all:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .progress {
+    margin-left: auto;
+    color: var(--faint);
+    font-size: 0.85rem;
+  }
+  @media print {
+    .more {
+      display: none;
+    }
+  }
+</style>

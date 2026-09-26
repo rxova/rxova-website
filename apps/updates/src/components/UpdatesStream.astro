@@ -29,6 +29,7 @@
  * "Show more" as the escape hatch. Print gets everything regardless, and without
  * JS nothing is hidden at all.
  */
+import ShowMore from '@rxova/astro-ui/components/ShowMore.astro'
 import type { UpdateEntry } from '../lib/content'
 import { repoLabel, formatDate, isoDate, byline, href } from '../lib/content'
 
@@ -141,17 +142,7 @@ const filterable = !activeRepo && (repos.length > 0 || tags.length > 0)
   No entries match those filters.
 </p>
 
-{/* Hidden until the script runs, for the same reason as the tag row: without JS
-    every entry is already on the page and there is nothing left to reveal. */}
-<div class="more" data-more-row hidden>
-  <button class="more-btn" type="button" data-more>
-    Show more<span class="visually-hidden"> updates</span>
-  </button>
-  <button class="show-all" type="button" data-more-all>
-    Show all
-  </button>
-  <p class="progress" data-progress></p>
-</div>
+<ShowMore noun="updates" />
 
 <style>
   .filters {
@@ -333,75 +324,11 @@ const filterable = !activeRepo && (repos.length > 0 || tags.length > 0)
     display: none;
   }
 
-  .more {
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    margin-top: 2.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--rule);
-  }
-  /* `display: flex` above outranks the UA's `[hidden] { display: none }`, so the
-     attribute alone would leave the control on screen with nothing left to reveal. */
-  .more[hidden] {
-    display: none;
-  }
-  /* The chip shape from the filter row above, one size up: this is the primary
-     control on the page once you have scrolled to it. */
-  .more-btn {
-    font: inherit;
-    font-size: 0.9rem;
-    color: var(--fg);
-    background: var(--tag-bg);
-    border: 1px solid var(--rule);
-    border-radius: 999px;
-    padding: 0.35rem 1rem;
-    cursor: pointer;
-  }
-  .more-btn:hover {
-    border-color: var(--accent);
-  }
-  .show-all {
-    font: inherit;
-    font-size: 0.85rem;
-    color: var(--muted);
-    background: none;
-    border: 0;
-    padding: 0;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    cursor: pointer;
-  }
-  .show-all:hover {
-    color: var(--fg);
-  }
-  .more-btn:focus-visible,
-  .show-all:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-  .progress {
-    margin-left: auto;
-    color: var(--faint);
-    font-size: 0.85rem;
-  }
   /* An entry the script revealed and then focused. Without JS nothing is focused
      here, so this never fires on the initial page. */
   .entry:focus {
     outline: none;
   }
-  /* Not display:none — a screen reader has to reach it. Keeps "Show more" from
-     being the whole accessible name. */
-  .visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
   /* Paper has no "show more". Print everything that passes the filters, batched
      or not — but still honour the filters themselves. */
   @media print {
@@ -409,9 +336,6 @@ const filterable = !activeRepo && (repos.length > 0 || tags.length > 0)
       display: grid;
     }
     .entry[hidden] {
-      display: none;
-    }
-    .more {
       display: none;
     }
   }
@@ -433,10 +357,10 @@ const filterable = !activeRepo && (repos.length > 0 || tags.length > 0)
     const count = root?.querySelector<HTMLElement>('[data-count]')
     const clear = root?.querySelector<HTMLElement>('[data-clear]')
     const none = document.querySelector<HTMLElement>('[data-none]')
-    const moreRow = document.querySelector<HTMLElement>('[data-more-row]')
-    const moreBtn = document.querySelector<HTMLElement>('[data-more]')
-    const allBtn = document.querySelector<HTMLElement>('[data-more-all]')
-    const progress = document.querySelector<HTMLElement>('[data-progress]')
+    const moreRow = document.querySelector<HTMLElement>('[data-reveal-controls]')
+    const moreBtn = document.querySelector<HTMLElement>('[data-reveal-more]')
+    const allBtn = document.querySelector<HTMLElement>('[data-reveal-all]')
+    const progress = document.querySelector<HTMLElement>('[data-reveal-progress]')
 
     // Tag filtering only exists with JS, so the row stays hidden until now.
     if (tagRow) tagRow.hidden = false

@@ -1,4 +1,5 @@
 ---
+import BackLink from '@rxova/astro-ui/components/BackLink.astro'
 import BaseLayout from './BaseLayout.astro'
 // See ./BaseLayout.astro for why the reset is imported per surface rather than
 // by BaseLayout.
@@ -9,9 +10,9 @@ const { title, path } = Astro.props
 
 <BaseLayout title={`${title} — Rxova`} robots="noindex" path={path}>
   <main class="legal">
-    <a class="back" href="/">
-      ← rxova.org
-    </a>
+    <BackLink class="back" href="/">
+      rxova.org
+    </BackLink>
     <h1>{title}</h1>
     <div class="prose">
       <slot />
@@ -25,14 +26,7 @@ const { title, path } = Astro.props
       padding: clamp(2.5rem, 8vh, 5rem) 1.5rem 4rem;
     }
     .back {
-      display: inline-block;
       margin-bottom: 2rem;
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 0.95rem;
-    }
-    .back:hover {
-      color: var(--fg);
     }
     /* The page is as wide as the header; the text is not. */
     main.legal > * {
