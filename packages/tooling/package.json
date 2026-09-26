@@ -1,0 +1,22 @@
+{
+  "name": "@rxova/repo-tooling",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Repo tooling for rxova-website: the behaviour lock, and later the deploy and repo scripts.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@rxova/website-schemas": "workspace:^",
+    "parse5": "^8.0.1",
+    "prettier": "^3.9.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.1",
+    "@vitest/coverage-v8": "^5.0.1",
+    "typescript": "6.0.3",
+    "vitest": "^5.0.1"
+  }
+}
