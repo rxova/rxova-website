@@ -2,15 +2,11 @@ module.exports = {
   extends: ['@commitlint/config-conventional'],
   rules: {
     'header-max-length': [2, 'always', 120],
-    // Off, not relaxed: on a squash merge GitHub composes the body from the PR
-    // description, which is prose and URLs written in a textarea that does not
-    // wrap. Enforcing a wrap width there fails the commit only once it is
-    // already on main, where the message can no longer be edited.
+    // Off: squash merges build the body from the unwrapped PR description, and a
+    // failure there only surfaces once the commit is on main and can't be edited.
     'body-max-line-length': [0, 'always'],
-    // Off for the same reason, and it is not redundant with the rule above: the
-    // parser splits body from footer at the first `Word: value` line, so a plain
-    // prose sentence starting "Note:" or "Fixes:" silently reclassifies every
-    // line after it as footer — where the 100-char cap still applied.
+    // Off too: a prose line like "Note: …" makes the parser treat everything after
+    // it as footer, where the line cap would still apply.
     'footer-max-line-length': [0, 'always'],
     'type-enum': [
       2,

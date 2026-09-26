@@ -1,0 +1,78 @@
+/**
+ * For sites that own their document (the landing, /blog, /updates): chrome.css plus a reset and base
+ * element styles. Never inside a Starlight document, where the unlayered reset would flatten the page.
+ */
+
+@import './chrome.css';
+
+/* --- Reset ---------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  position: relative;
+  background: var(--rx-bg);
+  color: var(--rx-fg);
+  font-family: var(--rx-font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+
+  /* At least a screen tall, with `main` taking the slack, so a short page —
+     /blog with two posts — keeps its footer at the bottom of the window instead
+     of halfway up it. A column of flex items rather than a grid because the
+     number of children varies: the shell's header and footer are spliced
+     around a producer's `main` at deploy time. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* A flex item with `margin: 0 auto` shrinks to its content instead of filling
+   the row the way a block does, so a short `main` or footer would narrow and
+   drift off the header's edges. Full width restores the block behaviour, and
+   `max-width` plus the auto margins centre it as before. `:where()` keeps both
+   rules at zero specificity, so any component's own width still wins. */
+:where(body > *) {
+  width: 100%;
+}
+
+:where(body > main) {
+  flex-grow: 1;
+}
+
+a {
+  color: inherit;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--rx-fg);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}

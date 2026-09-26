@@ -1,0 +1,21 @@
+{
+  // The `after` side of every walkthrough, checked against the packages it
+  // imports — the published ones, pinned in apps/landing/package.json — so a snippet
+  // that stops compiling fails `pnpm typecheck` instead of shipping.
+  //
+  // Separate from the site's tsconfig because two of them are React
+  // components, and the site types JSX as Astro's. The `before` sides are
+  // plain text and are never compiled: they are wrong on purpose.
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "types": []
+  },
+  "include": ["*/after.ts", "*/after.tsx"]
+}
