@@ -42,7 +42,7 @@ const resolveExport = (specifier: string): string | undefined => {
     const [prefix, suffix] = key.split('*')
     if (suffix !== undefined && prefix && subpath.startsWith(prefix) && subpath.endsWith(suffix)) {
       const rest = subpath.slice(prefix.length, subpath.length - suffix.length)
-      return fileURLToPath(new URL(target.replace('*', rest), packageRoot))
+      return fileURLToPath(new URL(target.replaceAll('*', rest), packageRoot))
     }
   }
   return undefined
