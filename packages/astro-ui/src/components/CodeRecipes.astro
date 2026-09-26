@@ -1,0 +1,67 @@
+---
+/** Titled source listings, one per recipe: a heading linking to the library, then the source in a code frame. */
+export interface Recipe {
+  id: string
+  label: string
+  href: string
+  source: string
+}
+
+interface Props {
+  recipes: readonly Recipe[]
+  /** Heading ids are `<idPrefix>-<recipe.id>`, so a page can link to one recipe. */
+  idPrefix?: string
+}
+
+const { recipes, idPrefix = 'recipe' } = Astro.props
+---
+
+<div class="rx-recipes">
+  {recipes.map(({ id, label, href, source }) => (
+    <section class="rx-recipe">
+      <h3 class="rx-recipe__title" id={`${idPrefix}-${id}`}>
+        <a href={href}>{label}</a>
+      </h3>
+      <pre class="rx-recipe__source"><code>{source}</code></pre>
+    </section>
+  ))}
+</div>
+
+<style>
+  .rx-recipes {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .rx-recipe__title {
+    margin: 0 0 0.75rem;
+    font-size: 1.05rem;
+    font-weight: 620;
+    letter-spacing: -0.015em;
+  }
+
+  .rx-recipe__title a {
+    color: var(--rx-fg);
+    text-decoration: none;
+  }
+
+  .rx-recipe__title a:hover {
+    color: var(--rx-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .rx-recipe__source {
+    margin: 0;
+    padding: 1.1rem 1.25rem;
+    background: var(--rx-card);
+    border: 1px solid var(--rx-rule);
+    border-radius: var(--rx-radius);
+    overflow-x: auto;
+    color: var(--rx-fg);
+    font-family: var(--rx-font-mono);
+    font-size: 0.86rem;
+    line-height: 1.65;
+    tab-size: 2;
+  }
+</style>

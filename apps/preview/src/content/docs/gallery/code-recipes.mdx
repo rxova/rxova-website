@@ -1,0 +1,46 @@
+---
+title: CodeRecipes
+description: Titled source listings, each with a linked heading.
+---
+
+import Story from '../../../components/Story.astro'
+import CodeRecipes from '@rxova/astro-ui/components/CodeRecipes.astro'
+
+One section per recipe: a heading that links to the library the recipe is for, then the
+source in a code frame. Headings carry an id under a configurable prefix, so a
+page can link straight to one recipe.
+
+<Story
+  title="Two recipes"
+  note="Sources arrive as strings; a site reads its own files and passes them in."
+>
+  <CodeRecipes
+    idPrefix="integration"
+    recipes={[
+      {
+        id: 'shadcn',
+        label: 'shadcn/ui',
+        href: 'https://ui.shadcn.com/docs',
+        source:
+          'import { OtpInput } from \'@rxova/react-otp-input\'\n\nexport function OtpField() {\n  return <OtpInput length={6} className="flex gap-2" />\n}',
+      },
+      {
+        id: 'mui',
+        label: 'Material UI',
+        href: 'https://mui.com/material-ui/getting-started/',
+        source:
+          "import { OtpInput } from '@rxova/react-otp-input'\nimport { FormControl, FormLabel } from '@mui/material'\n\nexport function OtpField() {\n  return (\n    <FormControl>\n      <FormLabel>One-time code</FormLabel>\n      <OtpInput length={6} />\n    </FormControl>\n  )\n}",
+      },
+    ]}
+  />
+</Story>
+
+## Props
+
+| Prop       | Type                | Default    | What it does                             |
+| ---------- | ------------------- | ---------- | ---------------------------------------- |
+| `recipes`  | `readonly Recipe[]` |            | The listings, in order                   |
+| `idPrefix` | `string`            | `'recipe'` | Heading ids are `<idPrefix>-<recipe.id>` |
+
+`Recipe` is `{ id, label, href, source }`, all strings. `source` is rendered as text in a
+code frame of the component's own, not highlighted, so it reads the same inside and outside Starlight.
