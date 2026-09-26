@@ -1,17 +1,8 @@
 import { defineConfig } from 'vitest/config'
 
 /**
- * This package owns its own test run, and its own floor.
- *
- * It is the one thing here that is *published*, and every boundary between this
- * repo and rxova-website is described by it: what a post may say, what
- * `sources.json` may contain, what a dispatch may carry. A gap in it is a gap in
- * two repos at once, and the other repo's half only surfaces at deploy time.
- *
- * So the threshold is enforced rather than reported, at 95% **per file** across all
- * four metrics. Per-file matters more than the number: a single well-covered module
- * will happily carry an untested one to a green aggregate, which is exactly the
- * reassurance nobody wants.
+ * This published package enforces 95% coverage **per file** on all four metrics, so a
+ * well-covered module cannot carry an untested one to a green aggregate.
  */
 export default defineConfig({
   test: {

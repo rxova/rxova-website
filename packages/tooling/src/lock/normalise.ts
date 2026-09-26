@@ -17,9 +17,14 @@ export function maskAssetHashes(text: string): string {
   return text.replace(HASHED_ASSET, '$1.[hash].$2')
 }
 
-/** Astro's per-component scope ids change when a component moves; its scoping does not. */
+/**
+ * Astro's per-component scope ids change when a component moves, and for files outside an app's
+ * root they hash its absolute path; its scoping does not change. Both forms are masked.
+ */
 export function maskScopeIds(text: string): string {
-  return text.replace(/data-astro-cid-[a-z0-9]+/g, 'data-cid')
+  return text
+    .replace(/data-astro-cid-[a-z0-9]+/g, 'data-cid')
+    .replace(/\bastro-[a-z0-9]{8}\b/g, 'astro-scope')
 }
 
 export function stripCssComments(css: string): string {
@@ -41,10 +46,8 @@ const isStylesheetLink = (element: Element) =>
   element.tagName === 'link' && (attr(element, 'rel') ?? '').split(/\s+/).includes('stylesheet')
 
 /**
- * Splits a page into its markup and the CSS it applies, in document order.
- *
- * Refactors move CSS between Astro's chunks without changing what a page applies, so a
- * page's styles are compared as one sheet rather than as the files that happen to carry them.
+ * Splits a page into its markup and the CSS it applies, in document order, as one sheet
+ * so CSS moving between Astro's chunks does not count as a change.
  */
 export async function splitPageStyles(
   html: string,

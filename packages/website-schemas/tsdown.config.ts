@@ -2,15 +2,10 @@ import { defineConfig } from 'tsdown'
 
 export default defineConfig({
   entry: ['src/index.ts'],
-  // Dual ESM + CJS, matching the sibling packages. It matters more here than
-  // usual: this package is imported by rxova-website's plain Node scripts
-  // (check-registry, ingest), not only by bundlers — shipping raw TypeScript is
-  // what made 0.1.0 unusable there, since Node refuses to strip types inside
-  // node_modules.
+  // Dual ESM + CJS, compiled: plain Node scripts import this, and Node won't strip types
+  // inside node_modules.
   format: ['esm', 'cjs'],
-  // tsdown 0.16+ defaults this to true on the node platform and writes
-  // index.mjs / index.d.mts. `exports` points at index.js / index.d.ts (the
-  // package is `type: module`), so keep the plain extensions.
+  // tsdown 0.16+ would write index.mjs / index.d.mts; `exports` points at index.js / index.d.ts.
   fixedExtension: false,
   dts: true,
   clean: true,

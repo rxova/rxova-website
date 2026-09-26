@@ -1,39 +1,5 @@
-// The project registry: one place that reads `sources.json`, fills in defaults,
-// derives the paths, and refuses to return anything malformed.
-//
-// Everything that needs to know "what projects make up rxova.org" goes through
-// here — `assemble.ts` (which copies artifacts into the final tree), `ingest.ts`
-// (which validates and persists a project's freshly-built docs) and
-// `fetch-docs.ts` (which pulls those persisted docs back at deploy time). None
-// of them re-reads the JSON itself, so there is no second place for the shape of
-// an entry to be understood slightly differently.
-//
-// The landing page does NOT use this module: it consumes `sources.json` through
-// a Vite JSON import (see site/src/lib/projects.ts) because Astro builds it in a
-// browser-ish module graph where reaching outside the site root with node:fs is
-// fragile. It only reads the `landing` copy, which needs no derivation.
-//
-// ## Derived, not configured
-//
-// A source declares its `id` and the registry derives every path from it:
-//
-//   id: "journey"  ->  base:    /packages/journey/   (URL the docs are built for)
-//                      mount:   packages/journey     (path in the deployed tree)
-//                      artifact:docs-journey         (where a build lands under artifacts/)
-//                      release: content-journey      (tag of its persisted-docs release)
-//                               docs-journey.tgz     (the asset in that release)
-//
-// These used to be written out per project, which meant several chances to typo a
-// mount that silently disagrees with the base URL the docs were built with — a
-// class of bug whose symptom is a live page with every stylesheet 404ing.
-// Deriving them makes that disagreement unrepresentable.
-//
-// ## The aggregator no longer builds anything
-//
-// Docs are built by their own repos and sent here already built (see
-// docs/INPUTS-CONTRACT.md and .github/workflows/ingest.yml). So a source entry
-// carries no `build`, `install` or `output`: this repo never checks a project out
-// and never runs its toolchain. It only ever moves already-built trees around.
+// The project registry: the one reader of `sources.json` for the deploy scripts. It fills
+// defaults, derives base/mount/artifact/release paths from `id`, and rejects malformed entries.
 
 import { readFileSync } from 'node:fs'
 
@@ -44,28 +10,12 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../../../..')
 
 export const SOURCES_FILE = join(repoRoot, 'sources.json')
 
-/**
- * The entry shape comes from `@rxova/website-schemas` (packages/website-schemas),
- * which is published because the senders import it too: `@rxova/blog` and
- * `@rxova/updates` are two of the entries this file governs, and a contract belongs
- * with the thing that has to keep it. Importing it means a rule cannot be enforced
- * one way here and another way there.
- *
- * `mountFor` and `baseFor` come from the same place for the same reason. The
- * derivation is the invariant worth protecting: a tree built for one base and
- * copied to a different mount serves a page with every stylesheet 404ing, and that
- * is only impossible if sender and receiver compute it identically.
- */
+/** Shape and path derivation are shared with the senders, so both compute mounts identically. */
 import { sourceEntry, mountFor, baseFor } from '@rxova/website-schemas'
 
 import { errorMessage } from './errors.ts'
 
-/**
- * Git refs reach us from a `repository_dispatch` payload, i.e. from outside this
- * repo. They end up in release notes and log lines, so constrain them to what a
- * branch name or SHA can actually contain rather than trusting the sender.
- * Exported for ingest.ts, which validates the ref a source repo sends.
- */
+/** Allowed characters of an untrusted git ref from a `repository_dispatch` payload. */
 export const REF_PATTERN = /^[A-Za-z0-9._/-]+$/
 
 class RegistryError extends Error {
@@ -75,16 +25,10 @@ class RegistryError extends Error {
   }
 }
 
-/**
- * Resolve one raw entry into its full form: paths derived, nothing trusted.
- * Exported for tests and for anything that wants the derivation without the file.
- */
+/** Resolves one raw entry into its full form: validated, with every path derived. */
 export function resolveSource(raw: unknown) {
-  // The schema owns the shape, the defaults and the cross-field rules — an unknown
-  // kind, a site claiming a reserved top-level path, a package with no landing copy,
-  // and any key nobody modelled. It is `.strict()`, so a typo'd field is refused
-  // rather than silently ignored, which is how `enabled` would end up read as
-  // `enable` and a project quietly stop deploying.
+  // The schema owns shape, defaults and cross-field rules; it is `.strict()`, so a typo'd
+  // key (e.g. `enable`) is refused rather than ignored.
   const parsed = sourceEntry.safeParse(raw)
   if (!parsed.success) {
     const rawId = (raw as { id?: unknown } | null)?.id

@@ -1,0 +1,119 @@
+---
+/**
+ * The repo and tag chips. Repo chips are real links to the pre-rendered `/updates/repos/<id>` pages,
+ * which the script turns into in-place filters; tag chips are buttons, hidden until the script runs.
+ */
+import { href } from '../../lib/content'
+
+interface Props {
+  repos: { id: string; label: string }[]
+  tags: string[]
+}
+
+const { repos, tags } = Astro.props
+---
+
+<div class="filters" data-filters>
+  <div class="row">
+    <span class="row-label" id="filter-repos">
+      Repo
+    </span>
+    <div class="chips" role="group" aria-labelledby="filter-repos">
+      {repos.map((r) => (
+        <a class="chip" href={href(`repos/${r.id}`)} data-repo={r.id} aria-pressed="false">
+          {r.label}
+        </a>
+      ))}
+    </div>
+  </div>
+
+  {/* Hidden until the script runs: without JS these do nothing, and a dead
+        control is worse than an absent one. */}
+  <div class="row" data-tag-row hidden>
+    <span class="row-label" id="filter-tags">
+      Tag
+    </span>
+    <div class="chips" role="group" aria-labelledby="filter-tags">
+      {tags.map((t) => (
+        <button class="chip" type="button" data-tag={t} aria-pressed="false">
+          {t}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <p class="count" data-count aria-live="polite" />
+  <button class="clear" type="button" data-clear hidden>
+    Clear filters
+  </button>
+</div>
+
+<style>
+  .filters {
+    display: grid;
+    gap: 0.75rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--rx-rule);
+  }
+  .row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .row-label {
+    color: var(--rx-faint);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    min-width: 3.5rem;
+  }
+  .chips {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .chip {
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--rx-muted);
+    background: var(--rx-tag-bg);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 0.15rem 0.65rem;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .chip:hover {
+    color: var(--rx-fg);
+    border-color: var(--rx-rule);
+  }
+  .chip[aria-pressed='true'] {
+    color: var(--rx-fg);
+    border-color: var(--rx-fg);
+  }
+  .chip:focus-visible {
+    outline: 2px solid var(--rx-fg);
+    outline-offset: 2px;
+  }
+  .count {
+    color: var(--rx-faint);
+    font-size: 0.85rem;
+  }
+  .clear {
+    justify-self: start;
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--rx-muted);
+    background: none;
+    border: 0;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .clear:hover {
+    color: var(--rx-fg);
+  }
+</style>

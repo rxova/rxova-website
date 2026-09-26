@@ -1,14 +1,5 @@
-// Legacy-URL redirects, materialised as static stub documents.
-//
-// GitHub Pages serves files, not rules: there is no .htaccess, no _redirects, no
-// edge function. The only redirect it can express is one written into a document,
-// so each entry in redirects.json becomes a small page carrying
-// <meta http-equiv="refresh"> for browsers and <link rel="canonical"> for crawlers.
-// Google documents that pair as an accepted redirect signal.
-//
-// This exists because the old /docs/devtool/* URLs are still the ones Google holds
-// for this site. They 404 today, so the crawl history and any inbound links behind
-// them are being thrown away rather than handed to the pages that replaced them.
+// Legacy-URL redirects as static stubs (GitHub Pages has no redirect rules): each entry
+// becomes a page with <meta http-equiv="refresh"> plus <link rel="canonical">.
 
 import { readFile, mkdir, writeFile, access } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
@@ -22,9 +13,8 @@ const FROM_PATTERN = /^\/(?:[\w.-]+\/)+$/
 
 const toPath = z.string().regex(/^\//, 'must be a rooted path, e.g. /packages/journey/bridge/')
 
-// Keys are checked below rather than with a key schema: zod reports a rejected
-// record key as a bare "Invalid key in record", which names neither the offending
-// path nor what was wrong with it — no use to whoever has to fix the file.
+// Keys are checked below, not by a key schema: zod's "Invalid key in record" names
+// neither the offending path nor the problem.
 const redirectsFile = z
   .object({
     $comment: z.unknown().optional(),
@@ -110,12 +100,8 @@ const escapeHtml = (value: string): string =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 /**
- * Write a stub for every redirect into the assembled tree.
- *
- * Refuses on a target that does not exist, and on a source path that would land on
- * top of a real page. Both are the same judgement the rest of the assembler makes:
- * a broken redirect published silently is worse than a deploy that stops and says
- * which entry is wrong.
+ * Writes a stub for every redirect into the assembled tree. Throws on a missing target
+ * or on a source path that is a real page.
  */
 export async function writeRedirects(
   outDir: string,

@@ -1,0 +1,8 @@
+/**
+ * What the shared header and footer need, and nothing document-level: the tokens and the footer.
+ * No reset, which is document.css: unlayered, it would flatten a Starlight page this is composed into.
+ */
+
+@import '@rxova/brand/tokens.css';
+/* The footer every surface renders, Starlight or not. */
+@import './footer.css';

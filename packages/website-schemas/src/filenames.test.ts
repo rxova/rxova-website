@@ -1,9 +1,4 @@
-/**
- * The filename contract.
- *
- * Shared by this repo's validator and both surfaces' collections, so a regression
- * here changes what a name means in three places at once.
- */
+/** The filename contract, shared by this repo's validator and both surfaces' collections. */
 
 import { describe, expect, it } from 'vitest'
 

@@ -1,38 +1,6 @@
 /**
- * Self-hosted brand typefaces.
- *
- * Space Grotesk + IBM Plex Mono came from the journey docs, which was the only
- * rxova surface with a real typographic identity. They are bundled here rather
- * than pulled from Google Fonts at runtime: journey's original
- * `@import url("https://fonts.googleapis.com/...")` sat inside a stylesheet, so
- * it was a render-blocking third-party request on the critical path (bad LCP),
- * and it leaked visitor IPs to a third party on an EU-facing site.
- *
- * Weights are deliberately narrow — the ones the design system actually uses.
- * Adding a weight here costs every page on rxova.org, so add only on demand.
- *
- * The @font-face rules are declared here rather than `@import`ed from
- * @fontsource's own per-weight stylesheets, for two reasons:
- *
- *  1. `font-display`. Fontsource hardcodes `swap`, which paints every page in
- *     the fallback face and then re-paints it in Space Grotesk — the flash of
- *     unstyled text you see on each navigation, because these are multi-page
- *     sites where every link click is a fresh document. `optional` removes it:
- *     the browser blocks invisibly for ~100ms, uses the font if it is there
- *     (which it is, from the HTTP cache, on every navigation after the first)
- *     and otherwise keeps the fallback for that page with no swap. There is no
- *     third state where text changes shape after paint.
- *  2. Nested `@import` serialises. A consumer's stylesheet importing this file
- *     importing fontsource's meant the browser could not even discover the font
- *     URLs until two stylesheets had been fetched and parsed, which made the
- *     swap late enough to always be visible.
- *
- * Only woff2 is referenced — fontsource also ships woff, but every browser that
- * runs an Astro 5 site supports woff2.
- *
- * These blocks are transcribed from @fontsource's own stylesheets (the
- * unicode-ranges especially). When bumping either @fontsource dependency,
- * re-check them against `node_modules/@fontsource/<pkg>/<weight>.css`.
+ * Self-hosted Space Grotesk + IBM Plex Mono: woff2 only, and only the weights in use.
+ * Copied from @fontsource to set `font-display: optional`; re-check them on each @fontsource bump.
  */
 
 /* Space Grotesk 400 — latin */

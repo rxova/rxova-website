@@ -1,0 +1,42 @@
+---
+/**
+ * Wraps Starlight's theme picker and resyncs the theme on a bfcache restore, where Starlight's
+ * parse-time theme code does not run again and the page would keep a stale `data-theme`.
+ */
+import Default from '@astrojs/starlight/components/ThemeSelect.astro'
+---
+
+<Default>
+  <slot />
+</Default>
+
+<script>
+  type Theme = 'auto' | 'dark' | 'light'
+
+  /** Same key and coercion Starlight uses; unknown values mean "follow the OS". */
+  const STORAGE_KEY = 'starlight-theme'
+  const parseTheme = (theme: unknown): Theme =>
+    theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto'
+  const preferredColorScheme = (): Theme =>
+    matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+
+  // `pageshow` is the only notification of a bfcache restore; a normal load (`persisted: false`)
+  // is left to Starlight.
+  window.addEventListener('pageshow', (event) => {
+    if (!event.persisted) return
+
+    let stored: string | null
+    try {
+      stored = localStorage.getItem(STORAGE_KEY)
+    } catch {
+      // Storage can throw outright (Safari private mode, blocked cookies).
+      // Leaving the restored theme alone is the right fallback.
+      return
+    }
+
+    const theme = parseTheme(stored)
+    document.documentElement.dataset.theme = theme === 'auto' ? preferredColorScheme() : theme
+    // Keeps the picker from disagreeing with the page it controls.
+    StarlightThemeProvider.updatePickers(theme)
+  })
+</script>

@@ -1,0 +1,31 @@
+---
+/**
+ * The pre-paint theme script for non-Starlight surfaces; goes in `<head>`. It reads Starlight's
+ * `starlight-theme` key so the choice carries across the origin; no saved choice => CSS default.
+ */
+---
+
+<script is:inline>
+  ;(function () {
+    function stored() {
+      try {
+        const t = localStorage.getItem('starlight-theme')
+        return t === 'light' || t === 'dark' ? t : null
+      } catch {
+        /* localStorage may be unavailable */
+        return null
+      }
+    }
+    function sync() {
+      const t = stored()
+      if (t) document.documentElement.setAttribute('data-theme', t)
+      else document.documentElement.removeAttribute('data-theme')
+    }
+    sync()
+    // Back from a docs site restores this page from the bfcache without rerunning the script;
+    // `pageshow` is the only notification, so re-sync the theme there.
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) sync()
+    })
+  })()
+</script>

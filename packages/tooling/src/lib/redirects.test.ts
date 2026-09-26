@@ -1,7 +1,5 @@
-// A redirect is a promise about a URL that is already out in the world — in a
-// search index, in someone's bookmarks. The expensive mistake is not a missing
-// redirect but a confidently wrong one, so most of what is tested here is the
-// refusal to publish a stub that would land on a 404 or bury a real page.
+// Mostly tests the refusal to publish a stub that would land on a 404 or bury a
+// real page: a wrong redirect costs more than a missing one.
 
 import { describe, it, beforeEach, afterAll } from 'vitest'
 import assert from 'node:assert/strict'
@@ -99,6 +97,15 @@ describe('writeRedirects', () => {
 
     const stub = readFileSync(join(root, 'docs/devtool/protocol/index.html'), 'utf8')
     assert.match(stub, /url=\/packages\/journey\/bridge\/protocol\//)
+  })
+
+  it('checks a target that is a file, not a directory, at that file', async () => {
+    write('packages/journey/llms.txt', 'index')
+
+    await writeRedirects(root, { '/docs/llms/': '/packages/journey/llms.txt' }, ORIGIN)
+
+    const stub = readFileSync(join(root, 'docs/llms/index.html'), 'utf8')
+    assert.match(stub, /url=\/packages\/journey\/llms\.txt/)
   })
 
   it('refuses to publish a redirect into a 404', async () => {

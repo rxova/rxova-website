@@ -1,0 +1,72 @@
+/**
+ * For sites that own their document (the landing, /blog, /updates): chrome.css plus a reset and base
+ * element styles. Never inside a Starlight document, where the unlayered reset would flatten the page.
+ */
+
+@import './chrome.css';
+
+/* --- Reset ---------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  position: relative;
+  background: var(--rx-bg);
+  color: var(--rx-fg);
+  font-family: var(--rx-font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+
+  /* At least a screen tall, with `main` taking the slack, so a short page keeps its footer at the
+     bottom. Flex rather than grid because the number of children varies. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* Flex items with `margin: 0 auto` shrink to their content; full width restores block behaviour.
+   `:where()` keeps both rules at zero specificity. */
+:where(body > *) {
+  width: 100%;
+}
+
+:where(body > main) {
+  flex-grow: 1;
+}
+
+a {
+  color: inherit;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--rx-fg);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}

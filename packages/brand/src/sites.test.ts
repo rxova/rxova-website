@@ -1,10 +1,6 @@
 /**
  * The site map: which projects and repos exist, and the URLs that reach them.
- *
- * Every rxova.org surface reads this — the landing, the docs switcher, and the
- * updates feed's repo filter. It is plain data with a few lookups over it, which is
- * exactly the kind of module that never gets tested until one of its consumers
- * 404s in production.
+ * Every rxova.org surface reads it — the landing, the docs switcher and the updates repo filter.
  */
 
 import { describe, expect, it } from 'vitest'

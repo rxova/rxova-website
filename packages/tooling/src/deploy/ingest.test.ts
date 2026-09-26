@@ -1,10 +1,5 @@
-// Ingest is where an already-built docs tree, sent from another repo, is first
-// trusted. These tests pin the two gates that trust rests on: gate 2a, which
-// accepts or rejects the dispatch metadata (unknown/disabled project, a base that
-// disagrees with the mount, a ref or run id that is not what it claims), and gate
-// 2b, which accepts or rejects the dist itself (missing, empty, or no index.html).
-// They run in `pnpm test`, so a regression fails on the pull request rather than
-// on the next ingest — which is the only other place this code ever runs.
+// Pins ingest's two trust gates: 2a validates the dispatch metadata (project, base, ref, run id),
+// 2b validates the dist itself (missing, empty, or no index.html).
 
 import { describe, it } from 'vitest'
 import assert from 'node:assert/strict'
@@ -150,10 +145,8 @@ describe('validateDispatch — rejections', () => {
   })
 
   it('accepts a disabled project — the docs are persisted, just not deployed', () => {
-    // The deadlock this removes: refusing a disabled project meant its docs could
-    // not be stored until it was enabled, and enabling it made fetch-docs demand a
-    // release that could not exist yet. Turning a project on always cost one red
-    // deploy. Now the tree is waiting when the flag flips.
+    // Persisting a disabled project's docs means the release already exists when
+    // it is enabled, so fetch-docs does not fail.
     const { source, meta } = validateDispatch(registry, payload({ project: 'off' }))
     assert.equal(source.id, 'off')
     assert.equal(meta.enabled, false)
@@ -161,16 +154,14 @@ describe('validateDispatch — rejections', () => {
 
   it('rejects a base that disagrees with the mount — the classic 404-everything bug', () => {
     rejects({ base: '/packages/journeys/' }, /built for base/)
-    // `/` is refused a step earlier, by the shared contract: no source mounts at
-    // the root, so it is not a mount path at all rather than merely the wrong one.
+    // `/` is refused earlier by the shared contract: no source mounts at the root.
     rejects({ base: '/' }, /base —/)
     rejects({ base: '/../../var/www/' }, /base —/)
   })
 
   it('rejects a sha, ref or run id that is not what it claims to be', () => {
-    // Shapes are the shared contract's job now, so assert on the field rather than
-    // wording nobody here owns. The values are what matters: run_id indexes an API
-    // path, and ref and sha reach release notes.
+    // Shapes belong to the shared contract, so assert on the field, not its wording;
+    // run_id indexes an API path, and ref and sha reach release notes.
     rejects({ sha: 'not-a-sha' }, /sha —/)
     rejects({ sha: undefined }, /sha —/)
     rejects({ ref: 'main; rm -rf /' }, /ref —/)
@@ -184,6 +175,25 @@ describe('validateDispatch — rejections', () => {
 
   it('rejects an unknown framework', () => {
     rejects({ framework: 'vitepress' }, /unknown framework/)
+  })
+
+  it('says the registry knows nothing when it is empty', () => {
+    assert.throws(
+      () => validateDispatch({ sources: [] }, payload()),
+      /unknown project "journey" — sources\.json knows: \(none\)$/,
+    )
+  })
+
+  it('refuses a mount the shared derivation disagrees with, or that leaves the tree', () => {
+    const journey = registry.sources[0]!
+    for (const mount of ['docs/journey', '/packages/journey', 'packages/../journey']) {
+      assert.throws(
+        () => validateDispatch({ sources: [{ ...journey, mount }] }, payload()),
+        (e) =>
+          e instanceof IngestError &&
+          e.message === `refusing mount ${JSON.stringify(mount)} for "journey" (kind package)`,
+      )
+    }
   })
 })
 
@@ -260,9 +270,8 @@ describe('checkDist — gate 2b', () => {
     rmSync(dir, { recursive: true, force: true })
   })
 
-  // The playground case: a docs dist may legitimately carry HTML that is an
-  // asset rather than a page — an iframe target has no <main> and must never be
-  // composed. Without the marker the whole use-everywhere bundle was rejected.
+  // The playground case: a dist may carry HTML that is an asset, not a page — an
+  // iframe target has no <main> and must never be composed.
   it('accepts a standalone asset with no <main>', () => {
     dir = make()
     writeFileSync(
@@ -305,6 +314,53 @@ describe('checkDist — gate 2b', () => {
       '<!doctype html><html><body><div>no main</div></body></html>',
     )
     assert.throws(() => checkDist(dir, { schema: 2 }), /has no <main> page component/)
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('rejects a path that is a file rather than a directory', () => {
+    dir = make()
+    writeFileSync(join(dir, 'index.html'), '<!doctype html>')
+    assert.throws(() => checkDist(join(dir, 'index.html')), /missing or not a directory/)
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('requires the manifest of a schema-2 dist, and a readable, matching one of any dist', () => {
+    dir = make()
+    writeFileSync(join(dir, 'index.html'), '<main>Blog</main>')
+    assert.throws(
+      () => checkDist(dir, { schema: 2 }),
+      /schema 2 dist has no rxova-page-bundle\.json/,
+    )
+
+    const manifest = join(dir, 'rxova-page-bundle.json')
+    writeFileSync(manifest, '{ nope')
+    assert.throws(() => checkDist(dir), /rxova-page-bundle\.json is not valid JSON/)
+    writeFileSync(manifest, JSON.stringify({ schema: 2, project: 'blog' }))
+    assert.throws(() => checkDist(dir), /rxova-page-bundle\.json is invalid/)
+
+    writeFileSync(
+      manifest,
+      JSON.stringify({ schema: 2, format: 'html-page-component', project: 'blog', base: '/blog/' }),
+    )
+    assert.throws(
+      () => checkDist(dir, { project: 'updates' }),
+      /rxova-page-bundle\.json project is blog, expected updates/,
+    )
+    assert.throws(
+      () => checkDist(dir, { base: '/updates/' }),
+      /rxova-page-bundle\.json base is \/blog\/, expected \/updates\//,
+    )
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('accepts a redirect stub with no <main> as a page component', () => {
+    dir = make()
+    writeFileSync(
+      join(dir, 'rxova-page-bundle.json'),
+      JSON.stringify({ schema: 2, format: 'html-page-component', project: 'blog', base: '/blog/' }),
+    )
+    writeFileSync(join(dir, 'index.html'), '<meta http-equiv="refresh" content="0;url=/blog/a/">')
+    assert.deepEqual(checkDist(dir, { schema: 2 }), { entries: 2 })
     rmSync(dir, { recursive: true, force: true })
   })
 })

@@ -8,9 +8,8 @@ import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 
 /**
- * Spawns the real script against a throwaway git repo rather than importing it.
- * The script reads git and the environment and exits with a status; running it
- * for real is the only way to pin the behaviour CI actually depends on.
+ * Spawns the real script against a throwaway git repo, since it reads git and the
+ * environment and reports through its exit status.
  */
 
 const here = dirname(fileURLToPath(import.meta.url))
@@ -101,9 +100,8 @@ describe('check-changeset', () => {
     expect(runScript(tempRoot, env(baseSha, headSha)).code).toBe(0)
   })
 
-  // Prettier with singleQuote rewrites changeset frontmatter. A
-  // double-quote-only pattern counts zero packages here and fails a valid
-  // changeset — which is exactly what the pre-standardisation copy did.
+  // Prettier (singleQuote) rewrites changeset frontmatter, so a double-quote-only
+  // pattern would count zero packages and fail a valid changeset.
   it('accepts single-quoted package names (Prettier style)', async () => {
     const { tempRoot, baseSha } = await initRepo()
     await writeChangeset(tempRoot, "---\n'@rxova/brand': minor\n---\n\nchange\n")
@@ -148,9 +146,8 @@ describe('check-changeset', () => {
     expect(result.output).toContain('[skip-changeset] found in PR title')
   })
 
-  // The directory branches of allowedPattern have to match paths *beneath* the
-  // directory. Anchored alternatives (`^\.github\/$`) match only the bare
-  // string and silently never fire.
+  // allowedPattern's directory branches must match paths *beneath* the directory;
+  // an anchored `^\.github\/$` matches only the bare string and never fires.
   it('auto-skips a diff that only touches workflow files', async () => {
     const { tempRoot, baseSha } = await initRepo()
     await mkdir(join(tempRoot, '.github', 'workflows'), { recursive: true })

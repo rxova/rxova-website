@@ -1,22 +1,10 @@
-import { defineConfig } from 'vitest/config'
+import { unitConfig } from '@rxova/repo-tooling/vitest'
 
-/**
- * This package owns its own test run, so `turbo run test` can hash and cache it
- * against its own sources — and so a change here invalidates the packages that
- * consume it, which the root config could not express.
- *
- * No enforced threshold yet: pack-smoke-helpers sits at 90%, and raising it is its
- * own change rather than something to smuggle in behind a flag.
- */
-export default defineConfig({
-  test: {
-    include: ['src/**/*.test.ts', 'scripts/**/*.test.ts'],
-    environment: 'node',
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json-summary'],
-      include: ['src/**/*.ts', 'scripts/**/*.ts'],
-      exclude: ['**/*.test.ts'],
-    },
-  },
+// generate-og.ts and pack-smoke.ts are CLI entry points; pack-smoke is covered via its helpers.
+// New tests go in test/, which the tarball's `files` leaves out.
+export default unitConfig({
+  include: ['src/**/*.test.ts', 'scripts/**/*.test.ts', 'test/**/*.test.ts'],
+  coverage: ['src/**/*.ts', 'scripts/**/*.ts'],
+  exclude: ['scripts/generate-og.ts', 'scripts/pack-smoke.ts'],
+  thresholds: { perFile: true, statements: 95, branches: 95, functions: 95, lines: 95 },
 })

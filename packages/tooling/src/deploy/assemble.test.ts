@@ -1,8 +1,5 @@
-// The assembler is the last step before a deploy, and its most valuable
-// behaviour is refusing: an enabled project whose artifact never arrived means
-// its build job failed to upload, and publishing anyway ships a site with a
-// section missing and its landing link 404ing. That refusal is what these tests
-// mostly cover — the happy path is a `cp -r`.
+// The assembler must refuse to publish when an enabled project's artifact is missing;
+// these tests mostly cover that refusal — the happy path is a `cp -r`.
 
 import { describe, it, beforeEach, afterAll } from 'vitest'
 import assert from 'node:assert/strict'
@@ -61,9 +58,8 @@ describe('assemble', () => {
     })
   })
 
-  // The index is written from the finished tree, so it can only be right if it
-  // runs after the projects are mounted. Assert it sees a project's own llms.txt
-  // that arrived in that project's artifact.
+  // The index is built from the finished tree, so it must see a project's own
+  // llms.txt from that project's artifact.
   it('writes the agent index once every project is mounted', async () => {
     artifact('landing', { 'index.html': 'landing' })
     artifact('docs-journey', { 'index.html': 'journey docs' })
@@ -183,8 +179,7 @@ describe('page-component composition', () => {
     assert.match(output, /Continue/)
   })
 
-  // The playground case. A frame target that gained the site header and footer
-  // inside a 300px iframe would be a quiet visual bug rather than a loud one,
+  // The playground case: a frame target must not gain the site header and footer,
   // so this asserts on what is absent as much as on what survives.
   it('publishes a standalone asset verbatim, never composed', async () => {
     artifact('landing', {
@@ -212,5 +207,116 @@ describe('page-component composition', () => {
     assert.doesNotMatch(asset, /<header class="site">/)
     assert.doesNotMatch(asset, /website-footer/)
     assert.doesNotMatch(asset, /data-rxova-shell/)
+  })
+
+  it('merges root attributes: source values win, classes are unioned, the shell marker stays', () => {
+    const output = composeDocument(
+      '<html lang="de" class="starlight site" data-rxova-shell="producer"><head></head><body><main></main></body></html>',
+      shell.replace('<html lang="en"', '<html lang="en" class="site"'),
+    )
+    assert.match(output, /<html lang="de" class="site starlight" data-rxova-shell="">/)
+  })
+
+  it('keeps producer links that are not icons, including one with no rel', () => {
+    const output = composeDocument(
+      '<html><head><link href="/feed.xml"><link rel="Apple-Touch-Icon" href="/touch.png"></head><body><main></main></body></html>',
+      shell,
+    )
+    assert.match(output, /<link href="\/feed\.xml">/)
+    assert.doesNotMatch(output, /touch\.png/)
+  })
+
+  it('keeps producer scripts without a src', () => {
+    const output = composeDocument(
+      '<html><head><script>window.x = 1</script></head><body><main></main></body></html>',
+      shell,
+    )
+    assert.match(output, /<script>window\.x = 1<\/script>/)
+  })
+
+  it('refuses a page with no <main>, naming it', () => {
+    assert.throws(
+      () =>
+        composeDocument('<html><head></head><body><div></div></body></html>', shell, 'x/a.html'),
+      /^Error: x\/a\.html: page-component document has no <main>$/,
+    )
+  })
+
+  it('refuses a shell that has lost its slots', () => {
+    assert.throws(
+      () =>
+        composeDocument(
+          '<html><head></head><body><main></main></body></html>',
+          '<html><head></head><body></body></html>',
+        ),
+      /^Error: page: source document or website shell is missing required structure$/,
+    )
+  })
+})
+
+describe('assembling page-component bundles', () => {
+  const shell =
+    '<html><head><meta name="rxova-head-slot"></head><body><template data-rxova-page-slot></template><footer>site</footer></body></html>'
+  const manifest = (over: Record<string, unknown> = {}) =>
+    JSON.stringify({
+      schema: 2,
+      format: 'html-page-component',
+      project: 'journey',
+      base: '/packages/journey/',
+      ...over,
+    })
+  const bundle = (manifestText: string) => {
+    artifact('landing', { 'index.html': 'landing', 'shell-templates/journey/index.html': shell })
+    artifact('docs-journey', {
+      'index.html': '<html><head></head><body><main>Journey</main></body></html>',
+      'rxova-page-bundle.json': manifestText,
+    })
+  }
+
+  it('composes every page, drops the manifest and the shell templates from the tree', async () => {
+    bundle(manifest())
+    await run(registry({ id: 'journey' }))
+
+    assert.match(read('packages/journey/index.html'), /<main>Journey<\/main><footer>site<\/footer>/)
+    assert.equal(existsSync(site('packages/journey/rxova-page-bundle.json')), false)
+    assert.equal(existsSync(site('shell-templates')), false)
+  })
+
+  it('refuses a manifest that is not JSON', async () => {
+    bundle('{ nope')
+    await assert.rejects(
+      run(registry({ id: 'journey' })),
+      /^Error: journey: invalid rxova-page-bundle\.json — /,
+    )
+  })
+
+  it('refuses a manifest the contract rejects', async () => {
+    bundle(manifest({ format: 'spa' }))
+    await assert.rejects(
+      run(registry({ id: 'journey' })),
+      /^Error: journey: invalid rxova-page-bundle\.json$/,
+    )
+  })
+
+  it('refuses a manifest built for another project or base', async () => {
+    bundle(manifest({ project: 'blog', base: '/blog/' }))
+    await assert.rejects(
+      run(registry({ id: 'journey' })),
+      /page-bundle manifest says blog at \/blog\/, expected journey at \/packages\/journey\//,
+    )
+  })
+
+  it('refuses a bundle whose shell the landing did not build', async () => {
+    bundle(manifest())
+    rmSync(join(root, 'artifacts/landing/shell-templates'), { recursive: true })
+    await assert.rejects(run(registry({ id: 'journey' })), /website shell missing for journey at /)
+  })
+
+  it('reads the landing from artifacts/landing when the registry does not say', async () => {
+    artifact('landing', { 'index.html': 'landing' })
+    // The type requires `landing`; a file without it still loads, so the default must hold.
+    const config = { sources: [] } as unknown as Registry
+    await assemble(config, join(root, 'artifacts'), join(root, '_site'))
+    assert.equal(read('index.html'), 'landing')
   })
 })

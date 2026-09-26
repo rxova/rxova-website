@@ -1,7 +1,6 @@
 {
-  // Standalone rather than extending `astro/tsconfigs/strict` like the sibling
-  // package does: nothing here touches Astro. The schema is plain zod so that a
-  // plain Node validator can import it — see src/index.ts.
+  // Standalone, not extending `astro/tsconfigs/strict`: nothing here touches Astro, and the
+  // schema is plain zod so a plain Node validator can import it.
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022"],

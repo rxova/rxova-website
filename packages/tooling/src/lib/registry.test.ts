@@ -1,9 +1,5 @@
-// The registry is the single source of truth for what rxova.org is made of, and
-// everything downstream — the ingest gate, the deploy-time fetch, the assembler —
-// trusts whatever it returns. These tests pin the two things that trust rests on:
-// the derivation (id -> base/mount/artifact/release, which must agree with itself
-// or the site 404s) and the validation (what it refuses, so a bad entry fails in
-// `pnpm test` and `pnpm check:registry` rather than mid-deploy).
+// Pins the registry's derivation (id -> base/mount/artifact/release) and validation,
+// so a bad entry fails in tests rather than mid-deploy.
 
 import { describe, it } from 'vitest'
 import assert from 'node:assert/strict'
@@ -13,15 +9,7 @@ import { join } from 'node:path'
 
 import { resolveSource, loadRegistry, enabledSources, SOURCES_FILE } from './registry.ts'
 
-/**
- * Minimum *valid* entry; individual tests override the field under test.
- *
- * It carries landing copy because `sourceEntry` requires it of a package — a
- * package gets a card on the home page and there would be nothing to put on it.
- * That rule used to live in the landing build, and moved into the shared schema
- * when this repo started importing it, so a fixture without copy is no longer a
- * realistic entry.
- */
+/** Minimum valid entry (a package needs landing copy); tests override the field under test. */
 const entry = (over = {}) => ({
   id: 'foo',
   enabled: true,
@@ -73,9 +61,7 @@ describe('resolveSource — derivation', () => {
     assert.equal(resolveSource(entry({ enabled: true })).enabled, true)
   })
 
-  // Stricter than the hand-rolled check this replaced, which read `enabled === true`
-  // and so quietly treated `"true"` as disabled — a project silently not deploying,
-  // with a sources.json that looks like it should.
+  // A string `"true"` must not quietly read as disabled.
   it('refuses a non-boolean `enabled` rather than coercing it to false', () => {
     for (const enabled of ['yes', 'true', 1, null]) {
       assert.throws(() => resolveSource(entry({ enabled })), /expected boolean/)
@@ -92,9 +78,8 @@ describe('resolveSource — validation', () => {
     }
   })
 
-  // `.strict()`, so a field nobody modelled is refused rather than ignored. This is
-  // the case that matters: `enable` for `enabled` would otherwise parse clean and
-  // leave a project silently undeployed.
+  // `.strict()`: `enable` for `enabled` would otherwise parse clean and leave a project
+  // silently undeployed.
   it('rejects a key it does not know', () => {
     assert.throws(() => resolveSource(entry({ enable: true })), /Unrecognized key/)
     assert.throws(() => resolveSource(entry({ mount: 'packages/foo' })), /Unrecognized key/)
@@ -130,6 +115,10 @@ describe('loadRegistry', () => {
     assert.deepEqual(enabledSources(registry), [])
   })
 
+  it('reads a file with no `sources` key as a registry with none', () => {
+    assert.deepEqual(loadRegistry(writeRegistry({})).sources, [])
+  })
+
   it('enabledSources returns only the enabled ones', () => {
     const file = writeRegistry({
       sources: [entry({ id: 'on' }), entry({ id: 'off', enabled: false })],
@@ -162,9 +151,8 @@ describe('the real sources.json', () => {
     }
   })
 
-  // Only the packages get landing cards. `kind: "site"` entries are surfaces of
-  // rxova.org — /blog, /updates — with no npm package and nothing to describe on
-  // the home page, so they carry no landing copy and the landing filters them out.
+  // Only packages get landing cards; `kind: "site"` entries (/blog, /updates) carry no
+  // landing copy.
   it('gives every package a landing blurb and tags', () => {
     for (const s of registry.sources.filter((s) => s.kind === 'package')) {
       assert.ok(s.landing.blurb, `${s.id} has no landing.blurb`)

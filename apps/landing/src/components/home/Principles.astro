@@ -1,0 +1,84 @@
+---
+/** The rules every project is held to; each id is the anchor of the same principle on /about. */
+import { PRINCIPLES } from '../../lib/about'
+import Eyebrow from './Eyebrow.astro'
+import Reveal from './Reveal.astro'
+import SectionHeading from './SectionHeading.astro'
+---
+
+<section class="why" aria-labelledby="why-heading">
+  <Reveal class="section-head">
+    <Eyebrow>The rules</Eyebrow>
+    <SectionHeading id="why-heading">One set of rules, every project.</SectionHeading>
+    <p class="section-lede">
+      These are what everything here has in common — and what it is held to. Each is stated so you
+      can check it against the code and catch me failing it.
+    </p>
+  </Reveal>
+
+  <ul class="principles">
+    {PRINCIPLES.map((p, i) => (
+      <Reveal as="li" class="principle" style={`--d: ${i * 70}ms`}>
+        <a class="principle-id" href={`/about#${p.id}`}>
+          {p.id}
+        </a>
+        <h3 class="principle-title">{p.title}</h3>
+        <p class="principle-summary">{p.summary}</p>
+      </Reveal>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .why {
+    padding-block: clamp(3.5rem, 9vh, 5.5rem);
+    border-top: 1px solid var(--rx-rule);
+  }
+  .section-head {
+    margin-bottom: 2.5rem;
+  }
+  .section-lede {
+    max-width: 40rem;
+    color: var(--rx-muted);
+    margin-top: 0.9rem;
+  }
+  .principles {
+    list-style: none;
+    display: grid;
+    gap: 2rem 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  }
+  /* A gradient hairline over each: 2px of chroma per column, binding them into one set. */
+  .principle {
+    padding-top: 1rem;
+    border-top: 2px solid transparent;
+    border-image: var(--rx-gradient) 1;
+    border-image-width: 2px 0 0 0;
+  }
+  .principle-id {
+    display: inline-block;
+    font-family: var(--rx-font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    color: var(--rx-faint);
+    text-decoration: none;
+    margin-bottom: 0.65rem;
+    transition: color 0.2s ease;
+  }
+  .principle-id:hover {
+    color: var(--rx-fg);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .principle-title {
+    font-size: 1.05rem;
+    font-weight: 620;
+    letter-spacing: -0.015em;
+    margin-bottom: 0.4rem;
+    text-wrap: balance;
+  }
+  .principle-summary {
+    color: var(--rx-muted);
+    font-size: 0.95rem;
+  }
+</style>
