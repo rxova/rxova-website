@@ -1,0 +1,18 @@
+---
+/** Text only screen readers get; unlike `display: none`, it stays in the accessibility tree. */
+---
+
+<span class="visually-hidden">
+  <slot />
+</span>
+
+<style>
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>
