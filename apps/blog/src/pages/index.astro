@@ -1,0 +1,220 @@
+---
+import { siteUrl, canonicalUrl } from '@rxova/brand'
+
+import Content from '@rxova/astro-ui/components/SiteShell.astro'
+import ShowMore from '../components/ShowMore.astro'
+import { getPosts, resolveAuthors, byline, formatDate, isoDate, href } from '../lib/content'
+import { excerpt } from '@rxova/astro-ui/lib/entries'
+
+/**
+ * How many posts before the index starts batching. Higher than the updates stream's
+ * because a post is one card here, not a whole entry rendered in full — ten of these
+ * is a shorter page than eight updates.
+ */
+const PAGE_SIZE = 10
+
+/** About two to three lines of a card; real text, so "Read more" can follow the ellipsis inline. */
+const EXCERPT_CHARS = 200
+
+const updatesUrl = siteUrl('/updates')
+
+const posts = await getPosts()
+
+// Resolve bylines up front: `resolveAuthors` is async and Astro templates cannot
+// await inside a map.
+const items = await Promise.all(
+  posts.map(async (post) => ({
+    post,
+    authors: await resolveAuthors(post.data.authors),
+    // The opening of the post itself, not `description` — that is a summary written
+    // for search results and social cards, and reads like ad copy in a list of
+    // posts. A reader scanning the index wants the writing.
+    lead: excerpt(post.body ?? '', EXCERPT_CHARS),
+  })),
+)
+
+const feedUrl = `${canonicalUrl('/blog')}rss.xml`
+
+/**
+ * The index as a `Blog`, with its posts as `BlogPosting`s.
+ *
+ * Listing the posts here rather than only on each post's own page is what tells a
+ * crawler these are dated articles by a named author before it has fetched any of
+ * them — which is the difference between /blog reading as a set of articles and
+ * reading as one page that happens to contain links.
+ */
+const blogJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: 'Rxova Blog',
+  url: canonicalUrl('/blog'),
+  description:
+    'Essays and design rationale from the Rxova projects — the why behind the decisions.',
+  inLanguage: 'en',
+  blogPost: items.map(({ post, authors }) => ({
+    '@type': 'BlogPosting',
+    headline: post.data.title,
+    description: post.data.description,
+    url: canonicalUrl(`/blog/${post.id}`),
+    datePublished: isoDate(post.data.pubDate),
+    ...(post.data.updatedDate && { dateModified: isoDate(post.data.updatedDate) }),
+    author: authors.map((a) => ({
+      '@type': 'Person',
+      name: a.name,
+      ...(a.url && { url: a.url }),
+    })),
+    ...(post.data.tags.length > 0 && { keywords: post.data.tags.join(', ') }),
+  })),
+}
+---
+
+<Content
+  title="Blog — Rxova"
+  description="Essays and design rationale from the Rxova projects — the why behind the decisions."
+  path="/blog"
+  feed={{ href: feedUrl, title: 'Rxova Blog' }}
+  jsonLd={blogJsonLd}
+>
+  <header class="head">
+    <h1>Blog</h1>
+    <p class="lede">
+      Design rationale, things that broke, and why the obvious approach was not the one taken. For
+      what actually changed, see the <a href={updatesUrl}>updates</a>.
+    </p>
+  </header>
+
+  {items.length === 0 && <p class="empty">Nothing published yet.</p>}
+
+  <ul class="posts" data-reveal-list data-reveal-step={PAGE_SIZE}>
+    {items.map(({ post, authors, lead }) => (
+      <li class="post">
+        <a class="title" href={href(post.id)}>
+          {post.data.title}
+          {post.data.draft && <span class="draft">Draft</span>}
+        </a>
+        <p class="meta">
+          <time datetime={isoDate(post.data.pubDate)}>{formatDate(post.data.pubDate)}</time>
+          <span class="dot" aria-hidden="true">
+            ·
+          </span>
+          {byline(authors.map((a) => a.name))}
+        </p>
+        <p class="desc">
+          {lead.text}
+          {lead.truncated && '…'}{' '}
+          <a class="more" href={href(post.id)}>
+            Read more<span class="visually-hidden"> of “{post.data.title}”</span>
+            <span aria-hidden="true"> →</span>
+          </a>
+        </p>
+      </li>
+    ))}
+  </ul>
+
+  <ShowMore />
+</Content>
+
+<style>
+  .head {
+    margin-bottom: clamp(2rem, 6vh, 3rem);
+  }
+  /* One page title, on every surface the header crosses: the landing's
+     /about, the blog and the updates stream. Each used to set its own, and
+     the blog and updates inherited the body's 1.65 line height where /about
+     set 1.15 — so switching between them moved the title's text ~8px under
+     a header that stays still. Keep these three in step. */
+  .head h1 {
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    font-weight: 650;
+    margin-bottom: 0.6rem;
+  }
+  .lede {
+    color: var(--muted);
+    max-width: 46ch;
+  }
+  .lede a {
+    color: var(--fg);
+  }
+  .empty {
+    color: var(--faint);
+  }
+
+  .posts {
+    list-style: none;
+    display: grid;
+    gap: 2rem;
+  }
+  /* Batched away by ShowMore. Explicit rather than left to the UA rule, because a
+     grid item is a layout participant and this has to take it out of the flow. */
+  .post[hidden] {
+    display: none;
+  }
+  /* ShowMore focuses the first post of a new batch to announce the reveal; it is a
+     scroll target, not something the reader tabbed to. */
+  .post:focus {
+    outline: none;
+  }
+  .post .title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--fg);
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: 640;
+    letter-spacing: -0.01em;
+  }
+  .post .title:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  /* Only ever rendered by `pnpm dev` — drafts are filtered out of the production
+     build — but it is the difference between previewing a draft and thinking you
+     published one. */
+  .draft {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--faint);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.1rem 0.5rem;
+  }
+  .meta {
+    color: var(--faint);
+    font-size: 0.9rem;
+    margin: 0.35rem 0 0.5rem;
+  }
+  .dot {
+    color: var(--rule);
+    margin: 0 0.4rem;
+  }
+  /* Not display:none — a screen reader has to reach it. This keeps "Read more"
+     from being the entire accessible name of every link on the page. */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .more {
+    color: var(--fg);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+
+  .more:hover {
+    border-bottom-color: var(--fg);
+  }
+
+  .desc {
+    color: var(--muted);
+    max-width: 62ch;
+  }
+</style>

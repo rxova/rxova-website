@@ -1,0 +1,632 @@
+---
+/**
+ * The updates stream: every entry rendered in full, newest first.
+ *
+ * Entries are short, so a timeline reads better as one page than as a list of
+ * links to one-paragraph pages. Each carries a stable `#slug` anchor, which is the
+ * permalink until an entry is ever long enough to deserve its own route.
+ *
+ * ## Filtering, and why the two facets differ
+ *
+ * Repo chips are **real links** to `/updates/repos/<id>`, which is pre-rendered.
+ * The script below intercepts clicks and filters in place instead, so with JS you
+ * get combinable filters and a shareable querystring, and without it you still get
+ * a working, crawlable, single-repo page. Tag chips have no such page — the tag
+ * vocabulary is longer and not worth a route each — so they are buttons, hidden
+ * until the script un-hides them.
+ *
+ * Filtering is show/hide over markup that is already in the DOM. No fetching, no
+ * re-render. Worth revisiting past roughly 200 entries; not before.
+ *
+ * ## Batching
+ *
+ * Every entry renders in full, so the page grew long before the entry count did.
+ * The script keeps all of it in the DOM and reveals `pageSize` at a time, which is
+ * the only batching scheme compatible with the filtering above: real paginated
+ * routes could only ever filter within the page you happen to be on.
+ *
+ * The cost is that find-in-page misses hidden entries, so "Show all" sits beside
+ * "Show more" as the escape hatch. Print gets everything regardless, and without
+ * JS nothing is hidden at all.
+ */
+import type { UpdateEntry } from '../lib/content'
+import { repoLabel, formatDate, isoDate, byline, href } from '../lib/content'
+
+export interface StreamItem {
+  entry: UpdateEntry
+  Body: import('astro/runtime/server/index.js').AstroComponentFactory
+  authorNames: string[]
+}
+
+interface Props {
+  items: StreamItem[]
+  /** Repo ids offered as filters. Empty hides the repo row (e.g. on a repo page). */
+  repos?: { id: string; label: string }[]
+  tags?: string[]
+  /** Pre-applied repo, on `/updates/repos/<id>`. Disables the filter UI. */
+  activeRepo?: string
+  /** How many entries to reveal at a time. The controls stay away below this. */
+  pageSize?: number
+}
+
+const { items, repos = [], tags = [], activeRepo, pageSize = 8 } = Astro.props
+const filterable = !activeRepo && (repos.length > 0 || tags.length > 0)
+---
+
+{filterable && (
+  <div class="filters" data-filters>
+    <div class="row">
+      <span class="row-label" id="filter-repos">
+        Repo
+      </span>
+      <div class="chips" role="group" aria-labelledby="filter-repos">
+        {repos.map((r) => (
+          <a class="chip" href={href(`repos/${r.id}`)} data-repo={r.id} aria-pressed="false">
+            {r.label}
+          </a>
+        ))}
+      </div>
+    </div>
+
+    {/* Hidden until the script runs: without JS these do nothing, and a dead
+          control is worse than an absent one. */}
+    <div class="row" data-tag-row hidden>
+      <span class="row-label" id="filter-tags">
+        Tag
+      </span>
+      <div class="chips" role="group" aria-labelledby="filter-tags">
+        {tags.map((t) => (
+          <button class="chip" type="button" data-tag={t} aria-pressed="false">
+            {t}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <p class="count" data-count aria-live="polite" />
+    <button class="clear" type="button" data-clear hidden>
+      Clear filters
+    </button>
+  </div>
+)}
+
+<ol class="stream" data-stream data-page-size={pageSize}>
+  {items.map(({ entry, Body, authorNames }) => (
+    <li
+      class="entry"
+      id={entry.id}
+      data-repos={entry.data.repos.join(' ')}
+      data-tags={entry.data.tags.join(' ')}
+    >
+      <div class="when">
+        <time datetime={isoDate(entry.data.date)}>{formatDate(entry.data.date)}</time>
+      </div>
+      <div class="what">
+        <h2>
+          <a href={`#${entry.id}`} class="anchor">
+            {entry.data.title}
+          </a>
+        </h2>
+        <p class="meta">
+          {entry.data.draft && <span class="draft">Draft</span>}
+          {entry.data.repos.map((r) => (
+            <a class="repo" href={href(`repos/${r}`)}>
+              {repoLabel(r)}
+            </a>
+          ))}
+          {entry.data.tags.map((t) => (
+            <span class="tag">{t}</span>
+          ))}
+          {entry.data.version && <span class="version">{entry.data.version}</span>}
+        </p>
+        <div class="prose">
+          <Body />
+        </div>
+        {entry.data.links.length > 0 && (
+          <nav class="links" aria-label={`${entry.data.title} links`}>
+            {entry.data.links.map((l) => (
+              <a href={l.href} target="_blank" rel="noopener noreferrer">
+                {l.label} <span aria-hidden="true">↗</span>
+              </a>
+            ))}
+          </nav>
+        )}
+        <p class="by">{byline(authorNames)}</p>
+      </div>
+    </li>
+  ))}
+</ol>
+
+<p class="none" data-none hidden>
+  No entries match those filters.
+</p>
+
+{/* Hidden until the script runs, for the same reason as the tag row: without JS
+    every entry is already on the page and there is nothing left to reveal. */}
+<div class="more" data-more-row hidden>
+  <button class="more-btn" type="button" data-more>
+    Show more<span class="visually-hidden"> updates</span>
+  </button>
+  <button class="show-all" type="button" data-more-all>
+    Show all
+  </button>
+  <p class="progress" data-progress></p>
+</div>
+
+<style>
+  .filters {
+    display: grid;
+    gap: 0.75rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .row-label {
+    color: var(--faint);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    min-width: 3.5rem;
+  }
+  .chips {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .chip {
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: var(--tag-bg);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 0.15rem 0.65rem;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .chip:hover {
+    color: var(--fg);
+    border-color: var(--rule);
+  }
+  .chip[aria-pressed='true'] {
+    color: var(--fg);
+    border-color: var(--accent);
+  }
+  .chip:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .count {
+    color: var(--faint);
+    font-size: 0.85rem;
+  }
+  .clear {
+    justify-self: start;
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: none;
+    border: 0;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .clear:hover {
+    color: var(--fg);
+  }
+
+  .stream {
+    list-style: none;
+    display: grid;
+    gap: 2.5rem;
+  }
+  .entry {
+    display: grid;
+    gap: 0.35rem 2rem;
+    /* Date beside the entry on wide screens, above it on narrow. */
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 46rem) {
+    .entry {
+      grid-template-columns: 9rem minmax(0, 1fr);
+    }
+  }
+  .when time {
+    color: var(--faint);
+    font-size: 0.85rem;
+    font-family: var(--mono);
+  }
+  /* The entry's own measure. The page is as wide as the header, so without it
+     an entry's prose ran past 100 characters a line on a large screen; 68ch is
+     the blog post's measure, so the two read the same. */
+  .what {
+    max-width: 68ch;
+  }
+  .what h2 {
+    font-size: 1.1rem;
+    font-weight: 640;
+    letter-spacing: -0.01em;
+  }
+  .anchor {
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .anchor:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .meta {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin: 0.4rem 0 0.75rem;
+    font-size: 0.78rem;
+  }
+  .repo,
+  .tag,
+  .version {
+    border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+    background: var(--tag-bg);
+    color: var(--muted);
+  }
+  .repo {
+    text-decoration: none;
+    border: 1px solid var(--rule);
+  }
+  .repo:hover {
+    color: var(--fg);
+  }
+  .version {
+    font-family: var(--mono);
+    background: none;
+    color: var(--faint);
+    padding-left: 0;
+  }
+  /* Only ever rendered by `pnpm dev` — sketches are filtered out of the production
+     build — but it is the difference between previewing a sketch and thinking you
+     published one. First in the row for the same reason. */
+  .draft {
+    border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--faint);
+    border: 1px solid var(--rule);
+  }
+  .links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 0.9rem;
+    font-size: 0.9rem;
+  }
+  .links a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .links a:hover {
+    color: var(--fg);
+  }
+  .by {
+    margin-top: 0.9rem;
+    color: var(--faint);
+    font-size: 0.82rem;
+  }
+  .none {
+    color: var(--faint);
+  }
+  .entry[hidden] {
+    display: none;
+  }
+  /* Batched away, as opposed to filtered away. Two mechanisms because they mean
+     different things: `hidden` says "you asked not to see this", `.beyond` says
+     "not yet". Print keeps the first and drops the second. */
+  .entry.beyond {
+    display: none;
+  }
+
+  .more {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+  /* `display: flex` above outranks the UA's `[hidden] { display: none }`, so the
+     attribute alone would leave the control on screen with nothing left to reveal. */
+  .more[hidden] {
+    display: none;
+  }
+  /* The chip shape from the filter row above, one size up: this is the primary
+     control on the page once you have scrolled to it. */
+  .more-btn {
+    font: inherit;
+    font-size: 0.9rem;
+    color: var(--fg);
+    background: var(--tag-bg);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.35rem 1rem;
+    cursor: pointer;
+  }
+  .more-btn:hover {
+    border-color: var(--accent);
+  }
+  .show-all {
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: none;
+    border: 0;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .show-all:hover {
+    color: var(--fg);
+  }
+  .more-btn:focus-visible,
+  .show-all:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .progress {
+    margin-left: auto;
+    color: var(--faint);
+    font-size: 0.85rem;
+  }
+  /* An entry the script revealed and then focused. Without JS nothing is focused
+     here, so this never fires on the initial page. */
+  .entry:focus {
+    outline: none;
+  }
+  /* Not display:none — a screen reader has to reach it. Keeps "Show more" from
+     being the whole accessible name. */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Paper has no "show more". Print everything that passes the filters, batched
+     or not — but still honour the filters themselves. */
+  @media print {
+    .entry.beyond {
+      display: grid;
+    }
+    .entry[hidden] {
+      display: none;
+    }
+    .more {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { nextLimit } from '@rxova/astro-ui/lib/entries'
+  ;(function () {
+    const stream = document.querySelector<HTMLElement>('[data-stream]')
+    if (!stream) return
+
+    // The filter block is absent on `/updates/repos/<id>`, where the repo is already
+    // applied. Batching still runs there, so nothing below may assume it exists.
+    const root = document.querySelector<HTMLElement>('[data-filters]')
+    const entries = Array.from(stream.querySelectorAll<HTMLElement>('.entry'))
+    const repoChips = Array.from(root?.querySelectorAll<HTMLElement>('[data-repo]') ?? [])
+    const tagChips = Array.from(root?.querySelectorAll<HTMLElement>('[data-tag]') ?? [])
+    const tagRow = root?.querySelector<HTMLElement>('[data-tag-row]')
+    const count = root?.querySelector<HTMLElement>('[data-count]')
+    const clear = root?.querySelector<HTMLElement>('[data-clear]')
+    const none = document.querySelector<HTMLElement>('[data-none]')
+    const moreRow = document.querySelector<HTMLElement>('[data-more-row]')
+    const moreBtn = document.querySelector<HTMLElement>('[data-more]')
+    const allBtn = document.querySelector<HTMLElement>('[data-more-all]')
+    const progress = document.querySelector<HTMLElement>('[data-progress]')
+
+    // Tag filtering only exists with JS, so the row stays hidden until now.
+    if (tagRow) tagRow.hidden = false
+
+    const pageSize = Number(stream.dataset.pageSize) || entries.length
+    /** How many *matching* entries are revealed. `apply` enforces it. */
+    let limit = pageSize
+    /** How many entries pass the current filters. Recomputed by `apply`. */
+    let matching = entries.length
+
+    const active = { repo: new Set<string>(), tag: new Set<string>() }
+
+    function readUrl() {
+      const params = new URLSearchParams(location.search)
+      active.repo = new Set((params.get('repo') ?? '').split(',').filter(Boolean))
+      active.tag = new Set((params.get('tag') ?? '').split(',').filter(Boolean))
+    }
+
+    function writeUrl(push: boolean) {
+      const params = new URLSearchParams()
+      if (active.repo.size) params.set('repo', [...active.repo].join(','))
+      if (active.tag.size) params.set('tag', [...active.tag].join(','))
+      const qs = params.toString()
+      // The fragment survives. It is the entry the reader is looking at — losing it
+      // on a filter toggle would make the URL in the bar stop describing the page,
+      // and would undo the scroll the browser performed to get there.
+      const url = `${location.pathname}${qs ? `?${qs}` : ''}${location.hash}`
+      // Replace rather than push while the user is toggling chips, so Back leaves
+      // the updates page instead of walking every filter combination they tried.
+      if (push) history.pushState(null, '', url)
+      else history.replaceState(null, '', url)
+    }
+
+    function matches(el: HTMLElement) {
+      const repos = (el.dataset.repos ?? '').split(' ').filter(Boolean)
+      const tags = (el.dataset.tags ?? '').split(' ').filter(Boolean)
+      // Within a facet: OR. Across facets: AND. "journey or brand, and tagged fix."
+      const repoOk = active.repo.size === 0 || repos.some((r) => active.repo.has(r))
+      const tagOk = active.tag.size === 0 || tags.some((t) => active.tag.has(t))
+      return repoOk && tagOk
+    }
+
+    function apply() {
+      // Two independent reasons to be off-screen. `hidden` is the filter's — it
+      // means "you asked not to see this". `.beyond` is the batch's — "not yet".
+      // Kept apart so print can honour the first and ignore the second.
+      let shown = 0
+      matching = 0
+      for (const el of entries) {
+        const ok = matches(el)
+        el.hidden = !ok
+        if (!ok) {
+          el.classList.remove('beyond')
+          continue
+        }
+        matching++
+        const within = shown < limit
+        el.classList.toggle('beyond', !within)
+        if (within) shown++
+      }
+      for (const chip of repoChips) {
+        chip.setAttribute('aria-pressed', String(active.repo.has(chip.dataset.repo!)))
+      }
+      for (const chip of tagChips) {
+        chip.setAttribute('aria-pressed', String(active.tag.has(chip.dataset.tag!)))
+      }
+
+      const filtered = active.repo.size > 0 || active.tag.size > 0
+      if (clear) clear.hidden = !filtered
+      if (none) none.hidden = matching > 0
+      // Announced: a filter that silently removes two thirds of the page is
+      // invisible to a screen reader otherwise. Counts against what matched, not
+      // against what is revealed — the batch limit is not a filter.
+      if (count) {
+        count.textContent = filtered
+          ? `${matching} of ${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}`
+          : ''
+      }
+
+      // Deliberately not a live region: it changes on the same interactions the
+      // count above does, and two regions announcing at once is worse than one.
+      // The reveal itself is announced by moving focus into the new batch.
+      if (moreRow) moreRow.hidden = shown >= matching
+      if (progress) progress.textContent = shown < matching ? `Showing ${shown} of ${matching}` : ''
+    }
+
+    /** Raise the limit, then put the reader at the first entry that appeared. */
+    function reveal(next: number) {
+      const first = entries.find((el) => !el.hidden && el.classList.contains('beyond'))
+      limit = next
+      apply()
+      if (!first) return
+      // preventScroll because the new batch begins exactly where the button was:
+      // the viewport is already in the right place, and scrolling would move it.
+      first.tabIndex = -1
+      first.focus({ preventScroll: true })
+    }
+
+    function toggle(set: Set<string>, value: string) {
+      if (set.has(value)) set.delete(value)
+      else set.add(value)
+      // A newly filtered list is a new list. Without this the first "show more"
+      // after a filter can reveal nothing at all, because the raised limit already
+      // covers everything that matches.
+      limit = pageSize
+      writeUrl(false)
+      apply()
+    }
+
+    /**
+     * Make one entry visible whatever the filters and the limit say.
+     *
+     * `#slug` is an entry's permalink, so someone arriving on one has asked for
+     * that entry specifically — that outranks a filter they left in the URL and a
+     * batch they have not clicked through yet.
+     */
+    function revealTarget(el: HTMLElement) {
+      if (el.hidden) {
+        active.repo.clear()
+        active.tag.clear()
+        writeUrl(false)
+      }
+      // Position among all entries, which is an upper bound on its position among
+      // the matching ones — so this always reveals it, and at worst a little extra.
+      limit = Math.max(limit, entries.indexOf(el) + 1)
+      apply()
+    }
+
+    /** The entry the current `#hash` names, if it names one. */
+    function hashTarget(): HTMLElement | null {
+      const id = decodeURIComponent(location.hash.slice(1))
+      if (!id) return null
+      const el = document.getElementById(id)
+      return el && el.classList.contains('entry') ? el : null
+    }
+
+    for (const chip of repoChips) {
+      chip.addEventListener('click', (e) => {
+        // The href goes to the pre-rendered single-repo page, which is what a
+        // crawler and a no-JS visitor get. With JS, filter in place instead so
+        // repos and tags can combine.
+        e.preventDefault()
+        toggle(active.repo, chip.dataset.repo!)
+      })
+    }
+    for (const chip of tagChips) {
+      chip.addEventListener('click', () => toggle(active.tag, chip.dataset.tag!))
+    }
+    clear?.addEventListener('click', () => {
+      active.repo.clear()
+      active.tag.clear()
+      limit = pageSize
+      writeUrl(true)
+      apply()
+    })
+
+    moreBtn?.addEventListener('click', () => reveal(nextLimit(limit, pageSize, matching)))
+    // Also the way out of find-in-page missing what is batched away.
+    allBtn?.addEventListener('click', () => reveal(entries.length))
+
+    // Deep links and Back/Forward both land here.
+    window.addEventListener('popstate', () => {
+      readUrl()
+      limit = pageSize
+      apply()
+    })
+
+    // The browser tried to scroll to the hash before this script ran, and if the
+    // target was batched away it had nothing to scroll to. Reveal, then scroll.
+    window.addEventListener('hashchange', () => {
+      const el = hashTarget()
+      if (!el) return
+      revealTarget(el)
+      el.scrollIntoView()
+    })
+
+    readUrl()
+    apply()
+
+    const landed = hashTarget()
+    if (landed) {
+      revealTarget(landed)
+      // Next frame, not now: revealing a batch reflows everything below it, and a
+      // scroll computed against the pre-reveal layout lands in the wrong place.
+      //
+      // `instant` overrides the site's smooth scrolling, which is right for an
+      // anchor click and wrong here — this is where the reader asked to *begin*,
+      // and animating several thousand pixels to get there is a stunt, not a
+      // transition.
+      requestAnimationFrame(() => landed.scrollIntoView({ behavior: 'instant' }))
+    }
+  })()
+</script>

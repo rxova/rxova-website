@@ -1,6 +1,10 @@
+import { readFileSync } from 'node:fs'
+
 import { describe, expect, it } from 'vitest'
+import { parse } from 'yaml'
 
 import {
+  RELEASE_BRANCH,
   runVerify,
   stepCommand,
   runStep,
@@ -29,7 +33,8 @@ const record = (results: Record<string, number> = {}) => {
   return { seen, run }
 }
 
-const silent = { log: () => {}, error: () => {} }
+// An empty environment, so running inside GitHub Actions cannot change what these see.
+const silent = { log: () => {}, error: () => {}, env: {} }
 
 describe('verify gate', () => {
   it('declares at least one step', () => {
@@ -137,5 +142,36 @@ describe('runStep', () => {
     // Inherited so the child's output reaches the terminal live, which is the
     // whole point of a local gate.
     expect(calls[0]![2]).toEqual({ stdio: 'inherit' })
+  })
+})
+
+describe('verify on CI', () => {
+  it('skips the release-only steps on the release branch, and runs the rest', () => {
+    const { seen, run } = record()
+    const env = { GITHUB_HEAD_REF: RELEASE_BRANCH }
+    expect(runVerify({ ...silent, env, run })).toBe(0)
+    expect(seen).toEqual(steps.filter((step) => !step.skipOnRelease).map((step) => step.name))
+  })
+
+  it('folds each step into a GitHub log group', () => {
+    const lines: string[] = []
+    runVerify({
+      ...silent,
+      log: (line) => lines.push(line),
+      env: { GITHUB_ACTIONS: 'true' },
+      run: ok,
+    })
+    expect(lines.filter((line) => line.startsWith('::group::'))).toHaveLength(steps.length)
+    expect(lines.filter((line) => line === '::endgroup::')).toHaveLength(steps.length)
+  })
+
+  it('is what the CI checks job runs, and all it runs', () => {
+    const ci = parse(
+      readFileSync(new URL('../../../../.github/workflows/ci.yml', import.meta.url), 'utf8'),
+    ) as {
+      jobs: { checks: { steps: { run?: string }[] } }
+    }
+    const commands = ci.jobs.checks.steps.flatMap((step) => (step.run ? [step.run.trim()] : []))
+    expect(commands).toEqual(['pnpm install --frozen-lockfile', 'pnpm run verify'])
   })
 })

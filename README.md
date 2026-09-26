@@ -13,9 +13,9 @@ them here already built; this repo validates and publishes them. See
 [docs/INPUTS-CONTRACT.md](docs/INPUTS-CONTRACT.md).
 
 ```
-rxova.org/                         -> site/                 (Astro landing, built here)
-rxova.org/blog/                    -> packages/blog         (built here, persisted as content-blog)
-rxova.org/updates/                 -> packages/updates      (built here, persisted as content-updates)
+rxova.org/                         -> apps/landing          (Astro landing, built here)
+rxova.org/blog/                    -> apps/blog             (built here, persisted as content-blog)
+rxova.org/updates/                 -> apps/updates          (built here, persisted as content-updates)
 rxova.org/packages/journey/        -> rxova/journey        docs (built there, persisted as content-journey)
 rxova.org/packages/react-inputs/   -> rxova/react-inputs   docs (built there, persisted as content-react-inputs)
 rxova.org/packages/use-everywhere/ -> rxova/use-everywhere docs (built there, persisted as content-use-everywhere)
@@ -27,11 +27,12 @@ Which projects are mounted is `sources.json` — see [Adding a project](#adding-
 
 | Path                                            | What                                                    |
 | ----------------------------------------------- | ------------------------------------------------------- |
-| `site/`                                         | Astro landing page (builds to `site/dist`)              |
-| `packages/brand`                                | `@rxova/brand` on npm: tokens, Starlight theme, chrome  |
+| `apps/landing`                                  | Astro landing page (builds to `apps/landing/dist`)      |
+| `apps/blog`                                     | `/blog`, built here and ingested like a project's docs  |
+| `apps/updates`                                  | `/updates`, built the same way                          |
+| `packages/brand`                                | `@rxova/brand` on npm: tokens, fonts and project data   |
+| `packages/astro-ui`                             | `@rxova/astro-ui`: components, Starlight preset, chrome |
 | `packages/website-schemas`                      | `@rxova/website-schemas` on npm: the content contracts  |
-| `packages/blog`                                 | `/blog`, built here and ingested like a project's docs  |
-| `packages/updates`                              | `/updates`, built the same way                          |
 | `apps/preview`                                  | A Starlight site that renders `@rxova/brand` for review |
 | `packages/tooling/src/lib/registry.ts`          | Reads/validates `sources.json`; derives every path      |
 | `packages/tooling/src/deploy/ingest.ts`         | Gate 2: validates a sender's dispatch and its dist      |

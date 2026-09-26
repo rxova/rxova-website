@@ -60,6 +60,7 @@ describe('urlForFile', () => {
     assert.equal(urlForFile('index.html'), '/')
     assert.equal(urlForFile('about/index.html'), '/about/')
     assert.equal(urlForFile('blog/test-post/index.html'), '/blog/test-post/')
+    assert.equal(urlForFile('404.html'), '/404.html')
   })
 })
 
@@ -79,6 +80,10 @@ describe('isIndexable', () => {
 
   it('is not fooled by a page merely mentioning the word', () => {
     assert.equal(isIndexable(page('<meta name="description" content="noindexing tips">')), true)
+  })
+
+  it('reads a robots meta with no content as no instruction', () => {
+    assert.equal(isIndexable(page('<meta name="robots">')), true)
   })
 })
 
@@ -124,6 +129,16 @@ describe('lastmodFor', () => {
       ) +
       '</script>'
     assert.equal(lastmodFor(html), '2026-08-03')
+  })
+
+  it('reads the first dated node of a JSON-LD array, skipping ones without a usable date', () => {
+    const html = ld([
+      null,
+      { '@type': 'Organization' },
+      { datePublished: 'soon' },
+      { dateModified: '2026-06-01' },
+    ])
+    assert.equal(lastmodFor(html), '2026-06-01')
   })
 })
 
@@ -366,6 +381,20 @@ describe('childSitemapPaths', () => {
         'packages/x',
       ),
       ['packages/x/sitemap-0.xml'],
+    )
+  })
+
+  it('unescapes the XML in a loc, and accepts a bare path or a repeat only once', () => {
+    assert.deepEqual(
+      childSitemapPaths(
+        index([
+          'https://rxova.org/packages/x/sitemap-0.xml?a=1&amp;b=&lt;2&gt;',
+          '/packages/x/sitemap-1.xml',
+          'https://rxova.org/packages/x/sitemap-1.xml',
+        ]),
+        'packages/x',
+      ),
+      ['packages/x/sitemap-0.xml', 'packages/x/sitemap-1.xml'],
     )
   })
 })

@@ -17,9 +17,14 @@ export function maskAssetHashes(text: string): string {
   return text.replace(HASHED_ASSET, '$1.[hash].$2')
 }
 
-/** Astro's per-component scope ids change when a component moves; its scoping does not. */
+/**
+ * Astro's per-component scope ids change when a component moves, and for files outside an app's
+ * root they hash its absolute path; its scoping does not change. Both forms are masked.
+ */
 export function maskScopeIds(text: string): string {
-  return text.replace(/data-astro-cid-[a-z0-9]+/g, 'data-cid')
+  return text
+    .replace(/data-astro-cid-[a-z0-9]+/g, 'data-cid')
+    .replace(/\bastro-[a-z0-9]{8}\b/g, 'astro-scope')
 }
 
 export function stripCssComments(css: string): string {
