@@ -31,6 +31,16 @@ describe('VisuallyHidden', () => {
   })
 })
 
+describe('VisuallyHidden attributes', () => {
+  it('passes attributes through, so a script can find it', async () => {
+    const html = await render(VisuallyHidden, {
+      props: { 'data-play-label': '' },
+      slots: { default: 'Play' },
+    })
+    expect(html).toBe('<span class="visually-hidden" data-play-label>Play</span>')
+  })
+})
+
 describe('BackLink', () => {
   it('prefixes the label with a left arrow', async () => {
     expect(await render(BackLink, { props: { href: '/blog/' }, slots: { default: 'Blog' } })).toBe(

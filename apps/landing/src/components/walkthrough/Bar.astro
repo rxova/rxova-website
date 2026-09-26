@@ -1,0 +1,260 @@
+---
+/** The tour's controls: the Before/After switch, step and play buttons, and the scrubber. Hidden until the script runs. */
+import VisuallyHidden from '@rxova/astro-ui/components/VisuallyHidden.astro'
+import Scrubber from './Scrubber.astro'
+
+interface Props {
+  /** The switch's labels, e.g. "By hand" and "With journey". */
+  labels: { before: string; after: string }
+}
+
+const { labels } = Astro.props
+const sides = [
+  { key: 'before', label: labels.before, short: 'Before' },
+  { key: 'after', label: labels.after, short: 'After' },
+] as const
+
+const icons = {
+  prev: '<path d="M10 3.5 5.5 8l4.5 4.5" />',
+  next: '<path d="M6 3.5 10.5 8 6 12.5" />',
+}
+---
+
+<div class="bar" hidden data-bar>
+  <div class="tabs" role="group" aria-label="Show">
+    {sides.map((side) => (
+      <button
+        type="button"
+        class="tab"
+        data-show={side.key}
+        aria-pressed={side.key === 'before' ? 'true' : 'false'}
+      >
+        {/* The full label where the window has room; "Before" and "After" where it does not. */}
+        <span class="tab-long">{side.label}</span>
+        <span class="tab-short">{side.short}</span>
+      </button>
+    ))}
+  </div>
+
+  <div class="controls">
+    <button type="button" class="icon-button" data-prev aria-label="Previous note">
+      <svg viewBox="0 0 16 16" aria-hidden="true" set:html={icons.prev} />
+    </button>
+    <span class="count" data-count aria-live="polite"></span>
+    <button type="button" class="icon-button" data-next aria-label="Next note">
+      <svg viewBox="0 0 16 16" aria-hidden="true" set:html={icons.next} />
+    </button>
+    <button type="button" class="icon-button play" data-play data-state="paused">
+      <svg class="icon pause" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M5.25 3.5v9M10.75 3.5v9"></path>
+      </svg>
+      <svg class="icon resume" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M5 3.2v9.6L12.6 8z"></path>
+      </svg>
+      <svg class="icon replay" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M3.2 8a4.8 4.8 0 1 0 1.4-3.4M4.2 2.4v2.8H7"></path>
+      </svg>
+      <VisuallyHidden data-play-label="">Play the walkthrough</VisuallyHidden>
+    </button>
+  </div>
+
+  <Scrubber />
+</div>
+
+<style>
+  .bar {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 0.6rem 0.6rem;
+  }
+
+  .bar[hidden] {
+    display: none;
+  }
+
+  /* A segmented switch: the two sides are one choice, not two buttons. */
+  .tabs {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: var(--rx-radius-pill);
+    background: var(--rx-card);
+    box-shadow: inset 0 0 0 1px var(--rx-rule);
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--rx-fg);
+    outline-offset: 2px;
+  }
+
+  .tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.1rem;
+    padding: 0 0.85rem;
+    border-radius: var(--rx-radius-pill);
+    color: var(--rx-muted);
+    font-size: 0.85rem;
+    font-weight: 550;
+    white-space: nowrap;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  /* Each side always in its own colour; the unchosen one at full strength, which keeps the red at AA. */
+  .tab[data-show='before'] {
+    --tab: var(--wt-before);
+    --tab-soft: var(--wt-before-soft);
+  }
+
+  .tab[data-show='after'] {
+    --tab: var(--wt-after);
+    --tab-soft: var(--wt-after-soft);
+  }
+
+  .tab {
+    color: var(--tab);
+  }
+
+  .tab:hover {
+    background: color-mix(in srgb, var(--tab-soft) 50%, transparent);
+  }
+
+  .tab[aria-pressed='true'] {
+    background: var(--tab-soft);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--tab) 45%, transparent);
+  }
+
+  .tab-short {
+    display: none;
+  }
+
+  .controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    margin-left: auto;
+  }
+
+  .count {
+    min-width: 7.5em;
+    text-align: center;
+    color: var(--rx-muted);
+    font-family: var(--rx-font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .icon-button {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    color: var(--rx-muted);
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .icon-button:hover:not(:disabled) {
+    background: var(--rx-card);
+    color: var(--rx-fg);
+  }
+
+  .icon-button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .icon-button svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .play {
+    margin-left: 0.25rem;
+    box-shadow: inset 0 0 0 1px var(--rx-rule-strong);
+  }
+
+  .play .resume {
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .play .icon {
+    display: none;
+  }
+
+  .play[data-state='playing'] .pause,
+  .play[data-state='paused'] .resume,
+  .play[data-state='ended'] .replay {
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tab,
+    .icon-button {
+      transition: none;
+    }
+  }
+
+  /* A narrow window: two tidy rows, the switch across the full width and the controls spread under it. */
+  @container (max-width: 36rem) {
+    .bar {
+      padding-inline: 0.45rem;
+      row-gap: 0.25rem;
+    }
+
+    .tabs {
+      flex: 1 1 100%;
+    }
+
+    .tab {
+      flex: 1 1 0;
+      justify-content: center;
+      min-width: 0;
+      padding: 0 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .tab-long {
+      display: none;
+    }
+
+    .tab-short {
+      display: inline;
+    }
+
+    .controls {
+      flex: 1 1 100%;
+      justify-content: space-between;
+      margin-left: 0;
+    }
+
+    .count {
+      flex: 1;
+    }
+  }
+</style>

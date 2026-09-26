@@ -2,7 +2,7 @@
 /** One project on the showcase stage: install line, snippet or walkthrough, tags and links. */
 import type { LandingProject } from '../../lib/projects'
 import { showcases } from '../../showcases'
-import Walkthrough from '../Walkthrough.astro'
+import Walkthrough from '../walkthrough/Walkthrough.astro'
 import Arrow from './Arrow.astro'
 import LinkRow from './LinkRow.astro'
 
@@ -69,7 +69,7 @@ const story = showcases[p.id]
   </LinkRow>
 
   {/* After the links because it is tall, so Docs and GitHub stay in the panel's first screen. */}
-  {story && <Walkthrough story={story} id={`walkthrough-${p.id}`} />}
+  {story && <Walkthrough story={story} id={`walkthrough-${p.id}`} host=".panel" />}
 </article>
 
 <style>
