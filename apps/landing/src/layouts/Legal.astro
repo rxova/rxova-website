@@ -21,7 +21,7 @@ const { title, path } = Astro.props
 
   <style>
     main.legal {
-      max-width: var(--max);
+      max-width: var(--rx-max-wide);
       margin: 0 auto;
       padding: clamp(2.5rem, 8vh, 5rem) 1.5rem 4rem;
     }
@@ -45,34 +45,34 @@ const { title, path } = Astro.props
       margin: 2rem 0 0.5rem;
     }
     .prose :global(p) {
-      color: var(--muted);
+      color: var(--rx-muted);
       margin-bottom: 1rem;
     }
     .prose :global(ul) {
-      color: var(--muted);
+      color: var(--rx-muted);
       margin: 0 0 1rem 1.2rem;
     }
     .prose :global(li) {
       margin-bottom: 0.4rem;
     }
     .prose :global(a) {
-      color: var(--fg);
+      color: var(--rx-fg);
       text-decoration: underline;
       text-underline-offset: 2px;
     }
     .prose :global(strong) {
-      color: var(--fg);
+      color: var(--rx-fg);
       font-weight: 620;
     }
     .prose :global(code) {
-      font-family: var(--mono);
+      font-family: var(--rx-font-mono);
       font-size: 0.88em;
-      background: var(--tag-bg);
+      background: var(--rx-tag-bg);
       padding: 0.05rem 0.35rem;
       border-radius: 4px;
     }
     .prose :global(.updated) {
-      color: var(--faint);
+      color: var(--rx-faint);
       font-size: 0.9rem;
       margin-bottom: 1.75rem;
     }

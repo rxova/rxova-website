@@ -31,7 +31,7 @@ const { noun } = Astro.props
     flex-wrap: wrap;
     margin-top: 2.5rem;
     padding-top: 1.5rem;
-    border-top: 1px solid var(--rule);
+    border-top: 1px solid var(--rx-rule);
   }
   /* `display: flex` outranks the UA's `[hidden]` rule. */
   .more[hidden] {
@@ -40,20 +40,20 @@ const { noun } = Astro.props
   .more-btn {
     font: inherit;
     font-size: 0.9rem;
-    color: var(--fg);
-    background: var(--tag-bg);
-    border: 1px solid var(--rule);
+    color: var(--rx-fg);
+    background: var(--rx-tag-bg);
+    border: 1px solid var(--rx-rule);
     border-radius: 999px;
     padding: 0.35rem 1rem;
     cursor: pointer;
   }
   .more-btn:hover {
-    border-color: var(--accent);
+    border-color: var(--rx-fg);
   }
   .show-all {
     font: inherit;
     font-size: 0.85rem;
-    color: var(--muted);
+    color: var(--rx-muted);
     background: none;
     border: 0;
     padding: 0;
@@ -62,16 +62,16 @@ const { noun } = Astro.props
     cursor: pointer;
   }
   .show-all:hover {
-    color: var(--fg);
+    color: var(--rx-fg);
   }
   .more-btn:focus-visible,
   .show-all:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--rx-fg);
     outline-offset: 2px;
   }
   .progress {
     margin-left: auto;
-    color: var(--faint);
+    color: var(--rx-faint);
     font-size: 0.85rem;
   }
   @media print {
