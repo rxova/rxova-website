@@ -22,14 +22,7 @@ const feedUrl = `${canonicalUrl('/blog')}rss.xml`
 
 /**
  * A post with a cover shares its cover; everything else shares the umbrella card.
- *
- * `cover.src` is the processed asset's path, already base-prefixed by Astro, so
- * it only needs the origin. Deliberately not the raw source file: the built asset
- * is the one that exists at that URL.
- *
- * No per-post generated card yet — that would mean running satori inside this
- * build. The cover is the honest version of the same idea for the posts that
- * have one, and it costs nothing.
+ * `cover.src` is the built asset's base-prefixed path, so it only needs the origin.
  */
 const ogImage = post.data.cover ? siteUrl(post.data.cover.src) : undefined
 

@@ -28,12 +28,7 @@ const tags = usedTags(entries)
 
 /**
  * The card for the project the newest entry is about, when there is one.
- *
- * The stream is chronological, so what someone shares from /updates is almost
- * always the entry at the top — and `/og/react-inputs.png` says which project
- * moved where the umbrella card says only "Rxova". `repos` also carries
- * infrastructure ids (`brand`, `rxova-website`) that have no card, hence the
- * lookup against PROJECTS rather than REPOS.
+ * Looked up in PROJECTS, since `repos` also holds infrastructure ids with no card.
  */
 const PROJECT_IDS = new Set<string>(PROJECTS.map((p) => p.id))
 const leadProject = entries[0]?.data.repos.find((id) => PROJECT_IDS.has(id))

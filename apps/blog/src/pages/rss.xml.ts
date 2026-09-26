@@ -1,14 +1,6 @@
 /**
- * RSS 2.0 for /blog.
- *
- * Prerendered like every other route: the surface is a static Astro build, so
- * this endpoint runs once and the aggregator publishes `rss.xml` verbatim
- * alongside the HTML (ingest copies the tree; only `.html` is ever rewritten).
- *
- * Item links are `canonicalUrl`, never `href()`. `href()` resolves against
- * `BASE_URL` so a link works wherever the surface is mounted — right for a page,
- * wrong for a feed, which is read off-site and must carry absolute production
- * URLs. The guid is that same URL, so re-dating a post never resurfaces it.
+ * RSS 2.0 for /blog, prerendered and published verbatim by the aggregator.
+ * Links and guids are absolute `canonicalUrl`s, never `href()`: a feed is read off-site.
  */
 import type { APIRoute } from 'astro'
 
@@ -23,9 +15,8 @@ export const GET: APIRoute = async () => {
     posts.map(async (post) => ({
       title: post.data.title,
       link: canonicalUrl(`/blog/${post.id}`),
-      // `description` is the summary written for search results and social
-      // cards, which is exactly the job here too. The index uses the post's
-      // opening instead; a feed reader is closer to a search result.
+      // The summary written for search results and social cards; a feed reader is
+      // closer to a search result than the index is.
       description: post.data.description,
       pubDate: post.data.pubDate,
       authors: (await resolveAuthors(post.data.authors)).map((a) => a.name),

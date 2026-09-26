@@ -1,14 +1,6 @@
 /**
- * This package's own prose, against the real contract.
- *
- * `entries.test.ts` covers the ordering and formatting in the abstract. This covers
- * the thing the package exists to do: hold updates that a build can actually render.
- *
- * It reads the real `posts/` and `authors/` directories rather than fixtures. The
- * repo-level validator (`packages/tooling/src/repo/validate-content.ts`) already checks both surfaces
- * together and is the pre-merge gate — this is the check that fails inside the
- * package, so `pnpm --filter @rxova/updates test` tells you your own package is broken
- * without running the whole repo.
+ * This package's real entries and `authors/`, checked against the contract inside the package.
+ * The repo-level validator is the pre-merge gate; this lets `pnpm --filter @rxova/updates test` fail alone.
  */
 
 import { readdirSync, readFileSync } from 'node:fs'

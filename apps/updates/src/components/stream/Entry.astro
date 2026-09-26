@@ -74,9 +74,7 @@ const { entry, Body, authorNames } = Astro.props
     font-size: 0.85rem;
     font-family: var(--rx-font-mono);
   }
-  /* The entry's own measure. The page is as wide as the header, so without it
-     an entry's prose ran past 100 characters a line on a large screen; 68ch is
-     the blog post's measure, so the two read the same. */
+  /* The entry's own measure: 68ch, the same as a blog post. */
   .what {
     max-width: 68ch;
   }
@@ -121,9 +119,7 @@ const { entry, Body, authorNames } = Astro.props
     color: var(--rx-faint);
     padding-left: 0;
   }
-  /* Only ever rendered by `pnpm dev` — sketches are filtered out of the production
-     build — but it is the difference between previewing a sketch and thinking you
-     published one. First in the row for the same reason. */
+  /* Only rendered by `pnpm dev`: sketches are filtered out of the production build. */
   .draft {
     border-radius: 999px;
     padding: 0.1rem 0.55rem;
@@ -154,9 +150,8 @@ const { entry, Body, authorNames } = Astro.props
   .entry[hidden] {
     display: none;
   }
-  /* Batched away, as opposed to filtered away. Two mechanisms because they mean
-     different things: `hidden` says "you asked not to see this", `.beyond` says
-     "not yet". Print keeps the first and drops the second. */
+  /* Batched away (`.beyond`, "not yet"), as opposed to filtered away (`hidden`).
+     Print keeps the filtered state and drops the batching. */
   .entry.beyond {
     display: none;
   }

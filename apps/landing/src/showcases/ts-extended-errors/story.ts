@@ -1,10 +1,5 @@
-// ts-extended-errors: an error that has to cross a boundary.
-//
-// Ported from the project's docs landing page. `after` is a real module, read
-// through `?raw`, so what the page shows is exactly what showcases.test.ts
-// runs. `before` is only ever displayed: it is the same job done by hand, and it
-// is wrong on purpose, so it is kept as text — compiled, it would need its lint
-// findings switched off, and those findings are the point.
+// ts-extended-errors: an error that has to cross a boundary. `after` is a real module
+// run by showcases.test.ts; `before` is wrong on purpose, so it is kept as text.
 
 import type { Showcase } from '../../lib/walkthrough'
 import after from './after.ts?raw'

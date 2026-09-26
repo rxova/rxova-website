@@ -1,11 +1,7 @@
 ---
 /**
- * Renders every neutral and accent token as a live swatch.
- *
- * The values are read from CSS custom properties at paint time rather than
- * restated here, so this page cannot drift from tokens.css: if a token is
- * renamed or dropped, its swatch goes transparent instead of quietly showing a
- * stale colour.
+ * Renders every neutral and accent token as a live swatch, read from CSS at paint time.
+ * A renamed or dropped token goes transparent instead of showing a stale colour.
  */
 const NEUTRALS = [
   'rx-bg',

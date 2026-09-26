@@ -1,21 +1,6 @@
 /**
- * What a real build emits for a post that carries images.
- *
- * Everything asserted here lives in the gap the unit tests cannot reach. `sharp`
- * was missing from this package for as long as the surface has existed, and no test
- * failed: the schema accepted a cover, the page rendered one, and the only thing
- * that ever objected was `astro build` — in a job nobody had run against a post with
- * an image in it. So this runs the build.
- *
- * It builds the *real* package — this config, this collection, this page component —
- * against fixture content under `test/fixtures`. Fixtures rather than `posts/`
- * because `posts/` is published: a post written to exercise alt text would ship to
- * rxova.org and sit in the feed forever. `BLOG_POSTS_DIR` is the seam that allows
- * it, and `src/content.config.ts` explains why it is worth having.
- *
- * A browser would add nothing. Every claim here is about static markup and the bytes
- * on disk beside it — which candidate a browser then picks from a `srcset` is the
- * browser's business, and asserting it would be testing Chromium.
+ * What a real build of this package emits for posts with images, built against
+ * `test/fixtures` (via `BLOG_POSTS_DIR`) because `posts/` is published.
  */
 
 import { execFileSync } from 'node:child_process'
@@ -34,22 +19,14 @@ const BASE = '/blog/'
 let out: string
 
 /**
- * One build for the whole file.
- *
- * Astro is not cheap and nothing here mutates the output, so paying for it once and
- * reading the result many times is the only sane shape. `stdio: 'pipe'` keeps a
- * successful run quiet and hands the whole log to the error message on a failure —
- * which matters, because "the build broke" is the single most likely thing this
- * file will ever have to report.
+ * One build for the whole file; nothing here mutates the output.
+ * `stdio: 'pipe'` keeps a passing run quiet and puts the full log in a failure's message.
  */
 beforeAll(() => {
   out = mkdtempSync(join(tmpdir(), 'rxova-blog-render-'))
 
-  // Astro caches generated images across builds, and a warm cache will happily
-  // satisfy a build that has no image service at all — which is exactly the failure
-  // this file is here to catch. Verified: with the cache left in place, removing
-  // `sharp` outright still passed. CI is always cold, so the hole is local-only,
-  // which is the worst kind: it hides the bug from the person introducing it.
+  // A warm image cache can satisfy a build with no image service at all, hiding a
+  // missing `sharp` locally; clear it so the build is always cold.
   rmSync(join(packageRoot, 'node_modules/.astro/assets'), { recursive: true, force: true })
 
   try {
@@ -83,20 +60,13 @@ interface Img {
   readonly className: string
 }
 
-/**
- * The `<img>` elements a page renders, minus the chrome's.
- *
- * `SiteShell` renders a logo on every page. It is not what any of this is about, and
- * a test that counted it would break the next time the header changed.
- */
+/** The `<img>` elements a page renders, minus the chrome's logo. */
 function images(html: string): Img[] {
   return [...html.matchAll(/<img\s[^>]*>/g)]
     .map((m) => m[0])
     .filter((tag) => !tag.includes('rxova-logo'))
     .map((tag) => {
-      // `alt` with no value is how an empty alt serialises — a boolean-looking
-      // attribute that means `alt=""`. Reading only the `alt="…"` form would miss
-      // exactly the decorative case this file exists to pin down.
+      // A bare `alt` is how an empty alt serialises, so match it as well as `alt="…"`.
       const attr = (name: string): string => new RegExp(`\\s${name}="([^"]*)"`).exec(tag)?.[1] ?? ''
       const has = (name: string): boolean =>
         new RegExp(`\\s${name}(="[^"]*")?(?=[\\s>/])`).test(tag)
@@ -128,9 +98,8 @@ const cover = (slug: string): Img => {
 const bodyImages = (slug: string): Img[] =>
   images(page(slug)).filter((i) => !i.className.includes('cover'))
 
-// The failure that shipped: a cover in the frontmatter and no `sharp` to render it.
-// If this file compiles at all the build succeeded, but "it is a real raster the
-// pipeline produced" is the part worth stating outright.
+// A cover in the frontmatter needs `sharp` to render; assert the output is a real
+// raster the pipeline produced.
 describe('the asset pipeline', () => {
   it('emits WebP, which means sharp ran', () => {
     const { url } = cover('cover-described').srcset[0]!
@@ -193,9 +162,8 @@ describe('the cover', () => {
     )
   })
 
-  // The point of making coverAlt optional. A decorative image wants an empty alt —
-  // not the title, not the filename, and not the attribute missing altogether,
-  // which would leave a screen reader to announce the URL.
+  // A decorative cover wants an empty alt: not the title, and not a missing
+  // attribute, which leaves a screen reader announcing the URL.
   it('renders an empty alt when the post does not describe it', () => {
     const img = cover('cover-decorative')
     expect(img.alt).toBe('')
@@ -244,13 +212,8 @@ describe('an embedded body image', () => {
   })
 
   /**
-   * A post about markdown quotes markdown.
-   *
-   * The fixture writes a path that does not exist into a fence and into inline code.
-   * Had either been treated as an embed the build would have failed outright on the
-   * missing file, so reaching this assertion is already most of the proof — what it
-   * adds is that the sample still *renders*, as the text it is, and produced no
-   * image of its own. Three embeds: described, decorative, remote.
+   * The fixture puts a missing path in a fence and in inline code: both must render
+   * as text, not as images. Three embeds: described, decorative, remote.
    */
   it('is not conjured out of a fenced or inline code sample', () => {
     const html = page('cover-described')
@@ -271,11 +234,8 @@ describe('a post with no images in its body', () => {
 })
 
 /**
- * The index batches posts with JS, revealing ten at a time. The guarantee that
- * cannot be unit-tested is the one about the *bytes*: batching happens in the
- * browser, so the HTML on disk still has to carry every post, and the control has to
- * arrive `hidden`. Get either wrong and a crawler — or anyone without JS — sees a
- * truncated index and a dead button, which is precisely the failure worth pinning.
+ * The index batches posts with JS, so the HTML must still carry every post and ship
+ * the control `hidden`; otherwise no-JS readers see a truncated index and a dead button.
  */
 describe('the batched index', () => {
   const index = (): string => readFileSync(join(out, 'index.html'), 'utf8')

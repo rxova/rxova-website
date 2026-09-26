@@ -1,10 +1,6 @@
 /**
- * A project's walkthrough: one job done by hand, then with the project, with
- * numbered notes pairing each problem on the first side with its fix on the
- * second. Rendered by ../components/walkthrough/; each project's story
- * lives in ../showcases/<id>/.
- *
- * Plain TypeScript with no imports, so vitest can load it without Astro.
+ * A project's walkthrough: one job done by hand, then with the project, with numbered notes
+ * pairing each problem with its fix. Plain TypeScript with no imports, so vitest loads it.
  */
 
 /** One problem on the `before` side and the fix for it on the `after` side. */
@@ -35,13 +31,8 @@ export interface Showcase {
 }
 
 /**
- * The gutter markers for one side: every line a note points at, labelled with
- * the note's number. One marker per line rather than one per block, so every
- * highlighted line carries its number — a block shows its label on its first
- * line only, and the rest read as unnumbered.
- *
- * A fragment that matches no line throws, which fails the build — a note that
- * points at nothing is how a label ends up on the wrong line after an edit.
+ * The gutter markers for one side: one per line a note points at, labelled with its number.
+ * A fragment that matches no line throws, failing the build.
  */
 export function lineMarkers(
   code: string,

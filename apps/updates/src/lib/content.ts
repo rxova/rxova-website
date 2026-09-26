@@ -1,8 +1,6 @@
 /**
  * Loading helpers for the updates collections.
- *
- * The pure half — ordering, bylines, dates, facets — lives in `entries.ts`, which
- * imports nothing from Astro so it can be tested without booting a build.
+ * The pure half (ordering, bylines, dates, facets) lives in `entries.ts`, testable without a build.
  */
 
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content'
@@ -17,13 +15,8 @@ export { byline, formatDate, isoDate }
 export type UpdateEntry = CollectionEntry<'updates'>
 
 /**
- * Updates, newest first, ties broken on slug so the order is reproducible. Sketches
- * are excluded in production.
- *
- * The filter belongs here rather than at a page, because this is the one place the
- * collection is read: the stream, the repo pages and the filter chips all derive from
- * it, so a sketch drops out of every one of them together. A sketch still renders
- * under `astro dev`, so it can be read in place before it ships.
+ * Updates, newest first, ties broken on slug. The one place the collection is read, so
+ * sketches drop out of every view in production; they still render under `astro dev`.
  */
 export async function getUpdates(): Promise<UpdateEntry[]> {
   const entries = await getCollection('updates', ({ data }) => import.meta.env.DEV || !data.draft)
@@ -32,10 +25,7 @@ export async function getUpdates(): Promise<UpdateEntry[]> {
 
 /**
  * Resolve author references to their entries.
- *
- * `reference()` already failed the build if an id had no file, so a miss here is
- * impossible rather than unlikely — which is exactly why it is worth asserting
- * instead of rendering an empty byline.
+ * `reference()` already fails the build on an unknown id, so a miss here throws.
  */
 export async function resolveAuthors(
   refs: readonly { id: string }[],
@@ -67,11 +57,8 @@ export function usedTags(entries: readonly UpdateEntry[]): string[] {
 }
 
 /**
- * A URL inside this surface.
- *
- * The app is built for whatever base the aggregator will mount it at, so a bare
- * `/some-slug` would resolve against the origin and leave the mount entirely. Astro
- * exposes the configured base as BASE_URL; everything internal goes through here.
+ * A URL inside this surface, prefixed with the configured base (`BASE_URL`).
+ * Every internal link goes through here; a bare `/slug` would leave the mount.
  */
 export function href(path = ''): string {
   const base = import.meta.env.BASE_URL.replace(/\/$/, '')
