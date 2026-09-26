@@ -35,6 +35,7 @@ export const steps: readonly VerifyStep[] = [
   { name: 'Check formatting', script: 'format:check' },
   { name: 'Lint', script: 'lint' },
   { name: 'Check file sizes', script: 'check:size' },
+  { name: 'Check comment lengths', script: 'check:comments' },
   { name: 'Check the docs registry', script: 'check:registry' },
   {
     // One Turbo run: it orders and parallelises the tasks and starts once.
