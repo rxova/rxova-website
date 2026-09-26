@@ -14,7 +14,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check:astro": "astro check",
-    "test": "vitest run --coverage"
+    "test": "vitest run --coverage",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@rxova/brand": "workspace:^",
@@ -24,6 +25,8 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@playwright/test": "1.63.0",
+    "@rxova/repo-tooling": "workspace:*",
     "@types/node": "^26.6.1",
     "@vitest/coverage-v8": "^5.0.1",
     "typescript": "6.0.3",

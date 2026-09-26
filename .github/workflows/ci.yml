@@ -269,8 +269,8 @@ jobs:
       - uses: ./.github/actions/turbo-cache
       - run: pnpm install --frozen-lockfile
       - name: Install Chromium
-        run: pnpm --filter @rxova/repo-tooling exec playwright install --with-deps chromium
-      # Builds and assembles the site the way the deploy does, then drives it in Chromium.
+        run: pnpm --filter @rxova/e2e exec playwright install --with-deps chromium
+      # Each app against its own preview, then the assembled site as the deploy composes it.
       - name: Run the behaviour specs
         run: pnpm run e2e
       - name: Keep the traces of failed specs
@@ -278,7 +278,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: e2e-traces
-          path: packages/tooling/test-results
+          path: '**/test-results'
           retention-days: 7
 
   all-checks:

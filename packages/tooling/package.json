@@ -4,11 +4,13 @@
   "private": true,
   "description": "Repo tooling for rxova-website: the behaviour lock, and later the deploy and repo scripts.",
   "type": "module",
+  "exports": {
+    "./playwright": "./config/playwright.ts"
+  },
   "scripts": {
     "test": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "e2e": "playwright test --project=chromium",
-    "visual": "playwright test --project=visual"
+    "serve:site": "node src/e2e/serve.ts"
   },
   "dependencies": {
     "@rxova/website-schemas": "workspace:^",

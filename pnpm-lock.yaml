@@ -251,6 +251,21 @@ importers:
         specifier: ^2.9.1
         version: 2.9.1
 
+  apps/e2e:
+    devDependencies:
+      '@playwright/test':
+        specifier: 1.63.0
+        version: 1.63.0
+      '@rxova/repo-tooling':
+        specifier: workspace:*
+        version: link:../../packages/tooling
+      '@types/node':
+        specifier: ^26.6.1
+        version: 26.6.1
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+
   apps/preview:
     dependencies:
       '@astrojs/starlight':
@@ -291,6 +306,12 @@ importers:
       '@astrojs/check':
         specifier: ^0.9.10
         version: 0.9.10(prettier-plugin-astro@1.0.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9))(prettier@3.9.9)(typescript@6.0.3)
+      '@playwright/test':
+        specifier: 1.63.0
+        version: 1.63.0
+      '@rxova/repo-tooling':
+        specifier: workspace:*
+        version: link:../tooling
       '@types/node':
         specifier: ^26.6.1
         version: 26.6.1
@@ -396,6 +417,12 @@ importers:
       '@astrojs/check':
         specifier: ^0.9.10
         version: 0.9.10(prettier-plugin-astro@1.0.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9))(prettier@3.9.9)(typescript@6.0.3)
+      '@playwright/test':
+        specifier: 1.63.0
+        version: 1.63.0
+      '@rxova/repo-tooling':
+        specifier: workspace:*
+        version: link:../tooling
       '@types/node':
         specifier: ^26.6.1
         version: 26.6.1
@@ -460,6 +487,9 @@ importers:
       '@astrojs/check':
         specifier: ^0.9.10
         version: 0.9.10(prettier-plugin-astro@1.0.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9))(prettier@3.9.9)(typescript@6.0.3)
+      '@playwright/test':
+        specifier: 1.63.0
+        version: 1.63.0
       '@rxova/journey-core':
         specifier: 1.0.0-rc.3
         version: 1.0.0-rc.3
@@ -469,6 +499,9 @@ importers:
       '@rxova/react-otp-input':
         specifier: ^1.0.4
         version: 1.0.4(react@19.3.0)
+      '@rxova/repo-tooling':
+        specifier: workspace:*
+        version: link:../packages/tooling
       '@types/react':
         specifier: ^19.3.0
         version: 19.3.0
