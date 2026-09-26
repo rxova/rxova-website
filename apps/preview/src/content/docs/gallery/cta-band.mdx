@@ -1,0 +1,51 @@
+---
+title: CtaBand
+description: A centred call to action with a row of pill buttons.
+---
+
+import Story from '../../../components/Story.astro'
+import CtaBand from '@rxova/astro-ui/components/CtaBand.astro'
+
+Title, lede and up to a handful of actions. One action is usually `primary`; the rest render
+as outlined pills. External links get `rel="noopener"` and a small marker. Internal hrefs must
+arrive base-aware, since the component writes them verbatim.
+
+<Story title="Opener" note="Primary first, then two minimal actions, one of them external.">
+  <CtaBand
+    title="Model the flow, not the click handlers"
+    lede="Install the core and have a running machine in about eight lines. The React bindings are a separate package; take them when you want them."
+    actions={[
+      { text: 'Start with Core', href: '#', variant: 'primary' },
+      { text: 'React quickstart', href: '#' },
+      { text: 'GitHub', href: 'https://github.com/rxova', external: true },
+    ]}
+  />
+</Story>
+
+<Story title="Closer" note="The same component at the foot of a page, with the ask reordered.">
+  <CtaBand
+    title="Take it for a flow"
+    lede="Start with the quickstart, or read how the transition graph resolves before you commit to it."
+    actions={[
+      {
+        text: 'Star on GitHub',
+        href: 'https://github.com/rxova',
+        variant: 'primary',
+        external: true,
+      },
+      { text: 'Read the docs', href: '#' },
+    ]}
+  />
+</Story>
+
+## Props
+
+| Prop      | Type                   | What it does                                 |
+| --------- | ---------------------- | -------------------------------------------- |
+| `title`   | `string`               | The `<h2>`                                   |
+| `lede`    | `string`               | One paragraph under the title, centred, 46ch |
+| `actions` | `readonly CtaAction[]` | The buttons, in order                        |
+
+`CtaAction` is `{ text, href, variant?: 'primary' | 'minimal', external?: boolean }`; `variant`
+defaults to `minimal`. The primary fill reads `--rx-on-primary` from `@rxova/brand` for its
+text, so it stays legible on the lightened dark-mode violet.
