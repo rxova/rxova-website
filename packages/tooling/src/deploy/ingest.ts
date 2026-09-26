@@ -38,16 +38,16 @@ function htmlFiles(dir: string): string[] {
   return found
 }
 
-/**
- * Gate 2a: validates the dispatch against the registry and returns what the workflow
- * needs to fetch and persist. Pure — no env, filesystem or network.
- */
 /** The part of a registry source a dispatch is checked against. */
 export type DispatchSource = Pick<
   Source,
   'id' | 'kind' | 'enabled' | 'base' | 'mount' | 'repo' | 'releaseTag' | 'releaseAsset'
 >
 
+/**
+ * Gate 2a: validates the dispatch against the registry and returns what the workflow
+ * needs to fetch and persist. Pure — no env, filesystem or network.
+ */
 export function validateDispatch(registry: { sources: DispatchSource[] }, payload: unknown) {
   // Field shapes come from `@rxova/website-schemas`; below is what the schema cannot
   // know: whether the project is registered and whether its base matches the mount.
@@ -120,10 +120,6 @@ export function validateDispatch(registry: { sources: DispatchSource[] }, payloa
   }
 }
 
-/**
- * Gate 2b: the sender's extracted dist must be a non-empty directory with an
- * index.html at its root.
- */
 /** What the dispatch said the dist is, checked against its page-bundle manifest. */
 export interface ExpectedDist {
   schema?: number
@@ -131,6 +127,10 @@ export interface ExpectedDist {
   base?: string
 }
 
+/**
+ * Gate 2b: the sender's extracted dist must be a non-empty directory with an
+ * index.html at its root.
+ */
 export function checkDist(dir: string, expected: ExpectedDist = {}): { entries: number } {
   let entries: string[]
   try {
