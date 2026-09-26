@@ -27,6 +27,8 @@
   --rx-primary-light: #8159f3;
   --rx-primary-lighter: #9375f5;
   --rx-primary-lightest: #b7a3f9;
+  /* Text on a --rx-primary fill; the page colour, since white on the lightened dark-mode violet fails AA. */
+  --rx-on-primary: #ffffff;
 
   --rx-glow-tint: rgb(107 61 240 / 0.14);
   --rx-shadow-soft: 0 20px 60px -30px rgb(107 61 240 / 0.35);
@@ -53,6 +55,7 @@
   --rx-primary-light: #b7a3f9;
   --rx-primary-lighter: #cbbcfb;
   --rx-primary-lightest: #e0d7fd;
+  --rx-on-primary: #100f0d;
 
   --rx-glow-tint: rgb(244 241 234 / 0.06);
   --rx-shadow-soft: 0 20px 60px -30px rgb(0 0 0 / 0.6);
@@ -83,6 +86,7 @@
     --rx-primary-light: #b7a3f9;
     --rx-primary-lighter: #cbbcfb;
     --rx-primary-lightest: #e0d7fd;
+    --rx-on-primary: #100f0d;
 
     --rx-glow-tint: rgb(244 241 234 / 0.06);
     --rx-shadow-soft: 0 20px 60px -30px rgb(0 0 0 / 0.6);

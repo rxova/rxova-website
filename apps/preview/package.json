@@ -8,7 +8,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check:astro": "astro check"
+    "check:astro": "astro check",
+    "screenshots": "node scripts/screenshots.ts"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.1",
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@playwright/test": "1.63.0",
     "typescript": "6.0.3"
   }
 }

@@ -1,0 +1,27 @@
+---
+title: Gallery
+description: Every component in @rxova/astro-ui, one page each, rendered in the states it ships with.
+sidebar:
+  order: 0
+---
+
+Each page in this section is one component: its states, its props, and the file it replaced
+in a project repository. The pages are the closest thing to a Storybook an Astro component
+gets, since a `.astro` file renders on the server and has no client-side knobs to turn.
+
+## Adding a component
+
+1. Add `src/content/docs/gallery/<component>.mdx` next to this page, with one `Story` per
+   state worth looking at and a props table.
+2. Run `pnpm --filter @rxova/preview screenshots`. It builds this site, opens every gallery
+   page in Chromium and writes `packages/astro-ui/screenshots/<component>.png` (and a
+   `-dark` twin), which the pull request embeds.
+
+```mdx
+import Story from '../../../components/Story.astro'
+import Section from '@rxova/astro-ui/components/Section.astro'
+
+<Story title="Default" note="Eyebrow, title and lede.">
+  <Section eyebrow="Proof" title="Numbers" lede="Read from CI." />
+</Story>
+```
