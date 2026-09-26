@@ -1,0 +1,64 @@
+---
+title: ProofStats
+description: The gradient-framed proof band; figures count up once, on scroll.
+---
+
+import Story from '../../../components/Story.astro'
+import ProofStats from '@rxova/astro-ui/components/ProofStats.astro'
+
+The one component that spends the full brand gradient: a lit frame, a blurred glow behind it,
+and figures that count up the first time the panel scrolls into view. Values are rendered at
+their final text, so with JS off or motion reduced it is a static panel. A value with no
+leading digit (`MIT`) is left alone.
+
+<Story
+  title="Six stats"
+  note="Two rows of three at the wide measure; the count-up animates the leading number and keeps the suffix."
+>
+  <ProofStats
+    stats={[
+      { value: '0', label: 'Runtime dependencies', note: 'Across every published package' },
+      {
+        value: '7.58 kB',
+        label: 'Core, brotli',
+        note: 'Measured by size-limit on the built output',
+      },
+      {
+        value: '95%',
+        label: 'Coverage floor, per file',
+        note: 'Statements, branches, functions and lines',
+      },
+      { value: '3', label: 'Engines under E2E', note: 'Chromium, Firefox, WebKit' },
+      { value: '4', label: 'Published packages', note: 'Each independently installable' },
+      {
+        value: 'MIT',
+        label: 'Licensed, every package',
+        note: 'Use it at work without asking anyone',
+      },
+    ]}
+  />
+</Story>
+
+<Story
+  title="Five stats"
+  note="An odd count: the empty last cell is invisible, since dividers are drawn by outline rather than by grid gap."
+>
+  <ProofStats
+    stats={[
+      { value: '0', label: 'Runtime dependencies', note: 'react is the only peer' },
+      { value: '10 kB', label: 'Whole suite, brotli', note: 'Enforced by size-limit in CI' },
+      { value: '95%', label: 'Coverage floor', note: 'Per file' },
+      { value: '0', label: 'Accessibility violations', note: 'axe-core against WCAG 2.1 AA' },
+      { value: 'MIT', label: 'Licence', note: 'Permissive and unchanged' },
+    ]}
+  />
+</Story>
+
+## Props
+
+| Prop    | Type              | What it does        |
+| ------- | ----------------- | ------------------- |
+| `stats` | `readonly Stat[]` | The tiles, in order |
+
+`Stat` is `{ value, label, note }`, all strings. `value` is a display string: the leading
+number animates, whatever follows it (`kB`, `%`) is kept as the suffix.
