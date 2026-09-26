@@ -19,6 +19,7 @@
     "@fontsource/space-grotesk": "^5.2.5",
     "@rxova/astro-ui": "workspace:^",
     "@rxova/brand": "workspace:^",
+    "@rxova/website-schemas": "workspace:^",
     "astro": "^7.3.3",
     "astro-expressive-code": "^0.44.2"
   },

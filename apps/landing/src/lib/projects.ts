@@ -4,6 +4,7 @@
  */
 
 import { PROJECTS, type Project } from '@rxova/brand'
+import { baseFor } from '@rxova/website-schemas'
 
 // `sources.json` sits at the repo root, outside the Astro project; astro.config.mjs
 // widens the dev server's fs allowlist so `pnpm dev` can read it.
@@ -112,7 +113,7 @@ export function buildLandingProjects(
         // disabled projects anyway; the guard keeps the builder honest on its own.
         ...(docsMounted ? [{ label: 'Docs', href: project.mount }] : []),
         ...(mountedStorybooks.has(`storybook-${project.id}`)
-          ? [{ label: 'Storybook', href: `/storybook/${project.id}/` }]
+          ? [{ label: 'Storybook', href: baseFor(`storybook-${project.id}`, 'storybook') }]
           : []),
         // Same slot as Storybook: both are "see it running", so they sit right
         // after Docs and before the repo/registry links.
