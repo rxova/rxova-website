@@ -4,7 +4,7 @@
 // Usage: node assemble.ts [artifactsDir=artifacts] [outDir=_site]
 //
 // Layout of `artifactsDir` — one folder per artifact:
-//   artifacts/landing/           <- Astro `site/dist`, downloaded from this run
+//   artifacts/landing/           <- Astro `apps/landing/dist`, downloaded from this run
 //   artifacts/docs-journey/      <- journey docs, extracted from release content-journey
 //   artifacts/docs-react-inputs/ <- react-inputs docs, from release content-react-inputs
 //
@@ -23,11 +23,9 @@ import { join, dirname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parse, serialize } from 'parse5'
 
-import {
-  PAGE_BUNDLE_FILENAME,
-  pageBundleManifest,
-  declaresStandalone,
-} from '../lib/page-bundle-contract.ts'
+import { PAGE_BUNDLE_FILENAME, pageBundleManifest } from '@rxova/website-schemas'
+
+import { declaresStandalone } from '../lib/standalone.ts'
 
 import {
   attribute,
@@ -217,10 +215,7 @@ async function composeInto(src: string, dest: string, shellPath: string, source:
   for (const file of await htmlFiles(src)) {
     const rel = relative(src, file)
     const html = await readFile(file, 'utf8')
-    // Already copied verbatim by `cp` above, which is exactly what a standalone
-    // asset wants — an iframe target must not gain the site header and footer.
-    // See STANDALONE_MARKER for why the document declares this rather than the
-    // aggregator guessing from the path.
+    // A standalone asset stays as `cp` copied it: no site header or footer.
     if (declaresStandalone(html)) {
       standalone++
       continue
@@ -312,8 +307,8 @@ export async function assemble(config: Registry, artifactsDir: string, outDir: s
   console.log('Done.')
 }
 
-// Only run as a CLI; the tests import `assemble` above.
-if (import.meta.filename === process.argv[1]) {
+/* v8 ignore start -- entry point; the deploy workflow is what runs it, the tests import `assemble` */
+if (import.meta.main) {
   const [, , artifactsDir = 'artifacts', outDir = '_site'] = process.argv
   const config = {
     ...loadRegistry(join(repoRoot, 'sources.json')),
@@ -324,3 +319,4 @@ if (import.meta.filename === process.argv[1]) {
     process.exit(1)
   })
 }
+/* v8 ignore stop */

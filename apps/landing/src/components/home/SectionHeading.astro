@@ -1,0 +1,22 @@
+---
+/** A section's `h2`, at the size the principles, maintainer and follow sections share. */
+interface Props {
+  id: string
+}
+
+const { id } = Astro.props
+---
+
+<h2 id={id}>
+  <slot />
+</h2>
+
+<style>
+  h2 {
+    font-size: clamp(1.55rem, 3.2vw, 2.1rem);
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    font-weight: 650;
+    text-wrap: balance;
+  }
+</style>

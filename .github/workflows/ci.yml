@@ -7,8 +7,8 @@ on:
     # prose file, a CHANGELOG is changesets' own output, and neither is ever
     # the whole of a version commit — every `chore: version packages` carries
     # the package.json bumps beside them, so a release can never be filtered
-    # away here. Content markdown is deliberately absent: `packages/blog/posts`
-    # and `packages/updates/updates` are loaded by Astro and asserted on by
+    # away here. Content markdown is deliberately absent: `apps/blog/posts`
+    # and `apps/updates/updates` are loaded by Astro and asserted on by
     # posts.test.ts and updates.test.ts, so a post is source and gets a run.
     #
     # Push only. On `pull_request` a skipped workflow never reports, so a
@@ -126,88 +126,8 @@ jobs:
       - uses: ./.github/actions/setup-pnpm
       - uses: ./.github/actions/turbo-cache
       - run: pnpm install --frozen-lockfile
-
-      # `dedupe:check` fails only because of the lockfile in front of you, so it
-      # belongs up here with the other checks the diff can actually cause.
-      # Skipped on the version PR, as it was when this was its own job: that
-      # branch only carries version numbers and changelogs.
-      - name: Check dependency dedupe
-        if: github.head_ref != 'changeset-release/main'
-        run: pnpm run dedupe:check
-
-      - run: pnpm run format:check
-      - run: pnpm run lint
-
-      # One Turbo invocation rather than five sequential `pnpm run`s: it knows
-      # the ordering, fans out across both packages, and replays whichever tasks
-      # this commit did not actually touch.
-      #
-      # `tsc` cannot parse .astro, so without check:astro the shared chrome —
-      # every component this package exists to ship — would go unchecked. The
-      # social cards are generated from tokens.css and sites.ts and then
-      # committed, so a palette or tagline change silently invalidates them.
-      #
-      # `build` covers the preview site, which consumes the package exactly as a
-      # docs site does — shared Starlight config, component overrides, both
-      # stylesheets. A change that typechecks but breaks a real consumer's build
-      # fails here rather than in whichever repo upgrades first. It used to be
-      # its own `preview` job; `turbo run build` is the same work.
-      # `//#validate:content` is the pre-merge gate for content/. rxova-website
-      # validates the same frontmatter again through Astro's collections when it
-      # renders it, but that failure lands in another repo after the merge — this
-      # one lands on the pull request that caused it.
-      - name: Typecheck, tests, Astro check, social cards, build, metadata and content
-        run: >-
-          pnpm exec turbo run typecheck check:astro check:og build check:exports test
-          //#validate:content
-
-      # Structural check on the real sources.json. The cross-check against
-      # @rxova/brand's PROJECTS runs inside `build` above, where Vite can load
-      # the package's TypeScript source — see site/src/lib/projects.ts.
-      - name: Check the docs registry
-        run: pnpm run check:registry
-
-      # Last, and kept out of the combined Turbo run above for the reason
-      # verify.ts gives: it shells out to a real `pnpm pack` into a temp dir,
-      # which races on the pnpm store if run concurrently with anything else.
-      #
-      # This package ships uncompiled source, so there is no build step to catch
-      # a file missing from `files` or an `exports` path that points at nothing.
-      # Packing and resolving every declared subpath is the substitute — without
-      # it a broken export only surfaces in whichever consumer upgrades first.
-      #
-      # The preview app links the package by `workspace:*`, which resolves to
-      # the source directory, so it cannot catch a `files` omission. This can.
-      - name: Pack and resolve every export
-        if: github.head_ref != 'changeset-release/main'
-        run: pnpm run pack:smoke
-
-      # Last, deliberately. `audit:check` is in the local pre-push gate too, and
-      # running it here as well is what keeps a stale local checkout from being
-      # the only thing standing between a new advisory and a release. But its
-      # verdict depends on the upstream advisory database, which changes without
-      # any file here changing — so it is the one step in this job that can go
-      # red on a commit that touched nothing, and it must not be the one that
-      # stops the rest from reporting.
-      #
-      # That is not hypothetical: this job's first run failed on a nanoid
-      # advisory whose patched floor had moved since the pin was written, and
-      # with the audit first, lint, types and the build never ran at all. A CVE
-      # found while the tree does not compile changes nobody's day; a build
-      # failure hidden behind a CVE costs a whole round trip.
-      #
-      # Deliberately not a Turbo task, for the same reason: a cached pass could
-      # replay over a fresh advisory.
-      #
-      # `--ignore-registry-errors` keeps an unreachable advisory endpoint from
-      # failing the job: pnpm exits 0 when the registry was at fault and leaves
-      # every other failure alone. How long it waits first is bounded by
-      # `fetchTimeout` / `fetchRetries` in pnpm-workspace.yaml; `timeout-minutes`
-      # is the backstop for pnpm not coming back at all.
-      - name: Audit dependencies
-        if: github.head_ref != 'changeset-release/main'
-        timeout-minutes: 5
-        run: pnpm run audit:check
+      # The pre-push gate, step for step: packages/tooling/src/repo/verify.ts is the only list.
+      - run: pnpm run verify
 
   changeset:
     name: changeset present

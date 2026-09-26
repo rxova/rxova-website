@@ -25,13 +25,7 @@ import { parse } from 'parse5'
 import { attribute, element, walkNodes } from './html.ts'
 import type { Source } from './registry.ts'
 
-/**
- * Canonical origin, matching `RXOVA_ORIGIN` in @rxova/brand.
- *
- * Not imported from there: brand ships TypeScript source with no build step, and
- * these scripts run under bare `node` in CI. Kept as an env override for the same
- * reason brand has one — a staging deploy needs its sitemaps to point at itself.
- */
+/** Canonical origin; mirrors `RXOVA_ORIGIN` in @rxova/brand, which depends on this package. */
 export const RXOVA_ORIGIN = process.env.RXOVA_ORIGIN ?? 'https://rxova.org'
 
 /** The file a Starlight/Astro subtree publishes, and the name of our root index. */
@@ -54,13 +48,14 @@ const posix = (p: string): string => p.split(sep).join('/')
 const escapeXml = (value: string): string =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
-const XML_ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" }
+const XML_ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" } as const
 
 /** The inverse, for reading a `<loc>` out of a sitemap somebody else wrote. */
 const unescapeXml = (value: string): string =>
+  // The pattern names exactly the keys above, so every match has a replacement.
   value.replace(
     /&(amp|lt|gt|quot|apos);/g,
-    (whole: string, name: string) => XML_ENTITIES[name] ?? whole,
+    (_whole: string, name: keyof typeof XML_ENTITIES) => XML_ENTITIES[name],
   )
 
 /**

@@ -1,0 +1,190 @@
+---
+/**
+ * The rxova footer, shared by every surface.
+ *
+ * Before this, the landing had a single dot-separated link row and the three
+ * docs sites had a bare copyright line (journey went further and hid its footer
+ * links outright). The footer is the second-best place, after the switcher, to
+ * make one origin feel like one site — so it carries the full project list on
+ * every page.
+ *
+ * Shape: a brand block that says what rxova is, the link columns, then a bottom
+ * bar with the copyright and the legal links. The legal links are down there
+ * rather than in a column because that is where a reader looks for them, and it
+ * keeps the columns to things someone might actually want to click.
+ *
+ * Styles are in `../styles/footer.css`, imported by both `document.css` and
+ * `starlight.css` — see that file for why they are not scoped here.
+ *
+ * All cross-project hrefs are absolute; see sites.ts in @rxova/brand for why.
+ */
+import { PROJECTS, RXOVA_ORIGIN, getProject, siteUrl, type ProjectId } from '@rxova/brand'
+
+/** A standalone surface of rxova.org, for the "Site" column. */
+export interface SiteLink {
+  label: string
+  /** Absolute — see sites.ts in @rxova/brand. */
+  href: string
+}
+
+interface Props {
+  /** Current project, if this is a docs site. Omitted on the landing. */
+  project?: ProjectId
+  /** Optional per-site "Docs" column. */
+  docs?: { label: string; href: string }[]
+  /**
+   * The standalone surfaces to list under "Site", below Home.
+   *
+   * It is a prop because only the umbrella repo knows which *mounted* surfaces
+   * are actually deployed — `sources.json` gates the mount and the link
+   * together — and a hardcoded list advertises a 404 for a surface whose first
+   * build has not landed yet. Same reason `Header` takes `items`.
+   *
+   * The default covers the caller that cannot know: a docs site, or this
+   * package's own shell. /about is safe to include there unconditionally
+   * because it is a page of the landing's Astro build rather than a mount —
+   * there is no artifact to wait for, so it exists whenever the landing does.
+   */
+  site?: readonly SiteLink[]
+  /**
+   * The projects whose docs are actually mounted.
+   *
+   * A prop for exactly the reason `site` is one, and it was missed: only the
+   * umbrella repo knows which projects are deployed — `sources.json` gates the
+   * mount and the link together — while this package knows only that a project
+   * exists. Mapping `PROJECTS` unconditionally put a link to every project's
+   * docs in the footer of every page on the origin, including projects whose
+   * docs are switched off, so the whole site advertised a 404.
+   *
+   * The default is every project, which is right for the caller that cannot
+   * know: a docs site is itself proof that mounts exist, and it has no view of
+   * the registry.
+   */
+  projects?: readonly SiteLink[]
+}
+
+const { project, docs, site, projects } = Astro.props
+const self = project ? getProject(project) : undefined
+const year = new Date().getFullYear()
+
+const projectLinks: readonly SiteLink[] =
+  projects ?? PROJECTS.map((p) => ({ label: p.label, href: `${RXOVA_ORIGIN}${p.mount}` }))
+
+const surfaces: readonly SiteLink[] = site ?? [
+  { label: 'Blog', href: siteUrl('/blog') },
+  { label: 'Updates', href: siteUrl('/updates') },
+  { label: 'About', href: siteUrl('/about') },
+]
+---
+
+<footer class="rx-footer">
+  <div class="rx-footer__top">
+    <div class="rx-footer__brand">
+      <a class="rx-footer__mark" href={RXOVA_ORIGIN}>
+        <img src={siteUrl('/rxova-logo-256.png')} alt="" width="28" height="28" loading="lazy" />
+        <span>Rxova</span>
+      </a>
+      {/* Not "React libraries": most of these ship a framework-agnostic core
+           that runs in a worker or a plain script, journey also ships a browser
+           extension, and overlock is a command-line tool that never sees a
+           browser at all. React is a binding we provide, not the boundary of
+           what these are. Same correction as the landing's hero. */}
+      <p class="rx-footer__blurb">
+        Small TypeScript libraries and developer tools, documented in one place. MIT licensed, built
+        in the open.
+      </p>
+    </div>
+
+    <div class="rx-footer__columns">
+      {docs && docs.length > 0 && (
+        <div>
+          <h2 class="rx-footer__title">Docs</h2>
+          <ul class="rx-footer__list">
+            {docs.map((link) => (
+              <li>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {projectLinks.length > 0 && (
+        <div>
+          <h2 class="rx-footer__title">Projects</h2>
+          <ul class="rx-footer__list">
+            {projectLinks.map((link) => (
+              <li>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {self && (
+        <div>
+          <h2 class="rx-footer__title">Community</h2>
+          <ul class="rx-footer__list">
+            <li>
+              <a href={self.repo}>GitHub</a>
+            </li>
+            <li>
+              <a href={`${self.repo}/issues`}>Issues</a>
+            </li>
+            <li>
+              <a href={`${self.repo}/discussions`}>Discussions</a>
+            </li>
+            <li>
+              <a href={self.npm}>npm</a>
+            </li>
+            <li>
+              <a href={`${self.repo}/blob/main/CONTRIBUTING.md`}>Contributing</a>
+            </li>
+          </ul>
+        </div>
+      )}
+
+      {/* Blog and Updates are here on every surface, docs sites included: they
+           were reachable only from the umbrella landing, which meant a reader
+           who arrived on a docs page from a search result never learned the
+           rest of the site existed. */}
+      <div>
+        <h2 class="rx-footer__title">Site</h2>
+        <ul class="rx-footer__list">
+          <li>
+            <a href={RXOVA_ORIGIN}>Home</a>
+          </li>
+          {surfaces.map((s) => (
+            <li>
+              <a href={s.href}>{s.label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="rx-footer__title">Connect</h2>
+        <ul class="rx-footer__list">
+          <li>
+            <a href="https://github.com/rxova">GitHub</a>
+          </li>
+          <li>
+            <a href="https://www.npmjs.com/org/rxova">npm</a>
+          </li>
+          <li>
+            <a href="mailto:rxova@proton.me">rxova@proton.me</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="rx-footer__legal">
+    <p>© {year} Rxova · MIT licensed</p>
+    <div class="rx-footer__legal-links">
+      <a href={siteUrl('/privacy')}>Privacy</a>
+      <a href={siteUrl('/terms')}>Terms</a>
+    </div>
+  </div>
+</footer>

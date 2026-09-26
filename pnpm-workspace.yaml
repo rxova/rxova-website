@@ -1,9 +1,5 @@
-# The landing site, the published packages (@rxova/brand, @rxova/website-schemas)
-# and the surfaces built from them (the blog, the updates stream), plus the
-# preview site that renders the brand package. `apps/*` is globbed so a second
-# surface is a directory, not a config change.
+# Deployable sites live in apps/, libraries and repo tooling in packages/.
 packages:
-  - site
   - packages/*
   - apps/*
 

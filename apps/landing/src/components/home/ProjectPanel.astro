@@ -1,0 +1,205 @@
+---
+/** One project on the showcase stage: install line, snippet or walkthrough, tags and links. */
+import type { LandingProject } from '../../lib/projects'
+import { showcases } from '../../showcases'
+import Walkthrough from '../walkthrough/Walkthrough.astro'
+import Arrow from './Arrow.astro'
+import LinkRow from './LinkRow.astro'
+
+interface Props {
+  project: LandingProject
+  /** The panel the page opens on. */
+  active: boolean
+}
+
+const { project: p, active } = Astro.props
+const story = showcases[p.id]
+---
+
+<article
+  class={active ? 'panel is-active' : 'panel'}
+  id={`project-${p.id}`}
+  data-panel={p.id}
+  aria-labelledby={`panel-heading-${p.id}`}
+>
+  <header class="panel-head">
+    <h3 class="panel-title" id={`panel-heading-${p.id}`}>
+      {p.label}
+    </h3>
+    <p class="panel-tagline">{p.tagline}</p>
+  </header>
+
+  <p class="panel-blurb">{p.blurb}</p>
+
+  <div class="install">
+    <span class="prompt" aria-hidden="true">
+      $
+    </span>
+    <code>npm i {p.install}</code>
+  </div>
+
+  {/* `set:text` on an empty `<pre>`, so the formatter cannot put whitespace inside it. */}
+  {story ? null : p.snippet ? (
+    <pre class="snippet" set:text={p.snippet}></pre>
+  ) : (
+    /* No snippet in sources.json: list the packages rather than invent an API. */
+    <div class="manifest">
+      <p class="manifest-label">Ships as</p>
+      <ul class="manifest-list">
+        {p.packages.map((name) => (
+          <li class="manifest-pkg">{name}</li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  <ul class="tags" aria-label={`${p.label} tech`}>
+    {p.tags.map((t) => (
+      <li class="tag">{t}</li>
+    ))}
+  </ul>
+
+  <LinkRow label={`${p.label} links`}>
+    {p.links.map((l) => (
+      <a href={l.href} {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+        {l.label}
+        <Arrow dir={l.external ? 'out' : 'across'} />
+      </a>
+    ))}
+  </LinkRow>
+
+  {/* After the links because it is tall, so Docs and GitHub stay in the panel's first screen. */}
+  {story && <Walkthrough story={story} id={`walkthrough-${p.id}`} host=".panel" />}
+</article>
+
+<style>
+  /* Not a card: the walkthrough's window is this stage's frame. */
+  .panel {
+    min-width: 0;
+  }
+  /* Without JS every panel is in the flow, stacked. */
+  :global(html:not([data-js])) .panel + .panel {
+    border-top: 1px solid var(--rx-rule);
+    padding-top: 2rem;
+  }
+  :global(html[data-js]) .panel {
+    grid-area: panel;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition:
+      opacity 0.28s ease,
+      transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1),
+      visibility 0s linear 0.28s;
+  }
+  :global(html[data-js]) .panel.is-active {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s, 0s, 0s;
+  }
+  .panel-head {
+    margin-bottom: 1rem;
+  }
+  .panel-title {
+    font-size: clamp(1.4rem, 2.6vw, 1.8rem);
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+  }
+  .panel-tagline {
+    margin-top: 0.35rem;
+    font-size: 1.02rem;
+    color: var(--rx-fg);
+  }
+  .panel-blurb {
+    max-width: 40rem;
+    color: var(--rx-muted);
+    margin-bottom: 1.25rem;
+  }
+  /* Reads as a terminal without pretending to be one: a rule, not a filled block. */
+  .install {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-family: var(--rx-font-mono);
+    font-size: 0.82rem;
+    border: 1px solid var(--rx-rule-strong);
+    border-radius: var(--rx-radius-sm);
+    background: var(--rx-bg);
+    padding: 0.55rem 0.75rem;
+    margin-bottom: 0.9rem;
+    overflow-x: auto;
+  }
+  .install .prompt {
+    color: var(--rx-faint);
+    user-select: none;
+  }
+  .install code {
+    white-space: nowrap;
+  }
+  .snippet {
+    font-family: var(--rx-font-mono);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: var(--rx-muted);
+    background: var(--rx-bg);
+    border: 1px solid var(--rx-rule);
+    border-radius: var(--rx-radius-sm);
+    padding: 0.9rem 1rem;
+    margin-bottom: 1.25rem;
+    overflow-x: auto;
+  }
+  .manifest {
+    background: var(--rx-bg);
+    border: 1px solid var(--rx-rule);
+    border-radius: var(--rx-radius-sm);
+    padding: 0.9rem 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .manifest-label {
+    font-family: var(--rx-font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rx-faint);
+    margin-bottom: 0.6rem;
+  }
+  .manifest-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.5rem;
+  }
+  .manifest-pkg {
+    font-family: var(--rx-font-mono);
+    font-size: 0.75rem;
+    color: var(--rx-muted);
+    overflow-wrap: anywhere;
+  }
+  .manifest-pkg + .manifest-pkg::before {
+    content: '·';
+    color: var(--rx-faint);
+    margin-right: 0.5rem;
+  }
+  .tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.4rem;
+  }
+  .tag {
+    font-size: 0.72rem;
+    color: var(--rx-muted);
+    border: 1px solid var(--rx-rule-strong);
+    padding: 0.12rem 0.6rem;
+    border-radius: var(--rx-radius-pill);
+    letter-spacing: 0.01em;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(html[data-js]) .panel {
+      transition: none;
+    }
+  }
+</style>

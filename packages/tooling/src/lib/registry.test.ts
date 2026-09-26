@@ -130,6 +130,10 @@ describe('loadRegistry', () => {
     assert.deepEqual(enabledSources(registry), [])
   })
 
+  it('reads a file with no `sources` key as a registry with none', () => {
+    assert.deepEqual(loadRegistry(writeRegistry({})).sources, [])
+  })
+
   it('enabledSources returns only the enabled ones', () => {
     const file = writeRegistry({
       sources: [entry({ id: 'on' }), entry({ id: 'off', enabled: false })],

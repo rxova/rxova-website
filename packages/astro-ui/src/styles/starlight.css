@@ -1,0 +1,178 @@
+/**
+ * Maps rxova tokens onto Starlight's theme variables.
+ *
+ * Load this from a Starlight site's `customCss`, which Astro appends after
+ * Starlight's own stylesheets — so these declarations win without !important.
+ *
+ * Every --rx-* neutral already flips between light and dark (see tokens.css),
+ * which is why one mapping block covers both modes. Starlight's own defaults
+ * are dark-in-:root / light-in-[data-theme='light']; we don't need that split
+ * because its inline head script always stamps an explicit data-theme before
+ * first paint.
+ *
+ * Starlight's gray ramp runs 1 (highest contrast) -> 7 (lowest), which is the
+ * same direction as our text -> surface ladder, so the mapping is monotonic in
+ * both modes.
+ */
+
+@import '@rxova/brand/tokens.css';
+@import './footer.css';
+
+:root {
+  /* Accent. */
+  --sl-color-accent: var(--rx-primary);
+  --sl-color-accent-low: color-mix(in srgb, var(--rx-primary) 20%, var(--rx-bg));
+  --sl-color-accent-high: var(--rx-primary-lightest);
+  --sl-color-text-accent: var(--rx-primary);
+
+  /* Neutral ladder. "white" and "black" are Starlight's names for the two
+     contrast extremes, not literal colours — they invert with the theme. */
+  --sl-color-white: var(--rx-fg);
+  --sl-color-gray-1: var(--rx-fg);
+  --sl-color-gray-2: var(--rx-muted);
+  --sl-color-gray-3: var(--rx-faint);
+  --sl-color-gray-4: var(--rx-rule-strong);
+  --sl-color-gray-5: var(--rx-rule);
+  --sl-color-gray-6: var(--rx-tag-bg);
+  --sl-color-gray-7: var(--rx-card);
+  --sl-color-black: var(--rx-bg);
+
+  /* Surfaces. Nav and sidebar sit flush with the page — the hairline does the
+     separating, not a fill change. */
+  --sl-color-bg: var(--rx-bg);
+  --sl-color-bg-nav: var(--rx-bg);
+  --sl-color-bg-sidebar: var(--rx-bg);
+  --sl-color-bg-inline-code: var(--rx-tag-bg);
+  --sl-color-bg-badge: var(--rx-tag-bg);
+
+  --sl-color-hairline: var(--rx-rule);
+  --sl-color-hairline-light: var(--rx-rule);
+  --sl-color-hairline-shade: var(--rx-rule-strong);
+  --sl-color-backdrop-overlay: color-mix(in srgb, var(--rx-bg) 80%, transparent);
+
+  /* Type. */
+  --sl-font: var(--rx-font-sans);
+  --sl-font-mono: var(--rx-font-mono);
+
+  --sl-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
+  --sl-shadow-md: 0 4px 12px -4px rgb(0 0 0 / 0.12);
+  --sl-shadow-lg: var(--rx-shadow-soft);
+}
+
+/* Starlight ships a slightly cooler focus ring; align it with the accent. */
+:root {
+  --sl-color-focus: var(--rx-primary);
+}
+
+/* --- Shared chrome ------------------------------------------------------- */
+
+/* The gradient is the brand's only chroma, so it earns exactly two placements:
+   the hairline under the site header, and the current-project dot in the
+   project switcher. Adding a third dilutes both. */
+.site-title::after {
+  content: none;
+}
+
+header.header {
+  border-bottom: 1px solid var(--sl-color-hairline);
+  background: var(--sl-color-bg-nav);
+}
+
+/* In a schema-2 page bundle the umbrella header is rendered by rxova-website
+   outside Starlight's `.page`. Keep Starlight's own sticky documentation bar
+   below it instead of letting the two sticky headers occupy the same top edge. */
+html[data-rxova-shell] {
+  --rx-shell-header-height: 3.5rem;
+}
+
+html[data-rxova-shell] .page > header.header {
+  inset-block-start: var(--rx-shell-header-height);
+}
+
+html[data-rxova-shell] .sidebar-pane {
+  inset-block-start: calc(var(--rx-shell-header-height) + var(--sl-nav-height));
+}
+
+html[data-rxova-shell] mobile-starlight-toc nav {
+  top: calc(var(--rx-shell-header-height) + var(--sl-nav-height) - 1px);
+}
+
+/* Starlight 0.42 dropped the <starlight-menu-button> wrapper for a bare
+   button.sl-menu-button; the peer range still covers the older markup. */
+html[data-rxova-shell] starlight-menu-button button,
+html[data-rxova-shell] .sl-menu-button {
+  top: calc(
+    var(--rx-shell-header-height) + (var(--sl-nav-height) - var(--sl-menu-button-size)) / 2
+  );
+}
+
+@media (min-width: 72rem) {
+  html[data-rxova-shell] .right-sidebar {
+    top: var(--rx-shell-header-height);
+    height: calc(100vh - var(--rx-shell-header-height));
+  }
+}
+
+@media (max-width: 34rem) {
+  html[data-rxova-shell] {
+    --rx-shell-header-height: 3.25rem;
+  }
+}
+
+/* Site title: the rxova mark sits beside the project wordmark. */
+.rx-site-title {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--rx-fg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.rx-site-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.rx-site-title a:hover {
+  color: var(--rx-fg);
+}
+
+.rx-site-title img {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--rx-radius-sm);
+}
+
+.rx-site-title__sep {
+  width: 1px;
+  height: 1.1rem;
+  background: var(--rx-rule-strong);
+}
+
+.rx-site-title__project {
+  color: var(--rx-muted);
+  font-weight: 500;
+}
+
+/* Project switcher. */
+.rx-switcher {
+  position: relative;
+}
+
+.rx-switcher__current::before {
+  content: '';
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-inline-end: 0.5rem;
+  border-radius: var(--rx-radius-pill);
+  background: var(--rx-gradient);
+}
+
+/* --- Footer -------------------------------------------------------------- */
+
+/* Its styles are in footer.css, imported at the top of this file: /blog and
+   /updates render the same footer and load document.css, not this one, so the
+   rules cannot live here. */
