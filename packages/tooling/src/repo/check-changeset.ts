@@ -16,7 +16,11 @@ import process from 'node:process'
  */
 
 /** Directory prefixes of packages that are published to npm. */
-export const publishedPackageDirs = ['packages/brand/', 'packages/website-schemas/']
+export const publishedPackageDirs = [
+  'packages/astro-ui/',
+  'packages/brand/',
+  'packages/website-schemas/',
+]
 
 /**
  * Files that never require a changeset when they are the whole diff.

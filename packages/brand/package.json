@@ -25,7 +25,8 @@
   ],
   "files": [
     "src",
-    "assets"
+    "assets",
+    "MIGRATION.md"
   ],
   "exports": {
     ".": "./src/index.ts",
@@ -51,7 +52,6 @@
     "@rxova/repo-tooling": "workspace:*",
     "@types/node": "^26.6.1",
     "@vitest/coverage-v8": "^5.0.1",
-    "astro": "^7.3.2",
     "publint": "^0.3.24",
     "satori": "^0.33.4",
     "tsx": "^4.23.13",

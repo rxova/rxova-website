@@ -1,7 +1,6 @@
 {
   "name": "@rxova/astro-ui",
   "version": "0.0.0",
-  "private": true,
   "type": "module",
   "description": "Astro components, Starlight preset and shared chrome for rxova.org",
   "keywords": [
