@@ -1,0 +1,59 @@
+/**
+ * Everything the shared chrome needs, and nothing that touches the document.
+ *
+ * `Header`, `SiteFooter` and `ThemeToggle` are rendered on two kinds of page:
+ * plain Astro surfaces that own their whole document (the landing, /blog,
+ * /updates — see document.css), and rxova-website's shell templates, whose body is
+ * composed into an already-complete Starlight document at deploy time.
+ *
+ * The second case is why this file exists. It carries the tokens, the footer's
+ * styles and the short aliases the chrome's scoped CSS is written against — but
+ * no reset and no base element styling. Those belong to whoever owns the
+ * document, and a shell that brings its own into a Starlight page destroys that
+ * page: Starlight puts all of its CSS in `@layer starlight.*`, and an unlayered
+ * `* { margin: 0; padding: 0 }` arriving from the shell beats every layered rule
+ * it has, whatever the specificity. That is not a hypothetical — it flattened
+ * every /packages/* docs page on rxova.org.
+ *
+ * So: load this to render the chrome, and document.css (which is this plus the
+ * reset) to own a document.
+ */
+
+@import '@rxova/brand/tokens.css';
+/* The shared site footer, which /blog, /updates and the landing all render. It
+   is the one piece of chrome common to these surfaces and the Starlight ones,
+   so its rules sit in their own file and both entry points pull them in. */
+@import './footer.css';
+
+/* The short token names the landing and the shared chrome were written against
+   (`--bg`, `--fg`, `--rule`, …), aliased onto their `--rx-*` equivalents, so
+   adopting this package did not require rewriting several hundred lines of
+   scoped component styles in one go. New work should use `--rx-*` directly; the
+   aliases exist to make the migration incremental, not to be a second API. */
+:root {
+  --bg: var(--rx-bg);
+  --fg: var(--rx-fg);
+  --muted: var(--rx-muted);
+  --faint: var(--rx-faint);
+  --rule: var(--rx-rule);
+  --card: var(--rx-card);
+  --tag-bg: var(--rx-tag-bg);
+  --glow-tint: var(--rx-glow-tint);
+  --font: var(--rx-font-sans);
+  --mono: var(--rx-font-mono);
+
+  /* The page width: the header, the page and the footer all centre on it, so
+     it is the wide bound rather than the prose one. It was `--rx-max` (44rem),
+     which put /blog, /updates and /about in a narrow column under a header that
+     spans the landing's 72rem — narrow on a large screen, and a different
+     width from one page to the next. Running text keeps its own measure inside
+     it (the blog's 62–68ch, the updates stream's 68ch), so widening the page
+     does not lengthen a line of prose. */
+  --max: var(--rx-max-wide);
+
+  /* The landing's `--accent` is the foreground, not the brand violet: its
+     design is deliberately monochrome and uses the gradient only as an accent
+     rule. Mapping this to --rx-primary would tint every focus ring on the
+     site. */
+  --accent: var(--rx-fg);
+}

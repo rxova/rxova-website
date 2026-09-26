@@ -1,0 +1,102 @@
+---
+/**
+ * Cross-project navigation.
+ *
+ * rxova.org serves four surfaces from one origin, and before this existed there
+ * was no way to get from one project's docs to another's without going back to
+ * the landing. Every href is absolute — a relative one would resolve under the
+ * current site's base path.
+ *
+ * Rendered as a `<details>` so it works with zero JavaScript; the current
+ * project gets the gradient dot (see `.rx-switcher__current` in starlight.css).
+ */
+import { PROJECTS, RXOVA_ORIGIN, type ProjectId } from '@rxova/brand'
+
+interface Props {
+  /** Which project this site is, so it can be marked as current. */
+  current?: ProjectId
+}
+
+const { current } = Astro.props
+---
+
+<details class="rx-switcher">
+  <summary class="rx-switcher__trigger" aria-label="Switch project">
+    Projects
+    <svg aria-hidden="true" viewBox="0 0 16 16" width="12" height="12">
+      <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75"></path>
+    </svg>
+  </summary>
+  <ul class="rx-switcher__menu">
+    <li>
+      <a href={RXOVA_ORIGIN}>rxova.org</a>
+    </li>
+    {PROJECTS.map((project) => (
+      <li>
+        <a
+          href={`${RXOVA_ORIGIN}${project.mount}`}
+          class={project.id === current ? 'rx-switcher__current' : undefined}
+          aria-current={project.id === current ? 'page' : undefined}
+        >
+          {project.label}
+        </a>
+      </li>
+    ))}
+  </ul>
+</details>
+
+<style>
+  .rx-switcher__trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--rx-radius-sm);
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .rx-switcher__trigger::-webkit-details-marker {
+    display: none;
+  }
+
+  .rx-switcher__trigger:hover {
+    color: var(--sl-color-white);
+    background: var(--sl-color-gray-6);
+  }
+
+  .rx-switcher[open] > .rx-switcher__trigger svg {
+    transform: rotate(180deg);
+  }
+
+  .rx-switcher__menu {
+    position: absolute;
+    z-index: var(--sl-z-index-navbar, 20);
+    inset-inline-end: 0;
+    min-width: 12rem;
+    margin: 0.4rem 0 0;
+    padding: 0.35rem;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: var(--rx-radius);
+    background: var(--sl-color-bg-nav);
+    box-shadow: var(--sl-shadow-md);
+    list-style: none;
+  }
+
+  .rx-switcher__menu a {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 0.6rem;
+    border-radius: var(--rx-radius-sm);
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+    text-decoration: none;
+  }
+
+  .rx-switcher__menu a:hover {
+    color: var(--sl-color-white);
+    background: var(--sl-color-gray-6);
+  }
+</style>

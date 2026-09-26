@@ -1,0 +1,71 @@
+{
+  "name": "@rxova/astro-ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Astro components, Starlight preset and shared chrome for rxova.org",
+  "keywords": [
+    "rxova",
+    "astro",
+    "starlight",
+    "components"
+  ],
+  "license": "MIT",
+  "author": "Jonatan Kruszewski <jonakrusze@gmail.com>",
+  "homepage": "https://rxova.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rxova/rxova-website.git",
+    "directory": "packages/astro-ui"
+  },
+  "bugs": "https://github.com/rxova/rxova-website/issues",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "src"
+  ],
+  "exports": {
+    "./components/*": "./src/components/*",
+    "./lib/entries": "./src/lib/entries.ts",
+    "./scripts/show-more": "./src/scripts/show-more.ts",
+    "./starlight": "./src/starlight/index.ts",
+    "./starlight/*": "./src/starlight/*",
+    "./styles/*": "./src/styles/*",
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "@astrojs/starlight": ">=0.36.0",
+    "astro": ">=5.6.0"
+  },
+  "peerDependenciesMeta": {
+    "@astrojs/starlight": {
+      "optional": true
+    }
+  },
+  "scripts": {
+    "check:astro": "astro check",
+    "check:exports": "publint --strict",
+    "pack:smoke": "node --import tsx ../brand/scripts/pack-smoke.ts",
+    "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@rxova/brand": "workspace:^"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/starlight": "^0.42.1",
+    "@rxova/repo-tooling": "workspace:*",
+    "@types/node": "^26.6.1",
+    "@vitest/coverage-v8": "^5.0.1",
+    "astro": "^7.3.2",
+    "happy-dom": "^20.14.5",
+    "publint": "^0.3.24",
+    "tsx": "^4.23.13",
+    "typescript": "6.0.3",
+    "vitest": "^5.0.1"
+  }
+}

@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
-import { sharedStarlightConfig } from '@rxova/brand'
+import { RXOVA_ORIGIN } from '@rxova/brand'
+import { sharedStarlightConfig } from '@rxova/astro-ui/starlight'
 
 /**
  * The preview site.
@@ -20,7 +21,7 @@ import { sharedStarlightConfig } from '@rxova/brand'
  * shared config resolve to something real. Nothing here is ever deployed.
  */
 export default defineConfig({
-  site: 'https://rxova.org',
+  site: RXOVA_ORIGIN,
   integrations: [
     starlight(
       sharedStarlightConfig({

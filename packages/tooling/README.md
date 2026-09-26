@@ -30,7 +30,7 @@ pnpm e2e      # every suite, through turbo, as CI runs them
 pnpm visual   # local screenshot comparison; add --update-snapshots on main for a baseline
 ```
 
-- **Per app:** `site/e2e`, `packages/blog/e2e` and `packages/updates/e2e` test each app's interactive parts against its own `astro preview`.
+- **Per app:** `apps/landing/e2e`, `apps/blog/e2e` and `apps/updates/e2e` test each app's interactive parts against its own `astro preview`.
 - **Assembled site:** `apps/e2e` tests what only exists once everything is composed: the blog and updates inside the site shell, navigation between sections, the theme carrying across them, and the visual screenshots (5 routes × 3 widths × 2 themes, compared against the gitignored `.lock/visual`).
 - **Shared config:** every Playwright config is the preset in `config/playwright.ts` (`@rxova/repo-tooling/playwright`) plus a server and a port.
 - **Assembled-site server:** `pnpm --filter @rxova/repo-tooling serve:site` (`src/e2e/serve.ts`) builds and assembles the site like the deploy does and serves `_site` on port 4480.

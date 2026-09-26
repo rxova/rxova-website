@@ -1,0 +1,76 @@
+---
+import { render } from 'astro:content'
+
+import PageHeader from '@rxova/astro-ui/components/PageHeader.astro'
+import Content from '@rxova/astro-ui/components/SiteShell.astro'
+import UpdatesStream, { type StreamItem } from '../components/UpdatesStream.astro'
+import { getUpdates, resolveAuthors, usedRepos, usedTags } from '../lib/content'
+import { siteUrl, canonicalUrl, PROJECTS } from '@rxova/brand'
+
+const blogUrl = siteUrl('/blog')
+const feedUrl = `${canonicalUrl('/updates')}rss.xml`
+
+const entries = await getUpdates()
+
+const items: StreamItem[] = await Promise.all(
+  entries.map(async (entry) => ({
+    entry,
+    Body: (await render(entry)).Content,
+    authorNames: (await resolveAuthors(entry.data.authors)).map((a) => a.name),
+  })),
+)
+
+// Only offer a filter for something that is actually in the stream. The tag enum
+// and the REPOS registry are both wider than what has been written about.
+const repos = usedRepos(entries).map((r) => ({ id: r.id as string, label: r.label }))
+const tags = usedTags(entries)
+
+/**
+ * The card for the project the newest entry is about, when there is one.
+ *
+ * The stream is chronological, so what someone shares from /updates is almost
+ * always the entry at the top — and `/og/react-inputs.png` says which project
+ * moved where the umbrella card says only "Rxova". `repos` also carries
+ * infrastructure ids (`brand`, `rxova-website`) that have no card, hence the
+ * lookup against PROJECTS rather than REPOS.
+ */
+const PROJECT_IDS = new Set<string>(PROJECTS.map((p) => p.id))
+const leadProject = entries[0]?.data.repos.find((id) => PROJECT_IDS.has(id))
+const ogImage = leadProject ? siteUrl(`/og/${leadProject}.png`) : undefined
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Rxova Updates',
+  url: canonicalUrl('/updates'),
+  description: 'What is moving across the Rxova projects — releases, fixes and infrastructure.',
+  inLanguage: 'en',
+}
+---
+
+<Content
+  title="Updates — Rxova"
+  description="What is moving across the Rxova projects — releases, fixes and infrastructure, filterable by repo and tag."
+  path="/updates"
+  image={ogImage}
+  feed={{ href: feedUrl, title: 'Rxova Updates' }}
+  jsonLd={jsonLd}
+>
+  <PageHeader title="Updates">
+    What is moving across the projects. Each entry links out to the release it came from — the
+    per-project changelogs stay canonical for exactly what changed, and the{' '}
+    <a href={blogUrl}>blog</a> covers why.
+  </PageHeader>
+
+  {items.length === 0 ? (
+    <p class="empty">Nothing logged yet.</p>
+  ) : (
+    <UpdatesStream items={items} repos={repos} tags={tags} />
+  )}
+</Content>
+
+<style>
+  .empty {
+    color: var(--faint);
+  }
+</style>

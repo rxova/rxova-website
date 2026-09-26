@@ -17,9 +17,9 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "dev": "pnpm -C site dev",
+    "dev": "pnpm -C apps/landing dev",
     "build": "turbo run build",
-    "preview": "pnpm -C site preview",
+    "preview": "pnpm -C apps/landing preview",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "check:astro": "turbo run check:astro",
@@ -27,6 +27,7 @@
     "og": "turbo run og --filter=@rxova/brand",
     "check:exports": "turbo run check:exports",
     "check:registry": "node packages/tooling/src/deploy/check-registry.ts",
+    "check:size": "node packages/tooling/src/repo/check-file-size.ts",
     "pack:smoke": "turbo run pack:smoke --concurrency=1",
     "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/.eslintcache",
     "lint:fix": "eslint . --fix --cache --cache-location node_modules/.cache/eslint/.eslintcache",
