@@ -1,0 +1,109 @@
+---
+/** The page's one ask: star a repo now, or follow what changes later. */
+import { MAINTAINER } from '../../lib/about'
+import Arrow from './Arrow.astro'
+import LinkRow from './LinkRow.astro'
+import Reveal from './Reveal.astro'
+import SectionHeading from './SectionHeading.astro'
+
+interface Props {
+  feed: string
+}
+
+const { feed } = Astro.props
+---
+
+<Reveal as="section" class="follow" aria-labelledby="follow-heading">
+  <div class="follow-card">
+    <SectionHeading id="follow-heading">Follow along.</SectionHeading>
+    <p class="follow-summary">
+      Everything here is new and moving. Starring a repo is what tells me which of these is worth
+      the next month of work.
+    </p>
+    <LinkRow label="Follow Rxova">
+      <a class="btn btn-primary" href={MAINTAINER.org} target="_blank" rel="noopener noreferrer">
+        Star on GitHub
+        <Arrow dir="out" />
+      </a>
+      <a class="btn btn-ghost" href="/updates">
+        What changed
+        <Arrow dir="across" />
+      </a>
+      <a class="btn btn-ghost" href={feed}>
+        RSS
+        <Arrow dir="across" />
+      </a>
+    </LinkRow>
+  </div>
+</Reveal>
+
+<style>
+  .follow {
+    padding-block: 0 clamp(2rem, 5vh, 3rem);
+  }
+  /* The one full card on the page, with the gradient on its top edge only. */
+  .follow-card {
+    position: relative;
+    background: var(--rx-card);
+    border: 1px solid var(--rx-rule);
+    border-radius: var(--rx-radius);
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+    overflow: hidden;
+  }
+  .follow-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: var(--rx-gradient);
+  }
+  .follow-summary {
+    max-width: 40rem;
+    color: var(--rx-muted);
+    margin-top: 0.8rem;
+    margin-bottom: 1.6rem;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.62rem 1.1rem;
+    border-radius: var(--rx-radius-pill);
+    font-size: 0.95rem;
+    font-weight: 550;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition:
+      transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1),
+      box-shadow 0.18s ease,
+      background-color 0.18s ease,
+      border-color 0.18s ease;
+  }
+  /* Solid ink that inverts with the palette; the gradient stays on rules and marks. */
+  .btn-primary {
+    background: var(--rx-fg);
+    color: var(--rx-bg);
+  }
+  .btn-primary:hover {
+    background: color-mix(in srgb, var(--rx-fg) 88%, var(--rx-bg));
+  }
+  .btn-ghost {
+    border-color: var(--rx-rule-strong);
+    color: var(--rx-fg);
+  }
+  .btn-ghost:hover {
+    border-color: var(--rx-fg);
+    background: var(--rx-card);
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+  .btn:active {
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn {
+      transition: none;
+    }
+  }
+</style>
