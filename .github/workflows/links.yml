@@ -1,0 +1,27 @@
+name: Links
+
+# The outbound links the site and the brand package advertise: every npm package, GitHub repo
+# and demo resolves. Weekly rather than per pull request, so a flaky registry cannot fail one.
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    name: outbound links resolve
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      RX_NETWORK_TESTS: '1'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Landing links and snippet imports
+        run: pnpm --filter @rxova/repo-tooling exec vitest run src/repo/links.test.ts
+      - name: Brand project links
+        run: pnpm --filter @rxova/brand exec vitest run src/sites.links.test.ts

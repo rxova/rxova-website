@@ -1,0 +1,274 @@
+---
+// Only the chrome's stylesheets: this layout also builds the shell templates, whose docs pages
+// inherit what it links. Pages that own their document import document.css (the reset) themselves.
+import '@rxova/brand/fonts.css'
+import '@rxova/astro-ui/styles/chrome.css'
+import { siteUrl, type ProjectId } from '@rxova/brand'
+import SiteFooter from '@rxova/astro-ui/components/SiteFooter.astro'
+import ThemeScript from '@rxova/astro-ui/components/ThemeScript.astro'
+import CloudflareAnalytics from '../components/CloudflareAnalytics.astro'
+import SiteHeader from '../components/SiteHeader.astro'
+import { mountedProjects, navSurfaces } from '../lib/projects'
+// The same files @rxova/brand/fonts.css points at: this package resolves to the
+// version brand does, so Vite emits each once and the preload below and the
+// @font-face rule share one URL. See `fontPreloads`.
+import spaceGrotesk400 from '@fontsource/space-grotesk/files/space-grotesk-latin-400-normal.woff2?url'
+import spaceGrotesk500 from '@fontsource/space-grotesk/files/space-grotesk-latin-500-normal.woff2?url'
+import spaceGrotesk600 from '@fontsource/space-grotesk/files/space-grotesk-latin-600-normal.woff2?url'
+import spaceGrotesk700 from '@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2?url'
+import plexMono400 from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url'
+
+interface Props {
+  title: string
+  robots?: string
+  path?: string
+  project?: ProjectId
+  template?: boolean
+}
+
+const { title, robots, path = '/', project, template = false } = Astro.props
+const footerSurfaces = navSurfaces.map((surface) => ({
+  label: surface.label,
+  href: siteUrl(surface.href),
+}))
+
+// Only the projects whose docs this deploy actually contains. The footer would
+// otherwise list every project in @rxova/brand's PROJECTS, including any whose
+// docs are switched off in sources.json — see `mountedProjects`.
+const footerProjects = mountedProjects.map((project) => ({
+  label: project.label,
+  href: siteUrl(project.href),
+}))
+
+// Derived from the URL Astro is actually building, never from a prop: a canonical
+// that can drift from the page it sits on is worse than none at all, because it
+// tells Google to index some other page instead of this one.
+//
+// Not emitted for the shell templates. Those are build inputs, and the assembler
+// splices a producer's <head> into them — a canonical here would survive that and
+// leave the composed page claiming to be /shell-templates/<id>.
+const canonical = template ? undefined : new URL(Astro.url.pathname, Astro.site).href
+
+// The agent-facing index of the whole domain, advertised the standard way.
+//
+// `rel="alternate"` says "the same thing, another format", which is what an
+// llms.txt is; a reader that already parses link relations finds it without
+// having to know the well-known path, and a person reading source sees that the
+// site has one at all.
+//
+// Not on a shell template, and that is the point rather than caution. A package
+// build advertises its OWN llms.txt from its own <head> — the index of that
+// package, which is what somebody reading that page wants. The assembler splices
+// that head into this shell, so emitting the root index here too would leave the
+// composed page offering two alternates of the same type and letting the reader
+// guess which describes the page it is on.
+const llmsIndex = template ? undefined : '/llms.txt'
+
+// Marks the one case where this shell wraps a Starlight document: a package's
+// shell template. `data-rxova-shell` cannot say it — the landing carries that
+// too — and neither can `template` alone, because /blog and /updates are shell
+// templates as well and are plain Astro pages on the site's own measure. Only a
+// package brings its own header, sidebar and full-bleed layout to reconcile
+// with, and `project` is set for exactly those. The assembler preserves the
+// shell's own <html> attributes, so it survives into the composed page.
+const docsShell = template && project !== undefined
+
+/**
+ * The brand fonts, requested from the first line of <head>.
+ *
+ * @rxova/brand declares them `font-display: optional`: the browser waits about
+ * 100ms for the font and, if it is not there, sets the whole page in the
+ * system fallback. Left to the stylesheet, a font is only requested once the
+ * CSS has arrived and a text node has been laid out, which is already too late
+ * on a first visit — and GitHub Pages serves everything with max-age=600, so
+ * ten minutes after a visit the cached copy has to be revalidated before it can
+ * be used, which is too late again. So the page a visitor lands on was set in
+ * the fallback, the next one in Space Grotesk, and the header visibly changed
+ * typeface on the first click.
+ *
+ * Preloading starts each request (or revalidation) alongside the stylesheet's,
+ * so the font is there when the text is first laid out. Latin only, and only
+ * the faces the pages actually use — Space Grotesk at every weight the design
+ * resolves to, and the mono's regular.
+ *
+ * Not on a docs page: Starlight's stylesheet points at that package's own copy
+ * of the files, so a preload of this build's would download them twice.
+ */
+const fontPreloads = docsShell
+  ? []
+  : [spaceGrotesk400, spaceGrotesk500, spaceGrotesk600, spaceGrotesk700, plexMono400]
+---
+
+<!doctype html>
+<html lang="en" data-rxova-shell data-rxova-docs-shell={docsShell ? '' : undefined}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {fontPreloads.map((href) => (
+      <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />
+    ))}
+    <link rel="icon" type="image/png" href="/rxova-logo-256.png" />
+    <link rel="apple-touch-icon" href="/rxova-logo-256.png" />
+    <title>{title}</title>
+    {canonical && <link rel="canonical" href={canonical} />}
+    {llmsIndex && <link rel="alternate" type="text/plain" title="llms.txt" href={llmsIndex} />}
+    {robots && <meta name="robots" content={robots} />}
+    <slot name="head" />
+    {template && <meta name="rxova-head-slot" content="" />}
+    <ThemeScript />
+    <CloudflareAnalytics />
+  </head>
+  <body>
+    <SiteHeader path={path} ribbon={docsShell} />
+    {template ? <div data-rxova-page-slot /> : <slot />}
+    <div class="rx-shell-footer">
+      <SiteFooter project={project} site={footerSurfaces} projects={footerProjects} />
+    </div>
+
+    <style>
+      .rx-shell-footer {
+        max-width: var(--rx-max-wide);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+    </style>
+
+    <!-- Global, and deliberately here rather than in @rxova/brand: these rules
+         are about what the *shell* makes redundant, they only ever apply to a
+         page this layout composed, and they take effect on the next deploy —
+         a rule shipped in the theme would wait for all three docs repos to
+         take the release and rebuild. They reach the Starlight header because
+         the assembler splices the producer's body into this document, so this
+         stylesheet is loaded over the docs' own. -->
+    <style is:global>
+      /* Two bars, one identity. The header above already carries the rxova mark
+         linking home, so repeating it in Starlight's site title made a docs page
+         read as two stacked site headers rather than a site header and a docs
+         bar. The wordmark alone still says which project you are in, which is
+         the job left. */
+      html[data-rxova-docs-shell] .rx-site-title__mark,
+      html[data-rxova-docs-shell] .rx-site-title__sep {
+        display: none;
+      }
+
+      /* --- The ribbon ------------------------------------------------------
+
+         Deduping the mark was not enough: the two bars still read as two
+         headers competing for the top of the page rather than a site strip over
+         a docs bar. Three things did it, and the rules below undo each.
+
+         The umbrella bar is full height, so 120px of a 900px viewport was
+         chrome before a word of prose — 152px of 844px on a phone, where the
+         mobile table of contents stacks under both.
+
+         It is translucent and blurred while Starlight's is flat opaque, so
+         scrolling smeared prose through the top bar and then cut the same prose
+         off cleanly an inch lower. That mismatch was most of what made the pair
+         look accidental, and it only showed while moving.
+
+         And both carried the same two controls, stacked within ~50px: a theme
+         control and a "Projects" affordance. The menu half of that is handled
+         in SiteHeader; the rest is here.
+
+         What is left is a ribbon: the mark, and the site-level surfaces that
+         Starlight's bar has nowhere to put. */
+
+      /* Flat and opaque. Nothing scrolls through it any more, and the faint card
+         tint separates it from the bar below without a second rule. */
+      html[data-rxova-docs-shell] header.site {
+        background: var(--rx-card);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+
+      /* Declared rather than left to the tallest child — see the height note
+         below for what that cost the first time. */
+      html[data-rxova-docs-shell] .site__inner {
+        min-height: 0;
+        height: var(--rx-ribbon-height);
+        padding-block: 0;
+        /* The header centres its contents on the page measure, which is right on
+           the landing and wrong over a docs page: a 60rem bar floating above a
+           full-bleed one left the two rows starting at visibly different edges.
+           Starlight's own nav padding puts them on the same one. */
+        max-width: none;
+        padding-inline: var(--sl-nav-pad-x);
+      }
+
+      /* Starlight's own picker is one row below this, at the same end of the
+         bar. Hiding the button takes it out of the tab order with it. */
+      html[data-rxova-docs-shell] .theme-toggle {
+        display: none;
+      }
+
+      /* Ribbon scale. The mark stays legible at 16px and the links drop below
+         the docs bar's own type, which is what says which of the two is
+         subordinate. */
+      html[data-rxova-docs-shell] .brand img {
+        width: 16px;
+        height: 16px;
+      }
+      html[data-rxova-docs-shell] .brand span,
+      html[data-rxova-docs-shell] nav a {
+        font-size: 0.8rem;
+      }
+    </style>
+
+    <!-- Every link here is a full page load, and iOS WebKit (Safari, and
+         Chrome on iPhone, which runs on it) could paint one frame of the old
+         page with the header gone and the content risen into its place just
+         before the new page arrived — a flicker at the top of the screen on
+         every switch. Nothing in the page causes it; it is the browser's
+         handover between documents.
+
+         A cross-document view transition is how a page asks the browser to
+         keep the old one on screen until the new one is ready. Every page this
+         layout builds opts in — the landing, /about, the legal pages, and the
+         blog, updates and docs through their shell templates — which is what
+         the browser requires of both ends. The animations are switched off:
+         this is an instant swap, not a transition effect. A browser without
+         cross-document view transitions ignores the rule and navigates as
+         before. -->
+    <style is:global>
+      @view-transition {
+        navigation: auto;
+      }
+      ::view-transition-group(*),
+      ::view-transition-old(*),
+      ::view-transition-new(*) {
+        animation: none;
+      }
+    </style>
+
+    <!-- A page short enough not to scroll is a scrollbar-width wider than one
+         that does, so the whole centred layout shifted sideways on every switch
+         between them. `scrollbar-gutter: stable` reserves the track on every
+         page, docs included, so leaving the docs for the landing does not jump
+         either. The page width itself is @rxova/brand's: every surface centres
+         on its `--rx-max-wide`. -->
+    <style is:global>
+      html[data-rxova-shell] {
+        scrollbar-gutter: stable;
+      }
+    </style>
+
+    <!-- Two attributes rather than one, so this beats @rxova/brand's own
+         declaration on [data-rxova-shell] whatever order the two stylesheets
+         end up in. It is the one rule here that must not lose. -->
+    <style is:global>
+      html[data-rxova-shell][data-rxova-docs-shell] {
+        --rx-ribbon-height: 2.25rem;
+
+        /* @rxova/brand pins Starlight's bar, both sidebars, the mobile table of
+           contents and the menu button at this. It declares 3.5rem, and 3.25rem
+           on a phone — but the bar it was describing rendered 57px at both,
+           because a 2rem toggle inside 0.75rem of padding plus the 1px border
+           beat the min-height it was derived from. So the bars overlapped: 1px
+           on a desktop, 5px on a phone, where Starlight's bar sat over the
+           umbrella's bottom edge. Deriving it from the height declared right
+           above is what stops the two disagreeing again. */
+        --rx-shell-header-height: calc(var(--rx-ribbon-height) + 1px);
+      }
+    </style>
+  </body>
+</html>

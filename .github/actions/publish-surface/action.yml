@@ -51,19 +51,19 @@ runs:
     # not this one. It shipped exactly that way once.
     - name: Check it was built for its mount
       shell: bash
-      run: node packages/${{ inputs.surface }}/scripts/check-base.mjs
-        packages/${{ inputs.surface }}/dist /${{ inputs.surface }}/
+      run: node packages/tooling/src/deploy/check-base.ts
+        apps/${{ inputs.surface }}/dist /${{ inputs.surface }}/
 
     - name: Mark the page-component bundle
       shell: bash
       run: node packages/tooling/src/deploy/write-page-bundle.ts
-        packages/${{ inputs.surface }}/dist ${{ inputs.surface }} /${{ inputs.surface }}/
+        apps/${{ inputs.surface }}/dist ${{ inputs.surface }} /${{ inputs.surface }}/
 
     - name: Read the version
       id: meta
       shell: bash
       run: |
-        VERSION=$(node -p "require('./packages/${{ inputs.surface }}/package.json').version")
+        VERSION=$(node -p "require('./apps/${{ inputs.surface }}/package.json').version")
         echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
     # The fixed name the aggregator downloads by; do not rename it.
@@ -73,7 +73,7 @@ runs:
     - uses: actions/upload-artifact@v7
       with:
         name: docs-dist
-        path: packages/${{ inputs.surface }}/dist
+        path: apps/${{ inputs.surface }}/dist
         if-no-files-found: error
 
     # The ingest workflow lives in this repository, so the job's own token can

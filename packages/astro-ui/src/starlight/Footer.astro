@@ -1,0 +1,20 @@
+---
+/**
+ * Starlight `Footer` override.
+ *
+ * Keeps everything Starlight puts at the bottom of a doc page — pagination,
+ * "edit this page", last-updated — and adds the shared rxova site footer
+ * beneath it. Replacing rather than wrapping would have cost the pagination,
+ * which is load-bearing navigation on a docs site.
+ */
+import Default from '@astrojs/starlight/components/Footer.astro'
+import SiteFooter from '../components/SiteFooter.astro'
+import { projectFromBase } from '@rxova/brand'
+
+const project = projectFromBase(import.meta.env.BASE_URL)
+---
+
+<Default>
+  <slot />
+</Default>
+<SiteFooter project={project} />

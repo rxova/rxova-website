@@ -1,10 +1,4 @@
-/**
- * @rxova/brand — design tokens, Starlight theme and shared chrome for rxova.org.
- *
- * Stylesheets and components are reached through their own subpath exports
- * (`@rxova/brand/tokens.css`, `@rxova/brand/components/SiteFooter.astro`) so this
- * entry point stays importable from `astro.config.mjs` under plain Node.
- */
+/** @rxova/brand — the project data behind rxova.org. Stylesheets are subpath exports (`@rxova/brand/tokens.css`). */
 
 export {
   RXOVA_ORIGIN,
@@ -16,11 +10,10 @@ export {
   docsUrl,
   siteUrl,
   canonicalUrl,
+  projectFromBase,
   type Project,
   type ProjectId,
   type RepoId,
 } from './sites.ts'
-
-export { sharedStarlightConfig, type SharedStarlightOptions } from './starlight.ts'
 
 export { renderFeed, escapeXml, rfc822, type FeedItem, type FeedOptions } from './feed.ts'

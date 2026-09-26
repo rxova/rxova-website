@@ -185,6 +185,25 @@ describe('validateDispatch — rejections', () => {
   it('rejects an unknown framework', () => {
     rejects({ framework: 'vitepress' }, /unknown framework/)
   })
+
+  it('says the registry knows nothing when it is empty', () => {
+    assert.throws(
+      () => validateDispatch({ sources: [] }, payload()),
+      /unknown project "journey" — sources\.json knows: \(none\)$/,
+    )
+  })
+
+  it('refuses a mount the shared derivation disagrees with, or that leaves the tree', () => {
+    const journey = registry.sources[0]!
+    for (const mount of ['docs/journey', '/packages/journey', 'packages/../journey']) {
+      assert.throws(
+        () => validateDispatch({ sources: [{ ...journey, mount }] }, payload()),
+        (e) =>
+          e instanceof IngestError &&
+          e.message === `refusing mount ${JSON.stringify(mount)} for "journey" (kind package)`,
+      )
+    }
+  })
 })
 
 describe('checkDist — gate 2b', () => {
@@ -305,6 +324,53 @@ describe('checkDist — gate 2b', () => {
       '<!doctype html><html><body><div>no main</div></body></html>',
     )
     assert.throws(() => checkDist(dir, { schema: 2 }), /has no <main> page component/)
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('rejects a path that is a file rather than a directory', () => {
+    dir = make()
+    writeFileSync(join(dir, 'index.html'), '<!doctype html>')
+    assert.throws(() => checkDist(join(dir, 'index.html')), /missing or not a directory/)
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('requires the manifest of a schema-2 dist, and a readable, matching one of any dist', () => {
+    dir = make()
+    writeFileSync(join(dir, 'index.html'), '<main>Blog</main>')
+    assert.throws(
+      () => checkDist(dir, { schema: 2 }),
+      /schema 2 dist has no rxova-page-bundle\.json/,
+    )
+
+    const manifest = join(dir, 'rxova-page-bundle.json')
+    writeFileSync(manifest, '{ nope')
+    assert.throws(() => checkDist(dir), /rxova-page-bundle\.json is not valid JSON/)
+    writeFileSync(manifest, JSON.stringify({ schema: 2, project: 'blog' }))
+    assert.throws(() => checkDist(dir), /rxova-page-bundle\.json is invalid/)
+
+    writeFileSync(
+      manifest,
+      JSON.stringify({ schema: 2, format: 'html-page-component', project: 'blog', base: '/blog/' }),
+    )
+    assert.throws(
+      () => checkDist(dir, { project: 'updates' }),
+      /rxova-page-bundle\.json project is blog, expected updates/,
+    )
+    assert.throws(
+      () => checkDist(dir, { base: '/updates/' }),
+      /rxova-page-bundle\.json base is \/blog\/, expected \/updates\//,
+    )
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('accepts a redirect stub with no <main> as a page component', () => {
+    dir = make()
+    writeFileSync(
+      join(dir, 'rxova-page-bundle.json'),
+      JSON.stringify({ schema: 2, format: 'html-page-component', project: 'blog', base: '/blog/' }),
+    )
+    writeFileSync(join(dir, 'index.html'), '<meta http-equiv="refresh" content="0;url=/blog/a/">')
+    assert.deepEqual(checkDist(dir, { schema: 2 }), { entries: 2 })
     rmSync(dir, { recursive: true, force: true })
   })
 })

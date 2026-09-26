@@ -11,9 +11,9 @@ footer, theme bootstrap and analytics.
 ## They are sources, like everything else
 
 ```
-packages/blog/posts       ─┐                     ingest.yml     (validate + persist)
-packages/updates/updates   ├─ astro build ─────→ content-blog   (release)
-packages/*/authors         │   upload dist       content-updates
+apps/blog/posts           ─┐                     ingest.yml     (validate + persist)
+apps/updates/updates       ├─ astro build ─────→ content-blog   (release)
+apps/*/authors             │   upload dist       content-updates
 packages/website-schemas  ─┘   dispatch          fetch-docs.mjs (pull at deploy)
                                                  assemble.mjs   (compose into website shell)
 ```
@@ -54,7 +54,7 @@ name — stays uniform, so ingest and fetch never branch on kind.
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | `packages/` in this repo                              | prose, frontmatter schemas, producer renderers, design tokens, Header and SiteFooter           |
 | package repositories                                  | documentation content and Starlight's internal search/sidebar/page navigation                  |
-| `site/`, `packages/tooling/` and workflows, this repo | the public document shell, global chrome, aggregate analytics and deploy-time HTML composition |
+| `apps/`, `packages/tooling/` and workflows, this repo | the public document shell, global chrome, aggregate analytics and deploy-time HTML composition |
 
 The renderer still sits with the content: the blog, updates and package repositories build
 their own HTML and assets. The boundary is the body-level PageComponent, not a
