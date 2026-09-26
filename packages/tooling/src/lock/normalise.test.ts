@@ -35,6 +35,14 @@ describe('maskScopeIds', () => {
     expect(maskScopeIds('<p data-astro-cid-z4jru4n3>')).toBe('<p data-cid>')
     expect(maskScopeIds('p[data-astro-cid-z4jru4n3]{}')).toBe('p[data-cid]{}')
   })
+
+  it('masks class-strategy scope ids too, and leaves other astro- classes alone', () => {
+    expect(maskScopeIds('<p class="lede astro-j7pv25f6">')).toBe('<p class="lede astro-scope">')
+    expect(maskScopeIds('.astro-j7pv25f6 p{}')).toBe('.astro-scope p{}')
+    expect(maskScopeIds('astro-expressive-code astro-island')).toBe(
+      'astro-expressive-code astro-island',
+    )
+  })
 })
 
 describe('comments', () => {
