@@ -18,15 +18,22 @@ import { fileURLToPath } from 'node:url'
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../../../..')
 
-// Resolve from site/, which is where @rxova/brand is a dependency — this script
-// lives at the repo root, where it is not installed. Going through the package's
-// own exports rather than guessing at a node_modules path also keeps this
-// working under pnpm's non-flat layout.
-const require = createRequire(join(repoRoot, 'site', 'package.json'))
-const source = dirname(require.resolve('@rxova/brand/assets/og/rxova.png'))
-const target = join(repoRoot, 'site/public/og')
+/** Copies the cards into `<root>/site/public/og`, resolving @rxova/brand from `<root>/site`. */
+export function syncBrandOg(root = repoRoot, log: (message: string) => void = console.log): void {
+  // Resolve from site/, which is where @rxova/brand is a dependency — this script
+  // lives at the repo root, where it is not installed. Going through the package's
+  // own exports rather than guessing at a node_modules path also keeps this
+  // working under pnpm's non-flat layout.
+  const require = createRequire(join(root, 'site', 'package.json'))
+  const source = dirname(require.resolve('@rxova/brand/assets/og/rxova.png'))
+  const target = join(root, 'site/public/og')
 
-mkdirSync(target, { recursive: true })
-cpSync(source, target, { recursive: true })
+  mkdirSync(target, { recursive: true })
+  cpSync(source, target, { recursive: true })
 
-console.log(`✓ synced social cards from @rxova/brand into site/public/og`)
+  log(`✓ synced social cards from @rxova/brand into site/public/og`)
+}
+
+/* v8 ignore start -- entry point; `pnpm sync:og` is what runs it */
+if (import.meta.main) syncBrandOg()
+/* v8 ignore stop */

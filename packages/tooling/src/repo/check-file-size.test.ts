@@ -8,8 +8,9 @@ describe('isChecked', () => {
     (path) => expect(isChecked(path)).toBe(true),
   )
 
-  it.each(['pnpm-lock.yaml', 'README.md', 'posts/a.md', 'logo.png'])('skips %s', (path) =>
-    expect(isChecked(path)).toBe(false),
+  it.each(['pnpm-lock.yaml', 'nested/pnpm-lock.yaml', 'README.md', 'posts/a.md', 'logo.png'])(
+    'skips %s',
+    (path) => expect(isChecked(path)).toBe(false),
   )
 })
 

@@ -312,8 +312,8 @@ export async function assemble(config: Registry, artifactsDir: string, outDir: s
   console.log('Done.')
 }
 
-// Only run as a CLI; the tests import `assemble` above.
-if (import.meta.filename === process.argv[1]) {
+/* v8 ignore start -- entry point; the deploy workflow is what runs it, the tests import `assemble` */
+if (import.meta.main) {
   const [, , artifactsDir = 'artifacts', outDir = '_site'] = process.argv
   const config = {
     ...loadRegistry(join(repoRoot, 'sources.json')),
@@ -324,3 +324,4 @@ if (import.meta.filename === process.argv[1]) {
     process.exit(1)
   })
 }
+/* v8 ignore stop */

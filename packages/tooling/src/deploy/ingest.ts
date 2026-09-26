@@ -247,16 +247,28 @@ export function checkDist(dir: string, expected: ExpectedDist = {}): { entries: 
   return { entries: entries.length }
 }
 
-function emit(lines: string[]): void {
-  const text = lines.join('\n') + '\n'
-  if (!process.env.GITHUB_OUTPUT) {
-    console.log(text.trimEnd())
-    return
-  }
-  appendFileSync(process.env.GITHUB_OUTPUT, text)
+/** Where the CLI reads the registry and writes its lines; the defaults are the real ones. */
+export interface IngestOptions {
+  load?: () => { sources: DispatchSource[] }
+  log?: (message: string) => void
+  error?: (message: string) => void
 }
 
-function main(argv: string[], env: NodeJS.ProcessEnv): void {
+/** Workflow outputs go to $GITHUB_OUTPUT when set, else to the log. */
+function emit(lines: string[], env: NodeJS.ProcessEnv, log: (message: string) => void): void {
+  const text = lines.join('\n') + '\n'
+  if (!env.GITHUB_OUTPUT) {
+    log(text.trimEnd())
+    return
+  }
+  appendFileSync(env.GITHUB_OUTPUT, text)
+}
+
+function main(
+  argv: string[],
+  env: NodeJS.ProcessEnv,
+  { load = loadRegistry, log = console.log }: IngestOptions,
+): void {
   const distFlag = argv.indexOf('--check-dist')
   if (distFlag !== -1) {
     const dir = argv[distFlag + 1]
@@ -267,7 +279,7 @@ function main(argv: string[], env: NodeJS.ProcessEnv): void {
       project: env.EXPECTED_PROJECT,
       base: env.EXPECTED_BASE,
     })
-    console.log(`✓ dist OK — ${entries} entr${entries === 1 ? 'y' : 'ies'}, index.html present`)
+    log(`✓ dist OK — ${entries} entr${entries === 1 ? 'y' : 'ies'}, index.html present`)
     return
   }
 
@@ -278,37 +290,49 @@ function main(argv: string[], env: NodeJS.ProcessEnv): void {
     throw new IngestError('CLIENT_PAYLOAD was not valid JSON')
   }
 
-  const registry = loadRegistry()
+  const registry = load()
   const { source, meta } = validateDispatch(registry, payload)
 
-  console.log(
-    `✓ ${meta.project} @ ${meta.sha} (ref ${meta.ref}, ${meta.framework}) -> ${source.base}`,
-  )
+  log(`✓ ${meta.project} @ ${meta.sha} (ref ${meta.ref}, ${meta.framework}) -> ${source.base}`)
 
-  emit([
-    `project=${meta.project}`,
-    `repo=${source.repo}`,
-    `run_id=${meta.runId}`,
-    `artifact_name=${DIST_ARTIFACT_NAME}`,
-    `release_tag=${source.releaseTag}`,
-    `release_asset=${source.releaseAsset}`,
-    `sha=${meta.sha}`,
-    `ref=${meta.ref}`,
-    `framework=${meta.framework}`,
-    `base=${source.base}`,
-    `schema=${meta.schema}`,
-    // The workflow reads this to decide whether to deploy. A disabled project is
-    // still persisted — see validateDispatch — it just changes nothing live.
-    `enabled=${meta.enabled}`,
-  ])
+  emit(
+    [
+      `project=${meta.project}`,
+      `repo=${source.repo}`,
+      `run_id=${meta.runId}`,
+      `artifact_name=${DIST_ARTIFACT_NAME}`,
+      `release_tag=${source.releaseTag}`,
+      `release_asset=${source.releaseAsset}`,
+      `sha=${meta.sha}`,
+      `ref=${meta.ref}`,
+      `framework=${meta.framework}`,
+      `base=${source.base}`,
+      `schema=${meta.schema}`,
+      // The workflow reads this to decide whether to deploy. A disabled project is
+      // still persisted — see validateDispatch — it just changes nothing live.
+      `enabled=${meta.enabled}`,
+    ],
+    env,
+    log,
+  )
 }
 
-// Only run as a CLI; the tests import the functions above.
-if (import.meta.filename === process.argv[1]) {
+/** The CLI: either gate, by `argv`; returns the exit code, printing any failure. */
+export function runIngest(
+  argv: string[],
+  env: NodeJS.ProcessEnv = process.env,
+  options: IngestOptions = {},
+): number {
+  const { error = console.error } = options
   try {
-    main(process.argv.slice(2), process.env)
+    main(argv, env, options)
+    return 0
   } catch (err) {
-    console.error(`ERROR: ${errorMessage(err)}`)
-    process.exit(1)
+    error(`ERROR: ${errorMessage(err)}`)
+    return 1
   }
 }
+
+/* v8 ignore start -- entry point; the ingest workflow is what runs it */
+if (import.meta.main) process.exitCode = runIngest(process.argv.slice(2))
+/* v8 ignore stop */

@@ -54,13 +54,14 @@ const posix = (p: string): string => p.split(sep).join('/')
 const escapeXml = (value: string): string =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
-const XML_ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" }
+const XML_ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" } as const
 
 /** The inverse, for reading a `<loc>` out of a sitemap somebody else wrote. */
 const unescapeXml = (value: string): string =>
+  // The pattern names exactly the keys above, so every match has a replacement.
   value.replace(
     /&(amp|lt|gt|quot|apos);/g,
-    (whole: string, name: string) => XML_ENTITIES[name] ?? whole,
+    (_whole: string, name: keyof typeof XML_ENTITIES) => XML_ENTITIES[name],
   )
 
 /**
