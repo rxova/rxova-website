@@ -1,17 +1,6 @@
 {
-  "compilerOptions": {
-    "target": "ES2024",
-    "lib": ["ES2024", "DOM"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "skipLibCheck": true,
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
-    "erasableSyntaxOnly": true,
-    "verbatimModuleSyntax": true,
-    "types": ["node"]
-  },
+  "extends": "./config/tsconfig.base.json",
+  // Node runs these files directly, stripping their types.
+  "compilerOptions": { "erasableSyntaxOnly": true },
   "include": ["src/**/*.ts", "config/**/*.ts", "vitest.config.ts"]
 }

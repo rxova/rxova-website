@@ -9,7 +9,7 @@
 // an entry to be understood slightly differently.
 //
 // The landing page does NOT use this module: it consumes `sources.json` through
-// a Vite JSON import (see site/src/lib/projects.ts) because Astro builds it in a
+// a Vite JSON import (see apps/landing/src/lib/projects.ts) because Astro builds it in a
 // browser-ish module graph where reaching outside the site root with node:fs is
 // fragile. It only reads the `landing` copy, which needs no derivation.
 //

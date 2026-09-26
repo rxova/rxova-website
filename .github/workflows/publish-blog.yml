@@ -31,11 +31,12 @@ on:
   push:
     branches: [main]
     paths:
-      - 'packages/blog/**'
-      # The surfaces are built against these, so a change to either republishes
+      - 'apps/blog/**'
+      # The surfaces are built against these, so a change to any republishes
       # both. That is one more reason they cannot share a run.
       - 'packages/website-schemas/src/**'
       - 'packages/brand/src/**'
+      - 'packages/astro-ui/src/**'
   workflow_dispatch:
 
 permissions:

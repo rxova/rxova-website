@@ -2,12 +2,10 @@
   "name": "@rxova/brand",
   "version": "0.15.1",
   "type": "module",
-  "description": "Design tokens, Starlight theme and shared site chrome for rxova.org",
+  "description": "Design tokens, typefaces and project data for rxova.org",
   "keywords": [
     "rxova",
     "design-tokens",
-    "astro",
-    "starlight",
     "theme"
   ],
   "license": "MIT",
@@ -27,31 +25,18 @@
   ],
   "files": [
     "src",
-    "assets"
+    "assets",
+    "MIGRATION.md"
   ],
   "exports": {
     ".": "./src/index.ts",
     "./tokens.css": "./src/tokens.css",
-    "./astro.css": "./src/astro.css",
-    "./chrome.css": "./src/chrome.css",
-    "./starlight.css": "./src/starlight.css",
     "./fonts.css": "./src/fonts.css",
-    "./components/*": "./src/components/*",
     "./assets/*": "./assets/*",
     "./package.json": "./package.json"
   },
-  "peerDependencies": {
-    "@astrojs/starlight": ">=0.36.0",
-    "astro": ">=5.6.0"
-  },
-  "peerDependenciesMeta": {
-    "@astrojs/starlight": {
-      "optional": true
-    }
-  },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "check:astro": "astro check",
     "pack:smoke": "node --import tsx scripts/pack-smoke.ts",
     "check:exports": "publint --strict",
     "og": "node --import tsx scripts/generate-og.ts",
@@ -63,12 +48,10 @@
     "@fontsource/space-grotesk": "^5.2.5"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
-    "@astrojs/starlight": "^0.42.1",
     "@resvg/resvg-js": "^2.6.2",
+    "@rxova/repo-tooling": "workspace:*",
     "@types/node": "^26.6.1",
     "@vitest/coverage-v8": "^5.0.1",
-    "astro": "^7.3.2",
     "publint": "^0.3.24",
     "satori": "^0.33.4",
     "tsx": "^4.23.13",

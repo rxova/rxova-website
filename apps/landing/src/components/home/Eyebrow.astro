@@ -1,0 +1,55 @@
+---
+/** A small mono label with the gradient dot. Given an `id`, it is the section's quiet `h2` instead. */
+interface Props {
+  id?: string
+}
+
+const { id } = Astro.props
+---
+
+{id ? (
+  <h2 class="section-kicker" id={id}>
+    <span class="dot" aria-hidden="true" />
+    <slot />
+  </h2>
+) : (
+  <p class="eyebrow">
+    <span class="dot" aria-hidden="true" />
+    <slot />
+  </p>
+)}
+
+<style>
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--rx-font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rx-faint);
+    margin-bottom: 1rem;
+  }
+  /* Kept for the document outline, and deliberately not sized like a heading. */
+  .section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--rx-font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rx-faint);
+    margin-bottom: 1.5rem;
+  }
+  /* The gradient is the brand's only chroma, spent on marks like this, never on type. */
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--rx-radius-pill);
+    background: var(--rx-gradient);
+    flex: none;
+  }
+</style>
