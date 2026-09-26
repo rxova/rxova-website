@@ -179,16 +179,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      '@rxova/website-schemas':
-        specifier: workspace:^
-        version: link:packages/website-schemas
-      parse5:
-        specifier: ^8.0.1
-        version: 8.0.1
-      zod:
-        specifier: ^4.6.5
-        version: 4.6.5
     devDependencies:
       '@changesets/changelog-github':
         specifier: ^1.0.1
@@ -247,9 +237,6 @@ importers:
       vitest:
         specifier: ^5.0.1
         version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
-      yaml:
-        specifier: ^2.9.1
-        version: 2.9.1
 
   apps/e2e:
     devDependencies:
@@ -382,6 +369,12 @@ importers:
       prettier:
         specifier: ^3.9.7
         version: 3.9.9
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
     devDependencies:
       '@playwright/test':
         specifier: 1.63.0
@@ -392,6 +385,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^5.0.1
         version: 5.0.1(vitest@5.0.1)
+      tsx:
+        specifier: ^4.23.13
+        version: 4.23.13
       typescript:
         specifier: 6.0.3
         version: 6.0.3

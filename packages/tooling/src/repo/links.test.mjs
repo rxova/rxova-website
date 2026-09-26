@@ -15,7 +15,7 @@ import assert from 'node:assert/strict'
 
 import { readFileSync } from 'node:fs'
 
-import { SOURCES_FILE } from './registry.mjs'
+import { SOURCES_FILE } from '../lib/registry.mjs'
 
 const TIMEOUT = 45_000
 

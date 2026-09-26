@@ -7,7 +7,7 @@ import { describe, it } from 'vitest'
 import assert from 'node:assert/strict'
 
 import { fetchPlan } from './fetch-docs.mjs'
-import { loadRegistry } from './registry.mjs'
+import { loadRegistry } from '../lib/registry.mjs'
 
 const registry = {
   sources: [

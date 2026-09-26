@@ -11,7 +11,7 @@
 // build is the natural place for it. `pnpm build` runs in CI, so both halves are
 // covered on every pull request.
 
-import { loadRegistry, enabledSources } from './registry.mjs'
+import { loadRegistry, enabledSources } from '../lib/registry.mjs'
 
 try {
   const registry = loadRegistry()

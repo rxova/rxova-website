@@ -28,7 +28,11 @@ interface Source {
 const LANDING = ['@rxova/landing', '@rxova/homepage-site']
 const PREVIEW = ['@rxova/preview']
 /** Where each layout keeps the assembler. */
-const ASSEMBLERS = ['packages/tooling/src/deploy/assemble.ts', 'scripts/assemble.mjs']
+const ASSEMBLERS = [
+  'packages/tooling/src/deploy/assemble.ts',
+  'packages/tooling/src/deploy/assemble.mjs',
+  'scripts/assemble.mjs',
+]
 
 const exists = (path: string) =>
   access(path).then(

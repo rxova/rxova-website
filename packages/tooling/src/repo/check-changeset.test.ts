@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import process from 'node:process'
@@ -14,7 +15,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const scriptPath = resolve(here, './check-changeset.ts')
-const tsxLoaderPath = resolve(here, '../node_modules/tsx/dist/loader.mjs')
+const tsxLoaderPath = createRequire(import.meta.url).resolve('tsx')
 
 // GIT_* leaks from the outer repo (notably GIT_DIR under a hook) would point
 // the child at the wrong repository.

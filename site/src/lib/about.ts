@@ -10,7 +10,7 @@
  *
  * Not in `sources.json`: that file says what rxova.org is *assembled from* —
  * which projects exist, whether they are on, how they are mounted — and every
- * script in `scripts/` reads it. None of them has any business parsing a bio.
+ * script in `packages/tooling/` reads it. None of them has any business parsing a bio.
  * This is landing prose, so it sits with the landing, typed, next to
  * `projects.ts`.
  */

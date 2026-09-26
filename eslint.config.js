@@ -31,7 +31,7 @@ export default defineConfig(
     // Node tooling: the aggregator and repo scripts at the root, and the ones one
     // workspace level down (packages/brand/scripts). sites.ts reads process.env
     // for the origin override, so package sources get Node globals too.
-    files: ['**/src/**/*.ts', '**/scripts/**/*.{ts,mjs}'],
+    files: ['**/src/**/*.{ts,mjs}', '**/scripts/**/*.{ts,mjs}'],
     languageOptions: { globals: globals.node },
   },
   {

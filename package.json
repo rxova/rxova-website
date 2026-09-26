@@ -21,13 +21,12 @@
     "build": "turbo run build",
     "preview": "pnpm -C site preview",
     "typecheck": "turbo run typecheck",
-    "test": "vitest run --coverage",
-    "test:coverage": "vitest run --coverage",
+    "test": "turbo run test",
     "check:astro": "turbo run check:astro",
     "check:og": "turbo run check:og",
     "og": "turbo run og --filter=@rxova/brand",
     "check:exports": "turbo run check:exports",
-    "check:registry": "node scripts/check-registry.mjs",
+    "check:registry": "node packages/tooling/src/deploy/check-registry.mjs",
     "pack:smoke": "turbo run pack:smoke --concurrency=1",
     "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/.eslintcache",
     "lint:fix": "eslint . --fix --cache --cache-location node_modules/.cache/eslint/.eslintcache",
@@ -35,23 +34,18 @@
     "format:check": "prettier --check . --cache --cache-location node_modules/.cache/prettier/.prettiercache",
     "audit:check": "pnpm audit --audit-level=high --ignore-registry-errors",
     "dedupe:check": "pnpm dedupe --check",
-    "assemble": "node scripts/assemble.mjs",
-    "sync:og": "node scripts/sync-brand-og.mjs",
+    "assemble": "node packages/tooling/src/deploy/assemble.mjs",
+    "sync:og": "node packages/tooling/src/deploy/sync-brand-og.mjs",
     "brand:dev": "turbo run dev --filter=@rxova/preview",
     "preview:build": "turbo run build --filter=@rxova/preview",
-    "validate:content": "node --import tsx ./scripts/validate-content.ts",
-    "verify": "node --import tsx ./scripts/verify.ts",
+    "validate:content": "node --import tsx ./packages/tooling/src/repo/validate-content.ts",
+    "verify": "node --import tsx ./packages/tooling/src/repo/verify.ts",
     "lock:diff": "node packages/tooling/src/lock/cli.ts diff",
     "lock:snapshot": "node packages/tooling/src/lock/cli.ts snapshot",
     "e2e": "turbo run e2e",
     "visual": "pnpm --filter @rxova/e2e visual",
     "release": "changeset publish",
     "prepare": "husky && pnpm --filter @rxova/website-schemas run build"
-  },
-  "dependencies": {
-    "@rxova/website-schemas": "workspace:^",
-    "parse5": "^8.0.1",
-    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^1.0.1",
@@ -72,8 +66,7 @@
     "turbo": "^2.10.13",
     "typescript": "6.0.3",
     "typescript-eslint": "^8.70.0",
-    "vitest": "^5.0.1",
-    "yaml": "^2.9.1"
+    "vitest": "^5.0.1"
   },
   "lint-staged": {
     "*.{ts,tsx,astro,mjs,js}": [

@@ -54,7 +54,6 @@ export const steps: readonly VerifyStep[] = [
     name: 'Typecheck, tests, Astro check, social cards, site builds and package metadata',
     turbo: [
       'typecheck',
-      '//#test',
       'check:astro',
       'check:og',
       'build',

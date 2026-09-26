@@ -5,7 +5,7 @@
  * the thing the package exists to do: hold posts that a build can actually render.
  *
  * It reads the real `posts/` and `authors/` directories rather than fixtures. The
- * repo-level validator (`scripts/validate-content.ts`) already checks both surfaces
+ * repo-level validator (`packages/tooling/src/repo/validate-content.ts`) already checks both surfaces
  * together and is the pre-merge gate — this is the check that fails inside the
  * package, so `pnpm --filter @rxova/blog test` tells you your own package is broken
  * without running the whole repo.

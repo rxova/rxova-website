@@ -50,11 +50,11 @@ name — stays uniform, so ingest and fetch never branch on kind.
 
 ## What lives where
 
-| Where                                        | Owns                                                                                           |
-| -------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `packages/` in this repo                     | prose, frontmatter schemas, producer renderers, design tokens, Header and SiteFooter           |
-| package repositories                         | documentation content and Starlight's internal search/sidebar/page navigation                  |
-| `site/`, `scripts/` and workflows, this repo | the public document shell, global chrome, aggregate analytics and deploy-time HTML composition |
+| Where                                                 | Owns                                                                                           |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `packages/` in this repo                              | prose, frontmatter schemas, producer renderers, design tokens, Header and SiteFooter           |
+| package repositories                                  | documentation content and Starlight's internal search/sidebar/page navigation                  |
+| `site/`, `packages/tooling/` and workflows, this repo | the public document shell, global chrome, aggregate analytics and deploy-time HTML composition |
 
 The renderer still sits with the content: the blog, updates and package repositories build
 their own HTML and assets. The boundary is the body-level PageComponent, not a

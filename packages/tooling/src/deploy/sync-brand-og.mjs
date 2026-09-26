@@ -16,7 +16,7 @@ import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../../../..')
 
 // Resolve from site/, which is where @rxova/brand is a dependency — this script
 // lives at the repo root, where it is not installed. Going through the package's

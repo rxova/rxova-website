@@ -40,11 +40,11 @@ import {
   isoToStamp,
   unknownRepos,
   AUTHOR_FILENAME,
-} from '../packages/website-schemas/src/index.ts'
+} from '../../../website-schemas/src/index.ts'
 // The registry itself, which @rxova/website-schemas deliberately cannot see: it is
 // published, and reaching into the design system for REPO_IDS made its entry point
 // unresolvable once installed. The check lives here, where both are on disk.
-import { REPO_IDS } from '../packages/brand/src/sites.ts'
+import { REPO_IDS } from '../../../brand/src/sites.ts'
 
 /** On-disk shapes: what Astro expresses with reference() and image(), as strings. */
 const postFile = postBase.extend({
@@ -194,7 +194,7 @@ function validateSurface(
     return docs
   }
 
-  function report(rel: string, result: z.SafeParseReturnType<unknown, unknown>): void {
+  function report(rel: string, result: z.ZodSafeParseResult<unknown>): void {
     if (result.success) return
     for (const issue of result.error.issues) {
       const path = issue.path.length > 0 ? issue.path.join('.') : '(root)'
@@ -373,7 +373,8 @@ export function runCli(
   return 0
 }
 
-export const defaultContentRoot = (): string => join(dirname(fileURLToPath(import.meta.url)), '..')
+export const defaultContentRoot = (): string =>
+  join(dirname(fileURLToPath(import.meta.url)), '../../../..')
 
 /* v8 ignore next 3 -- the entry-point guard; `pnpm validate:content` is what runs it */
 if (import.meta.filename === process.argv[1]) {

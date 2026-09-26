@@ -20,9 +20,9 @@ import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { loadRegistry, enabledSources } from './registry.mjs'
+import { loadRegistry, enabledSources } from '../lib/registry.mjs'
 
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../../../..')
 
 /**
  * What to download for each enabled project, and where to put it. Pure, so the

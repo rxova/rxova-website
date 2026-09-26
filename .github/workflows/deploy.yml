@@ -9,7 +9,7 @@ name: Deploy rxova.org
 # already-built trees: it fetches each project's persisted dist and lays it out.
 #
 # Adding a project should NOT require editing this file. Which projects exist and
-# whether they are enabled live in sources.json; scripts/fetch-docs.mjs turns that
+# whether they are enabled live in sources.json; packages/tooling/src/deploy/fetch-docs.mjs turns that
 # into the set of release assets to download.
 
 on:
@@ -86,10 +86,10 @@ jobs:
       - name: Gather persisted docs
         env:
           GH_TOKEN: ${{ github.token }}
-        run: node scripts/fetch-docs.mjs artifacts
+        run: node packages/tooling/src/deploy/fetch-docs.mjs artifacts
 
       - name: Assemble _site
-        run: node scripts/assemble.mjs artifacts _site
+        run: node packages/tooling/src/deploy/assemble.mjs artifacts _site
 
       - name: Add .nojekyll + CNAME
         env:

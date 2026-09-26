@@ -27,15 +27,15 @@ import {
   PAGE_BUNDLE_FILENAME,
   pageBundleManifest,
   declaresStandalone,
-} from './page-bundle-contract.mjs'
+} from '../lib/page-bundle-contract.mjs'
 
-import { findNode, element, attribute, hasClass, walkNodes } from './html.mjs'
-import { loadRedirects, writeRedirects } from './redirects.mjs'
-import { loadRegistry, enabledSources } from './registry.mjs'
-import { writeSitemaps, RXOVA_ORIGIN } from './sitemap.mjs'
-import { writeLlms } from './llms.mjs'
+import { findNode, element, attribute, hasClass, walkNodes } from '../lib/html.mjs'
+import { loadRedirects, writeRedirects } from '../lib/redirects.mjs'
+import { loadRegistry, enabledSources } from '../lib/registry.mjs'
+import { writeSitemaps, RXOVA_ORIGIN } from '../lib/sitemap.mjs'
+import { writeLlms } from '../lib/llms.mjs'
 
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../../../..')
 
 async function exists(p) {
   try {

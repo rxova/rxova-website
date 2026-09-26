@@ -12,7 +12,7 @@ import { join } from 'node:path'
 
 import { assemble } from './assemble.mjs'
 import { composeDocument } from './assemble.mjs'
-import { resolveSource } from './registry.mjs'
+import { resolveSource } from '../lib/registry.mjs'
 
 const roots = []
 let root

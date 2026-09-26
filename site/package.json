@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prebuild": "node ../scripts/sync-brand-og.mjs",
-    "predev": "node ../scripts/sync-brand-og.mjs",
+    "prebuild": "node ../packages/tooling/src/deploy/sync-brand-og.mjs",
+    "predev": "node ../packages/tooling/src/deploy/sync-brand-og.mjs",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
