@@ -35,8 +35,9 @@ const { label, class: className, ...rest } = Astro.props
   .links :global(a:not(.btn):hover) {
     background-size: 100% 1px;
   }
+  /* Same selector as the sweep, so it wins; the buttons switch their own motion off. */
   @media (prefers-reduced-motion: reduce) {
-    .links :global(a) {
+    .links :global(a:not(.btn)) {
       transition: none;
     }
   }
