@@ -150,10 +150,10 @@ const STANDARD_ICONS: Record<string, string> = {
       content={`Take one package, keep the rest of your stack. Independent TypeScript libraries: ${projectListSentence}.`}
     />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://rxova.org/" />
+    <meta property="og:url" content={siteUrl('/')} />
     <!-- A proper 1200x630 card. The square 1024px logo this used to point at
          gets centre-cropped by Slack and Twitter into an unreadable smear. -->
-    <meta property="og:image" content="https://rxova.org/og/rxova.png" />
+    <meta property="og:image" content={siteUrl('/og/rxova.png')} />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- The blog is mounted at /blog as its own surface, so the landing is the
          only place that can advertise its feed from the domain root. -->

@@ -11,6 +11,7 @@
  * /blog and /updates it needs no entry in sources.json. It is listed in the
  * menu and the footer through `landingSurfaces` in ../lib/projects.ts.
  */
+import { siteUrl } from '@rxova/brand'
 import { MAINTAINER, PRINCIPLES } from '../lib/about'
 import { landingProjects, siteSurfaces } from '../lib/projects'
 import BaseLayout from '../layouts/BaseLayout.astro'
@@ -33,8 +34,8 @@ const description = `Rxova is built and maintained by ${MAINTAINER.name} — sma
     <meta property="og:title" content="About Rxova" />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="profile" />
-    <meta property="og:url" content="https://rxova.org/about" />
-    <meta property="og:image" content="https://rxova.org/og/rxova.png" />
+    <meta property="og:url" content={siteUrl('/about')} />
+    <meta property="og:image" content={siteUrl('/og/rxova.png')} />
     <meta name="twitter:card" content="summary_large_image" />
   </Fragment>
   <main>

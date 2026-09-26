@@ -23,11 +23,9 @@ import { join, dirname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parse, serialize } from 'parse5'
 
-import {
-  PAGE_BUNDLE_FILENAME,
-  pageBundleManifest,
-  declaresStandalone,
-} from '../lib/page-bundle-contract.ts'
+import { PAGE_BUNDLE_FILENAME, pageBundleManifest } from '@rxova/website-schemas'
+
+import { declaresStandalone } from '../lib/standalone.ts'
 
 import {
   attribute,
@@ -217,10 +215,7 @@ async function composeInto(src: string, dest: string, shellPath: string, source:
   for (const file of await htmlFiles(src)) {
     const rel = relative(src, file)
     const html = await readFile(file, 'utf8')
-    // Already copied verbatim by `cp` above, which is exactly what a standalone
-    // asset wants — an iframe target must not gain the site header and footer.
-    // See STANDALONE_MARKER for why the document declares this rather than the
-    // aggregator guessing from the path.
+    // A standalone asset stays as `cp` copied it: no site header or footer.
     if (declaresStandalone(html)) {
       standalone++
       continue
