@@ -26,8 +26,11 @@ Hashed asset names, Astro's scope ids and comments are masked, and the output is
 ## End-to-end specs
 
 ```sh
-pnpm e2e      # behaviour specs in Chromium, as CI runs them
+pnpm e2e      # every suite, through turbo, as CI runs them
 pnpm visual   # local screenshot comparison; add --update-snapshots on main for a baseline
 ```
 
-Both build and assemble the site like the deploy does (`src/e2e/serve.ts`), then serve `_site` on port 4480. The specs in `e2e/` cover the interactive parts: the project rail's tabs, the walkthrough tour, the theme toggle, the updates filters and batching, and the blog. The visual project screenshots 5 routes × 3 widths × 2 themes into the gitignored `.lock/visual`.
+- **Per app:** `site/e2e`, `packages/blog/e2e` and `packages/updates/e2e` test each app's interactive parts against its own `astro preview`.
+- **Assembled site:** `apps/e2e` tests what only exists once everything is composed: the blog and updates inside the site shell, navigation between sections, the theme carrying across them, and the visual screenshots (5 routes × 3 widths × 2 themes, compared against the gitignored `.lock/visual`).
+- **Shared config:** every Playwright config is the preset in `config/playwright.ts` (`@rxova/repo-tooling/playwright`) plus a server and a port.
+- **Assembled-site server:** `pnpm --filter @rxova/repo-tooling serve:site` (`src/e2e/serve.ts`) builds and assembles the site like the deploy does and serves `_site` on port 4480.

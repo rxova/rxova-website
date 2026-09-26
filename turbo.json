@@ -212,6 +212,17 @@
       ],
       "outputLogs": "new-only"
     },
+    // Each app's specs run against its own build.
+    "e2e": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    // The assembled site rebuilds the blog and updates for their mounts, in the same dist/ the
+    // per-app previews serve, so it runs after them.
+    "@rxova/e2e#e2e": {
+      "dependsOn": ["@rxova/homepage-site#e2e", "@rxova/blog#e2e", "@rxova/updates#e2e"],
+      "cache": false
+    },
     "dev": {
       "cache": false,
       "persistent": true

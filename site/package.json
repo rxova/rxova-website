@@ -11,7 +11,8 @@
     "preview": "astro preview",
     "check:astro": "astro check",
     "typecheck": "tsc -p src/showcases",
-    "test": "vitest run"
+    "test": "vitest run",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.5",
@@ -22,9 +23,11 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@playwright/test": "1.63.0",
     "@rxova/journey-core": "1.0.0-rc.3",
     "@rxova/react-intl-currency-input": "^1.0.2",
     "@rxova/react-otp-input": "^1.0.4",
+    "@rxova/repo-tooling": "workspace:*",
     "@types/react": "^19.3.0",
     "react": "^19.3.0",
     "ts-extended-errors": "^1.0.0",

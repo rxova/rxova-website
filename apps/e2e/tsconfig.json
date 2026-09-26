@@ -9,9 +9,8 @@
     "skipLibCheck": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
-    "erasableSyntaxOnly": true,
     "verbatimModuleSyntax": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "config/**/*.ts", "vitest.config.ts"]
+  "include": ["e2e/**/*.ts", "playwright.config.ts"]
 }

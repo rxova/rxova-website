@@ -12,8 +12,10 @@ coverage/
 # planning / private docs stash
 build/
 
-# behaviour-lock snapshots (pnpm lock:diff)
+# behaviour-lock snapshots (pnpm lock:diff) and Playwright output
 .lock/
+test-results/
+playwright-report/
 
 # local planning notes
 PLAN-*.md

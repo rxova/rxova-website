@@ -1,0 +1,18 @@
+{
+  "name": "@rxova/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "description": "End-to-end specs for the assembled rxova.org: what exists only once every surface is composed.",
+  "type": "module",
+  "scripts": {
+    "e2e": "playwright test --project=chromium",
+    "visual": "playwright test --project=visual",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@rxova/repo-tooling": "workspace:*",
+    "@types/node": "^26.6.1",
+    "typescript": "6.0.3"
+  }
+}
