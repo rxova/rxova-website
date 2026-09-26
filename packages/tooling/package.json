@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "test": "vitest run --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "e2e": "playwright test --project=chromium",
+    "visual": "playwright test --project=visual"
   },
   "dependencies": {
     "@rxova/website-schemas": "workspace:^",
@@ -14,6 +16,7 @@
     "prettier": "^3.9.7"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@types/node": "^26.6.1",
     "@vitest/coverage-v8": "^5.0.1",
     "typescript": "6.0.3",
