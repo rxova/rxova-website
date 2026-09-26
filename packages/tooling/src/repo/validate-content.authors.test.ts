@@ -32,7 +32,7 @@ describe('a valid tree', () => {
 
   it('tolerates directories that do not exist yet', () => {
     const root = emptyRoot()
-    for (const pkg of ['packages/blog/authors', 'packages/updates/authors']) {
+    for (const pkg of ['apps/blog/authors', 'apps/updates/authors']) {
       mkdirSync(join(root, pkg), { recursive: true })
       writeFileSync(join(root, pkg, 'rxova.md'), AUTHOR)
     }
@@ -46,8 +46,8 @@ describe('authors', () => {
   it('fails per surface when there are none at all', () => {
     const errors = validateContent(content({ authors: {} }))
     expect(errors).toHaveLength(2)
-    expect(errors.some((e) => e.startsWith('packages/blog/authors:'))).toBe(true)
-    expect(errors.some((e) => e.startsWith('packages/updates/authors:'))).toBe(true)
+    expect(errors.some((e) => e.startsWith('apps/blog/authors:'))).toBe(true)
+    expect(errors.some((e) => e.startsWith('apps/updates/authors:'))).toBe(true)
     expect(errors.every((e) => e.includes('no authors defined'))).toBe(true)
   })
 
@@ -68,7 +68,7 @@ describe('authors', () => {
     const errors = validateContent(
       content({ ...valid, authors: { 'rxova.md': '---\nname: 4\n---\n' } }),
     )
-    expect(errors.some((e) => e.includes('packages/blog/authors/rxova.md: name'))).toBe(true)
+    expect(errors.some((e) => e.includes('apps/blog/authors/rxova.md: name'))).toBe(true)
   })
 
   it('rejects an author filename that is not a bare id', () => {

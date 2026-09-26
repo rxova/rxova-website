@@ -4,7 +4,7 @@
 // Usage: node assemble.ts [artifactsDir=artifacts] [outDir=_site]
 //
 // Layout of `artifactsDir` — one folder per artifact:
-//   artifacts/landing/           <- Astro `site/dist`, downloaded from this run
+//   artifacts/landing/           <- Astro `apps/landing/dist`, downloaded from this run
 //   artifacts/docs-journey/      <- journey docs, extracted from release content-journey
 //   artifacts/docs-react-inputs/ <- react-inputs docs, from release content-react-inputs
 //

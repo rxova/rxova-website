@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest'
 
 import { PROJECTS, type Project } from '@rxova/brand'
 
-import sources from '../../../sources.json'
+import sources from '../../../../sources.json'
 import {
   buildLandingProjects,
   buildSiteSurfaces,

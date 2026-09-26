@@ -45,10 +45,10 @@ export function content(fixture: Fixture): string {
   const root = emptyRoot()
 
   const layout = [
-    ['packages/blog/posts', fixture.posts],
-    ['packages/blog/authors', fixture.authors],
-    ['packages/updates/updates', fixture.updates],
-    ['packages/updates/authors', fixture.authors],
+    ['apps/blog/posts', fixture.posts],
+    ['apps/blog/authors', fixture.authors],
+    ['apps/updates/updates', fixture.updates],
+    ['apps/updates/authors', fixture.authors],
   ] as const
 
   for (const [dir, files] of layout) {

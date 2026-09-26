@@ -29,7 +29,7 @@ describe('filenames', () => {
 
   it('rejects a non-markdown file rather than ignoring it', () => {
     const errors = validateContent(
-      content({ ...valid, files: { 'packages/blog/posts/notes.txt': 'stray' } }),
+      content({ ...valid, files: { 'apps/blog/posts/notes.txt': 'stray' } }),
     )
     expect(errors.some((e) => e.includes('only .md files belong here'))).toBe(true)
   })
@@ -162,7 +162,7 @@ describe('updatedDate', () => {
       }),
     )
     expect(errors).toEqual([
-      'packages/blog/posts/2026-07-27T143005-a-post.md: updatedDate is earlier than pubDate',
+      'apps/blog/posts/2026-07-27T143005-a-post.md: updatedDate is earlier than pubDate',
     ])
   })
 

@@ -30,7 +30,7 @@ export default defineConfig({
       // src/lib/projects.ts imports the repo-root sources.json, which is outside
       // the Astro project root. The production build resolves it fine; the dev
       // server refuses to serve files outside its allowlist without this.
-      fs: { allow: ['..'] },
+      fs: { allow: ['../..'] },
     },
   },
 })

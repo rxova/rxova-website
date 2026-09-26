@@ -6,7 +6,7 @@
 //
 // The other half — that sources.json and @rxova/brand's PROJECTS describe the
 // same set of projects — is asserted inside the Astro build instead, by
-// site/src/lib/projects.ts. That check needs to import the brand package, whose
+// apps/landing/src/lib/projects.ts. That check needs to import the brand package, whose
 // TypeScript source Node cannot load from node_modules; Vite can, so the landing
 // build is the natural place for it. `pnpm build` runs in CI, so both halves are
 // covered on every pull request.

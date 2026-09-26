@@ -13,7 +13,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'packages/updates/**'
+      - 'apps/updates/**'
       # The surfaces are built against these, so a change to either republishes
       # both. That is one more reason they cannot share a run.
       - 'packages/website-schemas/src/**'

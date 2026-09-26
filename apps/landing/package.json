@@ -1,11 +1,11 @@
 {
-  "name": "@rxova/homepage-site",
+  "name": "@rxova/landing",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "prebuild": "node ../packages/tooling/src/deploy/sync-brand-og.ts",
-    "predev": "node ../packages/tooling/src/deploy/sync-brand-og.ts",
+    "prebuild": "node ../../packages/tooling/src/deploy/sync-brand-og.ts",
+    "predev": "node ../../packages/tooling/src/deploy/sync-brand-og.ts",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",

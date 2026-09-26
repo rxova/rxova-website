@@ -42,7 +42,7 @@ describe('reporting', () => {
     const errors = validateContent(
       content({ ...valid, posts: { '2026-07-27T143005-a-post.md': post({ title: "''" }) } }),
     )
-    expect(errors.every((e) => e.startsWith('packages/'))).toBe(true)
+    expect(errors.every((e) => e.startsWith('apps/'))).toBe(true)
   })
 })
 
@@ -53,8 +53,8 @@ describe('countContent', () => {
 
   it('ignores non-markdown, and missing directories count as zero', () => {
     const root = emptyRoot()
-    mkdirSync(join(root, 'packages/blog/posts'), { recursive: true })
-    writeFileSync(join(root, 'packages/blog/posts', 'notes.txt'), 'stray')
+    mkdirSync(join(root, 'apps/blog/posts'), { recursive: true })
+    writeFileSync(join(root, 'apps/blog/posts', 'notes.txt'), 'stray')
     expect(countContent(root)).toEqual({ posts: 0, updates: 0, authors: 0 })
   })
 })
