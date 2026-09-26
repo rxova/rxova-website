@@ -1,0 +1,11 @@
+---
+import type { ComponentProps } from 'astro/types'
+import Icon from '../Icon.astro'
+
+/** A solid triangle. */
+type Props = Omit<ComponentProps<typeof Icon>, 'solid'>
+---
+
+<Icon {...Astro.props} solid>
+  <path d="M5 3.2v9.6L12.6 8z"></path>
+</Icon>

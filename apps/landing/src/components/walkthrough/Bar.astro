@@ -1,6 +1,12 @@
 ---
 /** The tour's controls: the Before/After switch, step and play buttons, and the scrubber. Hidden until the script runs. */
-import Icon from '@rxova/astro-ui/components/Icon.astro'
+import Collapse from '@rxova/astro-ui/components/icons/Collapse.astro'
+import Expand from '@rxova/astro-ui/components/icons/Expand.astro'
+import Next from '@rxova/astro-ui/components/icons/Next.astro'
+import Pause from '@rxova/astro-ui/components/icons/Pause.astro'
+import Play from '@rxova/astro-ui/components/icons/Play.astro'
+import Prev from '@rxova/astro-ui/components/icons/Prev.astro'
+import Replay from '@rxova/astro-ui/components/icons/Replay.astro'
 import VisuallyHidden from '@rxova/astro-ui/components/VisuallyHidden.astro'
 import Scrubber from './Scrubber.astro'
 
@@ -34,16 +40,16 @@ const sides = [
 
   <div class="controls">
     <button type="button" class="icon-button" data-prev aria-label="Previous note">
-      <Icon name="prev" />
+      <Prev />
     </button>
     <span class="count" data-count aria-live="polite"></span>
     <button type="button" class="icon-button" data-next aria-label="Next note">
-      <Icon name="next" />
+      <Next />
     </button>
     <button type="button" class="icon-button play" data-play data-state="paused">
-      <Icon name="pause" class="pause" />
-      <Icon name="play" class="resume" />
-      <Icon name="replay" class="replay" />
+      <Pause class="pause" />
+      <Play class="resume" />
+      <Replay class="replay" />
       <VisuallyHidden data-play-label="">Play the walkthrough</VisuallyHidden>
     </button>
     <button
@@ -54,8 +60,8 @@ const sides = [
       aria-label="Full screen"
       title="Full screen"
     >
-      <Icon name="expand" class="open" />
-      <Icon name="collapse" class="close" />
+      <Expand class="open" />
+      <Collapse class="close" />
     </button>
   </div>
 
