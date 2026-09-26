@@ -2,7 +2,9 @@ import { experimental_AstroContainer as AstroContainer } from 'astro/container'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import BackLink from '../src/components/BackLink.astro'
-import Icon from '../src/components/Icon.astro'
+import Expand from '../src/components/icons/Expand.astro'
+import Next from '../src/components/icons/Next.astro'
+import Play from '../src/components/icons/Play.astro'
 import PageHeader from '../src/components/PageHeader.astro'
 import ShowMore from '../src/components/ShowMore.astro'
 import VisuallyHidden from '../src/components/VisuallyHidden.astro'
@@ -42,9 +44,9 @@ describe('VisuallyHidden attributes', () => {
   })
 })
 
-describe('Icon', () => {
+describe('icons', () => {
   it('strokes a glyph in the text colour, hidden from screen readers', async () => {
-    const html = await render(Icon, { props: { name: 'next' } })
+    const html = await render(Next)
     expect(html).toContain(
       'viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor"',
     )
@@ -53,14 +55,11 @@ describe('Icon', () => {
   })
 
   it('fills the solid glyphs', async () => {
-    const html = await render(Icon, { props: { name: 'play' } })
-    expect(html).toContain('fill="currentColor" stroke="none"')
+    expect(await render(Play)).toContain('fill="currentColor" stroke="none"')
   })
 
   it("takes the caller's class, size and attributes", async () => {
-    const html = await render(Icon, {
-      props: { name: 'expand', class: 'open', size: 20, 'data-x': '' },
-    })
+    const html = await render(Expand, { props: { class: 'open', size: 20, 'data-x': '' } })
     expect(html).toContain('class="icon open"')
     expect(html).toContain('width="20" height="20"')
     expect(html).toContain(' data-x')

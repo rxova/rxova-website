@@ -2,4 +2,4 @@
 '@rxova/astro-ui': minor
 ---
 
-Add `Icon`: the prev, next, play, pause, replay, expand and collapse glyphs on a 16px grid, drawn in the text colour.
+Add icons: `Prev`, `Next`, `Play`, `Pause`, `Replay`, `Expand` and `Collapse` under `components/icons/`, each drawn in the `Icon` frame, a 16px grid in the text colour.
