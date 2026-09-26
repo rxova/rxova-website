@@ -56,6 +56,7 @@ unlayered and would flatten a Starlight page.
 | `@rxova/astro-ui/starlight`            | `sharedStarlightConfig()`, the preset every docs site spreads                        |
 | `@rxova/astro-ui/starlight/*.astro`    | The Starlight overrides: `SiteTitle`, `SocialIcons`, `Footer`, `ThemeSelect`         |
 | `@rxova/astro-ui/components/*.astro`   | `SiteShell`, `Header`, `SiteFooter`, `ProjectSwitcher`, `ThemeToggle`, `ThemeScript` |
+| `@rxova/astro-ui/lib/entries`          | Ordering, bylines, dates and excerpts shared by /blog and /updates                   |
 | `@rxova/astro-ui/styles/document.css`  | For sites that own their document: `chrome.css`, a reset, base element styling       |
 | `@rxova/astro-ui/styles/chrome.css`    | What the header and footer need, with nothing document-level                         |
 | `@rxova/astro-ui/styles/starlight.css` | Maps `--rx-*` onto Starlight's `--sl-*`, plus the footer                             |

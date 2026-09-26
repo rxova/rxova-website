@@ -418,7 +418,7 @@ const filterable = !activeRepo && (repos.length > 0 || tags.length > 0)
 </style>
 
 <script>
-  import { nextLimit } from '../lib/entries'
+  import { nextLimit } from '@rxova/astro-ui/lib/entries'
   ;(function () {
     const stream = document.querySelector<HTMLElement>('[data-stream]')
     if (!stream) return

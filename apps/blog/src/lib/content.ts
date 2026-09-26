@@ -7,7 +7,7 @@
 
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content'
 
-import { newestFirst, byline, formatDate, isoDate } from './entries'
+import { newestFirst, byline, formatDate, isoDate } from '@rxova/astro-ui/lib/entries'
 
 export { byline, formatDate, isoDate }
 

@@ -17,7 +17,7 @@ import type { APIRoute } from 'astro'
 import { canonicalUrl, renderFeed, type FeedItem } from '@rxova/brand'
 
 import { getUpdates, resolveAuthors, repoLabel } from '../lib/content'
-import { excerpt } from '../lib/entries'
+import { feedExcerpt } from '../lib/feed'
 
 export const GET: APIRoute = async () => {
   const entries = await getUpdates()
@@ -27,7 +27,7 @@ export const GET: APIRoute = async () => {
     entries.map(async (entry) => ({
       title: entry.data.version ? `${entry.data.title} (${entry.data.version})` : entry.data.title,
       link: `${index}#${entry.id}`,
-      description: excerpt(entry.body ?? ''),
+      description: feedExcerpt(entry.body ?? ''),
       pubDate: entry.data.date,
       authors: (await resolveAuthors(entry.data.authors)).map((a) => a.name),
       // Both facets the stream filters by, so a reader can tell at a glance

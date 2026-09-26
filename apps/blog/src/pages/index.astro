@@ -4,7 +4,7 @@ import { siteUrl, canonicalUrl } from '@rxova/brand'
 import Content from '@rxova/astro-ui/components/SiteShell.astro'
 import ShowMore from '../components/ShowMore.astro'
 import { getPosts, resolveAuthors, byline, formatDate, isoDate, href } from '../lib/content'
-import { excerpt } from '../lib/entries'
+import { excerpt } from '@rxova/astro-ui/lib/entries'
 
 /**
  * How many posts before the index starts batching. Higher than the updates stream's
@@ -12,6 +12,9 @@ import { excerpt } from '../lib/entries'
  * is a shorter page than eight updates.
  */
 const PAGE_SIZE = 10
+
+/** About two to three lines of a card; real text, so "Read more" can follow the ellipsis inline. */
+const EXCERPT_CHARS = 200
 
 const updatesUrl = siteUrl('/updates')
 
@@ -26,7 +29,7 @@ const items = await Promise.all(
     // The opening of the post itself, not `description` — that is a summary written
     // for search results and social cards, and reads like ad copy in a list of
     // posts. A reader scanning the index wants the writing.
-    lead: excerpt(post.body ?? ''),
+    lead: excerpt(post.body ?? '', EXCERPT_CHARS),
   })),
 )
 
