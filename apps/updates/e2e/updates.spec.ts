@@ -60,3 +60,14 @@ test('reveals the stream a batch at a time', async ({ page }) => {
   await expect(shown).toHaveCount(total)
   await expect(page.locator('[data-reveal-controls]')).toBeHidden()
 })
+
+test('a #permalink reveals its entry past the batch and through a filter', async ({ page }) => {
+  await page.goto('/')
+  const last = page.locator('[data-stream] .entry').last()
+  const id = (await last.getAttribute('id')) as string
+
+  await page.goto(`/?repo=no-such-repo#${id}`)
+  await expect(page.locator(`[id="${id}"]`)).toBeVisible()
+  await expect(page).toHaveURL(new RegExp(`/#${id}$`))
+  await expect(page.locator('[data-repo][aria-pressed="true"]')).toHaveCount(0)
+})
