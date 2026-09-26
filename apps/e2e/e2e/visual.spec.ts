@@ -14,6 +14,13 @@ for (const scheme of SCHEMES) {
         test(`${route} at ${width}px`, async ({ page }) => {
           await page.setViewportSize({ width, height: 900 })
           await page.goto(route)
+          // Lazy images below the fold (the footer's mark) load on their own schedule: load and decode them first.
+          await page.evaluate(async () => {
+            for (const img of document.images) img.loading = 'eager'
+            await Promise.all(
+              [...document.images].map((img) => img.decode().catch(() => undefined)),
+            )
+          })
           await page.evaluate(() => document.fonts.ready)
           const name = `${route.replaceAll('/', '_') || '_'}-${width}-${scheme}.png`
           await expect(page).toHaveScreenshot(name, { fullPage: true, animations: 'disabled' })
