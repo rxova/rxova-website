@@ -103,6 +103,13 @@
       "outputs": ["coverage/**"],
       "outputLogs": "new-only"
     },
+    // The landing's suite reads the repo-root sources.json through src/lib/projects.ts.
+    "@rxova/homepage-site#test": {
+      "dependsOn": ["^test"],
+      "inputs": ["src/**", "vitest.config.ts", "package.json", "$TURBO_ROOT$/sources.json"],
+      "outputs": ["coverage/**"],
+      "outputLogs": "new-only"
+    },
     // The blog's suite runs a real `astro build` (test/render.test.ts), which
     // resolves @rxova/website-schemas through its `exports` — and those point at a
     // dist/ that does not exist in a fresh checkout. `^test` alone would leave the

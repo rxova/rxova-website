@@ -11,7 +11,7 @@
     "preview": "astro preview",
     "check:astro": "astro check",
     "typecheck": "tsc -p src/showcases",
-    "test": "vitest run",
+    "test": "vitest run --coverage",
     "e2e": "playwright test"
   },
   "dependencies": {
@@ -29,6 +29,7 @@
     "@rxova/react-otp-input": "^1.0.4",
     "@rxova/repo-tooling": "workspace:*",
     "@types/react": "^19.3.0",
+    "@vitest/coverage-v8": "^5.0.1",
     "react": "^19.3.0",
     "ts-extended-errors": "^1.0.0",
     "typescript": "6.0.3",
