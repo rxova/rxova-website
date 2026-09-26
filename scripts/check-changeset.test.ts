@@ -161,6 +161,18 @@ describe('check-changeset', () => {
     expect(result.output).toContain('Docs/CI/config-only')
   })
 
+  it('auto-skips the private tooling workspace and root ignore and config files', async () => {
+    const { tempRoot, baseSha } = await initRepo()
+    await writeSource(tempRoot, 'packages/tooling/src/lock/cli.ts')
+    await writeFile(join(tempRoot, '.gitignore'), '.lock/\n', 'utf8')
+    await writeFile(join(tempRoot, 'eslint.config.js'), 'export default []\n', 'utf8')
+    const headSha = commitAll(tempRoot, 'build(tooling): add a tool')
+
+    const result = runScript(tempRoot, env(baseSha, headSha))
+    expect(result.code).toBe(0)
+    expect(result.output).toContain('Docs/CI/config-only')
+  })
+
   it('does not count a deleted changeset as one being present', async () => {
     const { tempRoot, baseSha } = await initRepo()
     await writeChangeset(tempRoot, '---\n"@rxova/brand": patch\n---\n\nchange\n')

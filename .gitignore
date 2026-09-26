@@ -12,6 +12,14 @@ coverage/
 # planning / private docs stash
 build/
 
+# behaviour-lock snapshots (pnpm lock:diff)
+.lock/
+
+# local planning notes
+PLAN-*.md
+jev-planner.json
+.jev-planner/
+
 # misc
 .DS_Store
 *.log

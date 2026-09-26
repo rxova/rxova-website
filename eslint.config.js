@@ -14,6 +14,7 @@ export default defineConfig(
     'artifacts/',
     'build/',
     'coverage/',
+    '.lock/',
   ]),
   js.configs.recommended,
   {

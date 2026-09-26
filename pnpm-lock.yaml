@@ -350,6 +350,31 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
 
+  packages/tooling:
+    dependencies:
+      '@rxova/website-schemas':
+        specifier: workspace:^
+        version: link:../website-schemas
+      parse5:
+        specifier: ^8.0.1
+        version: 8.0.1
+      prettier:
+        specifier: ^3.9.7
+        version: 3.9.9
+    devDependencies:
+      '@types/node':
+        specifier: ^26.6.1
+        version: 26.6.1
+      '@vitest/coverage-v8':
+        specifier: ^5.0.1
+        version: 5.0.1(vitest@5.0.1)
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: ^5.0.1
+        version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
+
   packages/updates:
     dependencies:
       '@rxova/brand':

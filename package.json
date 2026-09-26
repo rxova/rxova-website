@@ -41,6 +41,8 @@
     "preview:build": "turbo run build --filter=@rxova/preview",
     "validate:content": "node --import tsx ./scripts/validate-content.ts",
     "verify": "node --import tsx ./scripts/verify.ts",
+    "lock:diff": "node packages/tooling/src/lock/cli.ts diff",
+    "lock:snapshot": "node packages/tooling/src/lock/cli.ts snapshot",
     "release": "changeset publish",
     "prepare": "husky && pnpm --filter @rxova/website-schemas run build"
   },

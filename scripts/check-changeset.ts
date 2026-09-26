@@ -27,7 +27,7 @@ const publishedPackageDirs = ['packages/brand/', 'packages/website-schemas/']
  * they happened to carry one of the listed extensions.
  */
 const allowedPattern =
-  /^((apps|site|\.github|\.changeset|\.husky|scripts)\/.*|.*\.(md|txt|yml|yaml|json))$/
+  /^((apps|site|\.github|\.changeset|\.husky|scripts|packages\/tooling)\/.*|\.[\w-]*ignore|[\w.-]+\.config\.(js|mjs|cjs|ts)|.*\.(md|txt|yml|yaml|json))$/
 
 const getEnv = (name: string, required = true): string | undefined => {
   const value = process.env[name]
