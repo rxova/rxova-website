@@ -136,9 +136,16 @@ describe('isDocsOrConfigOnly', () => {
     ['.gitignore'],
     ['eslint.config.js'],
     ['README.md'],
+    ['apps/landing/src/pages/index.astro'],
+    ['apps/blog/posts/2026-07-27T080000-a-post.md'],
   ])('skips a diff of only %s', (file) => {
     expect(isDocsOrConfigOnly([file])).toBe(true)
   })
+
+  it.each([['apps/blog/src/pages/index.astro'], ['apps/updates/src/lib/content.ts']])(
+    'does not skip %s, a versioned surface',
+    (file) => expect(isDocsOrConfigOnly([file])).toBe(false),
+  )
 
   it('does not skip a published package, even one of its markdown files', () => {
     expect(isDocsOrConfigOnly(['packages/brand/README.md'])).toBe(false)

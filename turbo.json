@@ -24,7 +24,7 @@
     // import it), and @rxova/brand's source and social cards, which it consumes
     // unbuilt through the workspace and copies into public/og in `prebuild`.
     // Without these a registry or brand change would replay yesterday's landing.
-    "@rxova/homepage-site#build": {
+    "@rxova/landing#build": {
       "dependsOn": ["^build"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -36,7 +36,7 @@
       "outputs": ["dist/**"],
       "outputLogs": "new-only"
     },
-    "@rxova/homepage-site#check:astro": {
+    "@rxova/landing#check:astro": {
       "dependsOn": ["^build", "build"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -104,7 +104,7 @@
       "outputLogs": "new-only"
     },
     // The landing's suite reads the repo-root sources.json through src/lib/projects.ts.
-    "@rxova/homepage-site#test": {
+    "@rxova/landing#test": {
       "dependsOn": ["^test"],
       "inputs": ["src/**", "vitest.config.ts", "package.json", "$TURBO_ROOT$/sources.json"],
       "outputs": ["coverage/**"],
@@ -118,7 +118,7 @@
     // rather than `pnpm --filter`.
     //
     // `check:astro` is that same real `astro build` again, seen from the other side:
-    // a third astro process in packages/blog would race the package's own build and
+    // a third astro process in apps/blog would race the package's own build and
     // check over `node_modules/.astro` exactly as described on `check:astro` below.
     // Depending on it puts this last in the package's astro chain — and since
     // `check:astro` already depends on this package's `build`, that edge orders this
@@ -196,7 +196,7 @@
         "package.json",
         "packages/*/package.json",
         "apps/*/package.json",
-        "site/package.json"
+        "apps/landing/package.json"
       ],
       "outputLogs": "new-only"
     },
@@ -208,10 +208,10 @@
       "dependsOn": ["@rxova/website-schemas#build"],
       "outputs": [],
       "inputs": [
-        "packages/blog/posts/**",
-        "packages/blog/authors/**",
-        "packages/updates/updates/**",
-        "packages/updates/authors/**",
+        "apps/blog/posts/**",
+        "apps/blog/authors/**",
+        "apps/updates/updates/**",
+        "apps/updates/authors/**",
         "packages/website-schemas/src/**",
         "packages/brand/src/sites.ts",
         "packages/tooling/src/repo/validate-content.ts"
@@ -226,7 +226,7 @@
     // The assembled site rebuilds the blog and updates for their mounts, in the same dist/ the
     // per-app previews serve, so it runs after them.
     "@rxova/e2e#e2e": {
-      "dependsOn": ["@rxova/homepage-site#e2e", "@rxova/blog#e2e", "@rxova/updates#e2e"],
+      "dependsOn": ["@rxova/landing#e2e", "@rxova/blog#e2e", "@rxova/updates#e2e"],
       "cache": false
     },
     "dev": {

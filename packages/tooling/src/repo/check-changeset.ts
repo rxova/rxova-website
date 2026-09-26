@@ -28,7 +28,7 @@ export const publishedPackageDirs = ['packages/brand/', 'packages/website-schema
  * they happened to carry one of the listed extensions.
  */
 export const allowedPattern =
-  /^((apps|site|\.github|\.changeset|\.husky|packages\/tooling)\/.*|\.[\w-]*ignore|[\w.-]+\.config\.(js|mjs|cjs|ts)|.*\.(md|txt|yml|yaml|json))$/
+  /^((apps\/(?:landing|preview|e2e)|\.github|\.changeset|\.husky|packages\/tooling)\/.*|\.[\w-]*ignore|[\w.-]+\.config\.(js|mjs|cjs|ts)|.*\.(md|txt|yml|yaml|json))$/
 
 /** What the check reads and prints through; the defaults are the real ones. */
 export interface ChangesetIo {

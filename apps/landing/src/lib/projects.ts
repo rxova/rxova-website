@@ -23,7 +23,7 @@ import { PROJECTS, type Project } from '@rxova/brand'
 // Resolved by Vite at build time. `sources.json` sits at the repo root, outside
 // the Astro project — see astro.config.mjs, which widens the dev server's fs
 // allowlist so `pnpm dev` can read it too.
-import sources from '../../../sources.json'
+import sources from '../../../../sources.json'
 
 export interface LandingLink {
   label: string

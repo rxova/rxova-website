@@ -149,8 +149,8 @@ const parseAuthor = (name: string): Parsed | null => {
  * lines of frontmatter.
  */
 export const SURFACES = [
-  { pkg: 'packages/blog', entries: 'posts', label: 'post' },
-  { pkg: 'packages/updates', entries: 'updates', label: 'update' },
+  { pkg: 'apps/blog', entries: 'posts', label: 'post' },
+  { pkg: 'apps/updates', entries: 'updates', label: 'update' },
 ] as const
 
 export function validateContent(repoRoot: string): string[] {
@@ -341,10 +341,10 @@ export function countContent(repoRoot: string): {
     return existsSync(abs) ? readdirSync(abs).filter((n) => n.endsWith('.md')).length : 0
   }
   return {
-    posts: count('packages/blog', 'posts'),
-    updates: count('packages/updates', 'updates'),
+    posts: count('apps/blog', 'posts'),
+    updates: count('apps/updates', 'updates'),
     // Duplicated across the two surfaces; counting one is the honest number.
-    authors: count('packages/blog', 'authors'),
+    authors: count('apps/blog', 'authors'),
   }
 }
 
