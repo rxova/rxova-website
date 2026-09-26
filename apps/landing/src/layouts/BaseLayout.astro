@@ -1,10 +1,6 @@
 ---
-// The chrome's stylesheets, not the landing's: this layout also builds the shell
-// templates, and everything it links is inherited by the docs pages composed
-// into them. @rxova/astro-ui's chrome.css carries the tokens, the footer's styles
-// and the short aliases the header is written against, but no reset — a reset
-// arriving from here would flatten every Starlight page it is spliced into.
-// Pages that own their document import @rxova/astro-ui/styles/document.css themselves.
+// Only the chrome's stylesheets: this layout also builds the shell templates, whose docs pages
+// inherit what it links. Pages that own their document import document.css (the reset) themselves.
 import '@rxova/brand/fonts.css'
 import '@rxova/astro-ui/styles/chrome.css'
 import { siteUrl, type ProjectId } from '@rxova/brand'
@@ -131,7 +127,7 @@ const fontPreloads = docsShell
 
     <style>
       .rx-shell-footer {
-        max-width: var(--max);
+        max-width: var(--rx-max-wide);
         margin: 0 auto;
         padding: 0 1.5rem;
       }
@@ -249,7 +245,7 @@ const fontPreloads = docsShell
          between them. `scrollbar-gutter: stable` reserves the track on every
          page, docs included, so leaving the docs for the landing does not jump
          either. The page width itself is @rxova/brand's: every surface centres
-         on its `--max`. -->
+         on its `--rx-max-wide`. -->
     <style is:global>
       html[data-rxova-shell] {
         scrollbar-gutter: stable;

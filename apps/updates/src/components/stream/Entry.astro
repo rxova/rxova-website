@@ -70,9 +70,9 @@ const { entry, Body, authorNames } = Astro.props
     }
   }
   .when time {
-    color: var(--faint);
+    color: var(--rx-faint);
     font-size: 0.85rem;
-    font-family: var(--mono);
+    font-family: var(--rx-font-mono);
   }
   /* The entry's own measure. The page is as wide as the header, so without it
      an entry's prose ran past 100 characters a line on a large screen; 68ch is
@@ -86,7 +86,7 @@ const { entry, Body, authorNames } = Astro.props
     letter-spacing: -0.01em;
   }
   .anchor {
-    color: var(--fg);
+    color: var(--rx-fg);
     text-decoration: none;
   }
   .anchor:hover {
@@ -105,20 +105,20 @@ const { entry, Body, authorNames } = Astro.props
   .version {
     border-radius: 999px;
     padding: 0.1rem 0.55rem;
-    background: var(--tag-bg);
-    color: var(--muted);
+    background: var(--rx-tag-bg);
+    color: var(--rx-muted);
   }
   .repo {
     text-decoration: none;
-    border: 1px solid var(--rule);
+    border: 1px solid var(--rx-rule);
   }
   .repo:hover {
-    color: var(--fg);
+    color: var(--rx-fg);
   }
   .version {
-    font-family: var(--mono);
+    font-family: var(--rx-font-mono);
     background: none;
-    color: var(--faint);
+    color: var(--rx-faint);
     padding-left: 0;
   }
   /* Only ever rendered by `pnpm dev` — sketches are filtered out of the production
@@ -129,8 +129,8 @@ const { entry, Body, authorNames } = Astro.props
     padding: 0.1rem 0.55rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--faint);
-    border: 1px solid var(--rule);
+    color: var(--rx-faint);
+    border: 1px solid var(--rx-rule);
   }
   .links {
     display: flex;
@@ -140,15 +140,15 @@ const { entry, Body, authorNames } = Astro.props
     font-size: 0.9rem;
   }
   .links a {
-    color: var(--muted);
+    color: var(--rx-muted);
     text-decoration: none;
   }
   .links a:hover {
-    color: var(--fg);
+    color: var(--rx-fg);
   }
   .by {
     margin-top: 0.9rem;
-    color: var(--faint);
+    color: var(--rx-faint);
     font-size: 0.82rem;
   }
   .entry[hidden] {

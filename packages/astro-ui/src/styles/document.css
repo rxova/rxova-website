@@ -1,18 +1,6 @@
 /**
- * Entry point for plain Astro surfaces that own their whole document — the
- * rxova.org landing, /blog and /updates.
- *
- * Starlight sites use `starlight.css` instead; it maps the same tokens onto
- * Starlight's own variables. This file is `chrome.css` — the tokens, the footer
- * and the short aliases — plus the two things a bare Astro page needs and
- * Starlight already provides: a reset and base element styling.
- *
- * Load this only where nothing else owns the document. A surface that renders
- * the shared chrome *into* someone else's document — rxova-website's shell
- * templates, whose body is composed into a built Starlight page — must load
- * `chrome.css` instead. The reset below is unlayered, so inside a Starlight
- * document it would outrank every rule in `@layer starlight.*` and flatten the
- * page; see chrome.css.
+ * For sites that own their document (the landing, /blog, /updates): chrome.css plus a reset and base
+ * element styles. Never inside a Starlight document, where the unlayered reset would flatten the page.
  */
 
 @import './chrome.css';

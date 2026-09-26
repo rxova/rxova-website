@@ -70,7 +70,7 @@ const { floating = true } = Astro.props
     border: 1px solid transparent;
     border-radius: 8px;
     background: none;
-    color: var(--muted);
+    color: var(--rx-muted);
     cursor: pointer;
     transition:
       color 0.15s ease,
@@ -91,9 +91,9 @@ const { floating = true } = Astro.props
     z-index: 20;
     width: 2.25rem;
     height: 2.25rem;
-    border-color: var(--rule);
-    background: var(--card);
-    color: var(--fg);
+    border-color: var(--rx-rule);
+    background: var(--rx-card);
+    color: var(--rx-fg);
   }
 
   .theme-toggle .icon {
@@ -114,15 +114,15 @@ const { floating = true } = Astro.props
   }
 
   .theme-toggle:hover {
-    color: var(--fg);
+    color: var(--rx-fg);
   }
 
   .theme-toggle--floating:hover {
-    border-color: var(--faint);
+    border-color: var(--rx-faint);
   }
 
   .theme-toggle:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--rx-fg);
     outline-offset: 2px;
   }
 </style>

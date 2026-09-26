@@ -1,20 +1,7 @@
 ---
 /**
- * The non-Starlight surface.
- *
- * `astro.css` is the entry point the rxova.org landing uses, and it is a
- * different stylesheet from `starlight.css` — reset, base element styling, and
- * the short `--bg`/`--fg`/`--rule` aliases the landing was written against. A
- * Starlight route exercises none of that, so it gets its own page here.
- *
- * SiteFooter renders here now: its styles moved out of starlight.css into
- * footer.css, which astro.css imports too, so the plain surfaces get the same
- * footer as the docs sites. This page is where a change to it shows up
- * unstyled if that import is ever lost.
- *
- * Still not rendering ProjectSwitcher: `.rx-switcher__*` is Starlight-only and
- * would render unstyled here. That gap is left visible rather than papered
- * over with local CSS.
+ * The non-Starlight surface, on document.css rather than starlight.css. SiteFooter renders here, so a
+ * lost footer.css import shows up unstyled; ProjectSwitcher does not, as its styles are Starlight-only.
  */
 import '@rxova/brand/fonts.css'
 import '@rxova/astro-ui/styles/document.css'
@@ -31,13 +18,13 @@ import { PROJECTS, RXOVA_ORIGIN } from '@rxova/brand'
   </head>
   <body>
     <main>
-      <p class="eyebrow">astro.css</p>
+      <p class="eyebrow">document.css</p>
       <h1>The plain Astro surface</h1>
       <p>
-        Body copy at the landing's own size and measure, with the reset, base element styling and
-        the short token aliases applied. <a href="/">Back to the docs preview</a> — clicking between
-        the two is the fastest way to confirm the fonts do not flash across a document navigation,
-        because the two surfaces load different stylesheets.
+        Body copy at the landing's own size and measure, with the reset and base element styling
+        applied. <a href="/">Back to the docs preview</a> — clicking between the two is the fastest
+        way to confirm the fonts do not flash across a document navigation, because the two surfaces
+        load different stylesheets.
       </p>
 
       <h2>Type ramp</h2>
@@ -45,8 +32,7 @@ import { PROJECTS, RXOVA_ORIGIN } from '@rxova/brand'
       <p>
         Inline <code>code</code>, a <a href={RXOVA_ORIGIN}>link to the umbrella origin</a>,{' '}
         <strong>bold</strong> and <em>italic</em>. Tab to the links: the focus ring is{' '}
-        <code>--accent</code>, which this stylesheet deliberately aliases to the foreground rather
-        than the brand violet.
+        <code>--rx-fg</code>: the foreground, deliberately, rather than the brand violet.
       </p>
 
       <h2>Projects</h2>
@@ -63,7 +49,7 @@ import { PROJECTS, RXOVA_ORIGIN } from '@rxova/brand'
 
       <div class="rule"></div>
       <p class="muted">
-        The rule above is <code>--rx-gradient</code>; this line is <code>--muted</code>.
+        The rule above is <code>--rx-gradient</code>; this line is <code>--rx-muted</code>.
       </p>
     </main>
     <div class="footer-measure">
@@ -74,7 +60,7 @@ import { PROJECTS, RXOVA_ORIGIN } from '@rxova/brand'
 
 <style>
   main {
-    max-width: var(--max);
+    max-width: var(--rx-max-wide);
     margin: 0 auto;
     padding: 4rem 1.5rem;
     display: grid;
@@ -82,9 +68,9 @@ import { PROJECTS, RXOVA_ORIGIN } from '@rxova/brand'
   }
 
   .eyebrow {
-    font-family: var(--mono);
+    font-family: var(--rx-font-mono);
     font-size: 0.8rem;
-    color: var(--faint);
+    color: var(--rx-faint);
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
@@ -106,12 +92,12 @@ import { PROJECTS, RXOVA_ORIGIN } from '@rxova/brand'
   }
 
   .muted {
-    color: var(--muted);
+    color: var(--rx-muted);
   }
 
   /* The footer brings its own styles; the page only sets its measure. */
   .footer-measure {
-    max-width: var(--max);
+    max-width: var(--rx-max-wide);
     margin: 0 auto;
     padding: 0 1.5rem;
   }

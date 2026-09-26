@@ -71,8 +71,8 @@ const { homeHref, logoSrc, items } = Astro.props
     position: sticky;
     top: 0;
     z-index: 10;
-    border-bottom: 1px solid var(--rule);
-    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    border-bottom: 1px solid var(--rx-rule);
+    background: color-mix(in srgb, var(--rx-bg) 88%, transparent);
   }
 
   /* The blur is what keeps text legible as it passes under the bar. Where it is
@@ -80,14 +80,14 @@ const { homeHref, logoSrc, items } = Astro.props
      above is 88% and not 60%. */
   @supports (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px)) {
     .site {
-      background: color-mix(in srgb, var(--bg) 72%, transparent);
+      background: color-mix(in srgb, var(--rx-bg) 72%, transparent);
       -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
     }
   }
 
   .site__inner {
-    max-width: var(--max);
+    max-width: var(--rx-max-wide);
     margin: 0 auto;
     padding: 0.75rem 1.5rem;
     display: flex;
@@ -102,7 +102,7 @@ const { homeHref, logoSrc, items } = Astro.props
     display: inline-flex;
     align-items: center;
     gap: 0.55rem;
-    color: var(--fg);
+    color: var(--rx-fg);
     text-decoration: none;
     font-weight: 640;
     letter-spacing: -0.01em;
@@ -120,23 +120,23 @@ const { homeHref, logoSrc, items } = Astro.props
     gap: 1.4rem;
   }
   nav a {
-    color: var(--muted);
+    color: var(--rx-muted);
     text-decoration: none;
     font-size: 0.95rem;
     white-space: nowrap;
   }
   nav a:hover {
-    color: var(--fg);
+    color: var(--rx-fg);
   }
   /* The current section is marked for everyone, not only for assistive tech —
      aria-current on its own is invisible. */
   nav a[aria-current='page'] {
-    color: var(--fg);
+    color: var(--rx-fg);
     text-decoration: underline;
     text-underline-offset: 5px;
   }
   nav a:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--rx-fg);
     outline-offset: 3px;
     border-radius: 2px;
   }
