@@ -2,6 +2,7 @@ import { experimental_AstroContainer as AstroContainer } from 'astro/container'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import BackLink from '../src/components/BackLink.astro'
+import Icon from '../src/components/Icon.astro'
 import PageHeader from '../src/components/PageHeader.astro'
 import ShowMore from '../src/components/ShowMore.astro'
 import VisuallyHidden from '../src/components/VisuallyHidden.astro'
@@ -38,6 +39,31 @@ describe('VisuallyHidden attributes', () => {
       slots: { default: 'Play' },
     })
     expect(html).toBe('<span class="visually-hidden" data-play-label>Play</span>')
+  })
+})
+
+describe('Icon', () => {
+  it('strokes a glyph in the text colour, hidden from screen readers', async () => {
+    const html = await render(Icon, { props: { name: 'next' } })
+    expect(html).toContain(
+      'viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor"',
+    )
+    expect(html).toContain('aria-hidden="true"')
+    expect(html).toContain('<path d="M6 3.5 10.5 8 6 12.5"></path>')
+  })
+
+  it('fills the solid glyphs', async () => {
+    const html = await render(Icon, { props: { name: 'play' } })
+    expect(html).toContain('fill="currentColor" stroke="none"')
+  })
+
+  it("takes the caller's class, size and attributes", async () => {
+    const html = await render(Icon, {
+      props: { name: 'expand', class: 'open', size: 20, 'data-x': '' },
+    })
+    expect(html).toContain('class="icon open"')
+    expect(html).toContain('width="20" height="20"')
+    expect(html).toContain(' data-x')
   })
 })
 
