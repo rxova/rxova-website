@@ -20,6 +20,8 @@ This package is what makes them one site: the tokens they are styled with and
 the project list they link between. The components built on it, including the
 Starlight preset, live in [`@rxova/astro-ui`](../astro-ui).
 
+Upgrading from 0.x? See [MIGRATION.md](MIGRATION.md).
+
 ## Install
 
 ```sh
