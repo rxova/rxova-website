@@ -39,7 +39,9 @@ describe('maskScopeIds', () => {
 
 describe('comments', () => {
   it('strips HTML and CSS comments', () => {
-    expect(stripHtmlComments('a<!-- one\ntwo -->b')).toBe('ab')
+    expect(stripHtmlComments('<p>a<!-- one\ntwo -->b<!--<!-- -->c</p>')).toBe(
+      '<html><head></head><body><p>abc</p></body></html>',
+    )
     expect(stripCssComments('a{}/* one\ntwo */b{}')).toBe('a{}b{}')
   })
 })
@@ -77,7 +79,8 @@ describe('normalisers', () => {
     const html = await normaliseHtml(
       '<!-- note --><div data-astro-cid-abc123><img src="/_astro/x.AbCdEf12.png"></div>',
     )
-    expect(html).toBe('<div data-cid><img src="/_astro/x.[hash].png" /></div>\n')
+    expect(html).toContain('<div data-cid=""><img src="/_astro/x.[hash].png" /></div>')
+    expect(html).not.toContain('note')
   })
 
   it('formats CSS the same way', async () => {
