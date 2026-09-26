@@ -141,6 +141,10 @@ describe('excerpt', () => {
     expect(excerpt('one two three, four five', 15).text).toBe('one two three')
   })
 
+  it('cuts mid-word only when the opening word alone overruns the budget', () => {
+    expect(excerpt('supercalifragilistic', 5)).toEqual({ text: 'super', truncated: true })
+  })
+
   it.each([
     ['links, keeping the text', 'See [the docs](https://x.dev) now.', 'See the docs now.'],
     ['inline code', 'Run `pnpm build` first.', 'Run pnpm build first.'],
