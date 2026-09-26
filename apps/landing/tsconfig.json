@@ -1,8 +1,7 @@
 {
   "extends": "astro/tsconfigs/strict",
   "include": [".astro/types.d.ts", "**/*"],
-  // The walkthroughs' `after` modules are checked by their own config — see
-  // src/showcases/tsconfig.json: two are React components, and this config
-  // types JSX as Astro's.
+  // The walkthroughs' `after` modules have their own config, src/showcases/tsconfig.json,
+  // since two are React components and this one types JSX as Astro's.
   "exclude": ["dist", "src/showcases/*/after.*"]
 }

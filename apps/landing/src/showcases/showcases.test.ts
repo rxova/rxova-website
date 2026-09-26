@@ -1,8 +1,5 @@
-// The walkthroughs on the landing. Every story's notes must point at real
-// lines, and where the `after` side is a module that can run outside a
-// browser, it is run here — so the behaviour its comments claim is the
-// behaviour the published package has. The React ones (react-inputs,
-// use-everywhere) are typechecked instead, by `pnpm typecheck`.
+// Every story's notes must point at real lines, and each `after` that runs outside a
+// browser is run here; the React ones are typechecked by `pnpm typecheck` instead.
 
 import { describe, expect, it } from 'vitest'
 

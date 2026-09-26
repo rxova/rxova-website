@@ -1,9 +1,6 @@
 /**
  * The landing's project join: @rxova/brand's PROJECTS against sources.json.
- *
- * The real data is checked for the shape the pages rely on; the builder is run
- * against small fixtures for every way the two registries can disagree, because
- * each of those is meant to fail the build rather than ship a broken card.
+ * Checks the real data's shape, and that every way the two can disagree fails the build.
  */
 
 import { describe, expect, it } from 'vitest'

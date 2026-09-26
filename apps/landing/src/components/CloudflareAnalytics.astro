@@ -1,9 +1,7 @@
 ---
 /**
- * Cloudflare Web Analytics is deliberately build-time configured: preview and
- * contributor builds do not send traffic, while production receives the token
- * from a repository secret. Cloudflare's beacon is cookie-free and reports
- * aggregate page paths/referrers; it is not used for custom events.
+ * Cloudflare Web Analytics, only when the build has a token (production, from a secret).
+ * The beacon is cookie-free and reports aggregate page paths and referrers.
  */
 const token = import.meta.env.PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN
 const beacon = token ? JSON.stringify({ token }) : undefined

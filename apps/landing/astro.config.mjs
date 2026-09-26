@@ -13,24 +13,19 @@ export default defineConfig({
   build: { format: 'directory' },
   trailingSlash: 'ignore',
   integrations: [
-    // The code in each project's walkthrough on the landing — see ./ec.config.mjs.
-    // Options in ./ec.config.mjs: the `<Code>` component needs them as a
-    // module, and the theme selector below is a function, not JSON.
+    // The code in each project's walkthrough; options live in ./ec.config.mjs because
+    // `<Code>` loads them as a module and the theme selector is a function.
     expressiveCode(),
   ],
   vite: {
     ssr: {
-      // @rxova/brand ships TypeScript source with no build step. Vite externalises
-      // node_modules for SSR by default, which would hand `src/sites.ts` to Node —
-      // and Node refuses to strip types under node_modules ("Stripping types is
-      // currently unsupported for files under node_modules"). Inlining the package
-      // routes it through esbuild instead, which transpiles it fine.
+      // @rxova/brand ships TypeScript source, which Node won't strip under
+      // node_modules; inlining routes it through esbuild.
       noExternal: ['@rxova/brand', '@rxova/astro-ui'],
     },
     server: {
-      // src/lib/projects.ts imports the repo-root sources.json, which is outside
-      // the Astro project root. The production build resolves it fine; the dev
-      // server refuses to serve files outside its allowlist without this.
+      // src/lib/projects.ts imports the repo-root sources.json, outside the project
+      // root; the dev server won't serve it without this.
       fs: { allow: ['../..'] },
     },
   },

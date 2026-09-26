@@ -1,11 +1,6 @@
 {
-  // The `after` side of every walkthrough, checked against the packages it
-  // imports — the published ones, pinned in apps/landing/package.json — so a snippet
-  // that stops compiling fails `pnpm typecheck` instead of shipping.
-  //
-  // Separate from the site's tsconfig because two of them are React
-  // components, and the site types JSX as Astro's. The `before` sides are
-  // plain text and are never compiled: they are wrong on purpose.
+  // Typechecks each walkthrough's `after` against the published packages, with React JSX
+  // (the site types JSX as Astro's). The `before` sides are plain text, never compiled.
   "compilerOptions": {
     "strict": true,
     "noEmit": true,
