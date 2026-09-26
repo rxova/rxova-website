@@ -29,6 +29,7 @@ function enhance(root: HTMLElement): void {
   const playLabel = q<HTMLElement>('[data-play-label]')
   const progress = q<HTMLElement>('[data-progress]')
   const scrubber = q<HTMLInputElement>('[data-scrubber]')
+  const expand = q<HTMLButtonElement>('[data-expand]')
   const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-show]')]
   const panes = [...root.querySelectorAll<HTMLElement>('[data-pane]')]
   if (
@@ -42,7 +43,8 @@ function enhance(root: HTMLElement): void {
     !play ||
     !playLabel ||
     !progress ||
-    !scrubber
+    !scrubber ||
+    !expand
   ) {
     return
   }
@@ -188,6 +190,53 @@ function enhance(root: HTMLElement): void {
     time = Number(scrubber.value)
     draw()
     setState(time >= end ? 'ended' : 'paused')
+  })
+
+  // Full screen: the browser's own where it can put an element there, otherwise (an iPhone) a fixed
+  // overlay. Either way it is this same element, so the tour keeps its place and keeps playing.
+  const native = document.fullscreenEnabled && typeof root.requestFullscreen === 'function'
+
+  const setExpanded = (on: boolean) => {
+    if (on) root.dataset.expanded = ''
+    else delete root.dataset.expanded
+    expand.setAttribute('aria-pressed', String(on))
+    expand.setAttribute('aria-label', on ? 'Exit full screen' : 'Full screen')
+    expand.title = on ? 'Exit full screen' : 'Full screen'
+    if (!native) document.documentElement.classList.toggle('walkthrough-locked', on)
+    const step = steps[current]
+    if (step) requestAnimationFrame(() => reveal(step))
+  }
+
+  const toggleExpanded = () => {
+    const on = root.dataset.expanded === undefined
+    if (!native) {
+      setExpanded(on)
+      return
+    }
+    // `fullscreenchange` sets the state, so Esc and the browser's own exit land the same way.
+    const request = on ? root.requestFullscreen() : document.exitFullscreen()
+    request.catch(() => {
+      // Refused (an iframe without permission, say): the overlay does the same job.
+      setExpanded(on)
+    })
+  }
+
+  expand.addEventListener('click', toggleExpanded)
+
+  document.addEventListener('fullscreenchange', () => {
+    const on = document.fullscreenElement === root
+    if (on !== (root.dataset.expanded !== undefined)) setExpanded(on)
+  })
+
+  // While it fills the screen, the arrows step and Esc leaves (the browser handles Esc in its own mode).
+  document.addEventListener('keydown', (event) => {
+    if (root.dataset.expanded === undefined || event.defaultPrevented) return
+    if (event.target instanceof HTMLInputElement) return
+    if (event.key === 'ArrowLeft') goTo(current - 1)
+    else if (event.key === 'ArrowRight') goTo(current + 1)
+    else if (event.key === 'Escape' && !document.fullscreenElement) setExpanded(false)
+    else return
+    event.preventDefault()
   })
 
   // Reading the code by hand is taking over too.

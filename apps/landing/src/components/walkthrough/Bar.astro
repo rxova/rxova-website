@@ -17,6 +17,8 @@ const sides = [
 const icons = {
   prev: '<path d="M10 3.5 5.5 8l4.5 4.5" />',
   next: '<path d="M6 3.5 10.5 8 6 12.5" />',
+  expand: '<path d="M2.75 6V2.75H6M10 2.75h3.25V6M13.25 10v3.25H10M6 13.25H2.75V10" />',
+  collapse: '<path d="M6 2.75V6H2.75M13.25 6H10V2.75M10 13.25V10h3.25M2.75 10H6v3.25" />',
 }
 ---
 
@@ -55,6 +57,17 @@ const icons = {
         <path d="M3.2 8a4.8 4.8 0 1 0 1.4-3.4M4.2 2.4v2.8H7"></path>
       </svg>
       <VisuallyHidden data-play-label="">Play the walkthrough</VisuallyHidden>
+    </button>
+    <button
+      type="button"
+      class="icon-button expand"
+      data-expand
+      aria-pressed="false"
+      aria-label="Full screen"
+      title="Full screen"
+    >
+      <svg class="icon open" viewBox="0 0 16 16" aria-hidden="true" set:html={icons.expand} />
+      <svg class="icon close" viewBox="0 0 16 16" aria-hidden="true" set:html={icons.collapse} />
     </button>
   </div>
 
@@ -210,6 +223,15 @@ const icons = {
   .play[data-state='playing'] .pause,
   .play[data-state='paused'] .resume,
   .play[data-state='ended'] .replay {
+    display: block;
+  }
+
+  .expand .close,
+  .expand[aria-pressed='true'] .open {
+    display: none;
+  }
+
+  .expand[aria-pressed='true'] .close {
     display: block;
   }
 

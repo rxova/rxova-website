@@ -151,6 +151,27 @@ const sides = (['before', 'after'] as const).map((key) => {
     padding-block: 0.4rem;
   }
 
+  /* Full screen: the code fills the height left, in larger type. */
+  :global(.walkthrough[data-js][data-expanded]) .panes {
+    flex: 1;
+    min-height: 0;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  :global(.walkthrough[data-js][data-expanded]) .pane {
+    min-height: 0;
+  }
+
+  :global(.walkthrough[data-js][data-expanded]) .code {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+  }
+
+  :global(.walkthrough[data-js][data-expanded]) .code :global(.expressive-code) {
+    --ec-codeFontSize: clamp(0.85rem, 0.6rem + 0.45vw, 1.05rem);
+  }
+
   /* Only the note in play keeps its highlight, number and accent. */
   :global(.walkthrough[data-js]) .code :global(.ec-line.part:not(.lit)) {
     background-color: transparent;

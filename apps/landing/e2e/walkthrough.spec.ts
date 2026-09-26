@@ -53,6 +53,43 @@ test('pauses when another project is selected', async ({ page }) => {
   await expect(play).toHaveAttribute('data-state', 'paused')
 })
 
+test('goes full screen and back, keeping its place', async ({ page }) => {
+  const { count, next } = await open(page)
+  const expand = page.locator(`${root} [data-expand]`)
+  await next.click()
+  await expect(count).toHaveText('Problem 2 of 4')
+
+  await expand.click()
+  await expect(page.locator(root)).toHaveAttribute('data-expanded', '')
+  await expect(expand).toHaveAttribute('aria-pressed', 'true')
+  const box = await page.locator(root).boundingBox()
+  const viewport = page.viewportSize()
+  expect(box?.height).toBe(viewport?.height)
+  await expect(count).toHaveText('Problem 2 of 4')
+
+  await page.keyboard.press('ArrowRight')
+  await expect(count).toHaveText('Problem 3 of 4')
+
+  await expand.click()
+  await expect(page.locator(root)).not.toHaveAttribute('data-expanded')
+  await expect(expand).toHaveAttribute('aria-pressed', 'false')
+  await expect(count).toHaveText('Problem 3 of 4')
+})
+
+test('falls back to an overlay where the browser has no element full screen', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(Document.prototype, 'fullscreenEnabled', { get: () => false })
+  })
+  await open(page)
+  await page.locator(`${root} [data-expand]`).click()
+  await expect(page.locator(root)).toHaveAttribute('data-expanded', '')
+  await expect(page.locator('html')).toHaveClass(/walkthrough-locked/)
+
+  await page.keyboard.press('Escape')
+  await expect(page.locator(root)).not.toHaveAttribute('data-expanded')
+  await expect(page.locator('html')).not.toHaveClass(/walkthrough-locked/)
+})
+
 test.describe('with reduced motion', () => {
   test.use({ reducedMotion: 'reduce' })
 
