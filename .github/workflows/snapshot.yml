@@ -1,14 +1,7 @@
 name: Snapshot
 
-# Publishes a throwaway prerelease to the `next` dist-tag so a consumer repo can
-# try an in-progress design change end to end:
-#
-#   consumer$ pnpm add @rxova/brand@next
-#
-# This exists because the brand package lives in its own repo, so there is no
-# `workspace:*` shortcut for iterating against a real consumer. Snapshots are
-# immutable, never referenced by `latest`, and carry no changelog — the point is
-# that CI resolves exactly what you resolved locally.
+# Publishes an immutable prerelease to the `next` dist-tag (never `latest`, no changelog) so a
+# consumer repo can try an in-progress change end to end: `pnpm add @rxova/brand@next`.
 
 on:
   workflow_dispatch:

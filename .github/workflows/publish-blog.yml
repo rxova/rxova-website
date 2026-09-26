@@ -1,31 +1,7 @@
 name: Publish the blog
 
-# Build /blog and hand it to rxova.org.
-#
-# --- Why this is a file per surface, and not a matrix -----------------------
-#
-# The aggregator downloads the sender's dist by a *fixed artifact name* —
-# `docs-dist`, one convention for every sender — from the run named in the
-# dispatch payload. So the name is only unambiguous if one artifact carries it
-# per workflow run.
-#
-# This used to be a single workflow with a two-leg matrix, on the reasoning that
-# "one job per surface" kept them apart. It does not: a matrix leg is a job
-# *within* one run, and `github.run_id` is per run, not per job. Both legs
-# therefore uploaded an artifact called `docs-dist` into the same run and
-# dispatched the same `run_id`. `actions/upload-artifact@v7` allows duplicate
-# names, so nothing failed at the sending end — and the receiver, asking for
-# "docs-dist from run N", got whichever was uploaded first. The blog ingested
-# fine and the updates dispatch was handed the blog bundle, where gate 2
-# rejected it: `rxova-page-bundle.json project is blog, expected updates`.
-#
-# A reusable workflow would not have fixed it either; a called workflow's jobs
-# run inside the caller's run and share its id. Separate workflow files are what
-# produces separate runs. The steps themselves live once, in
-# ../actions/publish-surface.
-#
-# Keep it that way: if a third surface arrives, add a third file rather than a
-# second leg here.
+# Build /blog and hand it to rxova.org. One file per surface, not a matrix or reusable workflow: the
+# aggregator fetches the fixed `docs-dist` artifact by run id, so each surface needs its own run.
 
 on:
   push:

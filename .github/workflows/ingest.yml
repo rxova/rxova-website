@@ -1,18 +1,7 @@
 name: Ingest docs
 
-# Gate 2 of the docs pipeline. A source repo builds its own docs and uploads them,
-# then fires a `docs` repository_dispatch naming the run that holds them (gate 1 —
-# see docs/INPUTS-CONTRACT.md). This workflow validates that dispatch and the dist
-# it points at, persists the dist as the project's canonical release asset, and
-# redeploys. The aggregator never checks a project out and never builds it.
-#
-# Two gates, both in packages/tooling/src/deploy/ingest.ts so they are unit-tested:
-#   2a  the dispatch metadata — known & enabled project, base matches the mount,
-#       ref/sha/run_id are what they claim to be
-#   2b  the downloaded dist — a non-empty tree with an index.html at its root
-#
-# The `on:` block never grows as projects are added: every sender uses the single
-# `docs` type and names itself in client_payload.project.
+# Gate 2 of the docs pipeline (docs/INPUTS-CONTRACT.md): validates a `docs` dispatch and its dist,
+# persists the dist as a release asset and redeploys; gates live in packages/tooling/src/deploy/ingest.ts.
 
 on:
   repository_dispatch:
@@ -22,7 +11,7 @@ on:
 permissions:
   contents: write # create / update the content-<id> release
   actions: read # read the source repo's run to download its dist
-  pages: write # for the deploy this calls
+  pages: write
   id-token: write
 
 # One ingest per project at a time; different projects ingest in parallel. The
@@ -38,29 +27,23 @@ jobs:
       enabled: ${{ steps.validate.outputs.enabled }}
     steps:
       - uses: actions/checkout@v7
-      # Not a bare setup-node: ingest.mjs imports @rxova/website-schemas — the
-      # dispatch contract shared with the sending repos — so the workspace has to be
-      # installed. It used to get away with plain node because the payload validation
-      # was hand-rolled regexes with no dependencies.
+      # Not a bare setup-node: ingest.ts imports @rxova/website-schemas, so the workspace
+      # has to be installed.
       - uses: ./.github/actions/setup-pnpm
         with:
           node-version: '24'
       - run: pnpm install --frozen-lockfile
 
-      # Gate 2a. Event data goes through env, never through ${{ }} interpolation
-      # into a script — a dispatch payload is attacker-shaped input and would
-      # otherwise be evaluated as shell.
+      # Gate 2a. Event data goes through env, never ${{ }} interpolation: the payload is
+      # attacker-shaped input.
       - id: validate
         name: Validate dispatch (gate 2a)
         env:
           CLIENT_PAYLOAD: ${{ toJSON(github.event.client_payload) }}
         run: node packages/tooling/src/deploy/ingest.ts
 
-      # The sender's dist, fetched from its own workflow run. Cross-repo artifact
-      # download needs a token with actions:read on the source repo; the dispatch
-      # itself is authenticated separately by the sender's dispatch token. The
-      # blog and updates are built in this repository, so for them the job's own
-      # token (actions: read above) is enough.
+      # Cross-repo download needs SOURCE_ARTIFACTS_TOKEN with actions:read on the source repo;
+      # surfaces built in this repo use the job's own token.
       - name: Download the sender's dist
         uses: actions/download-artifact@v8
         with:
@@ -105,12 +88,8 @@ jobs:
             gh release create "$TAG" "$ASSET" --title "Docs content: $PROJECT" --notes "$notes"
           fi
 
-  # Redeploy from the freshly-persisted content. Runs in the same run rather than
-  # via a re-dispatch, so no token that can re-trigger workflows is needed.
-  # Only when the project is actually mounted. A disabled project's docs are
-  # validated and persisted above, so enabling it later is a one-line change with
-  # the release already in place — but deploying now would rebuild the site to
-  # produce exactly what is already live.
+  # Redeploys in the same run, so no token that can re-trigger workflows is needed. Only for
+  # mounted projects; disabled ones are still validated and persisted above.
   deploy:
     needs: ingest
     if: needs.ingest.outputs.enabled == 'true'
