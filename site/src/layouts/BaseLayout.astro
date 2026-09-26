@@ -218,6 +218,32 @@ const fontPreloads = docsShell
       }
     </style>
 
+    <!-- Every link here is a full page load, and iOS WebKit (Safari, and
+         Chrome on iPhone, which runs on it) could paint one frame of the old
+         page with the header gone and the content risen into its place just
+         before the new page arrived — a flicker at the top of the screen on
+         every switch. Nothing in the page causes it; it is the browser's
+         handover between documents.
+
+         A cross-document view transition is how a page asks the browser to
+         keep the old one on screen until the new one is ready. Every page this
+         layout builds opts in — the landing, /about, the legal pages, and the
+         blog, updates and docs through their shell templates — which is what
+         the browser requires of both ends. The animations are switched off:
+         this is an instant swap, not a transition effect. A browser without
+         cross-document view transitions ignores the rule and navigates as
+         before. -->
+    <style is:global>
+      @view-transition {
+        navigation: auto;
+      }
+      ::view-transition-group(*),
+      ::view-transition-old(*),
+      ::view-transition-new(*) {
+        animation: none;
+      }
+    </style>
+
     <!-- A page short enough not to scroll is a scrollbar-width wider than one
          that does, so the whole centred layout shifted sideways on every switch
          between them. `scrollbar-gutter: stable` reserves the track on every
