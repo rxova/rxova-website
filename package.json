@@ -28,6 +28,7 @@
     "check:exports": "turbo run check:exports",
     "check:registry": "node packages/tooling/src/deploy/check-registry.ts",
     "check:size": "node packages/tooling/src/repo/check-file-size.ts",
+    "check:comments": "node packages/tooling/src/repo/check-comments.ts",
     "pack:smoke": "turbo run pack:smoke --concurrency=1",
     "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/.eslintcache",
     "lint:fix": "eslint . --fix --cache --cache-location node_modules/.cache/eslint/.eslintcache",
