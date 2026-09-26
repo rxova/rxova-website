@@ -7,8 +7,8 @@
  * the theme toggle on every page.
  */
 import Default from '@astrojs/starlight/components/SocialIcons.astro'
-import ProjectSwitcher from './ProjectSwitcher.astro'
-import { projectFromBase } from '../sites.ts'
+import ProjectSwitcher from '../components/ProjectSwitcher.astro'
+import { projectFromBase } from '@rxova/brand'
 
 // Overrides receive no props, so the current project is inferred from the base
 // path the aggregator mounts this site at.

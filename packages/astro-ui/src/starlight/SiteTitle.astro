@@ -10,12 +10,12 @@
  * The wordmark uses Starlight's own `siteTitleHref`, which already accounts for
  * the base and the locale.
  *
- * The image is imported from this package rather than read from each site's
+ * The image is imported from @rxova/brand rather than read from each site's
  * `public/`, so adopting the shared chrome does not also mean copying assets
  * into three repos and keeping them in sync.
  */
-import mark from '../../assets/rxova-logo-256.png'
-import { RXOVA_ORIGIN } from '../sites.ts'
+import mark from '@rxova/brand/assets/rxova-logo-256.png'
+import { RXOVA_ORIGIN } from '@rxova/brand'
 
 // Narrowed structurally rather than by declaring an `App.Locals` augmentation
 // here: a consumer site already gets Starlight's own augmentation, and two
@@ -38,7 +38,7 @@ const { siteTitle, siteTitleHref } = (
 </div>
 
 <style>
-  /* Visual styling lives in @rxova/brand/starlight.css so the Astro landing can
+  /* Visual styling lives in ../styles/starlight.css so the Astro landing can
      reuse the same classnames without importing this component. */
   .rx-site-title__mark {
     display: inline-flex;

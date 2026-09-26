@@ -1,9 +1,9 @@
 ---
 /**
- * The landing's header — an adapter onto @rxova/brand's shared `Header`.
+ * The landing's header — an adapter onto @rxova/astro-ui's shared `Header`.
  *
  * The header itself (markup, styles, the sticky bar, the theme toggle inside it)
- * lives in @rxova/brand's `Header`, the one component every rxova.org surface
+ * lives in @rxova/astro-ui's `Header`, the one component every rxova.org surface
  * renders. There used to be a hand-rolled copy here, and it drifted — it missed
  * the sticky-header update /blog and /updates got. This keeps only what is
  * genuinely landing-specific: the menu, which the landing derives from what is
@@ -11,7 +11,7 @@
  * which resolves its links root-relative because the landing sits at the origin
  * root.
  */
-import Header from '@rxova/brand/components/Header.astro'
+import Header from '@rxova/astro-ui/components/Header.astro'
 import { navSurfaces } from '../lib/projects'
 
 interface Props {

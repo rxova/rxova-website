@@ -2,27 +2,41 @@
  * The Starlight config every rxova docs site spreads from.
  *
  * The docs sites live in other repos and read this over npm, so its output is a
- * contract: each module path must resolve through this package's exports, and
+ * contract: each module path must resolve through its package's exports, and
  * each option must change only what it documents.
  */
 
 import { existsSync, readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
+import { createRequire } from 'node:module'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
-import { PROJECTS, RXOVA_ORIGIN, getProject, type ProjectId } from '../src/sites.ts'
-import { sharedStarlightConfig } from '../src/starlight.ts'
+import { PROJECTS, RXOVA_ORIGIN, getProject, type ProjectId } from '@rxova/brand'
+import { sharedStarlightConfig } from '../src/starlight/index.ts'
 
-const packageRoot = new URL('../', import.meta.url)
-const manifest = JSON.parse(readFileSync(new URL('package.json', packageRoot), 'utf8')) as {
+interface Manifest {
   name: string
   exports: Record<string, string>
 }
 
-/** Resolves `@rxova/brand/<subpath>` through the manifest's exports, as a consumer would. */
+const require = createRequire(import.meta.url)
+const packageRoots: Record<string, URL> = {
+  '@rxova/astro-ui': new URL('../', import.meta.url),
+  '@rxova/brand': pathToFileURL(
+    require.resolve('@rxova/brand/package.json').replace(/package\.json$/, ''),
+  ),
+}
+
+/** Resolves `@rxova/<pkg>/<subpath>` through that package's exports, as a consumer would. */
 const resolveExport = (specifier: string): string | undefined => {
-  const subpath = `.${specifier.slice(manifest.name.length)}`
+  const name = Object.keys(packageRoots).find((n) => specifier.startsWith(`${n}/`))
+  if (!name) return undefined
+  const packageRoot = packageRoots[name] as URL
+  const manifest = JSON.parse(
+    readFileSync(new URL('package.json', packageRoot), 'utf8'),
+  ) as Manifest
+  const subpath = `.${specifier.slice(name.length)}`
   for (const [key, target] of Object.entries(manifest.exports)) {
     if (key === subpath) return fileURLToPath(new URL(target, packageRoot))
     const [prefix, suffix] = key.split('*')
@@ -61,12 +75,12 @@ describe('sharedStarlightConfig', () => {
     expect(config).toMatchObject({
       favicon: '/favicon.svg',
       editLink: { baseUrl: 'https://github.com/rxova/journey/edit/main/apps/docs/' },
-      customCss: ['@rxova/brand/fonts.css', '@rxova/brand/starlight.css'],
+      customCss: ['@rxova/brand/fonts.css', '@rxova/astro-ui/styles/starlight.css'],
       components: {
-        SiteTitle: '@rxova/brand/components/SiteTitle.astro',
-        SocialIcons: '@rxova/brand/components/SocialIcons.astro',
-        Footer: '@rxova/brand/components/Footer.astro',
-        ThemeSelect: '@rxova/brand/components/ThemeSelect.astro',
+        SiteTitle: '@rxova/astro-ui/starlight/SiteTitle.astro',
+        SocialIcons: '@rxova/astro-ui/starlight/SocialIcons.astro',
+        Footer: '@rxova/astro-ui/starlight/Footer.astro',
+        ThemeSelect: '@rxova/astro-ui/starlight/ThemeSelect.astro',
       },
       pagefind: true,
     })
@@ -78,7 +92,7 @@ describe('sharedStarlightConfig', () => {
     expect(sharedStarlightConfig({ project: 'journey', sidebar }).sidebar).toBe(sidebar)
   })
 
-  it('appends extra stylesheets after the brand ones, so they win', () => {
+  it('appends extra stylesheets after the shared ones, so they win', () => {
     const config = sharedStarlightConfig({
       project: 'journey',
       sidebar,
@@ -86,7 +100,7 @@ describe('sharedStarlightConfig', () => {
     })
     expect(config.customCss).toEqual([
       '@rxova/brand/fonts.css',
-      '@rxova/brand/starlight.css',
+      '@rxova/astro-ui/styles/starlight.css',
       './src/site.css',
       './src/extra.css',
     ])
@@ -99,10 +113,10 @@ describe('sharedStarlightConfig', () => {
       components: { Footer: './src/Footer.astro', Hero: './src/Hero.astro' },
     })
     expect(config.components).toEqual({
-      SiteTitle: '@rxova/brand/components/SiteTitle.astro',
-      SocialIcons: '@rxova/brand/components/SocialIcons.astro',
+      SiteTitle: '@rxova/astro-ui/starlight/SiteTitle.astro',
+      SocialIcons: '@rxova/astro-ui/starlight/SocialIcons.astro',
       Footer: './src/Footer.astro',
-      ThemeSelect: '@rxova/brand/components/ThemeSelect.astro',
+      ThemeSelect: '@rxova/astro-ui/starlight/ThemeSelect.astro',
       Hero: './src/Hero.astro',
     })
   })
@@ -119,7 +133,7 @@ describe('sharedStarlightConfig', () => {
 
     expect(page.components).not.toHaveProperty('Footer')
     expect(Object.keys(page.components)).toEqual(SHARED_COMPONENTS.filter((c) => c !== 'Footer'))
-    expect(full.components).toHaveProperty('Footer', '@rxova/brand/components/Footer.astro')
+    expect(full.components).toHaveProperty('Footer', '@rxova/astro-ui/starlight/Footer.astro')
 
     expect({ ...page, components: {} }).toEqual({ ...full, components: {} })
   })
@@ -165,12 +179,11 @@ describe('sharedStarlightConfig', () => {
   })
 
   // Consumers import these by string; a path that stops resolving breaks every docs site.
-  it('names only stylesheets and components this package exports', () => {
+  it('names only stylesheets and components the rxova packages export', () => {
     const config = sharedStarlightConfig({ project: 'journey', sidebar })
     const paths = [...config.customCss, ...Object.values(config.components)]
 
     for (const path of paths) {
-      expect(path.startsWith(`${manifest.name}/`), path).toBe(true)
       const file = resolveExport(path)
       expect(file, path).toBeDefined()
       expect(existsSync(file ?? ''), path).toBe(true)

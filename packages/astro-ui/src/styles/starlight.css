@@ -15,7 +15,7 @@
  * both modes.
  */
 
-@import './tokens.css';
+@import '@rxova/brand/tokens.css';
 @import './footer.css';
 
 :root {
@@ -174,5 +174,5 @@ html[data-rxova-shell] .sl-menu-button {
 /* --- Footer -------------------------------------------------------------- */
 
 /* Its styles are in footer.css, imported at the top of this file: /blog and
-   /updates render the same footer and load astro.css, not this one, so the
+   /updates render the same footer and load document.css, not this one, so the
    rules cannot live here. */
