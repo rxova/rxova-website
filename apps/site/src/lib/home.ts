@@ -62,6 +62,8 @@ export const STANDARD_ICONS: Record<string, string> = {
   // An empty crate: nothing rides along.
   'zero-dependencies':
     '<path d="M12 3.3 20 7.6v8.8L12 20.7 4 16.4V7.6L12 3.3Z" /><path d="M4 7.6 12 12l8-4.4M12 12v8.7" />',
+  // A tree: what the bundler shakes out is what you never imported.
+  'tree-shakeable': '<path d="M12 3.5 6.5 11h3L6 16h12l-3.5-5h3L12 3.5Z" /><path d="M12 16v4.5" />',
   // A ticked box: the cases that matter, checked.
   tested:
     '<rect x="4" y="4" width="16" height="16" rx="3.2" /><path d="m8.4 12.1 2.7 2.7 4.5-5.2" />',
