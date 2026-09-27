@@ -5,7 +5,10 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { MAINTAINER, PRINCIPLES, STANDARDS } from './about'
+import { PROJECTS } from '@rxova/brand'
+
+import { COMMITMENTS, CONTRIBUTIONS, MAINTAINER, ORIGINS, PRINCIPLES, STANDARDS } from './about'
+import { STANDARD_ICONS } from './home'
 
 // Lowercase words joined by single hyphens: safe as a URL fragment and an HTML id.
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -81,17 +84,52 @@ describe('PRINCIPLES', () => {
     for (const { id } of PRINCIPLES) expect(standards.has(id), id).toBe(false)
   })
 
-  it('has a title, a summary and a longer detail for every principle', () => {
-    for (const { id, title, summary, detail } of PRINCIPLES) {
+  it('has a title and a summary, and a shorter card for /about', () => {
+    for (const { id, title, summary, card } of PRINCIPLES) {
       expect(title.trim(), id).not.toBe('')
       expect(summary, id).toMatch(/\.$/)
-      expect(detail, id).toMatch(/\.$/)
-      expect(detail.length, id).toBeGreaterThan(summary.length)
+      expect(card.title.trim(), id).not.toBe('')
+      expect(card.line, id).toMatch(/\.$/)
+      expect(card.line.length, id).toBeLessThanOrEqual(summary.length + 20)
     }
+  })
+
+  it('borrows an icon that the standards strip actually has', () => {
+    for (const { id, icon } of PRINCIPLES) expect(STANDARD_ICONS[icon], id).toBeTruthy()
   })
 
   it('has unique titles', () => {
     const titles = PRINCIPLES.map((p) => p.title)
     expect(new Set(titles).size).toBe(titles.length)
+  })
+})
+
+describe('ORIGINS', () => {
+  it('names a real project for each bug, once per drawing', () => {
+    const projects = new Set(PROJECTS.map((p) => p.id))
+    const ids = ORIGINS.map((o) => o.id)
+    expect(new Set(ids).size).toBe(ids.length)
+    for (const { id, bug, project } of ORIGINS) {
+      expect(projects.has(project), id).toBe(true)
+      expect(bug, id).toMatch(/^[A-Z].*\.$/)
+    }
+  })
+})
+
+describe('COMMITMENTS', () => {
+  it('states both what is promised and what is not', () => {
+    expect(COMMITMENTS.promised.length).toBeGreaterThan(0)
+    expect(COMMITMENTS.notPromised.length).toBeGreaterThan(0)
+  })
+})
+
+describe('CONTRIBUTIONS', () => {
+  it('has one card per icon, each a title and a sentence', () => {
+    const ids = CONTRIBUTIONS.map((c) => c.id)
+    expect(new Set(ids).size).toBe(ids.length)
+    for (const { id, title, line } of CONTRIBUTIONS) {
+      expect(title.trim(), id).not.toBe('')
+      expect(line, id).toMatch(/\.$/)
+    }
   })
 })

@@ -1,7 +1,9 @@
 /**
- * Who maintains rxova and what the projects share: one source for the landing's short
- * form and /about's long form. Landing prose, so it lives here rather than in `sources.json`.
+ * Who maintains rxova and what the projects share: one source for the landing and /about.
+ * Landing prose, so it lives here rather than in `sources.json`.
  */
+
+import type { ProjectId } from '@rxova/brand'
 
 export interface MaintainerLink {
   label: string
@@ -14,6 +16,9 @@ export interface MaintainerLink {
 export const MAINTAINER = {
   name: 'Jonatan Kruszewski',
   role: 'Senior Frontend Engineer',
+  /** The one line under the name on /about's maintainer card. */
+  focus:
+    'React architecture at application scale, and the types, tests, docs and pipelines that keep it usable a year later. Rxova is that work, done in public.',
   /** The landing's one-paragraph version. */
   summary:
     'Senior Frontend Engineer focused on React architecture, reusable developer infrastructure, and tools for complex user interfaces. Rxova is where I build focused open-source libraries with stable APIs, strong TypeScript support, thorough testing, and documentation that answers the question you actually arrived with.',
@@ -90,14 +95,22 @@ export const STANDARDS: readonly Standard[] = [
   },
 ] as const
 
+/** A small picture of a principle on its /about card. */
+export type PrincipleVisual =
+  | { kind: 'packages'; core: string; bindings: string }
+  | { kind: 'tags'; tags: readonly string[] }
+  | { kind: 'command'; command: string }
+
 export interface Principle {
   /** Stable id — also the anchor on /about, so don't rename one casually. */
   id: string
   title: string
   /** One or two sentences. The landing shows this. */
   summary: string
-  /** The same rule, with the evidence. /about shows this under the summary. */
-  detail: string
+  /** The STANDARDS id whose icon the /about card borrows. */
+  icon: string
+  /** The /about card: a shorter title, one line, and an optional picture. */
+  card: { title: string; line: string; visual?: PrincipleVisual }
 }
 
 /**
@@ -110,31 +123,106 @@ export const PRINCIPLES: readonly Principle[] = [
     title: 'Focused APIs, not frameworks',
     summary:
       'Each library solves one problem and stops there. No plugin system, no configuration to learn before the first useful line.',
-    detail:
-      'journey models flow graphs — it does not route, fetch, or render for you. react-inputs ships inputs, not a design system. A small surface is one you can hold in your head, and it is the only kind that can credibly promise to stay stable, because most of the work of keeping an API still is saying no to what does not belong in it.',
+    icon: 'one-pain-point',
+    card: {
+      title: 'Focused APIs, not frameworks',
+      line: 'One problem each. No plugin system, nothing to configure before the first useful line.',
+    },
   },
   {
     id: 'typescript-first',
     title: 'TypeScript-first, with explicit framework boundaries',
     summary:
       'Types are part of the public API, not generated as an afterthought — and the framework-agnostic core always ships apart from its React bindings.',
-    detail:
-      'That boundary is a package, not a convention: @rxova/journey-core and @rxova/journey-react are separate installs, and so are @use-everywhere/core and use-everywhere. The core runs in a worker, a test, or a non-React app; the bindings stay thin enough to read in one sitting. Autocomplete is expected to answer most usage questions before the docs do.',
+    icon: 'modern-toolchain',
+    card: {
+      title: 'TypeScript-first, framework at the edge',
+      line: 'The core ships apart from its React bindings, so it runs in a worker, a test, or no React at all.',
+      visual: { kind: 'packages', core: 'journey-core', bindings: 'journey-react' },
+    },
   },
   {
     id: 'production-behaviour',
     title: 'Accessible, tested, production-oriented behaviour',
     summary:
       'Keyboard handling, ARIA, focus, and locale are part of the component — not an issue filed after launch.',
-    detail:
-      'These libraries exist mostly because of the details that get skipped: the caret jumping to the end of a currency field mid-typing, a paste into the second OTP slot that should fill all six, a rating control that cannot be reached with a keyboard. Those cases are what the test suites are about, and they are the reason a component that looks trivial is worth taking as a dependency.',
+    icon: 'tested',
+    card: {
+      title: 'Accessible and tested by default',
+      line: 'Part of the component, not an issue filed after launch. The edge cases are the test suite.',
+      visual: { kind: 'tags', tags: ['keyboard', 'ARIA', 'focus', 'locale'] },
+    },
   },
   {
     id: 'incremental-adoption',
     title: 'Independent packages, adopted one at a time',
     summary:
       'Nothing here requires anything else here. Take one package, keep the rest of your stack exactly as it is.',
-    detail:
-      'There is no meta-package and no shared runtime you are opted into by installing one library. Dependency lists stay short and reviewable on purpose, so that adopting a package is a decision about that package alone — and so that dropping it later is a single uninstall rather than an unpicking.',
+    icon: 'zero-dependencies',
+    card: {
+      title: 'Take one, keep your stack',
+      line: 'No meta-package, no shared runtime. Dropping one later is a single uninstall.',
+      visual: { kind: 'command', command: 'pnpm add @rxova/journey-core' },
+    },
+  },
+] as const
+
+/** A bug that was fixed privately more than once before it became a package; /about draws each. */
+export interface Origin {
+  id: 'currency' | 'otp' | 'flow'
+  bug: string
+  project: ProjectId
+}
+
+export const ORIGINS: readonly Origin[] = [
+  {
+    id: 'currency',
+    bug: 'The caret jumps to the end of a currency field mid-typing.',
+    project: 'react-inputs',
+  },
+  {
+    id: 'otp',
+    bug: 'A pasted code lands in one OTP slot instead of all six.',
+    project: 'react-inputs',
+  },
+  {
+    id: 'flow',
+    bug: 'A branching, multi-step flow decays into booleans and effects.',
+    project: 'journey',
+  },
+] as const
+
+/** What one maintainer commits to, and what it would be dishonest to promise. */
+export const COMMITMENTS = {
+  promised: [
+    'Issues get read',
+    'Security reports come first',
+    'No API break without a major and a migration note',
+  ],
+  notPromised: ['Same-day fixes', 'A roadmap set by feature votes'],
+} as const
+
+/** The contributions worth most, smallest first; `id` picks the card's icon. */
+export interface Contribution {
+  id: 'repro' | 'pull-request' | 'docs'
+  title: string
+  line: string
+}
+
+export const CONTRIBUTIONS: readonly Contribution[] = [
+  {
+    id: 'repro',
+    title: 'A minimal repro',
+    line: 'Worth more than a patch. Making a bug happen on demand is most of the fix.',
+  },
+  {
+    id: 'pull-request',
+    title: 'A focused pull request',
+    line: 'One behaviour, with the test that fails without it. Big refactors start as an issue.',
+  },
+  {
+    id: 'docs',
+    title: 'A docs fix',
+    line: 'If something cost you an hour, saying so already counts.',
   },
 ] as const

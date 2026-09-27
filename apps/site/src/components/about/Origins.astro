@@ -1,0 +1,235 @@
+---
+/** Why Rxova exists, as the bugs that became packages, each drawn beside its sentence. */
+import { getProject } from '@rxova/brand'
+import { ORIGINS } from '../../lib/about'
+import { landingProjects } from '../../lib/projects'
+import Eyebrow from '../home/Eyebrow.astro'
+import Reveal from '../home/Reveal.astro'
+import SectionHeading from '../home/SectionHeading.astro'
+
+// A package links to its docs only when the docs are deployed; otherwise it is named.
+const docsHref = (id: string) => landingProjects.find((p) => p.id === id)?.mount
+const OTP = ['4', '8', '1', '5', '9', '2']
+---
+
+<section class="origins" aria-labelledby="why">
+  <Reveal class="head">
+    <Eyebrow>Why it exists</Eyebrow>
+    <SectionHeading id="why">Code written for the third time, finally set free.</SectionHeading>
+  </Reveal>
+
+  <ul class="cases">
+    {ORIGINS.map((origin, i) => {
+      const href = docsHref(origin.project)
+      const label = getProject(origin.project).label
+      return (
+        <Reveal as="li" class="case" style={`--d: ${i * 70}ms`}>
+          <div class="case-body">
+            <p class="case-kicker">The bug</p>
+            <p class="case-bug">{origin.bug}</p>
+            <div class="demo" aria-hidden="true">
+              {origin.id === 'currency' && (
+                <span class="field">
+                  $ 1,2<span class="typed">4</span>50.00
+                  <span class="caret" />
+                </span>
+              )}
+              {origin.id === 'otp' && (
+                <span class="otp">
+                  {OTP.map((digit) => (
+                    <span class="slot">{digit}</span>
+                  ))}
+                </span>
+              )}
+              {origin.id === 'flow' && (
+                <svg class="flow" viewBox="0 0 300 56" fill="none">
+                  <circle class="flow-start" cx="14" cy="28" r="8" />
+                  <path
+                    class="flow-edge"
+                    d="M22 28h60M82 28c30 0 30-18 60-18M82 28c30 0 30 18 60 18M150 10h60M150 46h60M218 10c30 0 30 18 60 18M218 46c30 0 30-18 60-18"
+                  />
+                  <circle class="flow-a" cx="146" cy="10" r="6" />
+                  <circle class="flow-a" cx="146" cy="46" r="6" />
+                  <circle class="flow-b" cx="214" cy="10" r="6" />
+                  <circle class="flow-b" cx="214" cy="46" r="6" />
+                  <circle class="flow-end" cx="286" cy="28" r="8" />
+                </svg>
+              )}
+            </div>
+          </div>
+          <p class="case-foot">
+            <span>Now a package</span>
+            {href ? <a href={href}>{label}</a> : <span class="package">{label}</span>}
+          </p>
+        </Reveal>
+      )
+    })}
+  </ul>
+
+  <p class="coda">
+    Each was solved before, privately, inside a product repo. Rxova is where that work stops being
+    private.
+  </p>
+</section>
+
+<style>
+  .origins {
+    padding-block: clamp(3rem, 9vh, 5.5rem);
+  }
+
+  .head {
+    margin-bottom: 2.25rem;
+    max-width: 44rem;
+  }
+
+  .cases {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .case {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--rx-rule);
+    border-radius: calc(var(--rx-radius) + 4px);
+    overflow: hidden;
+  }
+
+  .case-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 1.6rem;
+    background: var(--rx-card);
+  }
+
+  .case-kicker {
+    font-family: var(--rx-font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--rx-muted);
+  }
+
+  .case-bug {
+    font-size: 1.15rem;
+    line-height: 1.4;
+    font-weight: 500;
+  }
+
+  .demo {
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  .field {
+    display: flex;
+    align-items: center;
+    height: 3rem;
+    padding-inline: 1rem;
+    border: 1px solid var(--rx-rule-strong);
+    border-radius: 10px;
+    background: var(--rx-bg);
+    font-family: var(--rx-font-mono);
+    font-size: 1.05rem;
+  }
+
+  .typed {
+    color: var(--rx-faint);
+  }
+
+  .caret {
+    width: 2px;
+    height: 1.35rem;
+    margin-inline-start: 2px;
+    background: var(--rx-accent-c);
+  }
+
+  .otp {
+    display: flex;
+    gap: 0.45rem;
+  }
+
+  .slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.4rem;
+    height: 3rem;
+    border: 1px solid var(--rx-primary);
+    border-radius: 10px;
+    background: var(--rx-bg);
+    font-family: var(--rx-font-mono);
+    font-size: 1.1rem;
+  }
+
+  .flow {
+    width: 100%;
+    height: 3.5rem;
+    stroke-width: 2;
+  }
+
+  .flow-start {
+    stroke: var(--rx-primary);
+  }
+
+  .flow-edge {
+    stroke: var(--rx-rule-strong);
+  }
+
+  .flow-a,
+  .flow-b {
+    fill: var(--rx-bg);
+  }
+
+  .flow-a {
+    stroke: var(--rx-accent-a);
+  }
+
+  .flow-b {
+    stroke: var(--rx-primary);
+  }
+
+  .flow-end {
+    fill: var(--rx-accent-c);
+  }
+
+  .case-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3.25rem;
+    padding-inline: 1.6rem;
+    border-top: 1px solid var(--rx-rule);
+    font-size: 0.95rem;
+    color: var(--rx-muted);
+  }
+
+  .case-foot a,
+  .package {
+    font-family: var(--rx-font-mono);
+    font-weight: 500;
+    color: var(--rx-primary);
+  }
+
+  .case-foot a {
+    text-underline-offset: 3px;
+  }
+
+  .coda {
+    margin-top: 2rem;
+    max-width: 44rem;
+    font-size: 1.1rem;
+    color: var(--rx-muted);
+  }
+
+  @media (max-width: 52rem) {
+    .cases {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
