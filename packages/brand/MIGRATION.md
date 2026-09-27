@@ -31,8 +31,9 @@ returns now point into `@rxova/astro-ui`.
 | `@rxova/brand/starlight.css`                       | `@rxova/astro-ui/styles/starlight.css`       |
 | `@rxova/brand/tokens.css`, `fonts.css`, `assets/*` | unchanged                                    |
 
-`<Chrome>` is `SiteShell`, `Header`, `SiteFooter`, `ProjectSwitcher`,
-`ThemeToggle` or `ThemeScript`. `<Override>` is `SiteTitle`, `SocialIcons`,
+`<Chrome>` is `Header`, `SiteFooter`, `ProjectSwitcher`, `ThemeToggle` or
+`ThemeScript`. `SiteShell` has no replacement: `@rxova/astro-ui` removed it in 0.3.0, so give the
+page its own layout. `<Override>` is `SiteTitle`, `SocialIcons`,
 `Footer` or `ThemeSelect`.
 
 ## 4. Rename the short token aliases
