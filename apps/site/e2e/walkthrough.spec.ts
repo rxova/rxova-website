@@ -39,7 +39,7 @@ test('switches to the after side and back', async ({ page }) => {
   await expect(count).toHaveText('Problem 1 of 4')
 })
 
-test('scrolls its code, never the page', async ({ page }) => {
+test('steps through the notes without moving the page', async ({ page }) => {
   const { next } = await open(page)
   const before = await page.evaluate(() => window.scrollY)
   for (let step = 0; step < 3; step++) await next.click()
