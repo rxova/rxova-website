@@ -153,6 +153,47 @@ header.header {
   margin: 0 0 0.4rem;
 }
 
+/* A page with no sidebar (a splash landing) has no phone menu, so on phones the header takes a
+   second row for the switcher and the sections. Starlight offsets the page by --sl-nav-height. */
+@media (max-width: 49.99rem) {
+  :root:not([data-has-sidebar]) {
+    --sl-nav-height: 6rem;
+  }
+
+  :root:not([data-has-sidebar]) header.header > .header {
+    flex-wrap: wrap;
+    align-content: space-between;
+  }
+
+  :root:not([data-has-sidebar]) header.header .title-wrapper {
+    flex: 1;
+  }
+
+  :root:not([data-has-sidebar]) header.header .right-group {
+    display: flex;
+    flex-basis: 100%;
+  }
+
+  /* Only the switcher and the sections: the social icons and theme picker do not fit. */
+  :root:not([data-has-sidebar]) header.header .right-group > :not(.social-icons),
+  :root:not([data-has-sidebar]) header.header .social-icons > :not(.rx-sections) {
+    display: none;
+  }
+
+  :root:not([data-has-sidebar]) header.header .social-icons::after {
+    content: none;
+  }
+
+  /* Flush with the logo above, and opening rightward from the left edge. */
+  :root:not([data-has-sidebar]) header.header .rx-switcher__trigger {
+    margin-inline-start: -0.5rem;
+  }
+
+  :root:not([data-has-sidebar]) header.header .rx-switcher .rx-switcher__menu {
+    inset-inline: 0 auto;
+  }
+}
+
 /* --- Footer -------------------------------------------------------------- */
 
 /* Footer styles live in footer.css (imported above) because /blog and /updates need them too. */
