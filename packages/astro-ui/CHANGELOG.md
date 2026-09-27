@@ -1,5 +1,16 @@
 # @rxova/astro-ui
 
+## 0.4.0
+
+### Minor Changes
+
+- [#121](https://github.com/rxova/rxova-website/pull/121) [`93ab68c`](https://github.com/rxova/rxova-website/commit/93ab68c034d4f1cc3ae65d89bb0fbcca25be5162) - The Starlight header now carries the umbrella navigation: the project switcher followed by Blog, Updates and About, in the bar on wide screens and in the menu on phones. The links come from a new `SectionNav` component, and `SiteFooter` reads the same `SECTIONS` list from `@rxova/brand`.
+
+### Patch Changes
+
+- Updated dependencies [[`93ab68c`](https://github.com/rxova/rxova-website/commit/93ab68c034d4f1cc3ae65d89bb0fbcca25be5162)]:
+  - @rxova/brand@1.2.0
+
 ## 0.3.0
 
 ### Minor Changes

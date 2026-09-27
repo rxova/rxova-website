@@ -1,5 +1,11 @@
 # @rxova/brand
 
+## 1.2.0
+
+### Minor Changes
+
+- [#121](https://github.com/rxova/rxova-website/pull/121) [`93ab68c`](https://github.com/rxova/rxova-website/commit/93ab68c034d4f1cc3ae65d89bb0fbcca25be5162) - Export `SECTIONS`, the standalone sections of rxova.org (Blog, Updates, About) in menu order, so every surface's navigation reads one list.
+
 ## 1.1.1
 
 ### Patch Changes
