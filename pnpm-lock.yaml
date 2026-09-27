@@ -238,52 +238,6 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(happy-dom@20.14.5)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
 
-  apps/blog:
-    dependencies:
-      '@rxova/astro-ui':
-        specifier: workspace:^
-        version: link:../../packages/astro-ui
-      '@rxova/brand':
-        specifier: workspace:^
-        version: link:../../packages/brand
-      '@rxova/website-schemas':
-        specifier: workspace:^
-        version: link:../../packages/website-schemas
-      astro:
-        specifier: ^7.3.2
-        version: 7.3.5(@types/node@26.6.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1)
-      sharp:
-        specifier: '>=0.35.0'
-        version: 0.35.4(@types/node@26.6.1)
-      zod:
-        specifier: ^4.6.5
-        version: 4.6.5
-    devDependencies:
-      '@astrojs/check':
-        specifier: ^0.9.10
-        version: 0.9.10(prettier-plugin-astro@1.0.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9))(prettier@3.9.9)(typescript@6.0.3)
-      '@playwright/test':
-        specifier: 1.63.0
-        version: 1.63.0
-      '@rxova/repo-tooling':
-        specifier: workspace:*
-        version: link:../../packages/tooling
-      '@types/node':
-        specifier: ^26.6.1
-        version: 26.6.1
-      '@vitest/coverage-v8':
-        specifier: ^5.0.1
-        version: 5.0.1(vitest@5.0.1)
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
-      vitest:
-        specifier: ^5.0.1
-        version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(happy-dom@20.14.5)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
-      yaml:
-        specifier: ^2.9.1
-        version: 2.9.1
-
   apps/e2e:
     devDependencies:
       '@playwright/test':
@@ -322,6 +276,12 @@ importers:
       astro-expressive-code:
         specifier: ^0.44.2
         version: 0.44.2(astro@7.3.5(@types/node@26.6.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
+      sharp:
+        specifier: '>=0.35.0'
+        version: 0.35.4(@types/node@26.6.1)
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.10
@@ -341,6 +301,9 @@ importers:
       '@rxova/repo-tooling':
         specifier: workspace:*
         version: link:../../packages/tooling
+      '@types/node':
+        specifier: ^26.6.1
+        version: 26.6.1
       '@types/react':
         specifier: ^19.3.0
         version: 19.3.0
@@ -362,6 +325,9 @@ importers:
       vitest:
         specifier: ^5.0.1
         version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(happy-dom@20.14.5)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
 
   apps/preview:
     dependencies:
@@ -429,49 +395,6 @@ importers:
       typescript:
         specifier: 6.0.3
         version: 6.0.3
-
-  apps/updates:
-    dependencies:
-      '@rxova/astro-ui':
-        specifier: workspace:^
-        version: link:../../packages/astro-ui
-      '@rxova/brand':
-        specifier: workspace:^
-        version: link:../../packages/brand
-      '@rxova/website-schemas':
-        specifier: workspace:^
-        version: link:../../packages/website-schemas
-      astro:
-        specifier: ^7.3.2
-        version: 7.3.5(@types/node@26.6.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1)
-      zod:
-        specifier: ^4.6.5
-        version: 4.6.5
-    devDependencies:
-      '@astrojs/check':
-        specifier: ^0.9.10
-        version: 0.9.10(prettier-plugin-astro@1.0.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9))(prettier@3.9.9)(typescript@6.0.3)
-      '@playwright/test':
-        specifier: 1.63.0
-        version: 1.63.0
-      '@rxova/repo-tooling':
-        specifier: workspace:*
-        version: link:../../packages/tooling
-      '@types/node':
-        specifier: ^26.6.1
-        version: 26.6.1
-      '@vitest/coverage-v8':
-        specifier: ^5.0.1
-        version: 5.0.1(vitest@5.0.1)
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
-      vitest:
-        specifier: ^5.0.1
-        version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(happy-dom@20.14.5)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
-      yaml:
-        specifier: ^2.9.1
-        version: 2.9.1
 
   packages/astro-ui:
     dependencies:

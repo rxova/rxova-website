@@ -100,14 +100,19 @@ const parseAuthor = (name: string): Parsed | null => {
   return m ? { slug: m[1]!, stamp: '' } : null
 }
 
-/** The two surfaces, each self-contained: each validates its own duplicated author registry. */
+/** Where the site's prose lives: posts, updates, their images and the one author registry. */
+export const CONTENT_DIR = 'apps/landing/content'
+
+/** The two collections, both bylined against `authors/` in the same directory. */
 export const SURFACES = [
-  { pkg: 'apps/blog', entries: 'posts', label: 'post' },
-  { pkg: 'apps/updates', entries: 'updates', label: 'update' },
+  { pkg: CONTENT_DIR, entries: 'posts', label: 'post' },
+  { pkg: CONTENT_DIR, entries: 'updates', label: 'update' },
 ] as const
 
 export function validateContent(repoRoot: string): string[] {
-  return SURFACES.flatMap((s) => validateSurface(join(repoRoot, s.pkg), s))
+  // Both collections check the shared author registry, so an author problem is reported by
+  // each; it is one problem, so it is listed once.
+  return [...new Set(SURFACES.flatMap((s) => validateSurface(join(repoRoot, s.pkg), s)))]
 }
 
 function validateSurface(
@@ -284,10 +289,9 @@ export function countContent(repoRoot: string): {
     return existsSync(abs) ? readdirSync(abs).filter((n) => n.endsWith('.md')).length : 0
   }
   return {
-    posts: count('apps/blog', 'posts'),
-    updates: count('apps/updates', 'updates'),
-    // Duplicated across the two surfaces; counting one is the honest number.
-    authors: count('apps/blog', 'authors'),
+    posts: count(CONTENT_DIR, 'posts'),
+    updates: count(CONTENT_DIR, 'updates'),
+    authors: count(CONTENT_DIR, 'authors'),
   }
 }
 

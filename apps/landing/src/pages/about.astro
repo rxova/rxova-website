@@ -5,15 +5,14 @@
  */
 import { siteUrl } from '@rxova/brand'
 import { MAINTAINER, PRINCIPLES } from '../lib/about'
-import { landingProjects, siteSurfaces } from '../lib/projects'
+import { landingProjects, navSurfaces } from '../lib/projects'
 import BaseLayout from '../layouts/BaseLayout.astro'
 // See ../layouts/BaseLayout.astro for why the reset is imported per page rather than
 // by BaseLayout.
 import '../styles/global.css'
 
-// Same rule the menu follows: link to /blog and /updates only where they are
-// actually deployed. The prose below reads fine without them.
-const surface = (id: string) => siteSurfaces.find((s) => s.id === id)?.href
+// Read from the menu, so the prose and the header can never disagree on a section.
+const surface = (id: string) => navSurfaces.find((s) => s.id === id)?.href
 const blogHref = surface('blog')
 const updatesHref = surface('updates')
 
@@ -195,7 +194,7 @@ const description = `Rxova is built and maintained by ${MAINTAINER.name} — sma
     }
 
     /* The same title as the blog and the updates stream — see .head h1 in
-       apps/blog and apps/updates. */
+       pages/blog/[...slug].astro and PageHeader. */
     .intro h1 {
       font-size: clamp(1.8rem, 5vw, 2.4rem);
       line-height: 1.15;

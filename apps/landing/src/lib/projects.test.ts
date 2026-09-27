@@ -152,8 +152,12 @@ describe('site surfaces', () => {
     ).toEqual([])
   })
 
-  it('puts the mounted surfaces first and About last in the menu', () => {
-    expect(landingSurfaces).toEqual([{ id: 'about', label: 'About', href: '/about' }])
+  it('puts the mounted surfaces first, then Blog, Updates and About', () => {
+    expect(landingSurfaces).toEqual([
+      { id: 'blog', label: 'Blog', href: '/blog' },
+      { id: 'updates', label: 'Updates', href: '/updates' },
+      { id: 'about', label: 'About', href: '/about' },
+    ])
     expect(navSurfaces).toEqual([...siteSurfaces, ...landingSurfaces])
     expect(navSurfaces.at(-1)?.id).toBe('about')
   })

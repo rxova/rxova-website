@@ -31,6 +31,14 @@ const read = () => readFileSync(join(root, LLMS_FILE), 'utf8')
 const links = (doc: string) =>
   [...doc.matchAll(/^- \[([^\]]*)\]\(([^)]*)\)/gm)].map((m) => [m[1], m[2]])
 
+/** The links under `## Libraries` only, leaving out the site's own sections. */
+const libraryLinks = (doc: string) => {
+  const start = doc.indexOf('## Libraries')
+  if (start === -1) return []
+  const end = doc.indexOf('\n## ', start + 1)
+  return links(doc.slice(start, end === -1 ? undefined : end))
+}
+
 /** A resolved source, shaped as registry.ts hands them over. */
 const source = (id: string, over: Partial<LlmsSource> = {}): LlmsSource => ({
   id,
@@ -79,7 +87,9 @@ describe('writeLlms', () => {
 
     await writeLlms(root, [source('journey')], ORIGIN)
 
-    assert.deepEqual(links(read()), [['journey', 'https://rxova.org/packages/journey/llms.txt']])
+    assert.deepEqual(libraryLinks(read()), [
+      ['journey', 'https://rxova.org/packages/journey/llms.txt'],
+    ])
   })
 
   // The property that lets this repo and a project repo ship in either order.
@@ -88,7 +98,7 @@ describe('writeLlms', () => {
 
     await writeLlms(root, [source('journey')], ORIGIN)
 
-    assert.deepEqual(links(read()), [['journey', 'https://rxova.org/packages/journey/']])
+    assert.deepEqual(libraryLinks(read()), [['journey', 'https://rxova.org/packages/journey/']])
   })
 
   it('mixes the two without either affecting the other', async () => {
@@ -96,10 +106,24 @@ describe('writeLlms', () => {
 
     await writeLlms(root, [source('journey'), source('react-inputs')], ORIGIN)
 
-    assert.deepEqual(links(read()), [
+    assert.deepEqual(libraryLinks(read()), [
       ['journey', 'https://rxova.org/packages/journey/'],
       ['react-inputs', 'https://rxova.org/packages/react-inputs/llms.txt'],
     ])
+  })
+
+  // /blog and /updates are built by the landing app, so no sources.json entry announces
+  // them; the index lists them anyway, as it did when each was a mounted site.
+  it("lists the landing app's own sections with no source for them", async () => {
+    const { sites } = await writeLlms(root, [], ORIGIN)
+    assert.deepEqual(
+      sites.map((s) => [s.label, s.url]),
+      [
+        ['blog', 'https://rxova.org/blog/'],
+        ['updates', 'https://rxova.org/updates/'],
+      ],
+    )
+    assert.match(read(), /## Also on this site\n\n- \[blog\]\(https:\/\/rxova\.org\/blog\/\)/)
   })
 
   it('separates the libraries from the other sites on this domain', async () => {
@@ -113,9 +137,10 @@ describe('writeLlms', () => {
       projects.map((p) => p.label),
       ['journey'],
     )
+    // The mounted `blog` source stands in for the landing's own, so it is listed once.
     assert.deepEqual(
       sites.map((s) => s.label),
-      ['blog'],
+      ['blog', 'updates'],
     )
     assert.match(read(), /## Libraries[\s\S]*## Also on this site/)
   })
@@ -136,7 +161,9 @@ describe('writeLlms', () => {
       ORIGIN,
     )
 
-    assert.deepEqual(links(read()), [['react-inputs', 'https://rxova.org/packages/react-inputs/']])
+    assert.deepEqual(libraryLinks(read()), [
+      ['react-inputs', 'https://rxova.org/packages/react-inputs/'],
+    ])
   })
 
   it('carries the blurb sources.json already holds', async () => {
@@ -156,6 +183,8 @@ describe('writeLlms', () => {
 
     assert.deepEqual(links(read()), [
       ['journey', 'https://web.rxova.org/packages/journey/llms.txt'],
+      ['blog', 'https://web.rxova.org/blog/'],
+      ['updates', 'https://web.rxova.org/updates/'],
     ])
   })
 })

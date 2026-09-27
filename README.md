@@ -1,11 +1,12 @@
 # rxova-website
 
-The landing page for [rxova.org](https://rxova.org), the docs aggregator that publishes the
-whole site, and the design system, blog and updates stream every page is built from.
+The site for [rxova.org](https://rxova.org) (the landing, the blog and the updates stream, as one
+Astro app), the docs aggregator that publishes the whole domain, and the design system every page
+is built from.
 
 `rxova.org` is one static site on **GitHub Pages** (its DNS lives in AWS Route 53, but
 serving is GitHub Pages). This repo is the only thing that publishes it. It builds the Astro
-landing at `/`, gathers each project's already-built docs from its content release, stitches
+site at `/`, gathers each project's already-built docs from its content release, stitches
 everything into one tree under a subpath, and deploys to GitHub Pages.
 
 It does **not** build anyone's docs. Each project builds its own docs in its own CI and sends
@@ -13,9 +14,7 @@ them here already built; this repo validates and publishes them. See
 [docs/INPUTS-CONTRACT.md](docs/INPUTS-CONTRACT.md).
 
 ```
-rxova.org/                         -> apps/landing          (Astro landing, built here)
-rxova.org/blog/                    -> apps/blog             (built here, persisted as content-blog)
-rxova.org/updates/                 -> apps/updates          (built here, persisted as content-updates)
+rxova.org/                         -> apps/landing          (the site: landing, /about, /blog, /updates)
 rxova.org/packages/journey/        -> rxova/journey        docs (built there, persisted as content-journey)
 rxova.org/packages/react-inputs/   -> rxova/react-inputs   docs (built there, persisted as content-react-inputs)
 rxova.org/packages/use-everywhere/ -> rxova/use-everywhere docs (built there, persisted as content-use-everywhere)
@@ -27,9 +26,8 @@ Which projects are mounted is `sources.json` — see [Adding a project](#adding-
 
 | Path                                            | What                                                    |
 | ----------------------------------------------- | ------------------------------------------------------- |
-| `apps/landing`                                  | Astro landing page (builds to `apps/landing/dist`)      |
-| `apps/blog`                                     | `/blog`, built here and ingested like a project's docs  |
-| `apps/updates`                                  | `/updates`, built the same way                          |
+| `apps/landing`                                  | The site: landing, /about, /blog, /updates (one app)    |
+| `apps/landing/content`                          | Blog posts, update entries, their images and authors    |
 | `packages/brand`                                | `@rxova/brand` on npm: tokens, fonts and project data   |
 | `packages/astro-ui`                             | `@rxova/astro-ui`: components, Starlight preset, chrome |
 | `packages/website-schemas`                      | `@rxova/website-schemas` on npm: the content contracts  |
@@ -50,7 +48,7 @@ Which projects are mounted is `sources.json` — see [Adding a project](#adding-
 | `docs/INPUTS-CONTRACT.md`                       | What a source repo must send (gate 1)                   |
 | `docs/CONTENT.md`                               | How to write a blog post or an update                   |
 | `.github/workflows/ingest.yml`                  | validate → persist → deploy, on a docs dispatch         |
-| `.github/workflows/deploy.yml`                  | build landing → gather → assemble → Pages deploy        |
+| `.github/workflows/deploy.yml`                  | build the site → gather → assemble → Pages deploy       |
 | `build/`                                        | Private planning docs (git-ignored)                     |
 
 Every question the deploy asks about a project — where it lives, whether it is on, where it
@@ -62,8 +60,7 @@ changes when a project is added, enabled or disabled.
 
 ```sh
 pnpm install
-pnpm dev                          # the landing, http://localhost:4321
-pnpm --filter @rxova/blog dev     # or @rxova/updates
+pnpm dev                          # the site, http://localhost:4321 (/, /blog, /updates)
 pnpm brand:dev                    # the brand preview site
 pnpm og                           # re-render the social cards after a palette or tagline change
 pnpm run verify                   # the full gate, same list CI runs (also the pre-push hook)

@@ -31,18 +31,14 @@ export interface Fixture {
   files?: Record<string, string>
 }
 
-/**
- * A repo root holding both surfaces, with `authors` duplicated into each package as
- * in the real layout.
- */
+/** A repo root holding the site's content directory, laid out as in the real repo. */
 export function content(fixture: Fixture): string {
   const root = emptyRoot()
 
   const layout = [
-    ['apps/blog/posts', fixture.posts],
-    ['apps/blog/authors', fixture.authors],
-    ['apps/updates/updates', fixture.updates],
-    ['apps/updates/authors', fixture.authors],
+    ['apps/landing/content/posts', fixture.posts],
+    ['apps/landing/content/authors', fixture.authors],
+    ['apps/landing/content/updates', fixture.updates],
   ] as const
 
   for (const [dir, files] of layout) {

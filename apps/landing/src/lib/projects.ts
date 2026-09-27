@@ -47,7 +47,7 @@ export function buildLandingProjects(
   projects: readonly Project[],
   sourceList: readonly RawSource[],
 ): LandingProject[] {
-  // Only the packages: `kind: "site"` entries (/blog, /updates) are surfaces, not projects.
+  // Only the packages: `kind: "site"` entries are surfaces, not projects.
   const rawSources = sourceList.filter((s) => (s.kind ?? 'package') === 'package')
 
   // An enabled Storybook (`storybook-<project>`) becomes a link on its project's card,
@@ -144,9 +144,8 @@ export const mountedProjects: readonly SiteSurface[] = landingProjects
   .map((p) => ({ id: p.id, label: p.label, href: p.mount }))
 
 /**
- * The standalone surfaces of rxova.org that are actually deployed (/blog, /updates).
- * Gated on the same `enabled` flag as the mount, so the menu never advertises a 404.
- */
+ * A section of rxova.org: built by this app (/blog, /updates, /about), or a mounted
+ * `kind: "site"` source, gated on `enabled` so the menu never advertises a 404. */
 export interface SiteSurface {
   id: string
   label: string
@@ -165,14 +164,16 @@ export function buildSiteSurfaces(sourceList: readonly RawSource[]): SiteSurface
 export const siteSurfaces: readonly SiteSurface[] = buildSiteSurfaces(allSources)
 
 /**
- * Surfaces this repo builds itself rather than mounts, so there is nothing to gate.
+ * Surfaces this app builds itself rather than mounts, so there is nothing to gate.
  * They join the mounted ones in `navSurfaces`.
  */
 export const landingSurfaces: readonly SiteSurface[] = [
+  { id: 'blog', label: 'Blog', href: '/blog' },
+  { id: 'updates', label: 'Updates', href: '/updates' },
   { id: 'about', label: 'About', href: '/about' },
 ]
 
-/** The standalone surfaces in menu order: mounted ones (Blog, Updates), then the landing's own. */
+/** The standalone surfaces in menu order: any mounted ones, then this app's own. */
 export const navSurfaces: readonly SiteSurface[] = [...siteSurfaces, ...landingSurfaces]
 
 /** "a" · "a and b" · "a, b, and c" */
