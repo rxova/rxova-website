@@ -5,6 +5,7 @@ export {
   PROJECTS,
   REPOS,
   REPO_IDS,
+  SECTIONS,
   getProject,
   getRepo,
   docsUrl,
@@ -14,6 +15,7 @@ export {
   type Project,
   type ProjectId,
   type RepoId,
+  type SectionId,
 } from './sites.ts'
 
 export { renderFeed, escapeXml, rfc822, type FeedItem, type FeedOptions } from './feed.ts'

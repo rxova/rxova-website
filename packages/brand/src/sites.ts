@@ -123,6 +123,18 @@ export function getRepo(id: RepoId): (typeof REPOS)[number] {
   return found
 }
 
+/**
+ * The standalone sections of rxova.org, in menu order, beside the project list. Every surface's
+ * navigation reads this: the site header, the docs header and the shared footer.
+ */
+export const SECTIONS = [
+  { id: 'blog', label: 'Blog', path: '/blog/' },
+  { id: 'updates', label: 'Updates', path: '/updates/' },
+  { id: 'about', label: 'About', path: '/about/' },
+] as const
+
+export type SectionId = (typeof SECTIONS)[number]['id']
+
 /** Absolute URL to a project's docs root. */
 export function docsUrl(id: ProjectId): string {
   return `${RXOVA_ORIGIN}${getProject(id).mount}`

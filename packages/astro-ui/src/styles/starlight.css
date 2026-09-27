@@ -157,6 +157,34 @@ html[data-rxova-shell] .sl-menu-button {
   background: var(--rx-gradient);
 }
 
+/* Umbrella navigation: the switcher and the rxova.org sections, beside the social icons. */
+.rx-sections {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rx-sections__link {
+  color: var(--sl-color-gray-2);
+  font-size: var(--sl-text-sm);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.rx-sections__link:hover {
+  color: var(--sl-color-white);
+}
+
+/* In the mobile menu the icons share a row with the theme picker; the navigation takes a row
+   of its own above them. */
+.mobile-preferences .social-icons {
+  flex-wrap: wrap;
+}
+
+.mobile-preferences .rx-sections {
+  flex-basis: 100%;
+}
+
 /* --- Footer -------------------------------------------------------------- */
 
 /* Footer styles live in footer.css (imported above) because /blog and /updates need them too. */

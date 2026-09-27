@@ -3,7 +3,7 @@
  * `sources.json`'s deployment config and copy. Runs at build time; throws if they disagree.
  */
 
-import { PROJECTS, type Project } from '@rxova/brand'
+import { PROJECTS, SECTIONS, type Project } from '@rxova/brand'
 import { baseFor } from '@rxova/website-schemas'
 
 // `sources.json` sits at the repo root, outside the Astro project; astro.config.mjs
@@ -159,11 +159,11 @@ export const siteSurfaces: readonly SiteSurface[] = buildSiteSurfaces(allSources
  * Surfaces this app builds itself rather than mounts, so there is nothing to gate.
  * They join the mounted ones in `navSurfaces`.
  */
-export const landingSurfaces: readonly SiteSurface[] = [
-  { id: 'blog', label: 'Blog', href: '/blog/' },
-  { id: 'updates', label: 'Updates', href: '/updates/' },
-  { id: 'about', label: 'About', href: '/about/' },
-]
+export const landingSurfaces: readonly SiteSurface[] = SECTIONS.map((section) => ({
+  id: section.id,
+  label: section.label,
+  href: section.path,
+}))
 
 /** The standalone surfaces in menu order: any mounted ones, then this app's own. */
 export const navSurfaces: readonly SiteSurface[] = [...siteSurfaces, ...landingSurfaces]

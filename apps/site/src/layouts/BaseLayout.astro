@@ -97,6 +97,11 @@ const fontPreloads = docsShell
         display: none;
       }
 
+      /* The ribbon above already links the sections, so the docs header drops its copy. */
+      html[data-rxova-docs-shell] .rx-sections__link {
+        display: none;
+      }
+
       /* --- The ribbon ------------------------------------------------------
          On a docs page the umbrella bar shrinks to a flat ribbon over Starlight's bar. */
 
