@@ -8,16 +8,12 @@ validate and persist — lives in [`packages/tooling/src/deploy/ingest.ts`](../p
 
 The aggregator **never builds your docs**. It never checks your repo out and never
 runs your toolchain. You build your docs, upload them, and tell it where they are;
-it validates and publishes them. There are two schemas:
+it validates and publishes them as built.
 
-- **Schema 1: the docs draw their own chrome.** The dist is published as built.
-  Build it with `@rxova/astro-ui`'s `sharedStarlightConfig`, whose header already
-  links the rxova.org sections and the other projects, and whose footer is the
-  site footer. The only thing the aggregator adds is the Cloudflare analytics
-  beacon, at deploy time, so do not ship your own.
-- **Schema 2: the aggregator draws the chrome.** It composes each rendered body
-  into the rxova-website header, footer and head before deploy. This is the one
-  exception to “publish verbatim”, and it is being retired in favour of schema 1.
+Your docs draw their own chrome. Build them with `@rxova/astro-ui`'s
+`sharedStarlightConfig`: its header links the rxova.org sections and the other
+projects, and its footer is the site footer. The only thing the aggregator adds is
+the Cloudflare analytics beacon, at deploy time, so do not ship your own.
 
 ## What a source repo must do
 
@@ -29,30 +25,17 @@ On a push to its default branch, after its docs build succeeds:
    house convention is a `DOCS_BASE_URL` env var the docs framework reads
    (`base: process.env.DOCS_BASE_URL ?? '/'`).
 
-2. **For schema 2, write `rxova-page-bundle.json` at the dist root.** It identifies
-   the artifact as `html-page-component`, names the project and repeats the base.
-   Built HTML must contain page UI and a `<main>`, but no global Rxova header,
-   `SiteFooter` or Cloudflare beacon. Starlight's search/sidebar/page navigation
-   remain page UI and are preserved.
-
-   **Shipping HTML that is not a page?** Mark it:
+2. **Mark HTML that is not a page.** An iframe target or a demo frame should not
+   be counted as a page view, so give it this marker and the aggregator leaves it
+   byte-for-byte, with no analytics beacon:
 
    ```html
    <meta name="rxova-standalone" content="" />
    ```
 
-   A marked document is published byte-for-byte and never composed into the site
-   shell, so none of the rules above apply to it. This is for the HTML in a dist
-   that is an _asset_ rather than a page — an iframe target, a demo shell — which
-   has no `<main>` to give and would be broken by gaining a site header and
-   footer. The use-everywhere playground is the case it exists for: a frame
-   holder plus a per-tab document, both of which have to stay on the origin so
-   the frames share a `BroadcastChannel`.
-
-   Only mark documents that are genuinely not pages. The marker turns off the
-   `<main>`, chrome and analytics checks for that file, and an unmarked document
-   is treated as a page component exactly as before — so forgetting the marker
-   fails the gate loudly, which is the safe direction.
+   The use-everywhere playground is the case it exists for: a frame holder plus a
+   per-tab document, both of which have to stay on the origin so the frames share
+   a `BroadcastChannel`.
 
 3. **Upload the built dist as a workflow artifact named `docs-dist`.** The
    artifact's root must be the dist root — i.e. `index.html` sits at the top of
@@ -68,7 +51,7 @@ On a push to its default branch, after its docs build succeeds:
 {
   "event_type": "docs",
   "client_payload": {
-    "schema": 1, //   1: full pages with their own chrome; 2: page components the site composes
+    "schema": 1, //   the contract version; anything else is rejected
     "project": "use-everywhere", // your id, exactly as it appears in sources.json
     "ref": "main", //  the branch or tag the docs were built from
     "sha": "<full or short commit sha>", // the exact commit
@@ -125,13 +108,12 @@ notify-aggregator:
    from the id is unique and stays inside the tree.
 2. **Download** the `docs-dist` artifact from your `run_id`, in your repo.
 3. **2b — contents** ([`checkDist`](../packages/tooling/src/deploy/ingest.ts)). Rejects a dist that is
-   missing, empty, has no `index.html`, has a mismatched schema-2 manifest, or puts
-   global chrome/analytics back into a PageComponent.
+   missing, empty, or has no `index.html`.
 4. **Persist.** Packs the dist and stores it as the project's canonical release
    asset — tag `content-<id>`, asset `docs-<id>.tgz` — replacing the previous one.
 5. **Deploy.** Reassembles the whole site from every enabled project's persisted
-   docs and publishes to Pages. Schema-2 HTML is composed into the source-specific
-   website shell; non-HTML assets are copied unchanged. Only your project changed;
+   docs and publishes to Pages. Each dist is copied as built, and every page not
+   marked standalone gets the analytics beacon. Only your project changed;
    the rest are served from their last persisted dist, not rebuilt.
 
 A rejection at any gate fails the ingest run and **leaves the live site

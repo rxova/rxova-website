@@ -2,7 +2,7 @@
   "name": "@rxova/e2e",
   "version": "0.0.0",
   "private": true,
-  "description": "End-to-end specs for the assembled rxova.org: what exists only once every surface is composed.",
+  "description": "End-to-end specs for the assembled rxova.org: what exists only once every surface is assembled.",
   "type": "module",
   "scripts": {
     "e2e": "playwright test --project=chromium",

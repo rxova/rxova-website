@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { devices } from '@playwright/test'
 import { e2eConfig } from '@rxova/repo-tooling/playwright'
 
-// The assembled site, built and composed the way the deploy does it.
+// The assembled site, built the way the deploy does it.
 export default e2eConfig({
   command: 'pnpm --filter @rxova/repo-tooling serve:site',
   port: 4480,

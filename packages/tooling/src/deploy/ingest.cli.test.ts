@@ -123,16 +123,6 @@ describe('runIngest — gate 2b, the dist', () => {
     assert.equal(out[1], '✓ dist OK — 2 entries, index.html present')
   })
 
-  it('holds the dist to what the dispatch declared', () => {
-    const dist = tempDir()
-    writeFileSync(join(dist, 'index.html'), '<main>Blog</main>')
-    const { err, options } = io()
-    const env = { EXPECTED_SCHEMA: '2', EXPECTED_PROJECT: 'blog', EXPECTED_BASE: '/blog/' }
-
-    assert.equal(runIngest(['--check-dist', dist], env, options), 1)
-    assert.deepEqual(err, ['ERROR: schema 2 dist has no rxova-page-bundle.json'])
-  })
-
   it('prints the usage when the directory is missing', () => {
     const { err, options } = io()
 
