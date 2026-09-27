@@ -89,7 +89,7 @@ Micro-frontends is useful ancestry. It is not the most useful name.
 
 The longer implementation story—flags, failed central builds, artifact persistence
 and the eventual pipeline—lives in
-[How Rxova's Website Architecture Evolved](../how-rxovas-website-architecture-evolved/).
+[the repository's architecture notes](https://github.com/rxova/rxova-website/blob/main/docs/CONTENT-ARCHITECTURE.md).
 
 ## What About the Other Alternatives?
 

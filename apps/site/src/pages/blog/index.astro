@@ -1,5 +1,5 @@
 ---
-import { siteUrl, canonicalUrl } from '@rxova/brand'
+import { canonicalUrl } from '@rxova/brand'
 
 import Content from '../../layouts/Page.astro'
 import PageHeader from '@rxova/astro-ui/components/PageHeader.astro'
@@ -14,7 +14,7 @@ const PAGE_SIZE = 10
 /** About two to three lines of a card; real text, so "Read more" can follow the ellipsis inline. */
 const EXCERPT_CHARS = 200
 
-const updatesUrl = siteUrl('/updates')
+const updatesUrl = '/updates/'
 
 const posts = await getPosts()
 

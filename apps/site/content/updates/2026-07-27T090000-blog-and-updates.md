@@ -11,7 +11,7 @@ links:
 
 I want to document how Rxova gets built, not only ship it. Two pieces were missing.
 
-The [blog](/blog) is for reasoning — why a design went one way instead of the
+The [blog](/blog/) is for reasoning — why a design went one way instead of the
 obvious other way, and what broke on the way there.
 
 This feed is for what actually moved. It filters by repo and by tag, so you can

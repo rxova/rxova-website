@@ -3,7 +3,7 @@
 // inherit what it links. Pages that own their document import document.css (the reset) themselves.
 import '@rxova/brand/fonts.css'
 import '@rxova/astro-ui/styles/chrome.css'
-import { siteUrl, type ProjectId } from '@rxova/brand'
+import type { ProjectId } from '@rxova/brand'
 import SiteFooter from '@rxova/astro-ui/components/SiteFooter.astro'
 import ThemeScript from '@rxova/astro-ui/components/ThemeScript.astro'
 import CloudflareAnalytics from '../components/CloudflareAnalytics.astro'
@@ -26,16 +26,11 @@ interface Props {
 }
 
 const { title, robots, path = '/', project, template = false } = Astro.props
-const footerSurfaces = navSurfaces.map((surface) => ({
-  label: surface.label,
-  href: siteUrl(surface.href),
-}))
+// Root-relative, so a preview or staging build links to itself rather than to production.
+const footerSurfaces = navSurfaces.map(({ label, href }) => ({ label, href }))
 
 // Only the projects whose docs this deploy contains; see `mountedProjects`.
-const footerProjects = mountedProjects.map((project) => ({
-  label: project.label,
-  href: siteUrl(project.href),
-}))
+const footerProjects = mountedProjects.map(({ label, href }) => ({ label, href }))
 
 // Derived from the URL being built, never a prop, so it cannot drift from the page.
 // Omitted on shell templates, where it would survive into the composed page.
@@ -81,7 +76,7 @@ const fontPreloads = docsShell
     <SiteHeader path={path} ribbon={docsShell} />
     {template ? <div data-rxova-page-slot /> : <slot />}
     <div class="rx-shell-footer">
-      <SiteFooter project={project} site={footerSurfaces} projects={footerProjects} />
+      <SiteFooter project={project} site={footerSurfaces} projects={footerProjects} origin="" />
     </div>
 
     <style>

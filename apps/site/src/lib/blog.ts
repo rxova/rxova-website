@@ -18,7 +18,7 @@ export async function getPosts(): Promise<Post[]> {
   return newestFirst(posts, (p) => p.data.pubDate)
 }
 
-/** A URL under `/blog/`. Every internal blog link goes through here. */
+/** A page URL under `/blog/`, ending in `/` so GitHub Pages serves it without a redirect. */
 export function href(path = ''): string {
-  return `/blog/${path}`.replace(/\/{2,}/g, '/')
+  return `/blog/${path}/`.replace(/\/{2,}/g, '/')
 }

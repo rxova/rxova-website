@@ -19,7 +19,7 @@ import SectionHeading from './SectionHeading.astro'
   <ul class="principles">
     {PRINCIPLES.map((p, i) => (
       <Reveal as="li" class="principle" style={`--d: ${i * 70}ms`}>
-        <a class="principle-id" href={`/about#${p.id}`}>
+        <a class="principle-id" href={`/about/#${p.id}`}>
           {p.id}
         </a>
         <h3 class="principle-title">{p.title}</h3>

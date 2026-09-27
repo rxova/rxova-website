@@ -4,12 +4,14 @@
  */
 
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, rmSync, existsSync, statSync } from 'node:fs'
+import { mkdtempSync, readFileSync, readdirSync, rmSync, existsSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { beforeAll, afterAll, describe, expect, it } from 'vitest'
+
+import { internalLinkProblems } from '../src/lib/internal-links'
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -246,7 +248,7 @@ describe('the batched index', () => {
     // Base-agnostic on purpose: the claim is that the post is *on the page*, and
     // whether the mount prefix is applied is already pinned by the asset tests.
     for (const slug of ['cover-described', 'cover-decorative']) {
-      expect(html).toMatch(new RegExp(`class="title" href="[^"]*/${slug}"`))
+      expect(html).toMatch(new RegExp(`class="title" href="/blog/${slug}/"`))
     }
   })
 
@@ -258,5 +260,19 @@ describe('the batched index', () => {
 
   it('declares the batch size the page component chose', () => {
     expect(index()).toMatch(/data-reveal-step="10"/)
+  })
+})
+
+// Rides on this file's build: a second `astro build` in parallel would race on node_modules/.astro.
+describe('every internal link in the built site', () => {
+  it('is root-relative and ends in a slash, so it resolves without a redirect', () => {
+    const pages = readdirSync(out, { recursive: true, encoding: 'utf8' }).filter((f) =>
+      f.endsWith('.html'),
+    )
+    expect(pages.length).toBeGreaterThan(5)
+    const problems = pages.flatMap((page) =>
+      internalLinkProblems(readFileSync(join(out, page), 'utf8')).map((p) => `${page}: ${p}`),
+    )
+    expect(problems).toEqual([])
   })
 })

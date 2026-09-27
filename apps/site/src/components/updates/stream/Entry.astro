@@ -2,6 +2,7 @@
 /** One update, rendered in full; its `#id` is the permalink. */
 import type { UpdateEntry } from '../../../lib/updates'
 import { repoLabel, formatDate, isoDate, byline, href } from '../../../lib/updates'
+import { localHref } from '../../../lib/internal-links'
 
 export interface StreamItem {
   entry: UpdateEntry
@@ -46,11 +47,18 @@ const { entry, Body, authorNames } = Astro.props
     </div>
     {entry.data.links.length > 0 && (
       <nav class="links" aria-label={`${entry.data.title} links`}>
-        {entry.data.links.map((l) => (
-          <a href={l.href} target="_blank" rel="noopener noreferrer">
-            {l.label} <span aria-hidden="true">↗</span>
-          </a>
-        ))}
+        {entry.data.links.map((l) => {
+          const local = localHref(l.href)
+          return local ? (
+            <a href={local}>
+              {l.label} <span aria-hidden="true">→</span>
+            </a>
+          ) : (
+            <a href={l.href} target="_blank" rel="noopener noreferrer">
+              {l.label} <span aria-hidden="true">↗</span>
+            </a>
+          )
+        })}
       </nav>
     )}
     <p class="by">{byline(authorNames)}</p>

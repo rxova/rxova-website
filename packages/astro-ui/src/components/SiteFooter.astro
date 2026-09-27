@@ -1,14 +1,14 @@
 ---
 /**
  * The rxova footer on every surface: brand block, link columns, then copyright and legal links.
- * Styles live in `../styles/footer.css`; all cross-project hrefs are absolute.
+ * Styles live in `../styles/footer.css`. Hrefs are absolute unless `origin` is '' (on rxova.org).
  */
-import { PROJECTS, RXOVA_ORIGIN, getProject, siteUrl, type ProjectId } from '@rxova/brand'
+import { PROJECTS, RXOVA_ORIGIN, getProject, type ProjectId } from '@rxova/brand'
 
 /** A standalone surface of rxova.org, for the "Site" column. */
 export interface SiteLink {
   label: string
-  /** Absolute — see sites.ts in @rxova/brand. */
+  /** A page URL ending in `/`: absolute, or root-relative when `origin` is ''. */
   href: string
 }
 
@@ -27,27 +27,29 @@ interface Props {
    * Defaults to every project, which is right for a docs site.
    */
   projects?: readonly SiteLink[]
+  /** Prefix for every rxova.org link. '' on rxova.org itself, so links stay on the serving origin. */
+  origin?: string
 }
 
-const { project, docs, site, projects } = Astro.props
+const { project, docs, site, projects, origin = RXOVA_ORIGIN } = Astro.props
 const self = project ? getProject(project) : undefined
 const year = new Date().getFullYear()
 
 const projectLinks: readonly SiteLink[] =
-  projects ?? PROJECTS.map((p) => ({ label: p.label, href: `${RXOVA_ORIGIN}${p.mount}` }))
+  projects ?? PROJECTS.map((p) => ({ label: p.label, href: `${origin}${p.mount}` }))
 
 const surfaces: readonly SiteLink[] = site ?? [
-  { label: 'Blog', href: siteUrl('/blog') },
-  { label: 'Updates', href: siteUrl('/updates') },
-  { label: 'About', href: siteUrl('/about') },
+  { label: 'Blog', href: `${origin}/blog/` },
+  { label: 'Updates', href: `${origin}/updates/` },
+  { label: 'About', href: `${origin}/about/` },
 ]
 ---
 
 <footer class="rx-footer">
   <div class="rx-footer__top">
     <div class="rx-footer__brand">
-      <a class="rx-footer__mark" href={RXOVA_ORIGIN}>
-        <img src={siteUrl('/rxova-logo-256.png')} alt="" width="28" height="28" loading="lazy" />
+      <a class="rx-footer__mark" href={`${origin}/`}>
+        <img src={`${origin}/rxova-logo-256.png`} alt="" width="28" height="28" loading="lazy" />
         <span>Rxova</span>
       </a>
       {/* Not "React libraries": most ship a framework-agnostic core; some are extensions/CLIs. */}
@@ -112,7 +114,7 @@ const surfaces: readonly SiteLink[] = site ?? [
         <h2 class="rx-footer__title">Site</h2>
         <ul class="rx-footer__list">
           <li>
-            <a href={RXOVA_ORIGIN}>Home</a>
+            <a href={`${origin}/`}>Home</a>
           </li>
           {surfaces.map((s) => (
             <li>
@@ -142,8 +144,8 @@ const surfaces: readonly SiteLink[] = site ?? [
   <div class="rx-footer__legal">
     <p>© {year} Rxova · MIT licensed</p>
     <div class="rx-footer__legal-links">
-      <a href={siteUrl('/privacy')}>Privacy</a>
-      <a href={siteUrl('/terms')}>Terms</a>
+      <a href={`${origin}/privacy/`}>Privacy</a>
+      <a href={`${origin}/terms/`}>Terms</a>
     </div>
   </div>
 </footer>

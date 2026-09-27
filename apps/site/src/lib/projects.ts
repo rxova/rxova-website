@@ -150,7 +150,7 @@ const LABELS: Record<string, string> = { blog: 'Blog', updates: 'Updates' }
 export function buildSiteSurfaces(sourceList: readonly RawSource[]): SiteSurface[] {
   return sourceList
     .filter((s) => s.kind === 'site' && s.enabled === true)
-    .map((s) => ({ id: s.id, label: LABELS[s.id] ?? s.id, href: `/${s.id}` }))
+    .map((s) => ({ id: s.id, label: LABELS[s.id] ?? s.id, href: `/${s.id}/` }))
 }
 
 export const siteSurfaces: readonly SiteSurface[] = buildSiteSurfaces(allSources)
@@ -160,9 +160,9 @@ export const siteSurfaces: readonly SiteSurface[] = buildSiteSurfaces(allSources
  * They join the mounted ones in `navSurfaces`.
  */
 export const landingSurfaces: readonly SiteSurface[] = [
-  { id: 'blog', label: 'Blog', href: '/blog' },
-  { id: 'updates', label: 'Updates', href: '/updates' },
-  { id: 'about', label: 'About', href: '/about' },
+  { id: 'blog', label: 'Blog', href: '/blog/' },
+  { id: 'updates', label: 'Updates', href: '/updates/' },
+  { id: 'about', label: 'About', href: '/about/' },
 ]
 
 /** The standalone surfaces in menu order: any mounted ones, then this app's own. */

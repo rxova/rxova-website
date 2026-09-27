@@ -124,7 +124,7 @@ describe('site surfaces', () => {
   it('lists the enabled site entries of sources.json', () => {
     const ids = realSources.filter((s) => s.kind === 'site' && s.enabled).map((s) => s.id)
     expect(siteSurfaces.map((s) => s.id)).toEqual(ids)
-    for (const surface of siteSurfaces) expect(surface.href).toBe(`/${surface.id}`)
+    for (const surface of siteSurfaces) expect(surface.href).toBe(`/${surface.id}/`)
   })
 
   it('names the known surfaces and falls back to the id for any other', () => {
@@ -135,9 +135,9 @@ describe('site surfaces', () => {
         { id: 'changelog', kind: 'site', enabled: true },
       ]),
     ).toEqual([
-      { id: 'blog', label: 'Blog', href: '/blog' },
-      { id: 'updates', label: 'Updates', href: '/updates' },
-      { id: 'changelog', label: 'changelog', href: '/changelog' },
+      { id: 'blog', label: 'Blog', href: '/blog/' },
+      { id: 'updates', label: 'Updates', href: '/updates/' },
+      { id: 'changelog', label: 'changelog', href: '/changelog/' },
     ])
   })
 
@@ -154,9 +154,9 @@ describe('site surfaces', () => {
 
   it('puts the mounted surfaces first, then Blog, Updates and About', () => {
     expect(landingSurfaces).toEqual([
-      { id: 'blog', label: 'Blog', href: '/blog' },
-      { id: 'updates', label: 'Updates', href: '/updates' },
-      { id: 'about', label: 'About', href: '/about' },
+      { id: 'blog', label: 'Blog', href: '/blog/' },
+      { id: 'updates', label: 'Updates', href: '/updates/' },
+      { id: 'about', label: 'About', href: '/about/' },
     ])
     expect(navSurfaces).toEqual([...siteSurfaces, ...landingSurfaces])
     expect(navSurfaces.at(-1)?.id).toBe('about')
