@@ -77,6 +77,7 @@ describe('verify gate', () => {
       log: () => {},
       error: (message: unknown) => messages.push(String(message)),
       run: run,
+      env: {},
     })
 
     expect(messages.join('\n')).toContain(failing)
