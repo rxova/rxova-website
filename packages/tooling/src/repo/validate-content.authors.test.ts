@@ -28,23 +28,20 @@ describe('a valid tree', () => {
 
   it('tolerates directories that do not exist yet', () => {
     const root = emptyRoot()
-    for (const pkg of ['apps/blog/authors', 'apps/updates/authors']) {
-      mkdirSync(join(root, pkg), { recursive: true })
-      writeFileSync(join(root, pkg, 'rxova.md'), AUTHOR)
-    }
+    const authors = 'apps/landing/content/authors'
+    mkdirSync(join(root, authors), { recursive: true })
+    writeFileSync(join(root, authors, 'rxova.md'), AUTHOR)
     expect(validateContent(root)).toEqual([])
   })
 })
 
 describe('authors', () => {
-  // One per surface: each package carries its own registry, so each is separately
-  // unusable without one.
-  it('fails per surface when there are none at all', () => {
+  // Posts and updates share one registry, so an empty one is one problem, reported once.
+  it('fails once when there are none at all', () => {
     const errors = validateContent(content({ authors: {} }))
-    expect(errors).toHaveLength(2)
-    expect(errors.some((e) => e.startsWith('apps/blog/authors:'))).toBe(true)
-    expect(errors.some((e) => e.startsWith('apps/updates/authors:'))).toBe(true)
-    expect(errors.every((e) => e.includes('no authors defined'))).toBe(true)
+    expect(errors).toEqual([
+      'apps/landing/content/authors: no authors defined — every entry needs a byline that resolves',
+    ])
   })
 
   it('names the author that does not exist, and lists the ones that do', () => {
@@ -64,7 +61,7 @@ describe('authors', () => {
     const errors = validateContent(
       content({ ...valid, authors: { 'rxova.md': '---\nname: 4\n---\n' } }),
     )
-    expect(errors.some((e) => e.includes('apps/blog/authors/rxova.md: name'))).toBe(true)
+    expect(errors.some((e) => e.includes('apps/landing/content/authors/rxova.md: name'))).toBe(true)
   })
 
   it('rejects an author filename that is not a bare id', () => {

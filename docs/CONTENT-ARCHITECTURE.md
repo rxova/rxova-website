@@ -3,30 +3,42 @@
 How **rxova.org/blog** and **rxova.org/updates** are put together, and why that way
 rather than the several other ways they could have been.
 
-The short version: producers build their own route bodies and page-specific head
-content. This repo never learns what a post, update or documentation page is, but
-it does own the public HTML shell around every one of them: global navigation,
-footer, theme bootstrap and analytics.
+The short version: the blog and the updates are routes of the site app, `apps/landing`,
+built in the same `astro build` as the landing and `/about`. Package docs are the only
+thing composed in at deploy time: their repositories build their own route bodies and
+page-specific head content, and this repo owns the public HTML shell around them —
+global navigation, footer, theme bootstrap and analytics.
 
-## They are sources, like everything else
+## One app, since September 2026
 
 ```
-apps/blog/posts           ─┐                     ingest.yml     (validate + persist)
-apps/updates/updates       ├─ astro build ─────→ content-blog   (release)
-apps/*/authors             │   upload dist       content-updates
-packages/website-schemas  ─┘   dispatch          fetch-docs.mjs (pull at deploy)
-                                                 assemble.mjs   (compose into website shell)
+apps/landing/content/posts    ─┐
+apps/landing/content/updates   ├─ astro build (apps/landing) ─→ dist/ ─→ assemble.ts ─→ _site/
+apps/landing/content/authors   │                                            ▲
+packages/website-schemas      ─┘                        fetch-docs.ts (package docs only)
 ```
 
-The blog and updates used to be built in a separate `rxova/brand` repository. They now
-live here, but they still go through the same path as any project's docs: built by their
-own workflow, sent to `ingest.yml`, persisted and assembled.
+Until then the blog and the updates were two more Astro builds, each published by its
+own workflow, sent to `ingest.yml`, persisted as a `content-blog` or `content-updates`
+release and composed into the shell like a project's docs. That kept one code path for
+every surface, and it cost three things:
 
-Nothing above is new except the two entries in `sources.json`. `ingest.yml`,
-`fetch-docs.mjs` and `assemble.mjs` are the same code paths that carry
-`/packages/journey/`, and they need to know nothing about prose. A schema-2
-artifact is identified by `rxova-page-bundle.json`; schema-1 full-site artifacts
-remain copyable during the migration.
+- **A flicker on every navbar click between sections.** Each build emitted its own CSS
+  and fonts under its own base (`/_astro/`, `/blog/_astro/`, `/updates/_astro/`). The
+  files were identical, but at different URLs the browser fetched them again, so moving
+  between the landing, the blog and the updates rendered text in the fallback font first.
+- **Three builds and two extra workflows** for content that lives in this repo anyway.
+- **A round trip through ingest** before a post reached the site, where the deploy that
+  follows every merge could simply build it.
+
+So the two sections moved into the landing app as routes. Their prose moved to
+`apps/landing/content`, with one author registry for both. The `blog` and `updates`
+entries left `sources.json`, and the `publish-blog`/`publish-updates` workflows went with
+them. Every URL, feed, canonical link and sitemap entry came out the same; the only
+change a reader sees is that the fonts and styles are fetched once for the whole site.
+
+The `site` kind below stays: it is the way to mount a static site built somewhere else
+at `/<id>/`, which no longer happens to include these two.
 
 ## `kind`, and why it is not an escape hatch
 

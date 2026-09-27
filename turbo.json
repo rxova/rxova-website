@@ -86,25 +86,20 @@
       "outputs": ["coverage/**"],
       "outputLogs": "new-only"
     },
-    // The landing's suite reads the repo-root sources.json through src/lib/projects.ts.
+    // Reads sources.json via src/lib/projects.ts; test/blog-render.test.ts runs a real `astro build`,
+    // so it needs `^build` and follows `check:astro` so two astro runs never share node_modules/.astro.
     "@rxova/landing#test": {
-      "dependsOn": ["^test"],
-      "inputs": ["src/**", "vitest.config.ts", "package.json", "$TURBO_ROOT$/sources.json"],
-      "outputs": ["coverage/**"],
-      "outputLogs": "new-only"
-    },
-    // test/render.test.ts runs a real `astro build`, which needs dependencies' dist/ (`^build`) and
-    // must run after `check:astro` so two astro processes never share `node_modules/.astro`.
-    "@rxova/blog#test": {
       "dependsOn": ["^test", "^build", "check:astro"],
       "inputs": [
         "src/**",
         "test/**",
-        "posts/**",
-        "authors/**",
+        "content/**",
+        "public/**",
         "astro.config.mjs",
+        "ec.config.mjs",
         "vitest.config.ts",
-        "package.json"
+        "package.json",
+        "$TURBO_ROOT$/sources.json"
       ],
       "outputs": ["coverage/**"],
       "outputLogs": "new-only"
@@ -153,10 +148,9 @@
       "dependsOn": ["@rxova/website-schemas#build"],
       "outputs": [],
       "inputs": [
-        "apps/blog/posts/**",
-        "apps/blog/authors/**",
-        "apps/updates/updates/**",
-        "apps/updates/authors/**",
+        "apps/landing/content/posts/**",
+        "apps/landing/content/updates/**",
+        "apps/landing/content/authors/**",
         "packages/website-schemas/src/**",
         "packages/brand/src/sites.ts",
         "packages/tooling/src/repo/validate-content.ts"
@@ -168,10 +162,10 @@
       "dependsOn": ["build"],
       "cache": false
     },
-    // The assembled site rebuilds the blog and updates for their mounts, in the same dist/ the
-    // per-app previews serve, so it runs after them.
+    // The assembled site builds the landing into the same dist/ its preview serves, so it runs
+    // after the landing's own e2e.
     "@rxova/e2e#e2e": {
-      "dependsOn": ["@rxova/landing#e2e", "@rxova/blog#e2e", "@rxova/updates#e2e"],
+      "dependsOn": ["@rxova/landing#e2e"],
       "cache": false
     },
     "dev": {

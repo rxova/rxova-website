@@ -137,13 +137,13 @@ describe('isDocsOrConfigOnly', () => {
     ['eslint.config.js'],
     ['README.md'],
     ['apps/landing/src/pages/index.astro'],
-    ['apps/blog/posts/2026-07-27T080000-a-post.md'],
+    ['apps/landing/content/posts/2026-07-27T080000-a-post.md'],
   ])('skips a diff of only %s', (file) => {
     expect(isDocsOrConfigOnly([file])).toBe(true)
   })
 
-  it.each([['apps/blog/src/pages/index.astro'], ['apps/updates/src/lib/content.ts']])(
-    'does not skip %s, a versioned surface',
+  it.each([['apps/new-surface/src/pages/index.astro'], ['apps/new-surface/src/lib/content.ts']])(
+    'does not skip %s, outside the allowed list',
     (file) => expect(isDocsOrConfigOnly([file])).toBe(false),
   )
 

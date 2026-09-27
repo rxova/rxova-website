@@ -1,8 +1,7 @@
 # Writing for rxova.org
 
-The blog lives in `apps/blog` and the updates stream in `apps/updates`. Each is
-built on its own and mounted on **rxova.org** the same way a project's docs are. The full
-design and the reasoning behind it live in
+The blog and the updates stream are part of the site app, `apps/landing`, and their prose
+lives in `apps/landing/content`. The design and the reasoning behind it live in
 [`docs/CONTENT-ARCHITECTURE.md`](./CONTENT-ARCHITECTURE.md).
 
 This page is the practical half: what to write, where, and what the frontmatter has
@@ -10,11 +9,11 @@ to say.
 
 ## Which surface
 
-| Write here                          | For                                                       | Not for                |
-| ----------------------------------- | --------------------------------------------------------- | ---------------------- |
-| `apps/blog/posts` → `/blog`         | Essays, design rationale, deep dives — **the why**        | Lists of changes       |
-| `apps/updates/updates` → `/updates` | Short dated notes on **what is moving**                   | Release notes verbatim |
-| A project's `CHANGELOG.md`          | **What changed in a release** — generated from changesets | Prose                  |
+| Write here                     | For                                                       | Not for                |
+| ------------------------------ | --------------------------------------------------------- | ---------------------- |
+| `content/posts` → `/blog`      | Essays, design rationale, deep dives — **the why**        | Lists of changes       |
+| `content/updates` → `/updates` | Short dated notes on **what is moving**                   | Release notes verbatim |
+| A project's `CHANGELOG.md`     | **What changed in a release** — generated from changesets | Prose                  |
 
 The rule that keeps them apart: **an update never restates a release.** Link out to
 one when there is something worth linking to — `links` and `version` are both
@@ -24,7 +23,7 @@ it belonged in updates.
 
 ## Adding a post
 
-`apps/blog/posts/YYYY-MM-DDTHHMMSS-some-slug.md`. The prefix keeps the directory sorted
+`apps/landing/content/posts/YYYY-MM-DDTHHMMSS-some-slug.md`. The prefix keeps the directory sorted
 in an editor; `pubDate` is what actually orders the site, and the validator checks
 the two agree. The URL is `/blog/some-slug` — the prefix is stripped, so re-dating a
 post never breaks its link.
@@ -46,7 +45,7 @@ updatedDate: # optional; must not be earlier than pubDate
 The filename is a **full UTC timestamp to the second**, always:
 
 ```
-apps/blog/posts/2026-07-27T143005-some-slug.md   pubDate: 2026-07-27T14:30:05Z
+apps/landing/content/posts/2026-07-27T143005-some-slug.md   pubDate: 2026-07-27T14:30:05Z
 ```
 
 The two must be the same instant, and the validator says so with the exact rename
@@ -72,8 +71,8 @@ there. Paths are relative to the file that writes them, so from a post that is
 `../images/<slug>/…`.
 
 ```
-apps/blog/images/some-slug/hero.png
-apps/blog/posts/2026-07-27T143005-some-slug.md
+apps/landing/content/images/some-slug/hero.png
+apps/landing/content/posts/2026-07-27T143005-some-slug.md
 ```
 
 A cover goes in the frontmatter; anything else is a normal markdown embed:
@@ -103,7 +102,7 @@ Embedded images take their alt text inline, the ordinary way: `![like this](…)
 
 ## Adding an update
 
-`apps/updates/updates/YYYY-MM-DDTHHMMSS-some-slug.md`, same timestamp rule as posts. Keep
+`apps/landing/content/updates/YYYY-MM-DDTHHMMSS-some-slug.md`, same timestamp rule as posts. Keep
 it to a paragraph or two — the updates page renders entries in full, inline, as one
 stream.
 
@@ -148,16 +147,15 @@ post or on an update.
 draft: true
 ```
 
-It behaves the same on both surfaces. Run the surface you are writing for:
+It behaves the same on both surfaces. Run the site:
 
 ```sh
-pnpm --filter @rxova/blog dev      # or @rxova/updates
+pnpm dev
 ```
 
 and it renders in place — in the blog index and on its own page, or inline in the
 updates stream at its date — with a `Draft` badge, so previewing a sketch never looks
-like having published one. (Note the filter: bare `pnpm dev` at the root runs the
-Starlight preview app, which has neither surface in it.)
+like having published one.
 
 The production build emits nothing at all for a sketch: no page, no listing, no entry
 in the stream, and no repo or tag filter chip that only it would have justified.
@@ -173,8 +171,8 @@ it out of the repo — that is what the flag is for.
 
 ## Adding yourself as an author
 
-`apps/blog/authors/<your-id>.md` and `apps/updates/authors/<your-id>.md`: each
-surface keeps its own registry. The id is the filename and is what entries reference.
+`apps/landing/content/authors/<your-id>.md`: one registry for posts and updates alike. The
+id is the filename and is what entries reference.
 
 ```yaml
 ---
@@ -200,17 +198,16 @@ anything it accepts will build — and it additionally checks that each `authors
 has a file, and that each `cover:` and each `![](…)` a body embeds resolves on disk,
 which the renderer cannot do until deploy time.
 
-To see one surface rendered, run `pnpm --filter @rxova/blog dev`, or `@rxova/updates`.
+To see it rendered, run `pnpm dev` and open `/blog` or `/updates`.
 
 ## Licensing
 
-Prose in `apps/blog` and `apps/updates` is **CC BY 4.0** (see the `LICENSE` in
-each), not the repo's MIT.
+Prose in `apps/landing/content` is **CC BY 4.0** (see the `LICENSE` there), not the repo's
+MIT.
 MIT is a software licence and reads oddly applied to an article. Submitting a post
 means licensing it that way.
 
 ## Publishing
 
-Merging to `main` with changes under `apps/blog` or `apps/updates` runs that
-surface's publish workflow, which builds it and hands it to `ingest.yml` in this repo to
-persist and redeploy. Nothing else is needed — no release and no version bump.
+Merging to `main` runs the deploy, which builds the site with the new entry in it. Nothing
+else is needed — no release and no version bump.

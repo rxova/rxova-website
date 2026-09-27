@@ -72,22 +72,10 @@
       }
     },
     {
-      "id": "blog",
-      "kind": "site",
-      "enabled": true,
-      "repo": "rxova/rxova-website"
-    },
-    {
       "id": "storybook-react-inputs",
       "kind": "storybook",
       "enabled": true,
       "repo": "rxova/react-inputs"
-    },
-    {
-      "id": "updates",
-      "kind": "site",
-      "enabled": true,
-      "repo": "rxova/rxova-website"
     }
   ]
 }

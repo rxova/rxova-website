@@ -83,6 +83,15 @@ export function llmsIndex(
   return lines.join('\n')
 }
 
+/**
+ * Sections the landing app builds itself, so no `sources.json` entry announces them. They are
+ * listed under "Also on this site" beside any mounted `kind: "site"` source.
+ */
+export const OWN_SECTIONS: readonly { label: string; path: string }[] = [
+  { label: 'blog', path: '/blog/' },
+  { label: 'updates', path: '/updates/' },
+]
+
 /** Writes the root llms.txt into `outDir` and returns the entries it wrote. */
 export async function writeLlms(
   outDir: string,
@@ -106,6 +115,11 @@ export async function writeLlms(
       note: source.landing?.blurb,
     }
     ;(source.kind === 'site' ? sites : projects).push(entry)
+  }
+
+  for (const section of OWN_SECTIONS) {
+    if (sites.some((s) => s.label === section.label)) continue
+    sites.push({ label: section.label, url: new URL(section.path, origin).href })
   }
 
   const sortByLabel = (a: LlmsEntry, b: LlmsEntry) => a.label.localeCompare(b.label, 'en')
