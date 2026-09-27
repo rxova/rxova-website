@@ -50,8 +50,17 @@ const OTP = ['4', '8', '1', '5', '9', '2']
                     </code>
                   </span>
                   <span class="json-row">
-                    <span class="json-label">after JSON</span>
+                    <span class="json-label">plain JSON</span>
                     <code class="json-lost">{'{}'}</code>
+                  </span>
+                  <span class="json-row json-fixed">
+                    <span class="json-label">rebuilt</span>
+                    <code>
+                      NotFoundError {'{'} code: 'E404' {'}'}
+                    </code>
+                    <svg class="json-tick" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path d="m3.2 8.4 3 3 6.6-6.8" />
+                    </svg>
                   </span>
                 </span>
               )}
@@ -216,6 +225,27 @@ const OTP = ['4', '8', '1', '5', '9', '2']
   .json-lost {
     color: var(--rx-accent-c);
     font-weight: 600;
+  }
+
+  /* The fix: `deserializeError` gives back the class, code and cause, in the accent and with a tick. */
+  .json-row + .json-row.json-fixed {
+    border-top-style: solid;
+  }
+
+  .json-fixed code {
+    color: var(--rx-primary);
+    font-weight: 600;
+  }
+
+  .json-tick {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    margin-inline-start: auto;
+    stroke: var(--rx-primary);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   .flow {
