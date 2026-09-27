@@ -124,13 +124,13 @@ export function getRepo(id: RepoId): (typeof REPOS)[number] {
 }
 
 /**
- * The standalone sections of rxova.org, in menu order, beside the project list. Every surface's
- * navigation reads this: the site header, the docs header and the shared footer.
+ * The standalone sections of rxova.org, in menu order. Every surface's navigation reads this: the
+ * site header, the docs header and the shared footer. The site root is the about page, reached by the mark.
  */
 export const SECTIONS = [
+  { id: 'projects', label: 'Projects', path: '/projects/' },
   { id: 'blog', label: 'Blog', path: '/blog/' },
   { id: 'updates', label: 'Updates', path: '/updates/' },
-  { id: 'about', label: 'About', path: '/about/' },
 ] as const
 
 export type SectionId = (typeof SECTIONS)[number]['id']

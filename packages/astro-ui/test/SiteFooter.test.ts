@@ -17,7 +17,7 @@ describe('SiteFooter', () => {
   it("links root-relative when origin is '', so a preview links to itself", async () => {
     const html = await render(SiteFooter, { props: { origin: '' } })
     const own = hrefs(html).filter((h) => !/^(https?:|mailto:)/.test(h ?? ''))
-    expect(own).toEqual(expect.arrayContaining(['/', '/blog/', '/about/', '/terms/']))
+    expect(own).toEqual(expect.arrayContaining(['/', '/projects/', '/blog/', '/terms/']))
     expect(html).not.toContain('https://rxova.org')
     expect(html).toContain('src="/rxova-logo-256.png"')
   })

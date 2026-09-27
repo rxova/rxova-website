@@ -19,7 +19,7 @@ interface Props {
   docs?: { label: string; href: string }[]
   /**
    * Standalone surfaces listed under "Site", below Home. Only the umbrella repo knows which are
-   * deployed; the default (for docs sites) includes /about, a page of the landing build.
+   * deployed; the default (for docs sites) is `SECTIONS`: Projects, Blog and Updates.
    */
   site?: readonly SiteLink[]
   /**
