@@ -192,14 +192,13 @@ export const ORIGINS: readonly Origin[] = [
   },
 ] as const
 
-/** What one maintainer commits to, and what it would be dishonest to promise. */
+/** What one maintainer commits to. */
 export const COMMITMENTS = {
   promised: [
     'Issues get read',
     'Security reports come first',
     'No API break without a major and a migration note',
   ],
-  notPromised: ['Same-day fixes', 'A roadmap set by feature votes'],
 } as const
 
 /** The contributions worth most, smallest first; `id` picks the card's icon. */

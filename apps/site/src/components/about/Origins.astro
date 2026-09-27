@@ -15,7 +15,7 @@ const OTP = ['4', '8', '1', '5', '9', '2']
 <section class="origins" aria-labelledby="why">
   <Reveal class="head">
     <Eyebrow>Why it exists</Eyebrow>
-    <SectionHeading id="why">Code written for the third time, finally set free.</SectionHeading>
+    <SectionHeading id="why">Open source solutions for common problems</SectionHeading>
   </Reveal>
 
   <ul class="cases">
@@ -220,11 +220,13 @@ const OTP = ['4', '8', '1', '5', '9', '2']
     text-underline-offset: 3px;
   }
 
+  /* Balanced, so the second sentence does not leave "private." alone on the last line. */
   .coda {
     margin-top: 2rem;
     max-width: 44rem;
     font-size: 1.1rem;
     color: var(--rx-muted);
+    text-wrap: balance;
   }
 
   @media (max-width: 52rem) {

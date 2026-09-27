@@ -65,13 +65,10 @@ import SectionHeading from '../home/SectionHeading.astro'
 </section>
 
 <style>
-  /* Full-bleed tint, while the content keeps the page's column. */
+  /* Set off by hairlines, not a fill: a full-bleed --rx-card reads as a brown slab in dark. */
   .band {
     padding-block: clamp(3rem, 9vh, 5.5rem);
     border-block: 1px solid var(--rx-rule);
-    background: var(--rx-card);
-    box-shadow: 0 0 0 100vmax var(--rx-card);
-    clip-path: inset(0 -100vmax);
   }
 
   .head {
