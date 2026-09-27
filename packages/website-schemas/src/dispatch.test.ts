@@ -14,10 +14,6 @@ describe('dispatchPayload', () => {
     expect(dispatchPayload.parse(base).version).toBeUndefined()
   })
 
-  it('accepts page-component bundle dispatches', () => {
-    expect(dispatchPayload.parse({ ...base, schema: 2 }).schema).toBe(2)
-  })
-
   it('accepts a numeric run_id as well as a string', () => {
     expect(dispatchPayload.safeParse({ ...base, run_id: 123 }).success).toBe(true)
   })
@@ -36,6 +32,7 @@ describe('dispatchPayload', () => {
     ['a sha that is not hex', { ...base, sha: 'zzzzzzz' }],
     ['a version that is not semver', { ...base, version: 'v1' }],
     ['an unknown field', { ...base, extra: 'x' }],
+    ['the retired page-component schema', { ...base, schema: 2 }],
     ['a schema version this does not speak', { ...base, schema: 3 }],
   ])('refuses %s', (_label, value) => {
     expect(dispatchPayload.safeParse(value).success).toBe(false)

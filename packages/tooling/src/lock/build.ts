@@ -3,12 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { access, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
-import {
-  PAGE_BUNDLE_FILENAME,
-  baseFor,
-  createPageBundleManifest,
-  type SourceKind,
-} from '@rxova/website-schemas'
+import { baseFor, type SourceKind } from '@rxova/website-schemas'
 
 import type { SnapshotRoot } from './snapshot.ts'
 
@@ -128,8 +123,6 @@ export async function buildCheckout(repoRoot: string, workDir: string): Promise<
     } else {
       await writeFixtureDocs(dir, source.id, base, targets)
     }
-    const manifest = createPageBundleManifest(source.id, base)
-    await writeFile(join(dir, PAGE_BUNDLE_FILENAME), `${JSON.stringify(manifest, null, 2)}\n`)
   }
 
   const assembler = (

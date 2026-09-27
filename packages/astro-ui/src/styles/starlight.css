@@ -65,46 +65,6 @@ header.header {
   background: var(--sl-color-bg-nav);
 }
 
-/* In a schema-2 page bundle rxova-website renders the umbrella header outside `.page`; keep
-   Starlight's sticky docs bar below it. */
-html[data-rxova-shell] {
-  --rx-shell-header-height: 3.5rem;
-}
-
-html[data-rxova-shell] .page > header.header {
-  inset-block-start: var(--rx-shell-header-height);
-}
-
-html[data-rxova-shell] .sidebar-pane {
-  inset-block-start: calc(var(--rx-shell-header-height) + var(--sl-nav-height));
-}
-
-html[data-rxova-shell] mobile-starlight-toc nav {
-  top: calc(var(--rx-shell-header-height) + var(--sl-nav-height) - 1px);
-}
-
-/* Starlight 0.42 dropped the <starlight-menu-button> wrapper for a bare
-   button.sl-menu-button; the peer range still covers the older markup. */
-html[data-rxova-shell] starlight-menu-button button,
-html[data-rxova-shell] .sl-menu-button {
-  top: calc(
-    var(--rx-shell-header-height) + (var(--sl-nav-height) - var(--sl-menu-button-size)) / 2
-  );
-}
-
-@media (min-width: 72rem) {
-  html[data-rxova-shell] .right-sidebar {
-    top: var(--rx-shell-header-height);
-    height: calc(100vh - var(--rx-shell-header-height));
-  }
-}
-
-@media (max-width: 34rem) {
-  html[data-rxova-shell] {
-    --rx-shell-header-height: 3.25rem;
-  }
-}
-
 /* Site title: the rxova mark sits beside the project wordmark. */
 .rx-site-title {
   display: flex;
