@@ -1,0 +1,179 @@
+---
+/** What one maintainer commits to, beside what would be dishonest to promise. */
+import { COMMITMENTS } from '../../lib/about'
+import { navSurfaces } from '../../lib/projects'
+import Eyebrow from '../home/Eyebrow.astro'
+import Reveal from '../home/Reveal.astro'
+import SectionHeading from '../home/SectionHeading.astro'
+
+// Read from the menu, so the link and the header can never disagree on the section.
+const updatesHref = navSurfaces.find((s) => s.id === 'updates')?.href
+---
+
+<section class="maintenance" aria-labelledby="maintained">
+  <Reveal class="copy">
+    <Eyebrow>Maintenance</Eyebrow>
+    <SectionHeading id="maintained">One person's work, said plainly.</SectionHeading>
+    <p class="lede">
+      Don't trust a badge. {updatesHref ? 'Updates logs' : 'The repositories log'} every release and
+      decision, and every commit is public.
+    </p>
+    {updatesHref && (
+      <a class="more" href={updatesHref}>
+        Read the Updates log
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M5 12h14M13 6l6 6-6 6"></path>
+        </svg>
+      </a>
+    )}
+  </Reveal>
+
+  <Reveal class="lists" style="--d: 70ms">
+    <div class="list promised">
+      <h3>You can count on</h3>
+      <ul>
+        {COMMITMENTS.promised.map((item) => (
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m5 12.5 4.5 4.5L19 7.5" />
+            </svg>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="list not-promised">
+      <h3>Not promised</h3>
+      <ul>
+        {COMMITMENTS.notPromised.map((item) => (
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 12h12" />
+            </svg>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Reveal>
+</section>
+
+<style>
+  .maintenance {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+    padding-block: clamp(3rem, 9vh, 5.5rem);
+  }
+
+  .lede {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: var(--rx-muted);
+  }
+
+  .more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    margin-top: 0.75rem;
+    font-weight: 600;
+    color: var(--rx-primary);
+    text-decoration: none;
+  }
+
+  .more svg {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 0.15s ease;
+  }
+
+  .more:hover svg {
+    transform: translateX(2px);
+  }
+
+  .lists {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    padding: 1.6rem;
+    border-radius: calc(var(--rx-radius) + 4px);
+  }
+
+  .promised {
+    border: 1px solid var(--rx-rule);
+  }
+
+  .not-promised {
+    border: 1px dashed var(--rx-rule-strong);
+    color: var(--rx-muted);
+  }
+
+  h3 {
+    font-family: var(--rx-font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    line-height: 1.45;
+  }
+
+  li svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: none;
+    margin-top: 0.05rem;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .promised svg {
+    stroke: var(--rx-primary);
+  }
+
+  .not-promised svg {
+    stroke: var(--rx-faint);
+  }
+
+  @media (max-width: 60rem) {
+    .maintenance {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 36rem) {
+    .lists {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

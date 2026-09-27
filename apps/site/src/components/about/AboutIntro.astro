@@ -1,0 +1,251 @@
+---
+/** /about's opening: what Rxova is, three counts, and the maintainer card beside them. */
+import { MAINTAINER } from '../../lib/about'
+import { landingProjects } from '../../lib/projects'
+
+// Counted, not written: the projects are the ones the landing shows, and the zero is the
+// zero-dependencies standard (only rxova's own packages, React a peer).
+const counts = [
+  { value: landingProjects.length, label: 'projects' },
+  { value: 0, label: 'third-party deps' },
+  { value: 1, label: 'maintainer' },
+]
+
+/** Stroke glyphs for the maintainer's links, keyed by label; a label with none gets no icon. */
+const LINK_ICONS: Record<string, string> = {
+  GitHub:
+    '<path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21" />',
+  LinkedIn:
+    '<rect x="3" y="3" width="18" height="18" rx="3" /><path d="M8 10.5V16M8 7.6v.1M12 16v-3.2a2.3 2.3 0 0 1 4.6 0V16M12 10.5V16" />',
+  Medium:
+    '<circle cx="7.5" cy="12" r="4.5" /><ellipse cx="16" cy="12" rx="2" ry="4.3" /><path d="M20.5 8v8" />',
+  'Stack Overflow':
+    '<path d="M5 14v6h13v-6M8.5 17h6.5M9 13.3l6.4 1.3M10.2 9.5l5.8 2.8M12.6 5.6l5 4.1" />',
+}
+---
+
+<section class="intro" aria-labelledby="about-title">
+  <div class="intro-copy">
+    <p class="kicker">About Rxova</p>
+    <h1 id="about-title">Small libraries for the hard parts of the browser.</h1>
+    <p class="lede">
+      Built in the open by one engineer. Independent packages, one standard for finished.
+    </p>
+    <dl class="counts">
+      {counts.map((c) => (
+        <div class="count">
+          <dt>{c.label}</dt>
+          <dd>{c.value}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+
+  <div class="card">
+    <span class="rule" aria-hidden="true"></span>
+    <h2 id="maintainer" class="name">
+      {MAINTAINER.name}
+    </h2>
+    <p class="role">{MAINTAINER.role}</p>
+    <p class="focus">{MAINTAINER.focus}</p>
+    <ul class="links" aria-label={`${MAINTAINER.name} elsewhere`}>
+      {MAINTAINER.links.map((l) => (
+        <li>
+          <a href={l.href} target="_blank" rel="noopener noreferrer">
+            {LINK_ICONS[l.label] && (
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                set:html={LINK_ICONS[l.label]}
+              />
+            )}
+            {l.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+    <a class="mail" href={`mailto:${MAINTAINER.email}`}>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <rect x="3" y="5" width="18" height="14" rx="2.5"></rect>
+        <path d="m4 7 8 6 8-6"></path>
+      </svg>
+      {MAINTAINER.email}
+    </a>
+  </div>
+</section>
+
+<style>
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+    padding-block: clamp(2.5rem, 8vh, 5.5rem);
+  }
+
+  .kicker,
+  .role,
+  .count dt {
+    font-family: var(--rx-font-mono);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--rx-muted);
+  }
+
+  .kicker {
+    font-size: 0.78rem;
+    margin-bottom: 1.25rem;
+  }
+
+  h1 {
+    font-size: clamp(2.2rem, 5.2vw, 3.6rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-weight: 650;
+    text-wrap: balance;
+  }
+
+  .lede {
+    margin-top: 1.25rem;
+    max-width: 32rem;
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    color: var(--rx-muted);
+  }
+
+  .counts {
+    display: flex;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    margin-top: 2rem;
+  }
+
+  /* The number reads first, so it is set above its label although the markup keeps dt first. */
+  .count {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.2rem;
+  }
+
+  .count + .count {
+    padding-inline-start: clamp(1.25rem, 3vw, 2.5rem);
+    border-inline-start: 1px solid var(--rx-rule);
+  }
+
+  .count dd {
+    font-size: clamp(1.9rem, 3.4vw, 2.5rem);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .count dt {
+    font-size: 0.72rem;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border: 1px solid var(--rx-rule);
+    border-radius: calc(var(--rx-radius) + 8px);
+    background: var(--rx-card);
+    box-shadow: var(--rx-shadow-soft);
+  }
+
+  .rule {
+    width: 3rem;
+    height: 3px;
+    border-radius: var(--rx-radius-pill);
+    background: var(--rx-gradient);
+  }
+
+  .name {
+    font-size: clamp(1.35rem, 2.4vw, 1.65rem);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+  }
+
+  .role {
+    margin-top: -0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .focus {
+    color: var(--rx-muted);
+    font-size: 1.05rem;
+  }
+
+  .links {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding-inline: 1rem;
+    border: 1px solid var(--rx-rule-strong);
+    border-radius: var(--rx-radius-pill);
+    background: var(--rx-bg);
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .links a:hover {
+    border-color: var(--rx-fg);
+  }
+
+  .links svg,
+  .mail svg {
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+  }
+
+  .mail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    align-self: flex-start;
+    font-family: var(--rx-font-mono);
+    font-size: 0.9rem;
+    text-underline-offset: 3px;
+  }
+
+  @media (max-width: 52rem) {
+    .intro {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .links {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .links a {
+      justify-content: center;
+    }
+  }
+</style>
