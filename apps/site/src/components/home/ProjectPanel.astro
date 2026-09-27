@@ -3,6 +3,7 @@
 import type { LandingProject } from '../../lib/projects'
 import { walkthroughPath } from '../../lib/walkthrough'
 import { showcases } from '../../showcases'
+import CopyButton from '@rxova/astro-ui/components/CopyButton.astro'
 import Walkthrough from '../walkthrough/Walkthrough.astro'
 import Arrow from './Arrow.astro'
 import LinkRow from './LinkRow.astro'
@@ -39,6 +40,7 @@ const story = showcases[p.id]
       $
     </span>
     <code>npm i {p.install}</code>
+    <CopyButton text={`npm i ${p.install}`} label={`Copy the install command for ${p.label}`} />
   </div>
 
   {/* `set:text` on an empty `<pre>`, so the formatter cannot put whitespace inside it. */}
@@ -133,23 +135,29 @@ const story = showcases[p.id]
   /* Reads as a terminal without pretending to be one: a rule, not a filled block. */
   .install {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 0.5rem;
     font-family: var(--rx-font-mono);
     font-size: 0.82rem;
     border: 1px solid var(--rx-rule-strong);
     border-radius: var(--rx-radius-sm);
     background: var(--rx-bg);
-    padding: 0.55rem 0.75rem;
+    padding: 0.4rem 0.45rem 0.4rem 0.75rem;
     margin-bottom: 0.9rem;
-    overflow-x: auto;
   }
   .install .prompt {
     color: var(--rx-faint);
     user-select: none;
   }
+  /* The command scrolls on its own when narrow, so the copy button never scrolls out of reach. */
   .install code {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
     white-space: nowrap;
+  }
+  .install :global(.rx-copy) {
+    color: var(--rx-muted);
   }
   .snippet {
     font-family: var(--rx-font-mono);

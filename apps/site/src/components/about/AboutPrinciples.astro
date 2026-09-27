@@ -1,5 +1,6 @@
 ---
 /** The four rules as numbered cards, each with a small picture; ids are the landing's anchors. */
+import CopyButton from '@rxova/astro-ui/components/CopyButton.astro'
 import { PRINCIPLES } from '../../lib/about'
 import { STANDARD_ICONS } from '../../lib/home'
 import Eyebrow from '../home/Eyebrow.astro'
@@ -51,12 +52,13 @@ import SectionHeading from '../home/SectionHeading.astro'
           </ul>
         )}
         {p.card.visual?.kind === 'command' && (
-          <code class="command">
+          <div class="command">
             <span class="prompt" aria-hidden="true">
               $
             </span>
-            {p.card.visual.command}
-          </code>
+            <code>{p.card.visual.command}</code>
+            <CopyButton text={p.card.visual.command} label="Copy the install command" />
+          </div>
         )}
         <p class="rule-line">{p.card.line}</p>
       </Reveal>
@@ -175,7 +177,7 @@ import SectionHeading from '../home/SectionHeading.astro'
     align-items: center;
     gap: 0.6rem;
     min-height: 2.75rem;
-    padding-inline: 0.9rem;
+    padding-inline: 0.9rem 0.45rem;
     border: 1px solid var(--rx-rule);
     border-radius: 8px;
     /* A terminal in both themes, so it does not invert into a light bar on the dark page. */
@@ -183,6 +185,12 @@ import SectionHeading from '../home/SectionHeading.astro'
     color: #f4f1ea;
     font-family: var(--rx-font-mono);
     font-size: 0.85rem;
+  }
+
+  /* The command scrolls on its own when narrow, so the copy button never scrolls out of reach. */
+  .command code {
+    flex: 1;
+    min-width: 0;
     overflow-x: auto;
     white-space: nowrap;
   }
