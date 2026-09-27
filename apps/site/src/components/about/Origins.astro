@@ -3,6 +3,7 @@
 import { getProject } from '@rxova/brand'
 import { ORIGINS } from '../../lib/about'
 import { landingProjects } from '../../lib/projects'
+import Arrow from '../home/Arrow.astro'
 import Eyebrow from '../home/Eyebrow.astro'
 import Reveal from '../home/Reveal.astro'
 import SectionHeading from '../home/SectionHeading.astro'
@@ -93,6 +94,10 @@ const OTP = ['4', '8', '1', '5', '9', '2']
     Each was solved before, privately, inside a product repo. Rxova is where that work stops being
     private.
   </p>
+  <a class="all" href="/projects/">
+    See all projects
+    <Arrow dir="across" />
+  </a>
 </section>
 
 <style>
@@ -309,6 +314,39 @@ const OTP = ['4', '8', '1', '5', '9', '2']
     font-size: 1.1rem;
     color: var(--rx-muted);
     text-wrap: balance;
+  }
+
+  /* The same in-text call to action as Maintenance's "Read the Updates log". */
+  .all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    margin-top: 0.75rem;
+    font-weight: 600;
+    color: var(--rx-primary);
+    text-decoration: none;
+  }
+
+  .all :global(svg) {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 0.15s ease;
+  }
+
+  .all:hover :global(svg) {
+    transform: translateX(2px);
+  }
+
+  .all:focus-visible {
+    outline: 2px solid var(--rx-fg);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .all :global(svg) {
+      transition: none;
+    }
   }
 
   @media (max-width: 52rem) {
