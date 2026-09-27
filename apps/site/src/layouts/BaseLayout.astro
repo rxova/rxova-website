@@ -106,6 +106,16 @@ const fontPreloads = docsShell
         background: var(--rx-card);
         -webkit-backdrop-filter: none;
         backdrop-filter: none;
+        /* Fixed like Starlight's bar under it: a sticky ribbon slides apart from a fixed bar
+           when iOS rubber-bands the page. */
+        position: fixed;
+        inset-block-start: 0;
+        inset-inline: 0;
+      }
+
+      /* The fixed ribbon leaves the flow; this keeps the page where it sat under it. */
+      html[data-rxova-docs-shell] body {
+        padding-block-start: var(--rx-shell-header-height);
       }
 
       /* Declared rather than left to the tallest child — see the height note
