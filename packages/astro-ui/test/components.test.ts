@@ -2,6 +2,8 @@ import { experimental_AstroContainer as AstroContainer } from 'astro/container'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import BackLink from '../src/components/BackLink.astro'
+import Check from '../src/components/icons/Check.astro'
+import Copy from '../src/components/icons/Copy.astro'
 import Expand from '../src/components/icons/Expand.astro'
 import Next from '../src/components/icons/Next.astro'
 import Play from '../src/components/icons/Play.astro'
@@ -52,6 +54,12 @@ describe('icons', () => {
     )
     expect(html).toContain('aria-hidden="true"')
     expect(html).toContain('<path d="M6 3.5 10.5 8 6 12.5"></path>')
+  })
+
+  it('draws the copy and check glyphs in the same frame', async () => {
+    for (const glyph of [Copy, Check]) {
+      expect(await render(glyph)).toContain('viewBox="0 0 16 16"')
+    }
   })
 
   it('fills the solid glyphs', async () => {

@@ -1,0 +1,12 @@
+---
+import type { ComponentProps } from 'astro/types'
+import Icon from '../Icon.astro'
+
+/** Two overlapping sheets: the front one is what goes on the clipboard. */
+type Props = Omit<ComponentProps<typeof Icon>, 'solid'>
+---
+
+<Icon {...Astro.props}>
+  <rect x="5.5" y="5.5" width="8" height="8" rx="1.6"></rect>
+  <path d="M10.5 3A1.5 1.5 0 0 0 9 1.5H3A1.5 1.5 0 0 0 1.5 3v6A1.5 1.5 0 0 0 3 10.5"></path>
+</Icon>
