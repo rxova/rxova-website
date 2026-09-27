@@ -1,10 +1,10 @@
 ---
 /**
- * Starlight `SocialIcons` override: the stock icons plus the project switcher, which lands just
- * before search and the theme toggle.
+ * Starlight `SocialIcons` override: the umbrella navigation, then the stock icons. Starlight
+ * renders this slot in the header on wide screens and in the mobile menu, so one header serves both.
  */
 import Default from '@astrojs/starlight/components/SocialIcons.astro'
-import ProjectSwitcher from '../components/ProjectSwitcher.astro'
+import SectionNav from '../components/SectionNav.astro'
 import { projectFromBase } from '@rxova/brand'
 
 // Overrides receive no props, so the current project is inferred from the base
@@ -12,7 +12,7 @@ import { projectFromBase } from '@rxova/brand'
 const current = projectFromBase(import.meta.env.BASE_URL)
 ---
 
-<ProjectSwitcher current={current} />
+<SectionNav current={current} />
 <Default>
   <slot />
 </Default>

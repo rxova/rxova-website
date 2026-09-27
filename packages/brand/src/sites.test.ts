@@ -10,6 +10,7 @@ import {
   PROJECTS,
   REPOS,
   REPO_IDS,
+  SECTIONS,
   getProject,
   getRepo,
   docsUrl,
@@ -144,5 +145,14 @@ describe('projectFromBase', () => {
   it('returns undefined for a base that is not a mount', () => {
     expect(projectFromBase('/')).toBeUndefined()
     expect(projectFromBase('/packages/nope/')).toBeUndefined()
+  })
+})
+
+describe('SECTIONS', () => {
+  it('lists the site sections in menu order, each a page path Pages serves without a redirect', () => {
+    expect(SECTIONS.map((s) => s.label)).toEqual(['Blog', 'Updates', 'About'])
+    for (const section of SECTIONS) {
+      expect(section.path).toBe(`/${section.id}/`)
+    }
   })
 })

@@ -3,7 +3,7 @@
  * The rxova footer on every surface: brand block, link columns, then copyright and legal links.
  * Styles live in `../styles/footer.css`. Hrefs are absolute unless `origin` is '' (on rxova.org).
  */
-import { PROJECTS, RXOVA_ORIGIN, getProject, type ProjectId } from '@rxova/brand'
+import { PROJECTS, RXOVA_ORIGIN, SECTIONS, getProject, type ProjectId } from '@rxova/brand'
 
 /** A standalone surface of rxova.org, for the "Site" column. */
 export interface SiteLink {
@@ -38,11 +38,8 @@ const year = new Date().getFullYear()
 const projectLinks: readonly SiteLink[] =
   projects ?? PROJECTS.map((p) => ({ label: p.label, href: `${origin}${p.mount}` }))
 
-const surfaces: readonly SiteLink[] = site ?? [
-  { label: 'Blog', href: `${origin}/blog/` },
-  { label: 'Updates', href: `${origin}/updates/` },
-  { label: 'About', href: `${origin}/about/` },
-]
+const surfaces: readonly SiteLink[] =
+  site ?? SECTIONS.map((section) => ({ label: section.label, href: `${origin}${section.path}` }))
 ---
 
 <footer class="rx-footer">
