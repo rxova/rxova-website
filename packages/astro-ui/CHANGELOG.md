@@ -1,5 +1,18 @@
 # @rxova/astro-ui
 
+## 0.3.0
+
+### Minor Changes
+
+- [#117](https://github.com/rxova/rxova-website/pull/117) [`cdd4b7b`](https://github.com/rxova/rxova-website/commit/cdd4b7bf86eaae258019d72ff01d2a06b5ea0d19) - `SiteFooter` takes an `origin` prop: `''` makes every rxova.org link root-relative, so a preview or staging build links to itself. Its own page links now end in a slash, which GitHub Pages serves without a redirect.
+
+- [#113](https://github.com/rxova/rxova-website/pull/113) [`a40d944`](https://github.com/rxova/rxova-website/commit/a40d9445511531624731f9babc841e8d2345c43f) - Remove `components/SiteShell.astro`. It was the header-less document the blog and updates were built with while they were separate builds composed into the site at deploy time; both are now routes of the site app with their own layout, and nothing else used it. Give a page its own layout around `Header` and `SiteFooter` instead.
+
+### Patch Changes
+
+- Updated dependencies [[`00d152e`](https://github.com/rxova/rxova-website/commit/00d152eb9bb2921c4b023e60488879f2637f6a76)]:
+  - @rxova/brand@1.1.1
+
 ## 0.2.0
 
 ### Minor Changes

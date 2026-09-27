@@ -1,5 +1,11 @@
 # @rxova/brand
 
+## 1.1.1
+
+### Patch Changes
+
+- [#116](https://github.com/rxova/rxova-website/pull/116) [`00d152e`](https://github.com/rxova/rxova-website/commit/00d152eb9bb2921c4b023e60488879f2637f6a76) - `ProjectId` and each project's `mount` are derived from the one list in `PROJECTS` rather than written out a second time. No change to the exports or their types.
+
 ## 1.1.0
 
 ### Minor Changes
