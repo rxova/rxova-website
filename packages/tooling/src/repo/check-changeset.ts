@@ -56,7 +56,8 @@ export const getChangedFiles = (
   diffFilter?: string,
 ): string[] => {
   const filterArg = diffFilter ? ` --diff-filter=${diffFilter}` : ''
-  const output = run(`git diff --name-only${filterArg} ${baseSha} ${headSha}`)
+  // Three dots: what the branch changed since it forked, however far main has moved since.
+  const output = run(`git diff --name-only${filterArg} ${baseSha}...${headSha}`)
   if (!output) return []
   return output
     .split('\n')

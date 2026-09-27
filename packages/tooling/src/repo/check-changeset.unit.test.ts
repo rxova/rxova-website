@@ -73,8 +73,8 @@ describe('getChangedFiles', () => {
     expect(getChangedFiles(run, 'x', 'y')).toEqual(['a.ts', 'b.md'])
     expect(getChangedFiles(run, 'x', 'y', 'ACMRTUXB')).toEqual(['a.ts', 'b.md'])
     expect(calls).toEqual([
-      'git diff --name-only x y',
-      'git diff --name-only --diff-filter=ACMRTUXB x y',
+      'git diff --name-only x...y',
+      'git diff --name-only --diff-filter=ACMRTUXB x...y',
     ])
   })
 
