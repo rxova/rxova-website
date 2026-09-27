@@ -17,9 +17,9 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "dev": "pnpm -C apps/landing dev",
+    "dev": "pnpm -C apps/site dev",
     "build": "turbo run build",
-    "preview": "pnpm -C apps/landing preview",
+    "preview": "pnpm -C apps/site preview",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "check:astro": "turbo run check:astro",

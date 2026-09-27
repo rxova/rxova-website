@@ -36,9 +36,9 @@ export function content(fixture: Fixture): string {
   const root = emptyRoot()
 
   const layout = [
-    ['apps/landing/content/posts', fixture.posts],
-    ['apps/landing/content/authors', fixture.authors],
-    ['apps/landing/content/updates', fixture.updates],
+    ['apps/site/content/posts', fixture.posts],
+    ['apps/site/content/authors', fixture.authors],
+    ['apps/site/content/updates', fixture.updates],
   ] as const
 
   for (const [dir, files] of layout) {

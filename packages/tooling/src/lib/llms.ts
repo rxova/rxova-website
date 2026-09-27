@@ -84,7 +84,7 @@ export function llmsIndex(
 }
 
 /**
- * Sections the landing app builds itself, so no `sources.json` entry announces them. They are
+ * Sections the site app builds itself, so no `sources.json` entry announces them. They are
  * listed under "Also on this site" beside any mounted `kind: "site"` source.
  */
 export const OWN_SECTIONS: readonly { label: string; path: string }[] = [

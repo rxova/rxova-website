@@ -101,7 +101,7 @@ const parseAuthor = (name: string): Parsed | null => {
 }
 
 /** Where the site's prose lives: posts, updates, their images and the one author registry. */
-export const CONTENT_DIR = 'apps/landing/content'
+export const CONTENT_DIR = 'apps/site/content'
 
 /** The two collections, both bylined against `authors/` in the same directory. */
 export const SURFACES = [

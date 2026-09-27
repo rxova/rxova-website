@@ -15,7 +15,7 @@
     },
     // Hashes the files outside the landing's directory that it reads: sources.json and
     // brand/astro-ui source and social cards, consumed unbuilt.
-    "@rxova/landing#build": {
+    "@rxova/site#build": {
       "dependsOn": ["^build"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -28,7 +28,7 @@
       "outputs": ["dist/**"],
       "outputLogs": "new-only"
     },
-    "@rxova/landing#check:astro": {
+    "@rxova/site#check:astro": {
       "dependsOn": ["^build", "build"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -88,7 +88,7 @@
     },
     // Reads sources.json via src/lib/projects.ts; test/blog-render.test.ts runs a real `astro build`,
     // so it needs `^build` and follows `check:astro` so two astro runs never share node_modules/.astro.
-    "@rxova/landing#test": {
+    "@rxova/site#test": {
       "dependsOn": ["^test", "^build", "check:astro"],
       "inputs": [
         "src/**",
@@ -148,9 +148,9 @@
       "dependsOn": ["@rxova/website-schemas#build"],
       "outputs": [],
       "inputs": [
-        "apps/landing/content/posts/**",
-        "apps/landing/content/updates/**",
-        "apps/landing/content/authors/**",
+        "apps/site/content/posts/**",
+        "apps/site/content/updates/**",
+        "apps/site/content/authors/**",
         "packages/website-schemas/src/**",
         "packages/brand/src/sites.ts",
         "packages/tooling/src/repo/validate-content.ts"
@@ -165,7 +165,7 @@
     // The assembled site builds the landing into the same dist/ its preview serves, so it runs
     // after the landing's own e2e.
     "@rxova/e2e#e2e": {
-      "dependsOn": ["@rxova/landing#e2e"],
+      "dependsOn": ["@rxova/site#e2e"],
       "cache": false
     },
     "dev": {

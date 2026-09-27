@@ -28,7 +28,7 @@ describe('a valid tree', () => {
 
   it('tolerates directories that do not exist yet', () => {
     const root = emptyRoot()
-    const authors = 'apps/landing/content/authors'
+    const authors = 'apps/site/content/authors'
     mkdirSync(join(root, authors), { recursive: true })
     writeFileSync(join(root, authors, 'rxova.md'), AUTHOR)
     expect(validateContent(root)).toEqual([])
@@ -40,7 +40,7 @@ describe('authors', () => {
   it('fails once when there are none at all', () => {
     const errors = validateContent(content({ authors: {} }))
     expect(errors).toEqual([
-      'apps/landing/content/authors: no authors defined — every entry needs a byline that resolves',
+      'apps/site/content/authors: no authors defined — every entry needs a byline that resolves',
     ])
   })
 
@@ -61,7 +61,7 @@ describe('authors', () => {
     const errors = validateContent(
       content({ ...valid, authors: { 'rxova.md': '---\nname: 4\n---\n' } }),
     )
-    expect(errors.some((e) => e.includes('apps/landing/content/authors/rxova.md: name'))).toBe(true)
+    expect(errors.some((e) => e.includes('apps/site/content/authors/rxova.md: name'))).toBe(true)
   })
 
   it('rejects an author filename that is not a bare id', () => {
