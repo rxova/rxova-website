@@ -1,5 +1,15 @@
 # @rxova/astro-ui
 
+## 0.6.0
+
+### Minor Changes
+
+- [#142](https://github.com/rxova/rxova-website/pull/142) [`a2fc571`](https://github.com/rxova/rxova-website/commit/a2fc5714d956b55a23c02ca53e85e87ae923f3c3) - Add `CopyButton`: an icon button that puts a string on the clipboard, swaps to a tick for a moment and announces it to screen readers; `label` is its accessible name and tooltip. Add the `Copy` and `Check` glyphs under `components/icons/` for it. It draws in `currentColor`, so it sits on any surface, a dark terminal included. `QuickStart` now uses it instead of its own button.
+
+### Patch Changes
+
+- [#141](https://github.com/rxova/rxova-website/pull/141) [`247ec59`](https://github.com/rxova/rxova-website/commit/247ec598007c068dad9bc4096ae984031e8398d5) - `SiteFooter`'s Connect column lists `jonatan@rxova.org` as the contact address.
+
 ## 0.5.1
 
 ### Patch Changes
