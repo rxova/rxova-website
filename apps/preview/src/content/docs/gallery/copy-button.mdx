@@ -1,0 +1,33 @@
+---
+title: CopyButton
+description: A Copy pill that puts a string on the clipboard, drawn in currentColor so it sits on any surface.
+---
+
+import Story from '../../../components/Story.astro'
+import CopyButton from '@rxova/astro-ui/components/CopyButton.astro'
+
+Puts `text` on the clipboard and reads "Copied" for a moment, announced to screen readers
+through a status line. It draws in `currentColor`, so the same button works on a card, on the
+page and on a terminal that stays dark in both themes. The caller places it, usually at the
+end of a command line.
+
+<Story title="On the page" note="Inherits the text colour around it.">
+  <CopyButton text="npm i ts-extended-errors" label="Copy the install command" />
+</Story>
+
+<Story title="On a terminal" note="The /about rule's command line, dark in both themes.">
+  <div style="display:flex;align-items:center;gap:.6rem;padding:.4rem .45rem .4rem .9rem;border-radius:8px;background:#14140f;color:#f4f1ea;font-family:var(--rx-font-mono);font-size:.85rem">
+    <span style="opacity:.6">$</span>
+    <code style="flex:1">pnpm add @rxova/journey-core</code>
+    <CopyButton text="pnpm add @rxova/journey-core" label="Copy the install command" />
+  </div>
+</Story>
+
+## Props
+
+| Prop    | Type     | What it does                                                        |
+| ------- | -------- | ------------------------------------------------------------------- |
+| `text`  | `string` | What goes on the clipboard                                          |
+| `label` | `string` | The accessible name, when "Copy" alone would not say what is copied |
+
+Used by `QuickStart`, and on rxova.org by every command line: the project panels and /about.
