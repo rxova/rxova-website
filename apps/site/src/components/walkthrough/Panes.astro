@@ -207,6 +207,13 @@ const sides = (['before', 'after'] as const).map((key) => {
     }
   }
 
+  /* Desktop: as tall as the screen allows after the header, bar and caption, so the window stays in
+     view and a snippet that fits never scrolls. */
+  @media (min-width: 60rem) {
+    :global(.walkthrough[data-js]:not([data-expanded])) .code {
+      height: max(26rem, calc(100svh - 13rem));
+    }
+  }
   /* A phone's height, not only its width, decides how much code fits. */
   @media (max-width: 34rem) {
     :global(.walkthrough[data-js]) .code {
