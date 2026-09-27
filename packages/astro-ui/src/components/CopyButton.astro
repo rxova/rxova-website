@@ -1,23 +1,24 @@
 ---
 /**
- * A "Copy" pill that puts `text` on the clipboard and says "Copied" for a moment. Drawn in
+ * An icon button that puts `text` on the clipboard and shows a tick for a moment. Drawn in
  * `currentColor`, so it sits on any surface, a dark terminal included; the caller places it.
  */
+import Check from './icons/Check.astro'
+import Copy from './icons/Copy.astro'
+
 interface Props {
   /** What goes on the clipboard. */
   text: string
-  /** The button's accessible name, when "Copy" alone would not say what is copied. */
+  /** The accessible name and tooltip; there is no visible text, so this is what a screen reader says. */
   label?: string
 }
 
-const { text, label } = Astro.props
+const { text, label = 'Copy' } = Astro.props
 ---
 
-<button class="rx-copy" type="button" data-rx-copy={text} aria-label={label}>
-  <span class="rx-copy__idle">Copy</span>
-  <span class="rx-copy__done" aria-hidden="true">
-    Copied
-  </span>
+<button class="rx-copy" type="button" data-rx-copy={text} aria-label={label} title={label}>
+  <Copy class="rx-copy__idle" />
+  <Check class="rx-copy__done" />
   <span class="rx-copy__status" role="status"></span>
 </button>
 
@@ -44,21 +45,19 @@ const { text, label } = Astro.props
 </script>
 
 <style>
-  /* One label over the other, so the button keeps its size when the state flips. */
+  /* One glyph over the other, so the button keeps its size when the state flips. */
   .rx-copy {
     position: relative;
     display: grid;
+    place-items: center;
     flex: none;
-    padding: 0.3rem 0.8rem;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
     color: inherit;
     background: transparent;
     border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
-    border-radius: var(--rx-radius-pill);
-    font: inherit;
-    font-family: var(--rx-font-sans);
-    font-size: 0.75rem;
-    font-weight: 500;
-    line-height: 1.4;
+    border-radius: var(--rx-radius-sm);
     opacity: 0.85;
     cursor: pointer;
     transition:
@@ -76,21 +75,21 @@ const { text, label } = Astro.props
     outline-offset: 2px;
   }
 
-  .rx-copy__idle,
-  .rx-copy__done {
+  .rx-copy :global(.rx-copy__idle),
+  .rx-copy :global(.rx-copy__done) {
     grid-area: 1 / 1;
   }
 
-  .rx-copy__done,
-  .rx-copy[data-state='done'] .rx-copy__idle {
+  .rx-copy :global(.rx-copy__done),
+  .rx-copy[data-state='done'] :global(.rx-copy__idle) {
     visibility: hidden;
   }
 
-  .rx-copy[data-state='done'] .rx-copy__done {
+  .rx-copy[data-state='done'] :global(.rx-copy__done) {
     visibility: visible;
   }
 
-  /* Announced to screen readers, never shown: the visible label already flips. */
+  /* Announced to screen readers, never shown: the tick is the visible cue. */
   .rx-copy__status {
     position: absolute;
     width: 1px;

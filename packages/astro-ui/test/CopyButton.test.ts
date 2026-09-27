@@ -4,21 +4,21 @@ import CopyButton from '../src/components/CopyButton.astro'
 import { render } from './render.ts'
 
 describe('CopyButton', () => {
-  it('carries the text to copy, both labels and a status line for screen readers', async () => {
+  it('is an icon button: the text to copy, a name for screen readers, two glyphs, no visible words', async () => {
     const html = await render(CopyButton, { props: { text: 'npm i ts-extended-errors' } })
     expect(html).toMatch(
-      /^<button class="rx-copy" type="button" data-rx-copy="npm i ts-extended-errors"/,
+      /^<button class="rx-copy" type="button" data-rx-copy="npm i ts-extended-errors" aria-label="Copy" title="Copy">/,
     )
-    expect(html).toContain('<span class="rx-copy__idle">Copy</span>')
-    expect(html).toContain('<span class="rx-copy__done" aria-hidden="true">Copied</span>')
+    expect(html).toContain('class="icon rx-copy__idle"')
+    expect(html).toContain('class="icon rx-copy__done"')
     expect(html).toContain('<span class="rx-copy__status" role="status"></span>')
-    expect(html).not.toContain('aria-label')
+    expect(html.replace(/<[^>]+>/g, '').trim()).toBe('')
   })
 
-  it('takes an accessible name when "Copy" alone would not say what is copied', async () => {
+  it('takes a more specific name when "Copy" alone would not say what is copied', async () => {
     const html = await render(CopyButton, {
       props: { text: 'x', label: 'Copy the install command' },
     })
-    expect(html).toContain('aria-label="Copy the install command"')
+    expect(html).toContain('aria-label="Copy the install command" title="Copy the install command"')
   })
 })

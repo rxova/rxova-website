@@ -1,13 +1,13 @@
 ---
 title: CopyButton
-description: A Copy pill that puts a string on the clipboard, drawn in currentColor so it sits on any surface.
+description: An icon button that puts a string on the clipboard, drawn in currentColor so it sits on any surface.
 ---
 
 import Story from '../../../components/Story.astro'
 import CopyButton from '@rxova/astro-ui/components/CopyButton.astro'
 
-Puts `text` on the clipboard and reads "Copied" for a moment, announced to screen readers
-through a status line. It draws in `currentColor`, so the same button works on a card, on the
+An icon button: puts `text` on the clipboard and swaps its glyph for a tick for a moment,
+announced to screen readers through a status line. `label` is its accessible name and tooltip. It draws in `currentColor`, so the same button works on a card, on the
 page and on a terminal that stays dark in both themes. The caller places it, usually at the
 end of a command line.
 
@@ -25,9 +25,9 @@ end of a command line.
 
 ## Props
 
-| Prop    | Type     | What it does                                                        |
-| ------- | -------- | ------------------------------------------------------------------- |
-| `text`  | `string` | What goes on the clipboard                                          |
-| `label` | `string` | The accessible name, when "Copy" alone would not say what is copied |
+| Prop    | Type     | What it does                                       |
+| ------- | -------- | -------------------------------------------------- |
+| `text`  | `string` | What goes on the clipboard                         |
+| `label` | `string` | The accessible name and tooltip, `Copy` by default |
 
 Used by `QuickStart`, and on rxova.org by every command line: the project panels and /about.
