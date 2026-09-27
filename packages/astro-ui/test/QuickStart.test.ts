@@ -10,7 +10,8 @@ describe('QuickStart', () => {
     expect(html).toContain(
       '<span class="rx-qs__prompt" aria-hidden="true">$</span>npm i @rxova/journey-core',
     )
-    expect(html).toContain('data-copy="npm i @rxova/journey-core"')
+    expect(html).toContain('data-rx-copy="npm i @rxova/journey-core"')
+    expect(html).toContain('aria-label="Copy the install command"')
   })
 
   it('frames whatever the page slots in as the snippet', async () => {

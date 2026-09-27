@@ -1,8 +1,10 @@
 ---
 /**
- * An install command with a copy button beside a "Use" pane. The snippet arrives through the slot,
+ * An install command with a `CopyButton` beside a "Use" pane. The snippet arrives through the slot,
  * so a page can write a fenced block and get the same Shiki highlighting as the docs.
  */
+import CopyButton from './CopyButton.astro'
+
 interface Props {
   command: string
 }
@@ -21,12 +23,7 @@ const { command } = Astro.props
         </span>
         {command}
       </code>
-      <button class="rx-qs__copy" type="button" data-copy={command}>
-        <span class="rx-qs__copy-idle">Copy</span>
-        <span class="rx-qs__copy-done" aria-hidden="true">
-          Copied
-        </span>
-      </button>
+      <CopyButton text={command} label="Copy the install command" />
     </div>
   </div>
 
@@ -37,21 +34,6 @@ const { command } = Astro.props
     </div>
   </div>
 </div>
-
-<script>
-  for (const button of document.querySelectorAll<HTMLButtonElement>('.rx-qs__copy')) {
-    button.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(button.dataset.copy ?? '')
-      } catch {
-        // Clipboard access can be denied; saying nothing beats claiming a copy that did not happen.
-        return
-      }
-      button.dataset.state = 'done'
-      window.setTimeout(() => delete button.dataset.state, 1600)
-    })
-  }
-</script>
 
 <style>
   .rx-qs {
@@ -77,6 +59,10 @@ const { command } = Astro.props
   }
 
   /* Not `flex: 1`: a one-line command stretched to the snippet's height floats in an empty box. */
+  .rx-qs__term :global(.rx-copy) {
+    color: var(--rx-muted);
+  }
+
   .rx-qs__term {
     display: flex;
     align-items: center;
@@ -101,41 +87,6 @@ const { command } = Astro.props
     margin-right: 0.6rem;
     color: var(--rx-primary);
     user-select: none;
-  }
-
-  /* One label over the other, so the button keeps its size when the state flips. */
-  .rx-qs__copy {
-    display: grid;
-    flex: none;
-    padding: 0.4rem 0.85rem;
-    color: var(--rx-muted);
-    background: var(--rx-bg);
-    border: 1px solid var(--rx-rule-strong);
-    border-radius: var(--rx-radius-pill);
-    font: inherit;
-    font-size: 0.78rem;
-    font-weight: 500;
-    cursor: pointer;
-  }
-
-  .rx-qs__copy:hover {
-    color: var(--rx-fg);
-    border-color: var(--rx-primary);
-  }
-
-  .rx-qs__copy-idle,
-  .rx-qs__copy-done {
-    grid-area: 1 / 1;
-  }
-
-  .rx-qs__copy-done,
-  .rx-qs__copy[data-state='done'] .rx-qs__copy-idle {
-    visibility: hidden;
-  }
-
-  .rx-qs__copy[data-state='done'] .rx-qs__copy-done {
-    visibility: visible;
-    color: var(--rx-primary);
   }
 
   .rx-qs__code {

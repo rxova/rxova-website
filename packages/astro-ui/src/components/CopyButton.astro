@@ -1,0 +1,108 @@
+---
+/**
+ * A "Copy" pill that puts `text` on the clipboard and says "Copied" for a moment. Drawn in
+ * `currentColor`, so it sits on any surface, a dark terminal included; the caller places it.
+ */
+interface Props {
+  /** What goes on the clipboard. */
+  text: string
+  /** The button's accessible name, when "Copy" alone would not say what is copied. */
+  label?: string
+}
+
+const { text, label } = Astro.props
+---
+
+<button class="rx-copy" type="button" data-rx-copy={text} aria-label={label}>
+  <span class="rx-copy__idle">Copy</span>
+  <span class="rx-copy__done" aria-hidden="true">
+    Copied
+  </span>
+  <span class="rx-copy__status" role="status"></span>
+</button>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-rx-copy]')) {
+    if (button.dataset.rxCopyBound) continue
+    button.dataset.rxCopyBound = ''
+    const status = button.querySelector<HTMLElement>('.rx-copy__status')
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.rxCopy ?? '')
+      } catch {
+        // Clipboard access can be denied; saying nothing beats claiming a copy that did not happen.
+        return
+      }
+      button.dataset.state = 'done'
+      if (status) status.textContent = 'Copied'
+      window.setTimeout(() => {
+        delete button.dataset.state
+        if (status) status.textContent = ''
+      }, 1600)
+    })
+  }
+</script>
+
+<style>
+  /* One label over the other, so the button keeps its size when the state flips. */
+  .rx-copy {
+    position: relative;
+    display: grid;
+    flex: none;
+    padding: 0.3rem 0.8rem;
+    color: inherit;
+    background: transparent;
+    border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    border-radius: var(--rx-radius-pill);
+    font: inherit;
+    font-family: var(--rx-font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.4;
+    opacity: 0.85;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      opacity 0.15s ease;
+  }
+
+  .rx-copy:hover {
+    opacity: 1;
+    border-color: color-mix(in srgb, currentColor 65%, transparent);
+  }
+
+  .rx-copy:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  .rx-copy__idle,
+  .rx-copy__done {
+    grid-area: 1 / 1;
+  }
+
+  .rx-copy__done,
+  .rx-copy[data-state='done'] .rx-copy__idle {
+    visibility: hidden;
+  }
+
+  .rx-copy[data-state='done'] .rx-copy__done {
+    visibility: visible;
+  }
+
+  /* Announced to screen readers, never shown: the visible label already flips. */
+  .rx-copy__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rx-copy {
+      transition: none;
+    }
+  }
+</style>
