@@ -9,7 +9,8 @@ describe('internalLinkProblems', () => {
     '/',
     '/blog/',
     '/blog/some-post/',
-    '/about/#principles',
+    '/#principles',
+    '/projects/',
     '/updates/?repo=journey',
     '/blog/rss.xml',
     '/llms.txt',
@@ -33,7 +34,7 @@ describe('internalLinkProblems', () => {
     ])
   })
 
-  it.each(['/blog', '/about#principles', '/updates/repos/journey?x=1'])(
+  it.each(['/blog', '/projects', '/updates/repos/journey?x=1'])(
     'flags %s, a page without its trailing slash',
     (href) => {
       expect(internalLinkProblems(a(href))).toEqual([

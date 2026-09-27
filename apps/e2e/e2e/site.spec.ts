@@ -2,8 +2,7 @@
 import { expect, test } from '@playwright/test'
 
 const SECTIONS = [
-  { path: '/', nav: '/' },
-  { path: '/about/', nav: '/about/' },
+  { path: '/projects/', nav: '/projects/' },
   { path: '/blog/', nav: '/blog/' },
   { path: '/updates/', nav: '/updates/' },
 ]
@@ -21,8 +20,24 @@ for (const { path, nav } of SECTIONS) {
   })
 }
 
+// The landing is the about page, reached by the mark rather than a menu item.
+test('/ sits in the site shell with no menu item marked', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('header.site')).toBeVisible()
+  await expect(page.locator('footer.rx-footer')).toBeVisible()
+  await expect(page.locator('header.site nav a[aria-current="page"]')).toHaveCount(0)
+})
+
+test('/about/ redirects to the landing', async ({ page }) => {
+  await page.goto('/about/')
+  await expect(page).toHaveURL(/\/$/)
+  await expect(page.locator('h1')).toContainText('Small libraries')
+})
+
 test('moves between sections through the header', async ({ page }) => {
   await page.goto('/')
+  await page.locator('header.site nav a[href="/projects/"]').click()
+  await expect(page).toHaveURL(/\/projects\/?$/)
   await page.locator('header.site nav a[href="/blog/"]').click()
   await expect(page).toHaveURL(/\/blog\/?$/)
   await page.locator('header.site nav a[href="/updates/"]').click()

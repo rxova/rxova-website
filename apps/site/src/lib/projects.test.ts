@@ -152,14 +152,14 @@ describe('site surfaces', () => {
     ).toEqual([])
   })
 
-  it('puts the mounted surfaces first, then Blog, Updates and About', () => {
+  it('puts Projects first, then the mounted surfaces, then Blog and Updates', () => {
     expect(landingSurfaces).toEqual([
+      { id: 'projects', label: 'Projects', href: '/projects/' },
       { id: 'blog', label: 'Blog', href: '/blog/' },
       { id: 'updates', label: 'Updates', href: '/updates/' },
-      { id: 'about', label: 'About', href: '/about/' },
     ])
-    expect(navSurfaces).toEqual([...siteSurfaces, ...landingSurfaces])
-    expect(navSurfaces.at(-1)?.id).toBe('about')
+    expect(navSurfaces).toEqual([landingSurfaces[0], ...siteSurfaces, ...landingSurfaces.slice(1)])
+    expect(navSurfaces.map((s) => s.id)).not.toContain('about')
   })
 })
 

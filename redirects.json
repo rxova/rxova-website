@@ -2,7 +2,7 @@
   "$comment": [
     "Legacy URLs that Google still holds, mapped to where that page lives now.",
     "",
-    "rxova.org is served by GitHub Pages, which has no redirect rules — it serves static",
+    "rxova.org is served by GitHub Pages, which has no redirect rules \u2014 it serves static",
     "files and nothing else. So packages/tooling/src/lib/redirects.ts materialises each `from` as a stub",
     "document carrying <meta http-equiv=\"refresh\"> plus a canonical link to `to`, which",
     "is what a search engine reads as a redirect. Browsers follow the refresh.",
@@ -12,13 +12,14 @@
     "than the 404 it was meant to fix.",
     "",
     "Entries here are permanent. A redirect is a promise to everyone who linked to the",
-    "old URL, and deleting one re-breaks the links it was added to fix — so this list",
+    "old URL, and deleting one re-breaks the links it was added to fix \u2014 so this list",
     "only ever grows. Trailing-slash variants need no entry: the tree is directory-style,",
     "so /docs/devtool/examples and /docs/devtool/examples/ both resolve to the same stub."
   ],
   "redirects": {
     "/docs/devtool/protocol/": "/packages/journey/bridge/protocol/",
     "/docs/devtool/bridge-api/": "/packages/journey/bridge/bridge-api/",
-    "/docs/devtool/examples/": "/packages/journey/bridge/examples/"
+    "/docs/devtool/examples/": "/packages/journey/bridge/examples/",
+    "/about/": "/"
   }
 }

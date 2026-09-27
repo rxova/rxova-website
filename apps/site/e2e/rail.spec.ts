@@ -5,7 +5,7 @@ const panel = (id: string) => `#project-${id}`
 
 test.describe('project rail', () => {
   test('is a tablist that opens on the featured project', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/projects/')
     await expect(page.locator('#project-rail')).toHaveAttribute('role', 'tablist')
     await expect(page.locator(tab('ts-extended-errors'))).toHaveAttribute('aria-selected', 'true')
     await expect(page.locator(panel('ts-extended-errors'))).toHaveClass(/is-active/)
@@ -13,7 +13,7 @@ test.describe('project rail', () => {
   })
 
   test('moves with the arrow keys, Home and End, wrapping at the ends', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/projects/')
     const tabs = page.locator('.rail-item')
     const ids = await tabs.evaluateAll((els) => els.map((el) => el.getAttribute('data-rail')))
     const first = ids[0] as string
@@ -34,7 +34,7 @@ test.describe('project rail', () => {
   })
 
   test('selects on click and keeps a single tab stop', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/projects/')
     await page.locator(tab('journey')).click()
     await expect(page.locator(panel('journey'))).toHaveClass(/is-active/)
     await expect(page.locator('.rail-item[tabindex="0"]')).toHaveCount(1)
@@ -42,7 +42,7 @@ test.describe('project rail', () => {
   })
 
   test('honours a deep link to a project', async ({ page }) => {
-    await page.goto('/#project-journey')
+    await page.goto('/projects/#project-journey')
     await expect(page.locator(tab('journey'))).toHaveAttribute('aria-selected', 'true')
   })
 
@@ -53,7 +53,7 @@ test.describe('project rail', () => {
     await page.addInitScript(() => {
       window.requestIdleCallback = () => 0
     })
-    await page.goto('/')
+    await page.goto('/projects/')
     await expect(page.locator('[data-walkthrough]')).toHaveCount(1)
     await expect(page.locator(`${panel('journey')} [data-walkthrough-src]`)).toHaveCount(1)
 
@@ -69,7 +69,7 @@ test.describe('project rail', () => {
   })
 
   test('fills every other walkthrough once the page is idle', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/projects/')
     await expect(page.locator('[data-walkthrough-src]')).toHaveCount(0)
     await expect(page.locator('[data-walkthrough][data-js]')).toHaveCount(4)
     // On screen, only the visible panel's tour plays; the filled, hidden ones stay paused.
@@ -86,7 +86,7 @@ test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false })
 
   test('shows every project and keeps the rail as in-page links', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/projects/')
     await expect(page.locator('#project-rail')).not.toHaveAttribute('role', 'tablist')
     await expect(page.locator(tab('journey'))).toHaveAttribute('href', '#project-journey')
     for (const id of ['journey', 'react-inputs', 'use-everywhere', 'ts-extended-errors']) {
@@ -97,7 +97,7 @@ test.describe('without JavaScript', () => {
   test('links each deferred walkthrough to its own page, which shows it in full', async ({
     page,
   }) => {
-    await page.goto('/')
+    await page.goto('/projects/')
     await page.locator(`${panel('journey')} .walkthrough-slot a`).click()
     await expect(page).toHaveURL(/\/walkthroughs\/journey\/$/)
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex')

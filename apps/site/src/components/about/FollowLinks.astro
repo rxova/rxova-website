@@ -1,0 +1,68 @@
+---
+/** The landing's quiet ask at the end: the code on GitHub, and the blog's feed. */
+import { MAINTAINER } from '../../lib/about'
+import Arrow from '../home/Arrow.astro'
+import Eyebrow from '../home/Eyebrow.astro'
+
+interface Props {
+  feed: string
+}
+
+const { feed } = Astro.props
+---
+
+<section class="follow" aria-labelledby="follow">
+  <Eyebrow id="follow">Follow along</Eyebrow>
+  <ul class="links">
+    <li>
+      <a href={MAINTAINER.org} target="_blank" rel="noopener noreferrer">
+        See on GitHub
+        <Arrow dir="out" />
+      </a>
+    </li>
+    <li>
+      <a href={feed}>
+        Subscribe to RSS
+        <Arrow dir="across" />
+      </a>
+    </li>
+  </ul>
+</section>
+
+<style>
+  .follow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding-block: 2rem 1rem;
+    border-top: 1px solid var(--rx-rule);
+  }
+  .follow :global(.section-kicker) {
+    margin-bottom: 0;
+  }
+  .links {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 2rem;
+  }
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 44px;
+    color: var(--rx-fg);
+    font-weight: 500;
+    text-decoration: none;
+    border-bottom: 1px solid var(--rx-rule-strong);
+  }
+  .links a:hover {
+    border-color: currentColor;
+  }
+  .links a:focus-visible {
+    outline: 2px solid var(--rx-fg);
+    outline-offset: 2px;
+  }
+</style>
