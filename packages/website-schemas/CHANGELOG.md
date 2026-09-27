@@ -1,5 +1,11 @@
 # @rxova/website-schemas
 
+## 0.7.0
+
+### Minor Changes
+
+- [#126](https://github.com/rxova/rxova-website/pull/126) [`735733e`](https://github.com/rxova/rxova-website/commit/735733e1bb1ceee7c144256ce39d6ee630fc2e28) - Remove the page-bundle manifest (`pageBundleManifest`, `createPageBundleManifest`, `PAGE_BUNDLE_FILENAME`). The dispatch payload accepts only schema 1, since rxova.org publishes docs as built and no longer composes body-only pages.
+
 ## 0.6.2
 
 ### Patch Changes

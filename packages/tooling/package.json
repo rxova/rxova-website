@@ -1,6 +1,6 @@
 {
   "name": "@rxova/repo-tooling",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "description": "Repo tooling for rxova-website: the behaviour lock, and later the deploy and repo scripts.",
   "type": "module",

@@ -1,5 +1,15 @@
 # @rxova/astro-ui
 
+## 0.5.0
+
+### Minor Changes
+
+- [#126](https://github.com/rxova/rxova-website/pull/126) [`735733e`](https://github.com/rxova/rxova-website/commit/735733e1bb1ceee7c144256ce39d6ee630fc2e28) - Remove the `pageComponent` option of `sharedStarlightConfig` and the styles that offset Starlight's bar below the rxova.org shell. Docs now draw their own header and footer: drop `pageComponent` from your config if you still pass it.
+
+### Patch Changes
+
+- [#128](https://github.com/rxova/rxova-website/pull/128) [`af1c389`](https://github.com/rxova/rxova-website/commit/af1c389e91b18f31d1db3d8e7e0b04a44d721cc4) - Open the project switcher rightward and upward inside Starlight's phone menu. It opened leftward from the menu's left edge, off-screen, so no project could be picked on a phone.
+
 ## 0.4.0
 
 ### Minor Changes
