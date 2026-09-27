@@ -41,6 +41,20 @@ const OTP = ['4', '8', '1', '5', '9', '2']
                   ))}
                 </span>
               )}
+              {origin.id === 'errors' && (
+                <span class="json">
+                  <span class="json-row">
+                    <span class="json-label">thrown</span>
+                    <code>
+                      NotFoundError {'{'} code: 'E404' {'}'}
+                    </code>
+                  </span>
+                  <span class="json-row">
+                    <span class="json-label">after JSON</span>
+                    <code class="json-lost">{'{}'}</code>
+                  </span>
+                </span>
+              )}
               {origin.id === 'flow' && (
                 <svg class="flow" viewBox="0 0 300 56" fill="none">
                   <circle class="flow-start" cx="14" cy="28" r="8" />
@@ -82,10 +96,11 @@ const OTP = ['4', '8', '1', '5', '9', '2']
     max-width: 44rem;
   }
 
+  /* Two by two: four bugs fill the grid evenly. */
   .cases {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem;
   }
 
@@ -164,6 +179,43 @@ const OTP = ['4', '8', '1', '5', '9', '2']
     background: var(--rx-bg);
     font-family: var(--rx-font-mono);
     font-size: 1.1rem;
+  }
+
+  .json {
+    display: grid;
+    border: 1px solid var(--rx-rule-strong);
+    border-radius: 10px;
+    background: var(--rx-bg);
+    font-family: var(--rx-font-mono);
+    font-size: 0.9rem;
+    overflow: hidden;
+  }
+
+  .json-row {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    min-height: 2.6rem;
+    padding-inline: 1rem;
+  }
+
+  .json-row + .json-row {
+    border-top: 1px dashed var(--rx-rule-strong);
+  }
+
+  .json-label {
+    flex: none;
+    width: 5.5rem;
+    color: var(--rx-faint);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* What survived: nothing, in the gradient's end colour, the one the other cards use for loss. */
+  .json-lost {
+    color: var(--rx-accent-c);
+    font-weight: 600;
   }
 
   .flow {

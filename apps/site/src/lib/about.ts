@@ -175,7 +175,7 @@ export const PRINCIPLES: readonly Principle[] = [
 
 /** A bug that was fixed privately more than once before it became a package; /about draws each. */
 export interface Origin {
-  id: 'currency' | 'otp' | 'flow'
+  id: 'currency' | 'otp' | 'flow' | 'errors'
   bug: string
   project: ProjectId
 }
@@ -195,6 +195,11 @@ export const ORIGINS: readonly Origin[] = [
     id: 'flow',
     bug: 'A branching, multi-step flow decays into booleans and effects.',
     project: 'journey',
+  },
+  {
+    id: 'errors',
+    bug: 'An error sent through JSON arrives as {}: its class, code and cause are gone.',
+    project: 'ts-extended-errors',
   },
 ] as const
 
