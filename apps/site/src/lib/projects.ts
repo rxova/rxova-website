@@ -40,9 +40,8 @@ export interface RawSource {
 const allSources = (sources.sources ?? []) as RawSource[]
 
 /**
- * Joins brand `projects` with `sources.json`'s entries, one card per project in
- * brand order, enabled or not — and throws if the two disagree.
- */
+ * Joins brand `projects` (the list) with the `sources.json` entry that deploys each, in brand
+ * order. A project with no entry is not deployed; an entry naming no project throws. */
 export function buildLandingProjects(
   projects: readonly Project[],
   sourceList: readonly RawSource[],
@@ -60,23 +59,22 @@ export function buildLandingProjects(
     throw new Error(
       `[landing] sources.json and @rxova/brand disagree: ${message}\n` +
         `  brand PROJECTS: ${projects.map((p) => p.id).join(', ') || '(none)'}\n` +
-        `  sources.json:   ${rawSources.map((s) => s.id).join(', ') || '(none)'}\n` +
-        `Add the project to both, or remove it from both.`,
+        `  sources.json:   ${rawSources.map((s) => s.id).join(', ')}\n` +
+        `Projects are listed in @rxova/brand's PROJECTS; sources.json only deploys them.`,
     )
   }
 
-  // A project in sources.json with no brand entry would build and mount docs that
-  // no switcher links to, and that the landing cannot describe. Catch it here.
+  // A source naming no project would mount docs that no switcher links to and the
+  // landing cannot describe.
   for (const s of rawSources) {
     if (!projects.some((p) => p.id === s.id))
       fail(`"${s.id}" is in sources.json but not in PROJECTS`)
   }
 
-  // Brand order is display order — it is what the docs switcher uses, so the
-  // landing lists projects the same way round.
-  return projects.map((project) => {
+  // Brand order is display order, the same order the docs switcher uses.
+  return projects.flatMap((project) => {
     const source = rawSources.find((s) => s.id === project.id)
-    if (!source) fail(`"${project.id}" is in PROJECTS but not in sources.json`)
+    if (!source) return []
 
     const { blurb, tags, demo, snippet } = source.landing ?? {}
     if (!blurb) fail(`"${project.id}" has no landing.blurb in sources.json`)
@@ -92,37 +90,31 @@ export function buildLandingProjects(
       fail(`"${project.id}" has a landing.demo that is not an absolute URL: ${demo}`)
     }
 
-    // The mount comes from brand (the docs sites need it too); sources.json derives
-    // the same path from `id`. If they ever diverge the site 404s, so assert it.
-    if (project.mount !== `/packages/${project.id}/`) {
-      fail(
-        `"${project.id}" mounts at ${project.mount}, but its id derives /packages/${project.id}/`,
-      )
-    }
-
     const docsMounted = source.enabled === true
 
-    return {
-      ...project,
-      blurb,
-      tags,
-      install,
-      ...(snippet ? { snippet } : {}),
-      links: [
-        // Only link to docs that are actually deployed. `landingProjects` drops
-        // disabled projects anyway; the guard keeps the builder honest on its own.
-        ...(docsMounted ? [{ label: 'Docs', href: project.mount }] : []),
-        ...(mountedStorybooks.has(`storybook-${project.id}`)
-          ? [{ label: 'Storybook', href: baseFor(`storybook-${project.id}`, 'storybook') }]
-          : []),
-        // Same slot as Storybook: both are "see it running", so they sit right
-        // after Docs and before the repo/registry links.
-        ...(demo ? [{ label: 'Demo', href: demo, external: true }] : []),
-        { label: 'GitHub', href: project.repo, external: true },
-        { label: 'npm', href: project.npm, external: true },
-      ],
-      docsMounted,
-    }
+    return [
+      {
+        ...project,
+        blurb,
+        tags,
+        install,
+        ...(snippet ? { snippet } : {}),
+        links: [
+          // Only link to docs that are actually deployed. `landingProjects` drops
+          // disabled projects anyway; the guard keeps the builder honest on its own.
+          ...(docsMounted ? [{ label: 'Docs', href: project.mount }] : []),
+          ...(mountedStorybooks.has(`storybook-${project.id}`)
+            ? [{ label: 'Storybook', href: baseFor(`storybook-${project.id}`, 'storybook') }]
+            : []),
+          // Same slot as Storybook: both are "see it running", so they sit right
+          // after Docs and before the repo/registry links.
+          ...(demo ? [{ label: 'Demo', href: demo, external: true }] : []),
+          { label: 'GitHub', href: project.repo, external: true },
+          { label: 'npm', href: project.npm, external: true },
+        ],
+        docsMounted,
+      },
+    ]
   })
 }
 

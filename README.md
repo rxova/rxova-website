@@ -140,18 +140,17 @@ reached from it is discovered from then on, including projects added later.
 
 ## Adding a project
 
-Two entries, no workflow changes.
+No workflow changes. `PROJECTS` in `packages/brand/src/sites.ts` is the one list of projects;
+`sources.json` only says which of them this site deploys.
 
-Both in this repo, in the same pull request:
-
-1. Add the project to `PROJECTS` in `packages/brand/src/sites.ts` (the docs sites read it for
-   their project switcher), run `pnpm og` to generate its social card, and add a changeset so
-   the docs sites can pick up the new `@rxova/brand`.
-2. Add one entry to `sources.json`:
+1. Add the project to `PROJECTS` (the docs sites read it for their project switcher), run
+   `pnpm og` to generate its social card, and add a changeset so the docs sites can pick up the
+   new `@rxova/brand`.
+2. To put it on rxova.org, add its entry to `sources.json`:
 
    ```jsonc
    {
-     "id": "foo", // must match the brand PROJECTS id
+     "id": "foo", // a PROJECTS id; `pnpm check:registry` rejects any other
      "enabled": true,
      "landing": { "blurb": "…", "tags": ["React", "TypeScript"] },
    }
@@ -165,8 +164,9 @@ npm links. Then wire the new repo's sender per
 There is no `build`/`install`/`output` here — the aggregator never builds the project. How the
 docs are built is entirely the source repo's business.
 
-`enabled: false` keeps a project listed on the landing but drops its Docs link and makes gate 2
-reject its dispatch — use it for a project whose docs aren't ready yet.
+`enabled: false` keeps the entry but takes the project off the landing and makes gate 2 reject
+its dispatch — use it for a project whose docs aren't ready yet. A project with no entry at all
+is simply not deployed.
 
 ### Checking your entry
 

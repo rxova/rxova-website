@@ -142,8 +142,8 @@ untouched** — a bad push cannot take rxova.org down, it just does not publish.
 1. **Gate 1 — the new repo sends.** Add the sender job above to its docs CI:
    build at `/packages/<id>/`, upload `docs-dist`, dispatch `docs` with the
    payload. Nothing about the aggregator changes for it to be _able_ to send.
-2. **Gate 2 — this repo accepts.** Add one entry to
-   [`sources.json`](../sources.json) (`id`, `enabled: true`, `landing`) and the
-   matching `@rxova/brand` `PROJECTS` entry. Until that entry exists and is
-   enabled, gate 2a rejects the dispatch — a package cannot publish to the site
+2. **Gate 2 — this repo accepts.** The project must be in `@rxova/brand`'s
+   `PROJECTS`, the one list of projects; then add its entry to
+   [`sources.json`](../sources.json) (`id`, `enabled: true`, `landing`). Until
+   that entry exists and is enabled, gate 2a rejects the dispatch — a package cannot publish to the site
    just by sending; the site owner has to opt it in, in a reviewable PR.

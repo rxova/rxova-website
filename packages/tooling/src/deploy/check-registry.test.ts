@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { checkRegistry } from './check-registry.ts'
+import { checkRegistry, unknownProjects } from './check-registry.ts'
 import { resolveSource } from '../lib/registry.ts'
 
 const source = (id: string, enabled: boolean) =>
@@ -21,7 +21,7 @@ describe('checkRegistry', () => {
     const io = capture()
     const load = () => ({ sources: [source('journey', true), source('later', false)] })
 
-    expect(checkRegistry({ ...io, load })).toBe(0)
+    expect(checkRegistry({ ...io, load, projectIds: ['journey', 'later'] })).toBe(0)
     expect(io.out).toEqual([
       'sources.json OK — 2 project(s), 1 enabled:',
       '  ✓ journey          rxova/journey -> /packages/journey/',
@@ -32,7 +32,8 @@ describe('checkRegistry', () => {
 
   it('notes a landing-only deploy when nothing is enabled', () => {
     const io = capture()
-    expect(checkRegistry({ ...io, load: () => ({ sources: [source('later', false)] }) })).toBe(0)
+    const load = () => ({ sources: [source('later', false)] })
+    expect(checkRegistry({ ...io, load, projectIds: ['later'] })).toBe(0)
     expect(io.out.at(-1)).toBe(
       '\nNote: no projects are enabled; the site will deploy as landing-only.',
     )
@@ -54,5 +55,33 @@ describe('checkRegistry', () => {
 
     expect(checkRegistry()).toBe(0)
     expect(log.mock.calls[0]?.[0]).toMatch(/^sources\.json OK — \d+ project\(s\), \d+ enabled:$/)
+  })
+})
+
+describe('unknownProjects', () => {
+  const site = resolveSource({ id: 'blog', kind: 'site' })
+  const storybook = (id: string) =>
+    resolveSource({ id, kind: 'storybook', repo: 'rxova/journey', enabled: true })
+
+  it('accepts packages and storybooks of listed projects, and any site', () => {
+    const sources = [source('journey', true), storybook('storybook-journey'), site]
+    expect(unknownProjects(sources, ['journey'])).toEqual([])
+  })
+
+  it('names each package or storybook whose project brand does not list', () => {
+    const sources = [source('journey', true), source('nope', false), storybook('storybook-gone')]
+    expect(unknownProjects(sources, ['journey'])).toEqual(['nope', 'storybook-gone'])
+  })
+
+  it('fails the check and says where to add the project', () => {
+    const io = capture()
+    const load = () => ({ sources: [source('journey', true), source('nope', true)] })
+
+    expect(checkRegistry({ ...io, load, projectIds: ['journey'] })).toBe(1)
+    expect(io.out).toEqual([])
+    expect(io.err).toEqual([
+      'ERROR: sources.json deploys "nope", which @rxova/brand\'s PROJECTS does not list. ' +
+        'Add the project there first.',
+    ])
   })
 })
