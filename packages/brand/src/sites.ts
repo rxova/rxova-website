@@ -6,32 +6,14 @@
 /** Canonical origin. Override for a staging deploy (e.g. https://web.rxova.org). */
 export const RXOVA_ORIGIN = process.env.RXOVA_ORIGIN ?? 'https://rxova.org'
 
-export type ProjectId =
-  'overlock' | 'journey' | 'react-inputs' | 'use-everywhere' | 'ts-extended-errors'
-
-export interface Project {
-  id: ProjectId
-  /** Display name, used in the header, the switcher and the landing cards. */
-  label: string
-  /** Path the aggregator mounts this project's docs at. Leading and trailing slash. */
-  mount: `/${string}/`
-  tagline: string
-  repo: string
-  /** The package a newcomer should install first. */
-  npm: string
-  /** npm package names, most prominent first. */
-  packages: string[]
-}
-
 /**
- * Display order, shared by the landing's project rail and the docs switcher.
- * overlock stays last: it is a CLI and CI gate, not a library you import.
+ * Every rxova project, in display order: the landing's project rail and the docs switcher.
+ * The one list of projects; `sources.json` only says which are deployed. overlock stays last.
  */
-export const PROJECTS: readonly Project[] = [
+const DEFINITIONS = [
   {
     id: 'journey',
     label: 'journey',
-    mount: '/packages/journey/',
     tagline: 'Declarative journey graphs for non-linear UI flows.',
     repo: 'https://github.com/rxova/journey',
     npm: 'https://www.npmjs.com/package/@rxova/journey-core',
@@ -40,7 +22,6 @@ export const PROJECTS: readonly Project[] = [
   {
     id: 'react-inputs',
     label: 'react-inputs',
-    mount: '/packages/react-inputs/',
     tagline: 'The tricky React inputs, done right.',
     repo: 'https://github.com/rxova/react-inputs',
     npm: 'https://www.npmjs.com/package/@rxova/react-inputs',
@@ -60,7 +41,6 @@ export const PROJECTS: readonly Project[] = [
   {
     id: 'use-everywhere',
     label: 'use-everywhere',
-    mount: '/packages/use-everywhere/',
     tagline: 'State and messages that exist in every tab, window, and worker.',
     repo: 'https://github.com/rxova/use-everywhere',
     npm: 'https://www.npmjs.com/package/use-everywhere',
@@ -69,7 +49,6 @@ export const PROJECTS: readonly Project[] = [
   {
     id: 'ts-extended-errors',
     label: 'ts-extended-errors',
-    mount: '/packages/ts-extended-errors/',
     tagline: 'Typed, serializable errors that survive a JSON round trip.',
     repo: 'https://github.com/rxova/ts-extended-errors',
     npm: 'https://www.npmjs.com/package/ts-extended-errors',
@@ -78,13 +57,34 @@ export const PROJECTS: readonly Project[] = [
   {
     id: 'overlock',
     label: 'overlock',
-    mount: '/packages/overlock/',
     tagline: 'A deterministic gate on test integrity in a git patch.',
     repo: 'https://github.com/rxova/overlock',
     npm: 'https://www.npmjs.com/package/overlock',
     packages: ['overlock'],
   },
 ] as const
+
+export type ProjectId = (typeof DEFINITIONS)[number]['id']
+
+export interface Project {
+  id: ProjectId
+  /** Display name, used in the header, the switcher and the landing cards. */
+  label: string
+  /** Path the aggregator mounts this project's docs at: always `/packages/<id>/`. */
+  mount: `/${string}/`
+  tagline: string
+  repo: string
+  /** The package a newcomer should install first. */
+  npm: string
+  /** npm package names, most prominent first. */
+  packages: string[]
+}
+
+export const PROJECTS: readonly Project[] = DEFINITIONS.map((project) => ({
+  ...project,
+  mount: `/packages/${project.id}/`,
+  packages: [...project.packages],
+}))
 
 export function getProject(id: ProjectId): Project {
   const project = PROJECTS.find((p) => p.id === id)

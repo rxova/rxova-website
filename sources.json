@@ -1,9 +1,8 @@
 {
   "$comment": [
-    "Single source of truth for what rxova.org is assembled from. Adding a project is ONE entry",
-    "here plus a matching entry in @rxova/brand's PROJECTS (which the docs sites need for the",
-    "project switcher). Nothing in .github/workflows changes: deploy.yml and ingest.yml both read",
-    "this file.",
+    "What rxova.org deploys. The projects themselves are listed once, in @rxova/brand's PROJECTS;",
+    "an entry here deploys one of them, and `pnpm check:registry` rejects an id PROJECTS lacks.",
+    "Nothing in .github/workflows changes: deploy.yml and ingest.yml both read this file.",
     "",
     "Paths are DERIVED from `id` by packages/tooling/src/lib/registry.ts and must not be written here:",
     "  id: \"foo\"  ->  base /packages/foo/ \u00b7 mount packages/foo \u00b7 artifact docs-foo",

@@ -1,12 +1,31 @@
 #!/usr/bin/env node
-// Fails CI when sources.json breaks anything `loadRegistry` enforces (ids, derived paths).
-// Its match with @rxova/brand's PROJECTS is checked in apps/site/src/lib/projects.ts.
+// Fails CI when sources.json breaks anything `loadRegistry` enforces, or deploys a project that
+// @rxova/brand's PROJECTS (the one list of projects) does not name.
 
+// By path, like validate-content: this runs under bare Node, before anything is built.
+import { PROJECTS } from '../../../brand/src/sites.ts'
 import { errorMessage } from '../lib/errors.ts'
-import { loadRegistry, enabledSources, type Registry } from '../lib/registry.ts'
+import { loadRegistry, enabledSources, type Registry, type Source } from '../lib/registry.ts'
+
+const STORYBOOK_PREFIX = 'storybook-'
+
+/** The sources that deploy a project brand does not list: a package, or a project's Storybook. */
+export function unknownProjects(
+  sources: readonly Pick<Source, 'id' | 'kind'>[],
+  projectIds: readonly string[],
+): string[] {
+  return sources
+    .filter((s) => s.kind !== 'site')
+    .filter((s) => {
+      const project = s.kind === 'storybook' ? s.id.slice(STORYBOOK_PREFIX.length) : s.id
+      return !projectIds.includes(project)
+    })
+    .map((s) => s.id)
+}
 
 export interface CheckRegistryOptions {
   load?: () => Pick<Registry, 'sources'>
+  projectIds?: readonly string[]
   log?: (message: string) => void
   error?: (message: string) => void
 }
@@ -14,12 +33,22 @@ export interface CheckRegistryOptions {
 /** Prints the registry and returns the exit code: 1 when it does not load. */
 export function checkRegistry({
   load = loadRegistry,
+  projectIds = PROJECTS.map((p) => p.id),
   log = console.log,
   error = console.error,
 }: CheckRegistryOptions = {}): number {
   try {
     const registry = load()
     const enabled = enabledSources(registry)
+
+    const unknown = unknownProjects(registry.sources, projectIds)
+    if (unknown.length > 0) {
+      error(
+        `ERROR: sources.json deploys ${unknown.map((id) => `"${id}"`).join(', ')}, ` +
+          `which @rxova/brand's PROJECTS does not list. Add the project there first.`,
+      )
+      return 1
+    }
 
     log(`sources.json OK — ${registry.sources.length} project(s), ${enabled.length} enabled:`)
     for (const s of registry.sources) {

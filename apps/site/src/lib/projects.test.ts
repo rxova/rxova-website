@@ -1,11 +1,11 @@
 /**
- * The landing's project join: @rxova/brand's PROJECTS against sources.json.
- * Checks the real data's shape, and that every way the two can disagree fails the build.
- */
+ * The landing's project join: @rxova/brand's PROJECTS (the list) against sources.json (what
+ * is deployed). Checks the real data, and that a source naming no project fails the build. */
 
 import { describe, expect, it } from 'vitest'
 
 import { PROJECTS, type Project } from '@rxova/brand'
+import { baseFor } from '@rxova/website-schemas'
 
 import sources from '../../../../sources.json'
 import {
@@ -234,6 +234,18 @@ describe('buildLandingProjects', () => {
     expect(card?.links.map((l) => l.label)).toEqual(['GitHub', 'npm'])
   })
 
+  it('skips a brand project that sources.json does not deploy', () => {
+    const cards = buildLandingProjects(
+      [project(), project({ id: 'overlock', mount: '/packages/overlock/' })],
+      [source()],
+    )
+    expect(cards.map((c) => c.id)).toEqual(['journey'])
+  })
+
+  it('links each project where the deploy mounts it', () => {
+    for (const { id, mount } of PROJECTS) expect(mount).toBe(baseFor(id, 'package'))
+  })
+
   it('ignores site and storybook entries when matching sources to projects', () => {
     const cards = buildLandingProjects(
       [project()],
@@ -248,12 +260,6 @@ describe('buildLandingProjects', () => {
       [project()],
       [source(), source({ id: 'overlock' })],
       '"overlock" is in sources.json but not in PROJECTS',
-    ],
-    [
-      'a brand project with no source',
-      [project(), project({ id: 'overlock', mount: '/packages/overlock/' })],
-      [source()],
-      '"overlock" is in PROJECTS but not in sources.json',
     ],
     [
       'a source with no landing copy',
@@ -279,12 +285,6 @@ describe('buildLandingProjects', () => {
       [source({ landing: { blurb: 'b', tags: ['t'], demo: '/journey/demo' } })],
       '"journey" has a landing.demo that is not an absolute URL: /journey/demo',
     ],
-    [
-      'a mount that its id does not derive',
-      [project({ mount: '/docs/journey/' })],
-      [source()],
-      '"journey" mounts at /docs/journey/, but its id derives /packages/journey/',
-    ],
   ])('fails on %s', (_label, projects, sourceList, message) => {
     expect(() => buildLandingProjects(projects, sourceList)).toThrow(
       `[landing] sources.json and @rxova/brand disagree: ${message}\n`,
@@ -300,12 +300,11 @@ describe('buildLandingProjects', () => {
     ).toThrow(
       '\n  brand PROJECTS: journey\n' +
         '  sources.json:   journey, overlock\n' +
-        'Add the project to both, or remove it from both.',
+        "Projects are listed in @rxova/brand's PROJECTS; sources.json only deploys them.",
     )
   })
 
   it('says "(none)" for an empty registry', () => {
     expect(() => buildLandingProjects([], [source()])).toThrow('brand PROJECTS: (none)\n')
-    expect(() => buildLandingProjects([project()], [])).toThrow('sources.json:   (none)\n')
   })
 })
