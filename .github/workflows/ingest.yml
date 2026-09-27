@@ -94,3 +94,6 @@ jobs:
     needs: ingest
     if: needs.ingest.outputs.enabled == 'true'
     uses: ./.github/workflows/deploy.yml
+    # Without it, every deploy started by a docs ingest ships the site with no analytics.
+    secrets:
+      CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}

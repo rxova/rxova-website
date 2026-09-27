@@ -7,6 +7,10 @@ on:
   # Called by ingest.yml right after it persists a new dist, so a docs push shows
   # up on the live site without a second dispatch or a token that can re-trigger.
   workflow_call:
+    # Ingest calls this deploy, and a called workflow sees only the secrets passed to it.
+    secrets:
+      CLOUDFLARE_WEB_ANALYTICS_TOKEN:
+        required: false
   # Manual full redeploy from whatever is currently persisted.
   workflow_dispatch:
   # Landing / site changes in this repo.
