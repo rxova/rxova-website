@@ -51,19 +51,19 @@ unlayered and would flatten a Starlight page.
 
 ## What's in it
 
-| Export                                     | What it is                                                                                                                                                     |
-| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@rxova/astro-ui/starlight`                | `sharedStarlightConfig()`, the preset every docs site spreads                                                                                                  |
-| `@rxova/astro-ui/starlight/*.astro`        | The Starlight overrides: `SiteTitle`, `SocialIcons`, `Footer`, `ThemeSelect`                                                                                   |
-| `@rxova/astro-ui/components/*.astro`       | Chrome (`SiteShell`, `Header`, `SiteFooter`, …), primitives (`PageHeader`, `BackLink`, `ShowMore`, `VisuallyHidden`, `Icon`) and the components in the gallery |
-| `@rxova/astro-ui/components/icons/*.astro` | Glyphs in the `Icon` frame: `Prev`, `Next`, `Play`, `Pause`, `Replay`, `Expand`, `Collapse`                                                                    |
-| `@rxova/astro-ui/scripts/show-more`        | `enhanceShowMore()`: batches a `[data-reveal-list]` behind a `ShowMore`                                                                                        |
-| `@rxova/astro-ui/lib/entries`              | Ordering, bylines, dates and excerpts shared by /blog and /updates                                                                                             |
-| `@rxova/astro-ui/styles/document.css`      | For sites that own their document: `chrome.css`, a reset, base element styling                                                                                 |
-| `@rxova/astro-ui/styles/chrome.css`        | What the header and footer need, with nothing document-level                                                                                                   |
-| `@rxova/astro-ui/styles/starlight.css`     | Maps `--rx-*` onto Starlight's `--sl-*`, plus the footer                                                                                                       |
-| `@rxova/astro-ui/styles/landing.css`       | The Starlight overrides a splash landing page needs; load it through `customCss`                                                                               |
-| `@rxova/astro-ui/styles/mermaid.css`       | Restyles `rehype-mermaid`'s build-time SVG with the tokens, so diagrams follow the theme                                                                       |
+| Export                                     | What it is                                                                                                                                        |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@rxova/astro-ui/starlight`                | `sharedStarlightConfig()`, the preset every docs site spreads                                                                                     |
+| `@rxova/astro-ui/starlight/*.astro`        | The Starlight overrides: `SiteTitle`, `SocialIcons`, `Footer`, `ThemeSelect`                                                                      |
+| `@rxova/astro-ui/components/*.astro`       | Chrome (`Header`, `SiteFooter`, …), primitives (`PageHeader`, `BackLink`, `ShowMore`, `VisuallyHidden`, `Icon`) and the components in the gallery |
+| `@rxova/astro-ui/components/icons/*.astro` | Glyphs in the `Icon` frame: `Prev`, `Next`, `Play`, `Pause`, `Replay`, `Expand`, `Collapse`                                                       |
+| `@rxova/astro-ui/scripts/show-more`        | `enhanceShowMore()`: batches a `[data-reveal-list]` behind a `ShowMore`                                                                           |
+| `@rxova/astro-ui/lib/entries`              | Ordering, bylines, dates and excerpts shared by /blog and /updates                                                                                |
+| `@rxova/astro-ui/styles/document.css`      | For sites that own their document: `chrome.css`, a reset, base element styling                                                                    |
+| `@rxova/astro-ui/styles/chrome.css`        | What the header and footer need, with nothing document-level                                                                                      |
+| `@rxova/astro-ui/styles/starlight.css`     | Maps `--rx-*` onto Starlight's `--sl-*`, plus the footer                                                                                          |
+| `@rxova/astro-ui/styles/landing.css`       | The Starlight overrides a splash landing page needs; load it through `customCss`                                                                  |
+| `@rxova/astro-ui/styles/mermaid.css`       | Restyles `rehype-mermaid`'s build-time SVG with the tokens, so diagrams follow the theme                                                          |
 
 There is no barrel: each component has its own path, so a page only loads the
 CSS of the components it imports.
