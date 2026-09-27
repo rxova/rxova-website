@@ -1,5 +1,11 @@
 # @rxova/astro-ui
 
+## 0.5.1
+
+### Patch Changes
+
+- [#130](https://github.com/rxova/rxova-website/pull/130) [`949cb63`](https://github.com/rxova/rxova-website/commit/949cb635486bf36c0f2021c44971a4addd8c2a15) - Show the project switcher and the rxova.org sections on phones on pages without a sidebar. Starlight gives a splash page no phone menu, so on a phone those links were only in the footer. The header now takes a second row for them there.
+
 ## 0.5.0
 
 ### Minor Changes
