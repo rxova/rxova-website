@@ -14,7 +14,7 @@ describe('internalLinkProblems', () => {
     '/blog/rss.xml',
     '/llms.txt',
     '#top',
-    'mailto:rxova@proton.me',
+    'mailto:jonatan@rxova.org',
     'https://github.com/rxova',
     '//cdn.example.com/x',
   ])('accepts %s', (href) => {
