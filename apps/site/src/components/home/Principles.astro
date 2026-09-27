@@ -1,5 +1,5 @@
 ---
-/** The rules every project is held to; each id is the anchor of the same principle on /about. */
+/** The rules every project is held to; each title links to the same principle on /about. */
 import { PRINCIPLES } from '../../lib/about'
 import Eyebrow from './Eyebrow.astro'
 import Reveal from './Reveal.astro'
@@ -19,10 +19,9 @@ import SectionHeading from './SectionHeading.astro'
   <ul class="principles">
     {PRINCIPLES.map((p, i) => (
       <Reveal as="li" class="principle" style={`--d: ${i * 70}ms`}>
-        <a class="principle-id" href={`/about/#${p.id}`}>
-          {p.id}
-        </a>
-        <h3 class="principle-title">{p.title}</h3>
+        <h3 class="principle-title">
+          <a href={`/about/#${p.id}`}>{p.title}</a>
+        </h3>
         <p class="principle-summary">{p.summary}</p>
       </Reveal>
     ))}
@@ -55,27 +54,26 @@ import SectionHeading from './SectionHeading.astro'
     border-image: var(--rx-gradient) 1;
     border-image-width: 2px 0 0 0;
   }
-  .principle-id {
-    display: inline-block;
-    font-family: var(--rx-font-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.06em;
-    color: var(--rx-faint);
-    text-decoration: none;
-    margin-bottom: 0.65rem;
-    transition: color 0.2s ease;
-  }
-  .principle-id:hover {
-    color: var(--rx-fg);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
   .principle-title {
     font-size: 1.05rem;
     font-weight: 620;
     letter-spacing: -0.015em;
     margin-bottom: 0.4rem;
     text-wrap: balance;
+  }
+  /* The title is the link to the same principle on /about: body ink until hovered. */
+  .principle-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .principle-title a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .principle-title a:focus-visible {
+    outline: 2px solid var(--rx-fg);
+    outline-offset: 2px;
   }
   .principle-summary {
     color: var(--rx-muted);
