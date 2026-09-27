@@ -150,7 +150,7 @@ describe('docs artifacts', () => {
     await run(registry({ id: 'journey' }))
 
     assert.equal(read('packages/journey/index.html'), docsPage)
-    assert.doesNotMatch(read('packages/journey/index.html'), new RegExp(BEACON_SRC))
+    assert.equal(read('packages/journey/index.html').includes(BEACON_SRC), false)
   })
 })
 
