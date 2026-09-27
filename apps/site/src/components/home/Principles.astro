@@ -1,5 +1,5 @@
 ---
-/** The rules every project is held to; each title links to the same principle on /about. */
+/** The rules every project is held to; each title links to the same principle on the landing. */
 import { PRINCIPLES } from '../../lib/about'
 import Eyebrow from './Eyebrow.astro'
 import Reveal from './Reveal.astro'
@@ -20,7 +20,7 @@ import SectionHeading from './SectionHeading.astro'
     {PRINCIPLES.map((p, i) => (
       <Reveal as="li" class="principle" style={`--d: ${i * 70}ms`}>
         <h3 class="principle-title">
-          <a href={`/about/#${p.id}`}>{p.title}</a>
+          <a href={`/#${p.id}`}>{p.title}</a>
         </h3>
         <p class="principle-summary">{p.summary}</p>
       </Reveal>

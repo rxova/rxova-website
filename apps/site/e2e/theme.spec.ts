@@ -14,7 +14,7 @@ test('follows the system until the reader picks, then keeps the pick', async ({ 
 
   await page.reload()
   await expect(html(page)).toHaveAttribute('data-theme', 'dark')
-  await page.goto('/about/')
+  await page.goto('/projects/')
   await expect(html(page)).toHaveAttribute('data-theme', 'dark')
 })
 
@@ -28,7 +28,7 @@ test('labels the button with the theme it switches to', async ({ page }) => {
 
 test('shows a pick made on another page after going back', async ({ page }) => {
   await page.goto('/')
-  await page.goto('/about/')
+  await page.goto('/projects/')
   await page.locator('#theme-toggle').click()
   await page.goBack()
   await expect(html(page)).toHaveAttribute('data-theme', 'dark')

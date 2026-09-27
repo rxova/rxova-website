@@ -1,30 +1,46 @@
 ---
-/** The opening line and the page's one `h1`: what this is, then straight to the projects. */
+/** /projects' opening: what the projects have in common, then straight to them. */
+import { landingProjects, projectListSentence } from '../../lib/projects'
 ---
 
 <header class="intro">
-  <h1 class="rise">
-    <strong>Rxova</strong> publishes independent TypeScript libraries — one problem each, adopted
-    one at a time.
+  <p class="kicker rise">Projects</p>
+  <h1 class="rise" style="--d: 60ms">
+    Take one package, keep the rest of your stack.
   </h1>
+  <p class="lede rise" style="--d: 120ms">
+    {landingProjects.length} independent TypeScript libraries, one problem each:{' '}
+    {projectListSentence}. Each installs on its own, with its docs and a walkthrough below.
+  </p>
 </header>
 
 <style>
   .intro {
-    padding-block: clamp(2.25rem, 6vh, 3.5rem) clamp(1.75rem, 4vh, 2.5rem);
+    padding-block: clamp(3rem, 9vh, 5.5rem) clamp(2rem, 5vh, 3rem);
   }
+  .kicker {
+    font-family: var(--rx-font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rx-faint);
+    margin-bottom: 1rem;
+  }
+  /* The same display size as the landing's title, so the two pages open alike. */
   .intro h1 {
-    font-size: clamp(1.2rem, 2.2vw, 1.45rem);
-    line-height: 1.45;
-    font-weight: 450;
-    letter-spacing: -0.012em;
-    color: var(--rx-muted);
-    max-width: 46rem;
-    text-wrap: pretty;
+    max-width: 18ch;
+    font-size: clamp(2.2rem, 5.2vw, 3.6rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-weight: 650;
+    text-wrap: balance;
   }
-  .intro h1 strong {
-    color: var(--rx-fg);
-    font-weight: 600;
+  .lede {
+    margin-top: 1.25rem;
+    max-width: 40rem;
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    color: var(--rx-muted);
+    text-wrap: pretty;
   }
   /* The load animation: pure CSS that ends at rest, so it always completes. */
   @keyframes rise {
@@ -44,7 +60,6 @@
   @media (prefers-reduced-motion: reduce) {
     .rise {
       animation: none;
-      transition: none;
       opacity: 1;
       transform: none;
     }

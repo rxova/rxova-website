@@ -165,8 +165,12 @@ export const landingSurfaces: readonly SiteSurface[] = SECTIONS.map((section) =>
   href: section.path,
 }))
 
-/** The standalone surfaces in menu order: any mounted ones, then this app's own. */
-export const navSurfaces: readonly SiteSurface[] = [...siteSurfaces, ...landingSurfaces]
+/** The menu: Projects, then any mounted surfaces, then this app's other sections. */
+export const navSurfaces: readonly SiteSurface[] = [
+  ...landingSurfaces.filter((s) => s.id === 'projects'),
+  ...siteSurfaces,
+  ...landingSurfaces.filter((s) => s.id !== 'projects'),
+]
 
 /** "a" · "a and b" · "a, b, and c" */
 export function listSentence(labels: readonly string[]): string {

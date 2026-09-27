@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test'
 const root = '#project-ts-extended-errors [data-walkthrough]'
 
 async function open(page: Page) {
-  await page.goto('/')
+  await page.goto('/projects/')
   await page.locator(root).scrollIntoViewIfNeeded()
   return {
     count: page.locator(`${root} [data-count]`),
@@ -107,7 +107,7 @@ test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false })
 
   test('shows both sides in full with every note listed', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/projects/')
     await expect(page.locator(`${root} .pane.before`)).toBeVisible()
     await expect(page.locator(`${root} .pane.after`)).toBeVisible()
     await expect(page.locator(`${root} .pane.before [data-note]`)).toHaveCount(4)

@@ -1,7 +1,7 @@
 ---
 /**
  * The landing's adapter onto @rxova/astro-ui's shared `Header`, supplying only the menu:
- * derived from what is deployed (Projects + `navSurfaces`), with root-relative links.
+ * derived from what is deployed (`navSurfaces`), with root-relative links. The mark is home.
  */
 import Header from '@rxova/astro-ui/components/Header.astro'
 import { navSurfaces } from '../lib/projects'
@@ -13,8 +13,7 @@ interface Props {
 
 const { path } = Astro.props
 
-// Projects first, then mounted surfaces that have shipped (see `navSurfaces`).
-const surfaces = [{ label: 'Projects', href: '/' }, ...navSurfaces]
+const surfaces = navSurfaces
 
 /** `/` matches only itself; everything else its subtree. Pages pass `/blog` or `/blog/x`. */
 const here = path.endsWith('/') ? path : `${path}/`
