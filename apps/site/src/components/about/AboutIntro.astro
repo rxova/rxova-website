@@ -190,15 +190,16 @@ const LINK_ICONS: Record<string, string> = {
     font-size: 1.05rem;
   }
 
+  /* Equal columns only while the widest label fits one line; narrower, a list of full rows. */
   .links {
     list-style: none;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
     gap: 0.6rem;
   }
 
   .links a {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 0.5rem;
     min-height: 44px;
@@ -208,6 +209,7 @@ const LINK_ICONS: Record<string, string> = {
     background: var(--rx-bg);
     font-weight: 500;
     font-size: 0.95rem;
+    white-space: nowrap;
     text-decoration: none;
     transition: border-color 0.15s ease;
   }
@@ -237,17 +239,6 @@ const LINK_ICONS: Record<string, string> = {
   @media (max-width: 52rem) {
     .intro {
       grid-template-columns: minmax(0, 1fr);
-    }
-  }
-
-  @media (max-width: 30rem) {
-    .links {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .links a {
-      justify-content: center;
     }
   }
 </style>
