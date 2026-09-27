@@ -25,7 +25,7 @@ interface Source {
 }
 
 /** Package names by role; the first that exists wins, so a checkout from before a rename still builds. */
-const LANDING = ['@rxova/landing', '@rxova/homepage-site']
+const LANDING = ['@rxova/site', '@rxova/landing', '@rxova/homepage-site']
 const PREVIEW = ['@rxova/preview']
 /** Where each layout keeps the assembler. */
 const ASSEMBLERS = [

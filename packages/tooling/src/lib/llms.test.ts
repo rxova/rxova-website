@@ -112,9 +112,9 @@ describe('writeLlms', () => {
     ])
   })
 
-  // /blog and /updates are built by the landing app, so no sources.json entry announces
+  // /blog and /updates are built by the site app, so no sources.json entry announces
   // them; the index lists them anyway, as it did when each was a mounted site.
-  it("lists the landing app's own sections with no source for them", async () => {
+  it("lists the site app's own sections with no source for them", async () => {
     const { sites } = await writeLlms(root, [], ORIGIN)
     assert.deepEqual(
       sites.map((s) => [s.label, s.url]),

@@ -136,8 +136,8 @@ describe('isDocsOrConfigOnly', () => {
     ['.gitignore'],
     ['eslint.config.js'],
     ['README.md'],
-    ['apps/landing/src/pages/index.astro'],
-    ['apps/landing/content/posts/2026-07-27T080000-a-post.md'],
+    ['apps/site/src/pages/index.astro'],
+    ['apps/site/content/posts/2026-07-27T080000-a-post.md'],
   ])('skips a diff of only %s', (file) => {
     expect(isDocsOrConfigOnly([file])).toBe(true)
   })

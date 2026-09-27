@@ -14,7 +14,7 @@ them here already built; this repo validates and publishes them. See
 [docs/INPUTS-CONTRACT.md](docs/INPUTS-CONTRACT.md).
 
 ```
-rxova.org/                         -> apps/landing          (the site: landing, /about, /blog, /updates)
+rxova.org/                         -> apps/site          (the site: landing, /about, /blog, /updates)
 rxova.org/packages/journey/        -> rxova/journey        docs (built there, persisted as content-journey)
 rxova.org/packages/react-inputs/   -> rxova/react-inputs   docs (built there, persisted as content-react-inputs)
 rxova.org/packages/use-everywhere/ -> rxova/use-everywhere docs (built there, persisted as content-use-everywhere)
@@ -26,8 +26,8 @@ Which projects are mounted is `sources.json` — see [Adding a project](#adding-
 
 | Path                                            | What                                                    |
 | ----------------------------------------------- | ------------------------------------------------------- |
-| `apps/landing`                                  | The site: landing, /about, /blog, /updates (one app)    |
-| `apps/landing/content`                          | Blog posts, update entries, their images and authors    |
+| `apps/site`                                     | The site: landing, /about, /blog, /updates (one app)    |
+| `apps/site/content`                             | Blog posts, update entries, their images and authors    |
 | `packages/brand`                                | `@rxova/brand` on npm: tokens, fonts and project data   |
 | `packages/astro-ui`                             | `@rxova/astro-ui`: components, Starlight preset, chrome |
 | `packages/website-schemas`                      | `@rxova/website-schemas` on npm: the content contracts  |

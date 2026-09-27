@@ -3,7 +3,7 @@
 How **rxova.org/blog** and **rxova.org/updates** are put together, and why that way
 rather than the several other ways they could have been.
 
-The short version: the blog and the updates are routes of the site app, `apps/landing`,
+The short version: the blog and the updates are routes of the site app, `apps/site`,
 built in the same `astro build` as the landing and `/about`. Package docs are the only
 thing composed in at deploy time: their repositories build their own route bodies and
 page-specific head content, and this repo owns the public HTML shell around them —
@@ -12,9 +12,9 @@ global navigation, footer, theme bootstrap and analytics.
 ## One app, since September 2026
 
 ```
-apps/landing/content/posts    ─┐
-apps/landing/content/updates   ├─ astro build (apps/landing) ─→ dist/ ─→ assemble.ts ─→ _site/
-apps/landing/content/authors   │                                            ▲
+apps/site/content/posts    ─┐
+apps/site/content/updates   ├─ astro build (apps/site) ─→ dist/ ─→ assemble.ts ─→ _site/
+apps/site/content/authors   │                                            ▲
 packages/website-schemas      ─┘                        fetch-docs.ts (package docs only)
 ```
 
@@ -31,8 +31,8 @@ every surface, and it cost three things:
 - **A round trip through ingest** before a post reached the site, where the deploy that
   follows every merge could simply build it.
 
-So the two sections moved into the landing app as routes. Their prose moved to
-`apps/landing/content`, with one author registry for both. The `blog` and `updates`
+So the two sections moved into the site app as routes. Their prose moved to
+`apps/site/content`, with one author registry for both. The `blog` and `updates`
 entries left `sources.json`, and the `publish-blog`/`publish-updates` workflows went with
 them. Every URL, feed, canonical link and sitemap entry came out the same; the only
 change a reader sees is that the fonts and styles are fetched once for the whole site.

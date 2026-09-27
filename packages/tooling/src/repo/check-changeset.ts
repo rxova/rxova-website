@@ -20,7 +20,7 @@ export const publishedPackageDirs = [
  * branches need their `/.*` suffix to match paths beneath the directory.
  */
 export const allowedPattern =
-  /^((apps\/(?:landing|preview|e2e|storybook)|\.github|\.changeset|\.husky|packages\/tooling)\/.*|\.[\w-]*ignore|[\w.-]+\.config\.(js|mjs|cjs|ts)|.*\.(md|txt|yml|yaml|json))$/
+  /^((apps\/(?:site|preview|e2e|storybook)|\.github|\.changeset|\.husky|packages\/tooling)\/.*|\.[\w-]*ignore|[\w.-]+\.config\.(js|mjs|cjs|ts)|.*\.(md|txt|yml|yaml|json))$/
 
 /** What the check reads and prints through; the defaults are the real ones. */
 export interface ChangesetIo {

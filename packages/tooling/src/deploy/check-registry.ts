@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Fails CI when sources.json breaks anything `loadRegistry` enforces (ids, derived paths).
-// Its match with @rxova/brand's PROJECTS is checked in apps/landing/src/lib/projects.ts.
+// Its match with @rxova/brand's PROJECTS is checked in apps/site/src/lib/projects.ts.
 
 import { errorMessage } from '../lib/errors.ts'
 import { loadRegistry, enabledSources, type Registry } from '../lib/registry.ts'

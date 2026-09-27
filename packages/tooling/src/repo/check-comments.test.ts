@@ -26,8 +26,8 @@ describe('isChecked', () => {
     'package.json',
     'README.md',
     'pnpm-lock.yaml',
-    'apps/landing/src/showcases/journey/before.ts',
-    'apps/landing/src/showcases/journey/after.tsx',
+    'apps/site/src/showcases/journey/before.ts',
+    'apps/site/src/showcases/journey/after.tsx',
   ])('skips %s', (path) => expect(isChecked(path)).toBe(false))
 })
 

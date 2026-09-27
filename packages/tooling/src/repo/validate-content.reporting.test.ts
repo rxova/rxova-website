@@ -53,8 +53,8 @@ describe('countContent', () => {
 
   it('ignores non-markdown, and missing directories count as zero', () => {
     const root = emptyRoot()
-    mkdirSync(join(root, 'apps/landing/content/posts'), { recursive: true })
-    writeFileSync(join(root, 'apps/landing/content/posts', 'notes.txt'), 'stray')
+    mkdirSync(join(root, 'apps/site/content/posts'), { recursive: true })
+    writeFileSync(join(root, 'apps/site/content/posts', 'notes.txt'), 'stray')
     expect(countContent(root)).toEqual({ posts: 0, updates: 0, authors: 0 })
   })
 })

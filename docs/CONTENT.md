@@ -1,7 +1,7 @@
 # Writing for rxova.org
 
-The blog and the updates stream are part of the site app, `apps/landing`, and their prose
-lives in `apps/landing/content`. The design and the reasoning behind it live in
+The blog and the updates stream are part of the site app, `apps/site`, and their prose
+lives in `apps/site/content`. The design and the reasoning behind it live in
 [`docs/CONTENT-ARCHITECTURE.md`](./CONTENT-ARCHITECTURE.md).
 
 This page is the practical half: what to write, where, and what the frontmatter has
@@ -23,7 +23,7 @@ it belonged in updates.
 
 ## Adding a post
 
-`apps/landing/content/posts/YYYY-MM-DDTHHMMSS-some-slug.md`. The prefix keeps the directory sorted
+`apps/site/content/posts/YYYY-MM-DDTHHMMSS-some-slug.md`. The prefix keeps the directory sorted
 in an editor; `pubDate` is what actually orders the site, and the validator checks
 the two agree. The URL is `/blog/some-slug` — the prefix is stripped, so re-dating a
 post never breaks its link.
@@ -45,7 +45,7 @@ updatedDate: # optional; must not be earlier than pubDate
 The filename is a **full UTC timestamp to the second**, always:
 
 ```
-apps/landing/content/posts/2026-07-27T143005-some-slug.md   pubDate: 2026-07-27T14:30:05Z
+apps/site/content/posts/2026-07-27T143005-some-slug.md   pubDate: 2026-07-27T14:30:05Z
 ```
 
 The two must be the same instant, and the validator says so with the exact rename
@@ -71,8 +71,8 @@ there. Paths are relative to the file that writes them, so from a post that is
 `../images/<slug>/…`.
 
 ```
-apps/landing/content/images/some-slug/hero.png
-apps/landing/content/posts/2026-07-27T143005-some-slug.md
+apps/site/content/images/some-slug/hero.png
+apps/site/content/posts/2026-07-27T143005-some-slug.md
 ```
 
 A cover goes in the frontmatter; anything else is a normal markdown embed:
@@ -102,7 +102,7 @@ Embedded images take their alt text inline, the ordinary way: `![like this](…)
 
 ## Adding an update
 
-`apps/landing/content/updates/YYYY-MM-DDTHHMMSS-some-slug.md`, same timestamp rule as posts. Keep
+`apps/site/content/updates/YYYY-MM-DDTHHMMSS-some-slug.md`, same timestamp rule as posts. Keep
 it to a paragraph or two — the updates page renders entries in full, inline, as one
 stream.
 
@@ -171,7 +171,7 @@ it out of the repo — that is what the flag is for.
 
 ## Adding yourself as an author
 
-`apps/landing/content/authors/<your-id>.md`: one registry for posts and updates alike. The
+`apps/site/content/authors/<your-id>.md`: one registry for posts and updates alike. The
 id is the filename and is what entries reference.
 
 ```yaml
@@ -202,7 +202,7 @@ To see it rendered, run `pnpm dev` and open `/blog` or `/updates`.
 
 ## Licensing
 
-Prose in `apps/landing/content` is **CC BY 4.0** (see the `LICENSE` there), not the repo's
+Prose in `apps/site/content` is **CC BY 4.0** (see the `LICENSE` there), not the repo's
 MIT.
 MIT is a software licence and reads oddly applied to an article. Submitting a post
 means licensing it that way.

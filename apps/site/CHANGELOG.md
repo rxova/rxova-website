@@ -1,4 +1,4 @@
-# @rxova/landing
+# @rxova/site
 
 ## 0.0.2
 

@@ -1,6 +1,6 @@
 /**
  * This package's real entries and `authors/`, checked against the contract inside the package.
- * The repo-level validator is the pre-merge gate; this lets `pnpm --filter @rxova/landing test` fail alone.
+ * The repo-level validator is the pre-merge gate; this lets `pnpm --filter @rxova/site test` fail alone.
  */
 
 import { readdirSync, readFileSync } from 'node:fs'
