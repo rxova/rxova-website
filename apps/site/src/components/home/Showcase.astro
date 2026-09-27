@@ -4,6 +4,8 @@
  * is in-page links and every panel is stacked; the script upgrades the rail to a tablist.
  */
 import type { LandingProject } from '../../lib/projects'
+import { inlineWalkthroughId } from '../../lib/walkthrough'
+import { showcases } from '../../showcases'
 import Eyebrow from './Eyebrow.astro'
 import ProjectPanel from './ProjectPanel.astro'
 
@@ -14,6 +16,13 @@ interface Props {
 }
 
 const { projects, featured } = Astro.props
+
+// One walkthrough in the page; the rest are fetched from their own pages when wanted.
+const inlineId = inlineWalkthroughId(
+  projects.map((p) => p.id),
+  projects[featured]?.id ?? '',
+  (id) => id in showcases,
+)
 ---
 
 <section class="showcase" id="projects" aria-labelledby="projects-heading">
@@ -38,13 +47,18 @@ const { projects, featured } = Astro.props
 
     <div class="stage">
       {projects.map((p, i) => (
-        <ProjectPanel project={p} active={i === featured} />
+        <ProjectPanel project={p} active={i === featured} inline={p.id === inlineId} />
       ))}
     </div>
   </div>
 </section>
 
 <script>
+  import {
+    fillWalkthroughSlot,
+    fillWalkthroughSlotsWhenIdle,
+  } from '../../scripts/walkthrough-slots'
+
   interface RailTab extends HTMLAnchorElement {
     dataset: DOMStringMap & { rail: string }
   }
@@ -76,6 +90,7 @@ const { projects, featured } = Astro.props
         panel.classList.toggle('is-active', on)
         // Out of the accessibility tree too, so only the visible panel is read.
         panel.setAttribute('aria-hidden', String(!on))
+        if (on) void fillWalkthroughSlot(panel)
       }
       if (focus) next.focus()
     }
@@ -113,6 +128,7 @@ const { projects, featured } = Astro.props
   }
 
   enhanceRail()
+  fillWalkthroughSlotsWhenIdle()
 </script>
 
 <style>

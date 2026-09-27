@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
-import { NOTE_MS, PLAY_LABELS, TURN_MS, stepAt, stepCount, timeline } from './walkthrough'
+import {
+  NOTE_MS,
+  PLAY_LABELS,
+  TURN_MS,
+  inlineWalkthroughId,
+  stepAt,
+  stepCount,
+  timeline,
+  walkthroughPath,
+} from './walkthrough'
 
 describe('timeline', () => {
   it('gives each note its time, and the first fix the turn as well', () => {
@@ -45,5 +54,27 @@ describe('PLAY_LABELS', () => {
       paused: 'Play the walkthrough',
       ended: 'Replay the walkthrough',
     })
+  })
+})
+
+describe('walkthroughPath', () => {
+  it('is a directory-style path under /walkthroughs/', () => {
+    expect(walkthroughPath('journey')).toBe('/walkthroughs/journey/')
+  })
+})
+
+describe('inlineWalkthroughId', () => {
+  const has = (ids: string[]) => (id: string) => ids.includes(id)
+
+  it('is the featured project when it has a walkthrough', () => {
+    expect(inlineWalkthroughId(['a', 'b', 'c'], 'b', has(['a', 'b']))).toBe('b')
+  })
+
+  it('falls back to the first project that has one', () => {
+    expect(inlineWalkthroughId(['a', 'b', 'c'], 'a', has(['c', 'b']))).toBe('b')
+  })
+
+  it('is undefined when no project has one', () => {
+    expect(inlineWalkthroughId(['a', 'b'], 'a', has([]))).toBeUndefined()
   })
 })

@@ -1,6 +1,7 @@
 ---
 /** One project on the showcase stage: install line, snippet or walkthrough, tags and links. */
 import type { LandingProject } from '../../lib/projects'
+import { walkthroughPath } from '../../lib/walkthrough'
 import { showcases } from '../../showcases'
 import Walkthrough from '../walkthrough/Walkthrough.astro'
 import Arrow from './Arrow.astro'
@@ -10,9 +11,11 @@ interface Props {
   project: LandingProject
   /** The panel the page opens on. */
   active: boolean
+  /** Render the walkthrough here, rather than a link the rail fills from its own page. */
+  inline: boolean
 }
 
-const { project: p, active } = Astro.props
+const { project: p, active, inline } = Astro.props
 const story = showcases[p.id]
 ---
 
@@ -69,7 +72,17 @@ const story = showcases[p.id]
   </LinkRow>
 
   {/* After the links because it is tall, so Docs and GitHub stay in the panel's first screen. */}
-  {story && <Walkthrough story={story} id={`walkthrough-${p.id}`} host=".panel" />}
+  {story &&
+    (inline ? (
+      <Walkthrough story={story} id={`walkthrough-${p.id}`} host=".panel" />
+    ) : (
+      <p class="walkthrough-slot" data-walkthrough-src={walkthroughPath(p.id)}>
+        <a href={walkthroughPath(p.id)}>
+          {story.heading}
+          <Arrow dir="across" />
+        </a>
+      </p>
+    ))}
 </article>
 
 <style>
@@ -181,6 +194,16 @@ const story = showcases[p.id]
     content: '·';
     color: var(--rx-faint);
     margin-right: 0.5rem;
+  }
+  /* Until the rail fills it, or for good without JS: the walkthrough's heading, as a link to it. */
+  .walkthrough-slot a {
+    font-weight: 600;
+    color: var(--rx-fg);
+    text-decoration: none;
+  }
+  .walkthrough-slot a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
   .tags {
     list-style: none;

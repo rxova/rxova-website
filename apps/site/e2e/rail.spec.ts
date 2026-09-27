@@ -45,6 +45,41 @@ test.describe('project rail', () => {
     await page.goto('/#project-journey')
     await expect(page.locator(tab('journey'))).toHaveAttribute('aria-selected', 'true')
   })
+
+  test('renders only the featured walkthrough, and fetches another on selection', async ({
+    page,
+  }) => {
+    // Hold the idle fill back, so the fetch below is the one selection makes.
+    await page.addInitScript(() => {
+      window.requestIdleCallback = () => 0
+    })
+    await page.goto('/')
+    await expect(page.locator('[data-walkthrough]')).toHaveCount(1)
+    await expect(page.locator(`${panel('journey')} [data-walkthrough-src]`)).toHaveCount(1)
+
+    const fetched = page.waitForResponse((r) => r.url().endsWith('/walkthroughs/journey/'))
+    await page.locator(tab('journey')).click()
+    await fetched
+    const tour = page.locator(`${panel('journey')} [data-walkthrough]`)
+    await expect(tour).toHaveAttribute('data-js', '')
+    // A tour plays while it is on screen, as the inline one does.
+    await tour.scrollIntoViewIfNeeded()
+    await expect(tour.locator('[data-play]')).toHaveAttribute('data-state', 'playing')
+    await expect(page.locator(`${panel('journey')} [data-walkthrough-src]`)).toHaveCount(0)
+  })
+
+  test('fills every other walkthrough once the page is idle', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('[data-walkthrough-src]')).toHaveCount(0)
+    await expect(page.locator('[data-walkthrough][data-js]')).toHaveCount(4)
+    // On screen, only the visible panel's tour plays; the filled, hidden ones stay paused.
+    await page.locator(`${panel('ts-extended-errors')} [data-walkthrough]`).scrollIntoViewIfNeeded()
+    await expect(page.locator(`${panel('ts-extended-errors')} [data-play]`)).toHaveAttribute(
+      'data-state',
+      'playing',
+    )
+    await expect(page.locator('[data-play][data-state="playing"]')).toHaveCount(1)
+  })
 })
 
 test.describe('without JavaScript', () => {
@@ -57,5 +92,16 @@ test.describe('without JavaScript', () => {
     for (const id of ['journey', 'react-inputs', 'use-everywhere', 'ts-extended-errors']) {
       await expect(page.locator(panel(id))).toBeVisible()
     }
+  })
+
+  test('links each deferred walkthrough to its own page, which shows it in full', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    await page.locator(`${panel('journey')} .walkthrough-slot a`).click()
+    await expect(page).toHaveURL(/\/walkthroughs\/journey\/$/)
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex')
+    await expect(page.locator('[data-walkthrough] [data-pane="before"]')).toBeVisible()
+    await expect(page.locator('[data-walkthrough] [data-pane="after"]')).toBeVisible()
   })
 })
