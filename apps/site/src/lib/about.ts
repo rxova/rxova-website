@@ -126,13 +126,13 @@ export interface Principle {
 export const PRINCIPLES: readonly Principle[] = [
   {
     id: 'focused-apis',
-    title: 'Focused APIs, not frameworks',
+    title: 'Focused APIs, DX first',
     summary:
-      'Each library solves one problem and stops there. No plugin system, no configuration to learn before the first useful line.',
+      "Each library solves one problem with an API that feels native where you use it, typed end to end. Nothing to set up before the first useful line; extras such as journey's plugins are opt-in.",
     icon: 'one-pain-point',
     card: {
-      title: 'Focused APIs, not frameworks',
-      line: 'One problem each. No plugin system, nothing to configure before the first useful line.',
+      title: 'Focused APIs, DX first',
+      line: 'One problem each, an API that feels native, and nothing to set up before the first useful line. Extras such as plugins are opt-in.',
     },
   },
   {
@@ -151,11 +151,11 @@ export const PRINCIPLES: readonly Principle[] = [
     id: 'production-behaviour',
     title: 'Accessible, tested, production-oriented behaviour',
     summary:
-      'Keyboard handling, ARIA, focus, and locale are part of the component — not an issue filed after launch.',
+      'Keyboard handling, ARIA, focus, and locale are part of the component, and tested: unit tests at 90%+ coverage plus end-to-end suites for the edge cases, not only the happy path.',
     icon: 'tested',
     card: {
       title: 'Accessible and tested by default',
-      line: 'Part of the component, not an issue filed after launch. The edge cases are the test suite.',
+      line: 'Part of the component, not an issue filed after launch. Unit tests at 90%+ coverage, and end-to-end suites that cover the edge cases, not only the happy path.',
       visual: { kind: 'tags', tags: ['keyboard', 'ARIA', 'focus', 'locale'] },
     },
   },
@@ -209,6 +209,8 @@ export const COMMITMENTS = {
     'Issues get read',
     'Security reports come first',
     'No API break without a major and a migration note',
+    'Extensive documentation',
+    'High test coverage',
   ],
 } as const
 
