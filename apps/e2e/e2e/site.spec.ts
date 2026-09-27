@@ -3,9 +3,9 @@ import { expect, test } from '@playwright/test'
 
 const SECTIONS = [
   { path: '/', nav: '/' },
-  { path: '/about/', nav: '/about' },
-  { path: '/blog/', nav: '/blog' },
-  { path: '/updates/', nav: '/updates' },
+  { path: '/about/', nav: '/about/' },
+  { path: '/blog/', nav: '/blog/' },
+  { path: '/updates/', nav: '/updates/' },
 ]
 
 for (const { path, nav } of SECTIONS) {
@@ -23,9 +23,9 @@ for (const { path, nav } of SECTIONS) {
 
 test('moves between sections through the header', async ({ page }) => {
   await page.goto('/')
-  await page.locator('header.site nav a[href="/blog"]').click()
+  await page.locator('header.site nav a[href="/blog/"]').click()
   await expect(page).toHaveURL(/\/blog\/?$/)
-  await page.locator('header.site nav a[href="/updates"]').click()
+  await page.locator('header.site nav a[href="/updates/"]').click()
   await expect(page).toHaveURL(/\/updates\/?$/)
   await page.locator('header.site a.brand').click()
   await expect(page).toHaveURL(/\/$/)

@@ -8,7 +8,7 @@ import type { StreamItem } from '../../components/updates/stream/Entry.astro'
 import { getUpdates, resolveAuthors, usedRepos, usedTags } from '../../lib/updates'
 import { siteUrl, canonicalUrl, PROJECTS } from '@rxova/brand'
 
-const blogUrl = siteUrl('/blog')
+const blogUrl = '/blog/'
 const feedUrl = `${canonicalUrl('/updates')}rss.xml`
 
 const entries = await getUpdates()

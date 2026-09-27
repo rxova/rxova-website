@@ -41,7 +41,7 @@ export function usedTags(entries: readonly UpdateEntry[]): string[] {
   return usedValues(entries, (e) => e.data.tags as string[]).sort()
 }
 
-/** A URL under `/updates/`. Every internal updates link goes through here. */
+/** A page URL under `/updates/`, ending in `/` so GitHub Pages serves it without a redirect. */
 export function href(path = ''): string {
-  return `/updates/${path}`.replace(/\/{2,}/g, '/')
+  return `/updates/${path}/`.replace(/\/{2,}/g, '/')
 }

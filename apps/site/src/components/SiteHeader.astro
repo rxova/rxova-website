@@ -22,8 +22,9 @@ const { path, ribbon = false } = Astro.props
 // docs page, Starlight's bar already has the project switcher, so Projects is dropped.
 const surfaces = ribbon ? navSurfaces : [{ label: 'Projects', href: '/' }, ...navSurfaces]
 
-/** `/` matches only itself; everything else matches its whole subtree. */
-const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href))
+/** `/` matches only itself; everything else its subtree. Pages pass `/blog` or `/blog/x`. */
+const here = path.endsWith('/') ? path : `${path}/`
+const isCurrent = (href: string) => (href === '/' ? here === '/' : here.startsWith(href))
 
 const items = surfaces.map((s) => ({ label: s.label, href: s.href, current: isCurrent(s.href) }))
 ---
