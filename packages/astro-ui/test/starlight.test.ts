@@ -123,28 +123,6 @@ describe('sharedStarlightConfig', () => {
     expect(config.editLink.baseUrl).toBe('https://github.com/rxova/overlock/edit/main/docs/')
   })
 
-  // A page component is placed in rxova-website's own shell, which has the footer.
-  it('drops only the site footer when building a page component', () => {
-    const page = sharedStarlightConfig({ project: 'journey', sidebar, pageComponent: true })
-    const full = sharedStarlightConfig({ project: 'journey', sidebar, pageComponent: false })
-
-    expect(page.components).not.toHaveProperty('Footer')
-    expect(Object.keys(page.components)).toEqual(SHARED_COMPONENTS.filter((c) => c !== 'Footer'))
-    expect(full.components).toHaveProperty('Footer', '@rxova/astro-ui/starlight/Footer.astro')
-
-    expect({ ...page, components: {} }).toEqual({ ...full, components: {} })
-  })
-
-  it('still lets a page component supply a footer of its own', () => {
-    const config = sharedStarlightConfig({
-      project: 'journey',
-      sidebar,
-      pageComponent: true,
-      components: { Footer: './src/Footer.astro' },
-    })
-    expect(config.components.Footer).toBe('./src/Footer.astro')
-  })
-
   it('asks for a large social card', () => {
     const { head } = sharedStarlightConfig({ project: 'journey', sidebar })
     expect(head[1]).toEqual({

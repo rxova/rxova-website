@@ -11,7 +11,7 @@ import { sourceId } from './registry.ts'
 export const dispatchPayload = z
   .object({
     /** Contract version. The receiver rejects anything it does not speak. */
-    schema: z.union([z.literal(1), z.literal(2)]).default(1),
+    schema: z.literal(1).default(1),
     project: sourceId,
     /** No leading `-` (would parse as a `git`/`gh` flag) and no `..` (path traversal). */
     ref: z.string().regex(/^(?!-)(?!.*\.\.)[A-Za-z0-9._/-]+$/, 'not a branch name or tag'),

@@ -16,8 +16,6 @@ export interface SharedStarlightOptions {
   components?: Record<string, string>
   /** Path under the repo root that holds the docs site, for the edit link. */
   editLinkBase?: string
-  /** Build body-only docs for rxova-website's shell: Starlight's page UI stays, the footer goes. */
-  pageComponent?: boolean
 }
 
 export function sharedStarlightConfig({
@@ -26,7 +24,6 @@ export function sharedStarlightConfig({
   customCss = [],
   components = {},
   editLinkBase = 'apps/docs',
-  pageComponent = false,
 }: SharedStarlightOptions) {
   const self = getProject(project)
 
@@ -59,7 +56,7 @@ export function sharedStarlightConfig({
       SocialIcons: '@rxova/astro-ui/starlight/SocialIcons.astro',
       // Starlight's default footer (pagination, edit link, last updated) plus
       // the shared four-column site footer beneath it.
-      ...(!pageComponent ? { Footer: '@rxova/astro-ui/starlight/Footer.astro' } : {}),
+      Footer: '@rxova/astro-ui/starlight/Footer.astro',
       // Starlight's own picker, plus a resync when a page is restored from the bfcache.
       ThemeSelect: '@rxova/astro-ui/starlight/ThemeSelect.astro',
       ...components,
