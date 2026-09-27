@@ -1,0 +1,11 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".storybook/**/*.ts", "stories/**/*.ts"],
+  "exclude": ["dist", "node_modules"],
+  "compilerOptions": {
+    "types": ["node"],
+    // @rxova/astro-ui ships uncompiled TypeScript whose relative imports carry a real .ts extension.
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  }
+}
