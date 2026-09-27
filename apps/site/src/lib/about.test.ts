@@ -117,9 +117,9 @@ describe('ORIGINS', () => {
 })
 
 describe('COMMITMENTS', () => {
-  it('states both what is promised and what is not', () => {
+  it('states what is promised', () => {
     expect(COMMITMENTS.promised.length).toBeGreaterThan(0)
-    expect(COMMITMENTS.notPromised.length).toBeGreaterThan(0)
+    expect(COMMITMENTS).not.toHaveProperty('notPromised')
   })
 })
 
