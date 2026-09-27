@@ -5,9 +5,9 @@ rather than the several other ways they could have been.
 
 The short version: the blog and the updates are routes of the site app, `apps/site`,
 built in the same `astro build` as the landing and `/about`. Package docs are the only
-thing composed in at deploy time: their repositories build their own route bodies and
-page-specific head content, and this repo owns the public HTML shell around them —
-global navigation, footer, theme bootstrap and analytics.
+thing brought in at deploy time: their repositories build complete pages with
+`@rxova/astro-ui`, whose header and footer link the rest of rxova.org, and this repo
+publishes them as built, adding only the analytics beacon.
 
 ## One app, since September 2026
 
@@ -20,7 +20,7 @@ packages/website-schemas      ─┘                        fetch-docs.ts (packa
 
 Until then the blog and the updates were two more Astro builds, each published by its
 own workflow, sent to `ingest.yml`, persisted as a `content-blog` or `content-updates`
-release and composed into the shell like a project's docs. That kept one code path for
+release and composed into a site shell like a project's docs were then. That kept one code path for
 every surface, and it cost three things:
 
 - **A flicker on every navbar click between sections.** Each build emitted its own CSS
@@ -62,16 +62,16 @@ name — stays uniform, so ingest and fetch never branch on kind.
 
 ## What lives where
 
-| Where                                                 | Owns                                                                                           |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `packages/` in this repo                              | prose, frontmatter schemas, producer renderers, design tokens, Header and SiteFooter           |
-| package repositories                                  | documentation content and Starlight's internal search/sidebar/page navigation                  |
-| `apps/`, `packages/tooling/` and workflows, this repo | the public document shell, global chrome, aggregate analytics and deploy-time HTML composition |
+| Where                                                 | Owns                                                                                 |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `packages/` in this repo                              | prose, frontmatter schemas, design tokens, the site chrome and the docs chrome       |
+| package repositories                                  | documentation content, built into complete pages with `@rxova/astro-ui`              |
+| `apps/`, `packages/tooling/` and workflows, this repo | the site's own pages, the deploy, and the analytics beacon added to docs at assembly |
 
-The renderer still sits with the content: the blog, updates and package repositories build
-their own HTML and assets. The boundary is the body-level PageComponent, not a
-complete public site. This keeps producer toolchains independent while ensuring a
-single website-owned shell is present on every deployed route.
+The renderer sits with the content: each package repository builds its own HTML and
+assets. The chrome is shared by package rather than by composition. Every docs build
+takes its header and footer from `@rxova/astro-ui`, so a change to them ships as a
+release that the docs repos take.
 
 ## Rejected alternatives
 
@@ -105,16 +105,11 @@ checkout token. Revisit when the first outside author appears.
 
 **Source components built centrally.** Rejected because the website would have to
 install and execute every producer's Astro, TypeDoc, image and browser toolchain.
-Rendered PageComponent bundles preserve independent builds without giving up a
-single public shell.
+Complete pages built with a shared package keep the builds independent.
 
-## Composition rules
-
-- Website-owned head elements are charset, viewport, icons, global styles, theme
-  bootstrap and Cloudflare Analytics.
-- Producers own title, description, canonical/robots/Open Graph metadata,
-  structured data and page-local scripts/styles.
-- Source `html` and `body` classes/data attributes are merged into the shell so
-  framework-generated layouts keep working.
-- Package docs retain Starlight's internal header and page footer. They omit only
-  the umbrella Rxova header/footer supplied by the website.
+**The site composes docs into its own shell.** Built and retired in September 2026. Docs
+repos shipped body-only pages and the deploy spliced them into a site template, under
+the site's header. A docs page then had two fixed bars from two builds: the site's
+ribbon and Starlight's own. Keeping them aligned took shared CSS offsets, and on iOS
+they slid apart when the page overscrolled. Drawing the rxova.org links inside
+Starlight's bar removed the second bar and the splicing with it.

@@ -1,4 +1,4 @@
-/** What only exists once the site is assembled: surfaces from other builds inside one shell. */
+/** What only exists once the site is assembled: every section under one header and footer. */
 import { expect, test } from '@playwright/test'
 
 const SECTIONS = [

@@ -1,28 +1,11 @@
-// Small parse5 helpers shared by the scripts that read assembled HTML
-// (noindex and redirect-stub detection), so every reader agrees on attribute casing.
+// Small parse5 helpers for the scripts that read assembled HTML (noindex and redirect-stub
+// detection), so every reader agrees on attribute casing.
 import type { DefaultTreeAdapterTypes } from 'parse5'
 
-export type Node = DefaultTreeAdapterTypes.Node
-export type Element = DefaultTreeAdapterTypes.Element
-export type ParentNode = DefaultTreeAdapterTypes.ParentNode
-export type ChildNode = DefaultTreeAdapterTypes.ChildNode
+type Node = DefaultTreeAdapterTypes.Node
+type Element = DefaultTreeAdapterTypes.Element
 
 const children = (node: Node): Node[] => ('childNodes' in node ? node.childNodes : [])
-
-/** Depth-first search for the first node matching `predicate`. */
-export function findNode<T extends Node>(
-  root: Node,
-  predicate: (node: Node) => node is T,
-): T | undefined
-export function findNode(root: Node, predicate: (node: Node) => boolean): Node | undefined
-export function findNode(root: Node, predicate: (node: Node) => boolean): Node | undefined {
-  if (predicate(root)) return root
-  for (const child of children(root)) {
-    const found = findNode(child, predicate)
-    if (found) return found
-  }
-  return undefined
-}
 
 /** Predicate factory: matches an element by tag name. */
 export const element =
@@ -33,17 +16,6 @@ export const element =
 /** An element's attribute value, or undefined. parse5 lower-cases both. */
 export const attribute = (node: Node, name: string): string | undefined =>
   'attrs' in node ? node.attrs.find((attr) => attr.name === name)?.value : undefined
-
-/** Whether `node`'s class attribute contains `name`. */
-export function hasClass(node: Node, name: string): boolean {
-  return (attribute(node, 'class') ?? '').split(/\s+/).includes(name)
-}
-
-/** Matches any element carrying `name`, e.g. a slot marker. */
-export const withAttribute =
-  (name: string) =>
-  (node: Node): node is Element =>
-    attribute(node, name) !== undefined
 
 /** Visit every node in the tree, root first. */
 export function walkNodes(root: Node, visit: (node: Node) => void): void {

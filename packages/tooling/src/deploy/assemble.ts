@@ -1,30 +1,12 @@
 #!/usr/bin/env node
 // Assembles rxova.org from build artifacts. Usage: node assemble.ts [artifacts] [_site]
-// Mounts come from sources.json; schema-2 HTML is composed into the shell, the rest copied as is.
+// Mounts come from sources.json; each artifact is copied as built, plus the analytics beacon.
 
 import { cp, mkdir, access, rm, readFile, writeFile, readdir } from 'node:fs/promises'
-import { join, dirname, relative } from 'node:path'
+import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parse, serialize } from 'parse5'
 
-import { PAGE_BUNDLE_FILENAME, pageBundleManifest } from '@rxova/website-schemas'
-
-import { declaresStandalone } from '../lib/standalone.ts'
-
-import {
-  attribute,
-  element,
-  findNode,
-  hasClass,
-  walkNodes,
-  withAttribute,
-  type ChildNode,
-  type Element,
-  type Node,
-  type ParentNode,
-} from '../lib/html.ts'
 import { withAnalytics } from '../lib/analytics.ts'
-import { errorMessage } from '../lib/errors.ts'
 import { loadRedirects, writeRedirects } from '../lib/redirects.ts'
 import { loadRegistry, enabledSources, type Registry, type Source } from '../lib/registry.ts'
 import { writeSitemaps, RXOVA_ORIGIN } from '../lib/sitemap.ts'
@@ -43,117 +25,10 @@ async function exists(p: string): Promise<boolean> {
 
 async function copyInto(src: string, dest: string, { label }: { label: string }): Promise<boolean> {
   if (!(await exists(src))) return false
-  await mkdir(dirname(dest) === dest ? dest : dirname(dest), { recursive: true })
   await mkdir(dest, { recursive: true })
   await cp(src, dest, { recursive: true })
   console.log(`  ✓ ${label}: ${src} -> ${dest}`)
   return true
-}
-
-function mergeAttributes(target: Element, source: Element): void {
-  const byName = new Map(target.attrs.map((attr) => [attr.name, attr]))
-  for (const attr of source.attrs) {
-    if (attr.name === 'data-rxova-shell') continue
-    const existing = byName.get(attr.name)
-    if (attr.name === 'class' && existing) {
-      const values = new Set(`${existing.value} ${attr.value}`.trim().split(/\s+/))
-      existing.value = [...values].join(' ')
-      continue
-    }
-    if (existing) existing.value = attr.value
-    else {
-      const copy = { ...attr }
-      target.attrs.push(copy)
-      byName.set(copy.name, copy)
-    }
-  }
-}
-
-function isShellOwnedHeadNode(node: Node): boolean {
-  if (element('title')(node)) return false
-  if (element('meta')(node)) {
-    const name = attribute(node, 'name')?.toLowerCase()
-    return attribute(node, 'charset') !== undefined || name === 'viewport'
-  }
-  if (element('link')(node)) {
-    const rel = (attribute(node, 'rel') ?? '').toLowerCase().split(/\s+/)
-    return rel.includes('icon') || rel.includes('apple-touch-icon')
-  }
-  return false
-}
-
-export function composeDocument(sourceText: string, shellText: string, label = 'page'): string {
-  const source = parse(sourceText)
-  const shell = parse(shellText)
-  const sourceHtml = findNode(source, element('html'))
-  const sourceHead = findNode(source, element('head'))
-  const sourceBody = findNode(source, element('body'))
-  const shellHtml = findNode(shell, element('html'))
-  const shellHead = findNode(shell, element('head'))
-  const shellBody = findNode(shell, element('body'))
-  const headSlot = findNode(
-    shell,
-    (node): node is Element =>
-      element('meta')(node) && attribute(node, 'name') === 'rxova-head-slot',
-  )
-  const pageSlot = findNode(shell, withAttribute('data-rxova-page-slot'))
-
-  if (
-    !sourceHtml ||
-    !sourceHead ||
-    !sourceBody ||
-    !shellHtml ||
-    !shellHead ||
-    !shellBody ||
-    !headSlot ||
-    !pageSlot
-  ) {
-    throw new Error(`${label}: source document or website shell is missing required structure`)
-  }
-  const isRedirect = Boolean(
-    findNode(
-      sourceHead,
-      (node) => element('meta')(node) && attribute(node, 'http-equiv')?.toLowerCase() === 'refresh',
-    ),
-  )
-  if (!findNode(sourceBody, element('main')) && !isRedirect) {
-    throw new Error(`${label}: page-component document has no <main>`)
-  }
-
-  walkNodes(source, (node) => {
-    if (
-      element('script')(node) &&
-      (attribute(node, 'src') ?? '').includes('static.cloudflareinsights.com/beacon.min.js')
-    ) {
-      throw new Error(`${label}: page-component bundles must not include Cloudflare Analytics`)
-    }
-    if (hasClass(node, 'rx-footer') || (element('header')(node) && hasClass(node, 'site'))) {
-      throw new Error(`${label}: page-component bundles must not include global Rxova chrome`)
-    }
-  })
-
-  mergeAttributes(shellHtml, sourceHtml)
-  mergeAttributes(shellBody, sourceBody)
-
-  const headIndex = shellHead.childNodes.indexOf(headSlot)
-  const producerHead = sourceHead.childNodes.filter((node) => !isShellOwnedHeadNode(node))
-  for (const node of producerHead) (node as ChildNode).parentNode = shellHead
-  shellHead.childNodes.splice(headIndex, 1, ...producerHead)
-
-  // The shell template's placeholder title and noindex are for the private
-  // template route only. Route-specific producer metadata replaces both.
-  shellHead.childNodes = shellHead.childNodes.filter((node) => {
-    if (element('title')(node)) return producerHead.includes(node)
-    return !(element('meta')(node) && attribute(node, 'name') === 'robots')
-  })
-
-  // Found under the shell's root, so it always has one.
-  const slotParent = pageSlot.parentNode as ParentNode
-  const slotIndex = slotParent.childNodes.indexOf(pageSlot)
-  for (const node of sourceBody.childNodes) (node as ChildNode).parentNode = slotParent
-  slotParent.childNodes.splice(slotIndex, 1, ...sourceBody.childNodes)
-
-  return serialize(shell)
 }
 
 async function htmlFiles(root: string): Promise<string[]> {
@@ -167,52 +42,6 @@ async function htmlFiles(root: string): Promise<string[]> {
   }
   await visit(root)
   return found
-}
-
-async function readPageBundle(src: string, source: Source) {
-  const path = join(src, PAGE_BUNDLE_FILENAME)
-  if (!(await exists(path))) return undefined
-  let raw: unknown
-  try {
-    raw = JSON.parse(await readFile(path, 'utf8'))
-  } catch (error) {
-    throw new Error(`${source.id}: invalid ${PAGE_BUNDLE_FILENAME} — ${errorMessage(error)}`, {
-      cause: error,
-    })
-  }
-  const parsed = pageBundleManifest.safeParse(raw)
-  if (!parsed.success) {
-    throw new Error(`${source.id}: invalid ${PAGE_BUNDLE_FILENAME}`)
-  }
-  if (parsed.data.project !== source.id || parsed.data.base !== source.base) {
-    throw new Error(
-      `${source.id}: page-bundle manifest says ${parsed.data.project} at ${parsed.data.base}, expected ${source.id} at ${source.base}`,
-    )
-  }
-  return parsed.data
-}
-
-async function composeInto(src: string, dest: string, shellPath: string, source: Source) {
-  await cp(src, dest, { recursive: true })
-  const shell = await readFile(shellPath, 'utf8')
-  let composed = 0
-  let standalone = 0
-  for (const file of await htmlFiles(src)) {
-    const rel = relative(src, file)
-    const html = await readFile(file, 'utf8')
-    // A standalone asset stays as `cp` copied it: no site header or footer.
-    if (declaresStandalone(html)) {
-      standalone++
-      continue
-    }
-    await writeFile(join(dest, rel), composeDocument(html, shell, `${source.id}/${rel}`))
-    composed++
-  }
-  await rm(join(dest, PAGE_BUNDLE_FILENAME), { force: true })
-  // Counted rather than announced as a single line, because a marker typo turns
-  // a standalone asset into a composed page and the numbers are what show it.
-  const note = standalone > 0 ? ` (${String(standalone)} standalone, copied verbatim)` : ''
-  console.log(`  ✓ ${source.id}: composed ${String(composed)} page(s)${note} -> ${dest}`)
 }
 
 async function addAnalytics(dir: string, token: string, source: Source) {
@@ -267,15 +96,8 @@ export async function assemble(
       missing.push(`${s.id} (expected ${src})`)
       continue
     }
-    const bundle = await readPageBundle(src, s)
-    if (bundle) {
-      const shell = join(landingSrc, 'shell-templates', s.id, 'index.html')
-      if (!(await exists(shell))) throw new Error(`website shell missing for ${s.id} at ${shell}`)
-      await composeInto(src, join(outDir, s.mount), shell, s)
-    } else {
-      await copyInto(src, join(outDir, s.mount), { label: s.id })
-      if (analyticsToken) await addAnalytics(join(outDir, s.mount), analyticsToken, s)
-    }
+    await copyInto(src, join(outDir, s.mount), { label: s.id })
+    if (analyticsToken) await addAnalytics(join(outDir, s.mount), analyticsToken, s)
   }
 
   if (missing.length > 0) {
@@ -284,9 +106,6 @@ export async function assemble(
         'Either the build job failed, or the project should be disabled in sources.json.',
     )
   }
-
-  // Shell templates are build inputs, never public routes.
-  await rm(join(outDir, 'shell-templates'), { recursive: true, force: true })
 
   // 3. Redirect stubs for retired URLs, written before the sitemap is taken
   //    because a stub is a redirect, not a destination, and must not be listed.

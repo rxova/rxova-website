@@ -83,7 +83,7 @@ describe('validateDispatch — the happy path', () => {
     assert.equal(source.releaseAsset, 'docs-journey.tgz')
     // The workflow gates its deploy on this.
     assert.equal(meta.enabled, true)
-    assert.equal(meta.schema, 2)
+    assert.equal(meta.schema, 1)
   })
 
   it('coerces a numeric run id and treats base as optional', () => {
@@ -134,9 +134,11 @@ describe('validateDispatch — rejections', () => {
   })
 
   it('rejects an unsupported schema, so a sender on a newer contract fails loudly', () => {
-    // The schema field is a literal in the shared contract, so a sender on a
-    // newer one is refused by the parse rather than by a hand-written check.
-    rejects({ schema: 3 }, /schema —/)
+    rejects({ schema: 3 }, /schema 3 is not supported/)
+  })
+
+  it('rejects schema 2, the retired body-only page bundle', () => {
+    rejects({ schema: 2 }, /schema 2 is not supported — send schema 1/)
   })
 
   it('rejects an unknown project rather than ingesting docs nothing links to', () => {
@@ -230,137 +232,10 @@ describe('checkDist — gate 2b', () => {
     rmSync(dir, { recursive: true, force: true })
   })
 
-  it('validates a schema-2 page-component bundle', () => {
-    dir = make()
-    writeFileSync(
-      join(dir, 'index.html'),
-      '<!doctype html><html><body><main>Blog</main></body></html>',
-    )
-    writeFileSync(
-      join(dir, 'rxova-page-bundle.json'),
-      JSON.stringify({
-        schema: 2,
-        format: 'html-page-component',
-        project: 'blog',
-        base: '/blog/',
-      }),
-    )
-    assert.deepEqual(checkDist(dir, { schema: 2, project: 'blog', base: '/blog/' }), { entries: 2 })
-    rmSync(dir, { recursive: true, force: true })
-  })
-
-  it('rejects schema-2 bundles with their own analytics or global footer', () => {
-    dir = make()
-    writeFileSync(
-      join(dir, 'rxova-page-bundle.json'),
-      JSON.stringify({
-        schema: 2,
-        format: 'html-page-component',
-        project: 'blog',
-        base: '/blog/',
-      }),
-    )
-    writeFileSync(
-      join(dir, 'index.html'),
-      '<main>Blog</main><script src="https://static.cloudflareinsights.com/beacon.min.js"></script>',
-    )
-    assert.throws(() => checkDist(dir, { schema: 2 }), /Cloudflare Analytics/)
-    writeFileSync(join(dir, 'index.html'), '<main>Blog</main><footer class="rx-footer"></footer>')
-    assert.throws(() => checkDist(dir, { schema: 2 }), /global Rxova footer/)
-    rmSync(dir, { recursive: true, force: true })
-  })
-
-  // The playground case: a dist may carry HTML that is an asset, not a page — an
-  // iframe target has no <main> and must never be composed.
-  it('accepts a standalone asset with no <main>', () => {
-    dir = make()
-    writeFileSync(
-      join(dir, 'rxova-page-bundle.json'),
-      JSON.stringify({
-        schema: 2,
-        format: 'html-page-component',
-        project: 'use-everywhere',
-        base: '/packages/use-everywhere/',
-      }),
-    )
-    writeFileSync(
-      join(dir, 'index.html'),
-      '<!doctype html><html><body><main>Docs</main></body></html>',
-    )
-    mkdirSync(join(dir, 'playground'), { recursive: true })
-    writeFileSync(
-      join(dir, 'playground', 'tab.html'),
-      '<!doctype html><html><head><meta name="rxova-standalone" content=""></head><body><div id="root"></div></body></html>',
-    )
-    assert.deepEqual(checkDist(dir, { schema: 2 }), { entries: 3 })
-    rmSync(dir, { recursive: true, force: true })
-  })
-
-  // The marker turns off the page-component rules, so it must not become a way
-  // to smuggle the global chrome into the tree unnoticed.
-  it('still rejects a page component with no <main> when unmarked', () => {
-    dir = make()
-    writeFileSync(
-      join(dir, 'rxova-page-bundle.json'),
-      JSON.stringify({
-        schema: 2,
-        format: 'html-page-component',
-        project: 'blog',
-        base: '/blog/',
-      }),
-    )
-    writeFileSync(
-      join(dir, 'index.html'),
-      '<!doctype html><html><body><div>no main</div></body></html>',
-    )
-    assert.throws(() => checkDist(dir, { schema: 2 }), /has no <main> page component/)
-    rmSync(dir, { recursive: true, force: true })
-  })
-
   it('rejects a path that is a file rather than a directory', () => {
     dir = make()
     writeFileSync(join(dir, 'index.html'), '<!doctype html>')
     assert.throws(() => checkDist(join(dir, 'index.html')), /missing or not a directory/)
-    rmSync(dir, { recursive: true, force: true })
-  })
-
-  it('requires the manifest of a schema-2 dist, and a readable, matching one of any dist', () => {
-    dir = make()
-    writeFileSync(join(dir, 'index.html'), '<main>Blog</main>')
-    assert.throws(
-      () => checkDist(dir, { schema: 2 }),
-      /schema 2 dist has no rxova-page-bundle\.json/,
-    )
-
-    const manifest = join(dir, 'rxova-page-bundle.json')
-    writeFileSync(manifest, '{ nope')
-    assert.throws(() => checkDist(dir), /rxova-page-bundle\.json is not valid JSON/)
-    writeFileSync(manifest, JSON.stringify({ schema: 2, project: 'blog' }))
-    assert.throws(() => checkDist(dir), /rxova-page-bundle\.json is invalid/)
-
-    writeFileSync(
-      manifest,
-      JSON.stringify({ schema: 2, format: 'html-page-component', project: 'blog', base: '/blog/' }),
-    )
-    assert.throws(
-      () => checkDist(dir, { project: 'updates' }),
-      /rxova-page-bundle\.json project is blog, expected updates/,
-    )
-    assert.throws(
-      () => checkDist(dir, { base: '/updates/' }),
-      /rxova-page-bundle\.json base is \/blog\/, expected \/updates\//,
-    )
-    rmSync(dir, { recursive: true, force: true })
-  })
-
-  it('accepts a redirect stub with no <main> as a page component', () => {
-    dir = make()
-    writeFileSync(
-      join(dir, 'rxova-page-bundle.json'),
-      JSON.stringify({ schema: 2, format: 'html-page-component', project: 'blog', base: '/blog/' }),
-    )
-    writeFileSync(join(dir, 'index.html'), '<meta http-equiv="refresh" content="0;url=/blog/a/">')
-    assert.deepEqual(checkDist(dir, { schema: 2 }), { entries: 2 })
     rmSync(dir, { recursive: true, force: true })
   })
 })

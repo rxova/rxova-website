@@ -2,23 +2,16 @@
 // Gate 2 of the docs pipeline: `node ingest.ts` validates $CLIENT_PAYLOAD and emits outputs (2a);
 // `node ingest.ts --check-dist <dir>` validates the downloaded dist (2b).
 
-import { appendFileSync, statSync, readdirSync, readFileSync } from 'node:fs'
+import { appendFileSync, statSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 
-import {
-  dispatchPayload,
-  mountFor,
-  PAGE_BUNDLE_FILENAME,
-  pageBundleManifest,
-} from '@rxova/website-schemas'
-
-import { declaresStandalone } from '../lib/standalone.ts'
+import { dispatchPayload, mountFor } from '@rxova/website-schemas'
 
 import { errorMessage } from '../lib/errors.ts'
 import { loadRegistry, type Source } from '../lib/registry.ts'
 
 /** The payload shape this aggregator understands. Bump when the contract changes. */
-export const SUPPORTED_SCHEMA = 2
+export const SUPPORTED_SCHEMA = 1
 
 /** Informational only, but a typo here usually means a misconfigured sender. */
 export const KNOWN_FRAMEWORKS = ['astro', 'docusaurus', 'storybook', 'other']
@@ -27,16 +20,6 @@ export const KNOWN_FRAMEWORKS = ['astro', 'docusaurus', 'storybook', 'other']
 export const DIST_ARTIFACT_NAME = 'docs-dist'
 
 export class IngestError extends Error {}
-
-function htmlFiles(dir: string): string[] {
-  const found: string[] = []
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const path = join(dir, entry.name)
-    if (entry.isDirectory()) found.push(...htmlFiles(path))
-    else if (entry.isFile() && entry.name.endsWith('.html')) found.push(path)
-  }
-  return found
-}
 
 /** The part of a registry source a dispatch is checked against. */
 export type DispatchSource = Pick<
@@ -51,10 +34,14 @@ export type DispatchSource = Pick<
 export function validateDispatch(registry: { sources: DispatchSource[] }, payload: unknown) {
   // Field shapes come from `@rxova/website-schemas`; below is what the schema cannot
   // know: whether the project is registered and whether its base matches the mount.
-  const requestedSchema = (payload as { schema?: unknown } | null)?.schema ?? 1
-  const parsed = dispatchPayload.safeParse(
-    requestedSchema === 2 ? { ...(payload as object), schema: 1 } : payload,
-  )
+  const requestedSchema = (payload as { schema?: unknown } | null)?.schema ?? SUPPORTED_SCHEMA
+  if (requestedSchema !== SUPPORTED_SCHEMA) {
+    // Schema 2 was a body-only page the site wrapped in its own chrome. Docs now ship whole.
+    throw new IngestError(
+      `schema ${JSON.stringify(requestedSchema)} is not supported — send schema ${String(SUPPORTED_SCHEMA)}, a dist of full pages (docs/INPUTS-CONTRACT.md)`,
+    )
+  }
+  const parsed = dispatchPayload.safeParse(payload)
   if (!parsed.success) {
     throw new IngestError(
       'client_payload is invalid:\n' +
@@ -65,7 +52,7 @@ export function validateDispatch(registry: { sources: DispatchSource[] }, payloa
   }
 
   const { project: id, sha, ref } = parsed.data
-  const schema = requestedSchema
+  const schema = parsed.data.schema
   const runId = String(parsed.data.run_id)
 
   const source = registry.sources.find((s) => s.id === id)
@@ -120,18 +107,11 @@ export function validateDispatch(registry: { sources: DispatchSource[] }, payloa
   }
 }
 
-/** What the dispatch said the dist is, checked against its page-bundle manifest. */
-export interface ExpectedDist {
-  schema?: number
-  project?: string
-  base?: string
-}
-
 /**
  * Gate 2b: the sender's extracted dist must be a non-empty directory with an
  * index.html at its root.
  */
-export function checkDist(dir: string, expected: ExpectedDist = {}): { entries: number } {
+export function checkDist(dir: string): { entries: number } {
   let entries: string[]
   try {
     if (!statSync(dir).isDirectory()) throw new Error('not a directory')
@@ -154,46 +134,6 @@ export function checkDist(dir: string, expected: ExpectedDist = {}): { entries: 
     )
   }
 
-  const manifestPath = join(dir, PAGE_BUNDLE_FILENAME)
-  const hasManifest = entries.includes(PAGE_BUNDLE_FILENAME)
-  if (expected.schema === 2 && !hasManifest) {
-    throw new IngestError(`schema 2 dist has no ${PAGE_BUNDLE_FILENAME}`)
-  }
-  if (hasManifest) {
-    let raw: unknown
-    try {
-      raw = JSON.parse(readFileSync(manifestPath, 'utf8'))
-    } catch {
-      throw new IngestError(`${PAGE_BUNDLE_FILENAME} is not valid JSON`)
-    }
-    const parsed = pageBundleManifest.safeParse(raw)
-    if (!parsed.success) throw new IngestError(`${PAGE_BUNDLE_FILENAME} is invalid`)
-    if (expected.project && parsed.data.project !== expected.project) {
-      throw new IngestError(
-        `${PAGE_BUNDLE_FILENAME} project is ${parsed.data.project}, expected ${expected.project}`,
-      )
-    }
-    if (expected.base && parsed.data.base !== expected.base) {
-      throw new IngestError(
-        `${PAGE_BUNDLE_FILENAME} base is ${parsed.data.base}, expected ${expected.base}`,
-      )
-    }
-    for (const path of htmlFiles(dir)) {
-      const html = readFileSync(path, 'utf8')
-      // A standalone asset is published verbatim, so the page rules below skip it.
-      if (declaresStandalone(html)) continue
-      const redirect = /<meta[^>]+http-equiv=["']refresh["']/i.test(html)
-      if (!/<main(?:\s|>)/i.test(html) && !redirect) {
-        throw new IngestError(`schema 2 ${path} has no <main> page component`)
-      }
-      if (/static\.cloudflareinsights\.com\/beacon\.min\.js/i.test(html)) {
-        throw new IngestError('schema 2 page component includes Cloudflare Analytics')
-      }
-      if (/class=["'][^"']*\brx-footer\b/i.test(html)) {
-        throw new IngestError('schema 2 page component includes the global Rxova footer')
-      }
-    }
-  }
   return { entries: entries.length }
 }
 
@@ -223,12 +163,7 @@ function main(
   if (distFlag !== -1) {
     const dir = argv[distFlag + 1]
     if (!dir) throw new IngestError('usage: ingest.ts --check-dist <dir>')
-    const schema = env.EXPECTED_SCHEMA ? Number(env.EXPECTED_SCHEMA) : undefined
-    const { entries } = checkDist(dir, {
-      schema,
-      project: env.EXPECTED_PROJECT,
-      base: env.EXPECTED_BASE,
-    })
+    const { entries } = checkDist(dir)
     log(`✓ dist OK — ${entries} entr${entries === 1 ? 'y' : 'ies'}, index.html present`)
     return
   }

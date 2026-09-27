@@ -7,7 +7,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { assemble, composeDocument, type AssembleOptions } from './assemble.ts'
+import { assemble, type AssembleOptions } from './assemble.ts'
 import { BEACON_SRC } from '../lib/analytics.ts'
 import { resolveSource, type Registry } from '../lib/registry.ts'
 
@@ -122,7 +122,7 @@ describe('assemble', () => {
   })
 })
 
-describe('docs that draw their own chrome', () => {
+describe('docs artifacts', () => {
   const docsPage = '<html><head><title>Docs</title></head><body><main>Docs</main></body></html>'
 
   it('adds the analytics beacon to every page when the deploy has a token', async () => {
@@ -130,6 +130,7 @@ describe('docs that draw their own chrome', () => {
     artifact('docs-journey', {
       'index.html': docsPage,
       'guide/index.html': docsPage,
+      '_astro/app.css': 'body{}',
       'demo.html':
         '<html><head><meta name="rxova-standalone" content=""></head><body>demo</body></html>',
     })
@@ -138,6 +139,7 @@ describe('docs that draw their own chrome', () => {
     assert.match(read('packages/journey/index.html'), /beacon\.min\.js/)
     assert.match(read('packages/journey/guide/index.html'), /&quot;token&quot;:&quot;t0k&quot;/)
     assert.doesNotMatch(read('packages/journey/demo.html'), /beacon/)
+    assert.equal(read('packages/journey/_astro/app.css'), 'body{}')
     // The landing is the site's own build, which renders its beacon itself.
     assert.equal(read('index.html'), 'landing')
   })
@@ -152,197 +154,7 @@ describe('docs that draw their own chrome', () => {
   })
 })
 
-describe('page-component composition', () => {
-  const shell = `<!doctype html><html lang="en" data-rxova-shell><head>
-    <meta charset="utf-8"><meta name="viewport" content="width=device-width">
-    <title>private shell</title><meta name="robots" content="noindex">
-    <meta name="rxova-head-slot" content=""><script data-analytics></script>
-  </head><body><header class="site">Rxova</header><template data-rxova-page-slot></template>
-    <footer class="website-footer">Footer</footer></body></html>`
-
-  it('preserves page metadata, attributes and UI inside the website shell', () => {
-    const source = `<!doctype html><html class="starlight" data-has-sidebar><head>
-      <meta charset="utf-8"><meta name="viewport" content="source">
-      <title>Guide</title><meta name="description" content="A guide">
-      <link rel="stylesheet" href="/docs.css"><link rel="icon" href="/old.svg">
-    </head><body class="docs"><header class="header">Search</header><main>Guide body</main></body></html>`
-    const output = composeDocument(source, shell)
-    assert.match(output, /data-rxova-shell/)
-    assert.match(output, /class="starlight"/)
-    assert.match(output, /class="docs"/)
-    assert.match(output, /<title>Guide<\/title>/)
-    assert.match(output, /A guide/)
-    assert.match(output, /\/docs\.css/)
-    assert.doesNotMatch(output, /old\.svg/)
-    assert.match(output, /<header class="site">Rxova<\/header>/)
-    assert.match(output, /<header class="header">Search<\/header>/)
-    assert.match(output, /<main>Guide body<\/main>/)
-    assert.match(output, /website-footer/)
-    assert.doesNotMatch(output, /private shell/)
-    assert.doesNotMatch(output, /noindex/)
-  })
-
-  it('rejects producer-owned global chrome and analytics', () => {
-    assert.throws(
-      () =>
-        composeDocument(
-          '<html><head></head><body><main></main><footer class="rx-footer"></footer></body></html>',
-          shell,
-        ),
-      /global Rxova chrome/,
-    )
-    assert.throws(
-      () =>
-        composeDocument(
-          '<html><head><script src="https://static.cloudflareinsights.com/beacon.min.js"></script></head><body><main></main></body></html>',
-          shell,
-        ),
-      /Cloudflare Analytics/,
-    )
-  })
-
-  it('composes static redirect documents without requiring a main element', () => {
-    const output = composeDocument(
-      '<html><head><title>Redirect</title><meta http-equiv="refresh" content="0;url=/next/"></head><body><a href="/next/">Continue</a></body></html>',
-      shell,
-    )
-    assert.match(output, /http-equiv="refresh"/)
-    assert.match(output, /Continue/)
-  })
-
-  // The playground case: a frame target must not gain the site header and footer,
-  // so this asserts on what is absent as much as on what survives.
-  it('publishes a standalone asset verbatim, never composed', async () => {
-    artifact('landing', {
-      'index.html': 'landing',
-      'shell-templates/use-everywhere/index.html': shell,
-    })
-    artifact('docs-use-everywhere', {
-      'index.html': '<html><head><title>Docs</title></head><body><main>Docs</main></body></html>',
-      'playground/tab.html':
-        '<html><head><meta name="rxova-standalone" content=""><title>tab</title></head><body><div id="root">tab</div></body></html>',
-      'rxova-page-bundle.json': JSON.stringify({
-        schema: 2,
-        format: 'html-page-component',
-        project: 'use-everywhere',
-        base: '/packages/use-everywhere/',
-      }),
-    })
-    await run(registry({ id: 'use-everywhere' }))
-
-    const page = read('packages/use-everywhere/index.html')
-    assert.match(page, /<header class="site">Rxova<\/header>/)
-
-    const asset = read('packages/use-everywhere/playground/tab.html')
-    assert.match(asset, /<div id="root">tab<\/div>/)
-    assert.doesNotMatch(asset, /<header class="site">/)
-    assert.doesNotMatch(asset, /website-footer/)
-    assert.doesNotMatch(asset, /data-rxova-shell/)
-  })
-
-  it('merges root attributes: source values win, classes are unioned, the shell marker stays', () => {
-    const output = composeDocument(
-      '<html lang="de" class="starlight site" data-rxova-shell="producer"><head></head><body><main></main></body></html>',
-      shell.replace('<html lang="en"', '<html lang="en" class="site"'),
-    )
-    assert.match(output, /<html lang="de" class="site starlight" data-rxova-shell="">/)
-  })
-
-  it('keeps producer links that are not icons, including one with no rel', () => {
-    const output = composeDocument(
-      '<html><head><link href="/feed.xml"><link rel="Apple-Touch-Icon" href="/touch.png"></head><body><main></main></body></html>',
-      shell,
-    )
-    assert.match(output, /<link href="\/feed\.xml">/)
-    assert.doesNotMatch(output, /touch\.png/)
-  })
-
-  it('keeps producer scripts without a src', () => {
-    const output = composeDocument(
-      '<html><head><script>window.x = 1</script></head><body><main></main></body></html>',
-      shell,
-    )
-    assert.match(output, /<script>window\.x = 1<\/script>/)
-  })
-
-  it('refuses a page with no <main>, naming it', () => {
-    assert.throws(
-      () =>
-        composeDocument('<html><head></head><body><div></div></body></html>', shell, 'x/a.html'),
-      /^Error: x\/a\.html: page-component document has no <main>$/,
-    )
-  })
-
-  it('refuses a shell that has lost its slots', () => {
-    assert.throws(
-      () =>
-        composeDocument(
-          '<html><head></head><body><main></main></body></html>',
-          '<html><head></head><body></body></html>',
-        ),
-      /^Error: page: source document or website shell is missing required structure$/,
-    )
-  })
-})
-
-describe('assembling page-component bundles', () => {
-  const shell =
-    '<html><head><meta name="rxova-head-slot"></head><body><template data-rxova-page-slot></template><footer>site</footer></body></html>'
-  const manifest = (over: Record<string, unknown> = {}) =>
-    JSON.stringify({
-      schema: 2,
-      format: 'html-page-component',
-      project: 'journey',
-      base: '/packages/journey/',
-      ...over,
-    })
-  const bundle = (manifestText: string) => {
-    artifact('landing', { 'index.html': 'landing', 'shell-templates/journey/index.html': shell })
-    artifact('docs-journey', {
-      'index.html': '<html><head></head><body><main>Journey</main></body></html>',
-      'rxova-page-bundle.json': manifestText,
-    })
-  }
-
-  it('composes every page, drops the manifest and the shell templates from the tree', async () => {
-    bundle(manifest())
-    await run(registry({ id: 'journey' }))
-
-    assert.match(read('packages/journey/index.html'), /<main>Journey<\/main><footer>site<\/footer>/)
-    assert.equal(existsSync(site('packages/journey/rxova-page-bundle.json')), false)
-    assert.equal(existsSync(site('shell-templates')), false)
-  })
-
-  it('refuses a manifest that is not JSON', async () => {
-    bundle('{ nope')
-    await assert.rejects(
-      run(registry({ id: 'journey' })),
-      /^Error: journey: invalid rxova-page-bundle\.json — /,
-    )
-  })
-
-  it('refuses a manifest the contract rejects', async () => {
-    bundle(manifest({ format: 'spa' }))
-    await assert.rejects(
-      run(registry({ id: 'journey' })),
-      /^Error: journey: invalid rxova-page-bundle\.json$/,
-    )
-  })
-
-  it('refuses a manifest built for another project or base', async () => {
-    bundle(manifest({ project: 'blog', base: '/blog/' }))
-    await assert.rejects(
-      run(registry({ id: 'journey' })),
-      /page-bundle manifest says blog at \/blog\/, expected journey at \/packages\/journey\//,
-    )
-  })
-
-  it('refuses a bundle whose shell the landing did not build', async () => {
-    bundle(manifest())
-    rmSync(join(root, 'artifacts/landing/shell-templates'), { recursive: true })
-    await assert.rejects(run(registry({ id: 'journey' })), /website shell missing for journey at /)
-  })
-
+describe('the landing', () => {
   it('reads the landing from artifacts/landing when the registry does not say', async () => {
     artifact('landing', { 'index.html': 'landing' })
     // The type requires `landing`; a file without it still loads, so the default must hold.
