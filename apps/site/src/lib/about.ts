@@ -74,6 +74,12 @@ export const STANDARDS: readonly Standard[] = [
     detail: 'No third-party packages — only our own, with React always a peer.',
   },
   {
+    id: 'tree-shakeable',
+    label: 'Tree shakeable',
+    // Checkable in each package.json: ESM, with `sideEffects` declared.
+    detail: 'ESM with side effects declared: import one piece and the bundle keeps only that.',
+  },
+  {
     id: 'tested',
     label: 'Tested where it matters',
     detail: 'The edge cases that made each library necessary are the suite.',
