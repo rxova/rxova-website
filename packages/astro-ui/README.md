@@ -79,6 +79,10 @@ the export checks for this package.
 screenshots` rebuilds it and writes `screenshots/<component>.png` here, light and
 dark, for the pull request that adds or changes a component.
 
+`apps/storybook` is the Storybook: a story file per component with its states,
+a Docs page built from the component's frontmatter, and a light/dark toolbar.
+`pnpm --filter @rxova/storybook dev` serves it with live controls.
+
 ## License
 
 MIT © Jonatan Kruszewski
