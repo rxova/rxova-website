@@ -7,8 +7,8 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { assemble } from './assemble.ts'
-import { composeDocument } from './assemble.ts'
+import { assemble, composeDocument, type AssembleOptions } from './assemble.ts'
+import { BEACON_SRC } from '../lib/analytics.ts'
 import { resolveSource, type Registry } from '../lib/registry.ts'
 
 const roots: string[] = []
@@ -39,7 +39,8 @@ function artifact(name: string, files: Record<string, string>): void {
   }
 }
 
-const run = (config: Registry) => assemble(config, join(root, 'artifacts'), join(root, '_site'))
+const run = (config: Registry, options?: AssembleOptions) =>
+  assemble(config, join(root, 'artifacts'), join(root, '_site'), options)
 const site = (...parts: string[]) => join(root, '_site', ...parts)
 const read = (...parts: string[]) => readFileSync(site(...parts), 'utf8')
 
@@ -118,6 +119,36 @@ describe('assemble', () => {
     artifact('landing', { 'index.html': 'landing' })
     await run(registry())
     assert.equal(read('index.html'), 'landing')
+  })
+})
+
+describe('docs that draw their own chrome', () => {
+  const docsPage = '<html><head><title>Docs</title></head><body><main>Docs</main></body></html>'
+
+  it('adds the analytics beacon to every page when the deploy has a token', async () => {
+    artifact('landing', { 'index.html': 'landing' })
+    artifact('docs-journey', {
+      'index.html': docsPage,
+      'guide/index.html': docsPage,
+      'demo.html':
+        '<html><head><meta name="rxova-standalone" content=""></head><body>demo</body></html>',
+    })
+    await run(registry({ id: 'journey' }), { analyticsToken: 't0k' })
+
+    assert.match(read('packages/journey/index.html'), /beacon\.min\.js/)
+    assert.match(read('packages/journey/guide/index.html'), /&quot;token&quot;:&quot;t0k&quot;/)
+    assert.doesNotMatch(read('packages/journey/demo.html'), /beacon/)
+    // The landing is the site's own build, which renders its beacon itself.
+    assert.equal(read('index.html'), 'landing')
+  })
+
+  it('publishes them byte for byte without a token', async () => {
+    artifact('landing', { 'index.html': 'landing' })
+    artifact('docs-journey', { 'index.html': docsPage })
+    await run(registry({ id: 'journey' }))
+
+    assert.equal(read('packages/journey/index.html'), docsPage)
+    assert.doesNotMatch(read('packages/journey/index.html'), new RegExp(BEACON_SRC))
   })
 })
 

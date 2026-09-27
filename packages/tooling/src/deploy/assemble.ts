@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Assembles rxova.org from build artifacts. Usage: node assemble.ts [artifacts] [_site]
-// Mounts come from sources.json; schema-2 HTML is composed into the site shell, the rest copied.
+// Mounts come from sources.json; schema-2 HTML is composed into the shell, the rest copied as is.
 
 import { cp, mkdir, access, rm, readFile, writeFile, readdir } from 'node:fs/promises'
 import { join, dirname, relative } from 'node:path'
@@ -23,6 +23,7 @@ import {
   type Node,
   type ParentNode,
 } from '../lib/html.ts'
+import { withAnalytics } from '../lib/analytics.ts'
 import { errorMessage } from '../lib/errors.ts'
 import { loadRedirects, writeRedirects } from '../lib/redirects.ts'
 import { loadRegistry, enabledSources, type Registry, type Source } from '../lib/registry.ts'
@@ -214,11 +215,33 @@ async function composeInto(src: string, dest: string, shellPath: string, source:
   console.log(`  ✓ ${source.id}: composed ${String(composed)} page(s)${note} -> ${dest}`)
 }
 
+async function addAnalytics(dir: string, token: string, source: Source) {
+  let counted = 0
+  for (const file of await htmlFiles(dir)) {
+    const html = await readFile(file, 'utf8')
+    const updated = withAnalytics(html, token)
+    if (updated === html) continue
+    await writeFile(file, updated)
+    counted++
+  }
+  console.log(`  ✓ ${source.id}: analytics added to ${String(counted)} page(s)`)
+}
+
+/** What the deploy passes besides the tree: the analytics token, absent outside production. */
+export interface AssembleOptions {
+  analyticsToken?: string
+}
+
 /**
  * Copies the landing and every enabled project's artifact into one tree.
  * Throws (never exits) on a missing artifact, so a broken build stops the deploy.
  */
-export async function assemble(config: Registry, artifactsDir: string, outDir: string) {
+export async function assemble(
+  config: Registry,
+  artifactsDir: string,
+  outDir: string,
+  { analyticsToken }: AssembleOptions = {},
+) {
   // Fresh output tree.
   await rm(outDir, { recursive: true, force: true })
   await mkdir(outDir, { recursive: true })
@@ -251,6 +274,7 @@ export async function assemble(config: Registry, artifactsDir: string, outDir: s
       await composeInto(src, join(outDir, s.mount), shell, s)
     } else {
       await copyInto(src, join(outDir, s.mount), { label: s.id })
+      if (analyticsToken) await addAnalytics(join(outDir, s.mount), analyticsToken, s)
     }
   }
 
@@ -286,7 +310,8 @@ if (import.meta.main) {
     ...loadRegistry(join(repoRoot, 'sources.json')),
     redirects: await loadRedirects(join(repoRoot, 'redirects.json')),
   }
-  assemble(config, artifactsDir, outDir).catch((err) => {
+  const analyticsToken = process.env.CLOUDFLARE_WEB_ANALYTICS_TOKEN || undefined
+  assemble(config, artifactsDir, outDir, { analyticsToken }).catch((err) => {
     console.error(`ERROR: ${err.message}`)
     process.exit(1)
   })

@@ -8,9 +8,16 @@ validate and persist — lives in [`packages/tooling/src/deploy/ingest.ts`](../p
 
 The aggregator **never builds your docs**. It never checks your repo out and never
 runs your toolchain. You build your docs, upload them, and tell it where they are;
-it validates and publishes them. Schema 2 makes the public document shell the one
-exception to “publish verbatim”: the aggregator composes each rendered body into
-the rxova-website header, footer and head before deploy.
+it validates and publishes them. There are two schemas:
+
+- **Schema 1: the docs draw their own chrome.** The dist is published as built.
+  Build it with `@rxova/astro-ui`'s `sharedStarlightConfig`, whose header already
+  links the rxova.org sections and the other projects, and whose footer is the
+  site footer. The only thing the aggregator adds is the Cloudflare analytics
+  beacon, at deploy time, so do not ship your own.
+- **Schema 2: the aggregator draws the chrome.** It composes each rendered body
+  into the rxova-website header, footer and head before deploy. This is the one
+  exception to “publish verbatim”, and it is being retired in favour of schema 1.
 
 ## What a source repo must do
 
@@ -61,7 +68,7 @@ On a push to its default branch, after its docs build succeeds:
 {
   "event_type": "docs",
   "client_payload": {
-    "schema": 2, //   rendered PageComponent contract; schema 1 is legacy full-site HTML
+    "schema": 1, //   1: full pages with their own chrome; 2: page components the site composes
     "project": "use-everywhere", // your id, exactly as it appears in sources.json
     "ref": "main", //  the branch or tag the docs were built from
     "sha": "<full or short commit sha>", // the exact commit
@@ -100,7 +107,7 @@ notify-aggregator:
       run: |
         gh api repos/rxova/rxova-website/dispatches \
           -f event_type=docs \
-          -F 'client_payload[schema]=2' \
+          -F 'client_payload[schema]=1' \
           -F 'client_payload[project]=use-everywhere' \
           -F "client_payload[ref]=${GITHUB_REF_NAME}" \
           -F "client_payload[sha]=${GITHUB_SHA}" \
