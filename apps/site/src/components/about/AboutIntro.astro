@@ -135,6 +135,8 @@ const LINK_ICONS: Record<string, string> = {
   .count {
     display: flex;
     flex-direction: column-reverse;
+    /* The top in a reversed column, so a label that wraps grows downward, not the number up. */
+    justify-content: flex-end;
     gap: 0.2rem;
   }
 
