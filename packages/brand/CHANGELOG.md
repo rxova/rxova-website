@@ -1,5 +1,11 @@
 # @rxova/brand
 
+## 1.1.0
+
+### Minor Changes
+
+- [#98](https://github.com/rxova/rxova-website/pull/98) [`f25c4fe`](https://github.com/rxova/rxova-website/commit/f25c4fe37f2fd07de22371d3ae4cc715461ee9d8) - Add `--rx-on-primary`, the text colour for a `--rx-primary` fill. White on the lightened dark-mode violet lands under AA, so the token flips to the page colour in dark mode the way the neutrals do.
+
 ## 1.0.0
 
 ### Major Changes
