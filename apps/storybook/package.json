@@ -1,6 +1,6 @@
 {
   "name": "@rxova/storybook",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "Storybook for @rxova/astro-ui: every component, its states and its props, with controls.",

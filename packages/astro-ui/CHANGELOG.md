@@ -1,5 +1,40 @@
 # @rxova/astro-ui
 
+## 0.2.0
+
+### Minor Changes
+
+- [#107](https://github.com/rxova/rxova-website/pull/107) [`3d95f7f`](https://github.com/rxova/rxova-website/commit/3d95f7fbef94253acbc43ebb4dbd3503290e4690) - Add `CodeRecipes`: titled source listings, each with a linked heading anchored under a configurable id prefix. react-inputs' `IntegrationRecipes` with the recipes passed in.
+
+- [#100](https://github.com/rxova/rxova-website/pull/100) [`7f4ee8b`](https://github.com/rxova/rxova-website/commit/7f4ee8bb94c7e7617ad2c2171bf0c68b9511e10b) - Add `CtaBand`: a centred call to action with a row of pill buttons, primary or minimal, external ones marked. Moved from the journey and react-inputs docs sites; the primary button reads `--rx-on-primary` from `@rxova/brand`.
+
+- [#109](https://github.com/rxova/rxova-website/pull/109) [`fbcce0c`](https://github.com/rxova/rxova-website/commit/fbcce0c52c6b1ce6a705fd4d89dc1e1b26ea73a9) - Add `DataTable`: a plain table in Starlight's wrapper, with column headings, a row heading per row and code cells. react-inputs' `FrameworkCompatibilityMatrix` with the columns and rows passed in.
+
+- [#104](https://github.com/rxova/rxova-website/pull/104) [`a6fbd3f`](https://github.com/rxova/rxova-website/commit/a6fbd3f093eefff6caf05706ed1ee675e864a9e2) - Add `DocAccordion` and `DocAccordionItem`: a `<details>` stack for a prose page, with no client script. Moved from the journey docs site, reading `--rx-*` tokens directly instead of Starlight's `--sl-*` ladder.
+
+- [#96](https://github.com/rxova/rxova-website/pull/96) [`e2768f2`](https://github.com/rxova/rxova-website/commit/e2768f2b40729aabe943b5f552b09466301f9d94) - Add icons: `Prev`, `Next`, `Play`, `Pause`, `Replay`, `Expand` and `Collapse` under `components/icons/`, each drawn in the `Icon` frame, a 16px grid in the text colour.
+
+- [#98](https://github.com/rxova/rxova-website/pull/98) [`f25c4fe`](https://github.com/rxova/rxova-website/commit/f25c4fe37f2fd07de22371d3ae4cc715461ee9d8) - Add two stylesheets: `styles/landing.css`, the Starlight overrides a splash landing page needs (the `[data-has-hero]` rules journey and react-inputs each kept in their own `home.css`), and `styles/mermaid.css`, which restyles `rehype-mermaid`'s build-time SVG with the tokens so diagrams follow the theme.
+
+- [#106](https://github.com/rxova/rxova-website/pull/106) [`67371e0`](https://github.com/rxova/rxova-website/commit/67371e033e413c87bbd6f2beb94388803068b719) - Add `ModeTabs`: a numbered progression of modes, each a prose column beside a code pane fed by the named slot it points at. Moved from the journey docs site, where the slots were a fixed `linear` / `graph` pair.
+
+- [#105](https://github.com/rxova/rxova-website/pull/105) [`225de9c`](https://github.com/rxova/rxova-website/commit/225de9c68be2559a1312a6fc1fa1d726beb16c7d) - Add `ProofStats`: the gradient-framed proof band whose figures count up once, on scroll, and read at their final value without JS. Moved from the journey and react-inputs docs sites.
+
+- [#102](https://github.com/rxova/rxova-website/pull/102) [`22d97a6`](https://github.com/rxova/rxova-website/commit/22d97a6bf89ba4f5137a4852c7260abc1eca0401) - Add `QuickStart`: an install command with a copy button beside a slotted snippet. Moved from the journey and react-inputs docs sites, keeping journey's focusable, labelled command region.
+
+- [#110](https://github.com/rxova/rxova-website/pull/110) [`6a32caa`](https://github.com/rxova/rxova-website/commit/6a32caa129c595b3c8043c23777ec0fe2ff966b6) - Add `ScreenshotGrid`: captioned screenshots through Astro's `<Image>`, in card frames, with an optional link beneath. journey's `DevtoolsShowcase` with the shots and the link as props.
+
+- [#99](https://github.com/rxova/rxova-website/pull/99) [`56847d0`](https://github.com/rxova/rxova-website/commit/56847d0c764d9b48e1f3659557b03e57f6ced9de) - Add `Section`: a landing-page section (eyebrow, heading, lede and a slot) that opts its subtree out of Starlight's prose rules. Moved from the journey and react-inputs docs sites.
+
+- [#103](https://github.com/rxova/rxova-website/pull/103) [`4a1a150`](https://github.com/rxova/rxova-website/commit/4a1a150270c3da3b2a6b68d6fa5b462a9dca35e8) - Add `SizeTable`: per-package bundle budgets as a captioned table with right-aligned tabular figures. Moved from the react-inputs docs site.
+
+- [#108](https://github.com/rxova/rxova-website/pull/108) [`8dc7e6d`](https://github.com/rxova/rxova-website/commit/8dc7e6d81972b1a3fc85005acd6333f4b3caeab2) - Add `ValueGrid`: a card grid with a Lucide icon, a title and a body per card. `icon` is a `lucide-static` name, inlined at build time through the new `lib/icons` export, so a site no longer imports its own `?raw` SVGs. Moved from the journey and react-inputs docs sites.
+
+### Patch Changes
+
+- Updated dependencies [[`f25c4fe`](https://github.com/rxova/rxova-website/commit/f25c4fe37f2fd07de22371d3ae4cc715461ee9d8)]:
+  - @rxova/brand@1.1.0
+
 ## 0.1.0
 
 ### Minor Changes
