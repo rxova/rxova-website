@@ -1,5 +1,12 @@
 # @rxova/preview
 
+## 0.0.15
+
+### Patch Changes
+
+- Updated dependencies [[`949cb63`](https://github.com/rxova/rxova-website/commit/949cb635486bf36c0f2021c44971a4addd8c2a15)]:
+  - @rxova/astro-ui@0.5.1
+
 ## 0.0.14
 
 ### Patch Changes
