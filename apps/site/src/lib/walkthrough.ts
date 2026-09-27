@@ -93,3 +93,18 @@ export const PLAY_LABELS: Record<PlayState, string> = {
 /** "Problem 2 of 4" on the Before side, "Fix 2 of 4" on the After. */
 export const stepCount = (side: string, index: number, total: number): string =>
   `${side === 'before' ? 'Problem' : 'Fix'} ${String(index + 1)} of ${String(total)}`
+
+/** Where a project's walkthrough is prerendered alone: the rail fetches it, no-JS readers open it. */
+export const walkthroughPath = (id: string): string => `/walkthroughs/${id}/`
+
+/**
+ * The one walkthrough the landing renders inline, carrying the tour's styles and script for the
+ * rest: the featured project's, else the first that has one; `undefined` when none does.
+ */
+export function inlineWalkthroughId(
+  ids: readonly string[],
+  featured: string,
+  hasStory: (id: string) => boolean,
+): string | undefined {
+  return hasStory(featured) ? featured : ids.find(hasStory)
+}
