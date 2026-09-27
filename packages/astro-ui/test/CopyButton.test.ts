@@ -12,7 +12,8 @@ describe('CopyButton', () => {
     expect(html).toContain('class="icon rx-copy__idle"')
     expect(html).toContain('class="icon rx-copy__done"')
     expect(html).toContain('<span class="rx-copy__status" role="status"></span>')
-    expect(html.replace(/<[^>]+>/g, '').trim()).toBe('')
+    // No text between any two tags: the glyphs are the only thing a sighted reader sees.
+    expect(html).not.toMatch(/>\s*[^<\s][^<]*</)
   })
 
   it('takes a more specific name when "Copy" alone would not say what is copied', async () => {
