@@ -145,6 +145,14 @@ header.header {
   flex-basis: 100%;
 }
 
+/* In the phone menu the switcher sits at the left edge and at the bottom of the menu, so its
+   list opens rightward and upward instead of off-screen. */
+.mobile-preferences .rx-switcher .rx-switcher__menu {
+  inset-inline: 0 auto;
+  inset-block-end: 100%;
+  margin: 0 0 0.4rem;
+}
+
 /* --- Footer -------------------------------------------------------------- */
 
 /* Footer styles live in footer.css (imported above) because /blog and /updates need them too. */
