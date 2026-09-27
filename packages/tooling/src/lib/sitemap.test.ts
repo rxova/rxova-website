@@ -109,7 +109,7 @@ describe('lastmodFor', () => {
     assert.equal(lastmodFor('<script type="application/ld+json">{ not json </script>'), undefined)
   })
 
-  // The website's Page layout escapes `<` as < before embedding, so a real page's JSON-LD
+  // Pages escape `<` as `\u003c` before embedding JSON-LD, so a real page's JSON-LD
   // is not byte-identical to what JSON.parse expects until that is undone.
   it('reads JSON-LD that was escaped for safe embedding', () => {
     const html =

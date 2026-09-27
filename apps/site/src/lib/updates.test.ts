@@ -74,7 +74,7 @@ describe('every update', () => {
   )
 
   // The registry check @rxova/website-schemas deliberately cannot do: it is published, and
-  // reaching into the design system for REPO_IDS is what broke its entry point.
+  // importing REPO_IDS from the design system would break its entry point for consumers.
   it.each(updates.map((p) => [p.name, p] as const))('%s names only real repos', (_name, entry) => {
     expect(unknownRepos(entry.frontmatter.repos as string[], REPO_IDS)).toEqual([])
   })

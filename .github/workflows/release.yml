@@ -97,7 +97,7 @@ jobs:
         uses: changesets/action@v2
         with:
           # v2 input names (`version-script`, `commit-message`, `pr-title`); the token
-          # now comes from the `github-token` input, not the env var.
+          # is the `github-token` input, which v2 reads instead of the env var.
           github-token: ${{ secrets.GITHUB_TOKEN }}
           version-script: pnpm exec changeset version
           commit-message: 'chore: version packages'

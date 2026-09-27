@@ -94,8 +94,7 @@ export function sharedStarlightConfig({
       },
     ],
 
-    // Pagefind ships with Starlight and replaces the third-party search plugin
-    // journey was carrying.
+    // Pagefind ships with Starlight, so docs sites need no third-party search plugin.
     pagefind: true,
 
     sidebar,

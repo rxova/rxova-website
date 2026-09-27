@@ -113,7 +113,7 @@ describe('writeLlms', () => {
   })
 
   // /blog and /updates are built by the site app, so no sources.json entry announces
-  // them; the index lists them anyway, as it did when each was a mounted site.
+  // them; the index lists them anyway, beside any mounted site.
   it("lists the site app's own sections with no source for them", async () => {
     const { sites } = await writeLlms(root, [], ORIGIN)
     assert.deepEqual(

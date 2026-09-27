@@ -4,8 +4,8 @@
  */
 
 import { defineCollection, reference } from 'astro:content'
-// Directly, not astro:content's re-export, which Astro 7 deprecates. Same instance
-// either way now that the repo is on the zod major Astro bundles.
+// Directly, not astro:content's re-export, which Astro 7 deprecates. The repo pins the
+// zod major Astro bundles, so both resolve to the same instance.
 import { z } from 'zod'
 import { glob } from 'astro/loaders'
 
