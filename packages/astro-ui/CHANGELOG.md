@@ -1,5 +1,15 @@
 # @rxova/astro-ui
 
+## 0.6.1
+
+### Patch Changes
+
+- [#147](https://github.com/rxova/rxova-website/pull/147) [`1b75207`](https://github.com/rxova/rxova-website/commit/1b7520719cbc8b2698d3ac50176a2a81c5013ab5) - `ScreenshotGrid` dims its screenshots in dark mode, so a light capture no longer glares off a dark page.
+
+- [#145](https://github.com/rxova/rxova-website/pull/145) [`23f39fc`](https://github.com/rxova/rxova-website/commit/23f39fc866a1d9cb8b081c5c948e33288f30ca4f) - The docs header's section menu and the footer's Site column follow `@rxova/brand`'s new `SECTIONS`: Projects, Blog and Updates, with the site root as the about page.
+- Updated dependencies [[`334afce`](https://github.com/rxova/rxova-website/commit/334afcef3b158737640061fef0e32ded9ba7c9fb), [`23f39fc`](https://github.com/rxova/rxova-website/commit/23f39fc866a1d9cb8b081c5c948e33288f30ca4f)]:
+  - @rxova/brand@1.3.0
+
 ## 0.6.0
 
 ### Minor Changes
