@@ -30,7 +30,7 @@
     "check:size": "rxova-repo-config check-file-size",
     "check:comments": "node scripts/repo/check-comments.ts",
     "pack:smoke": "turbo run pack:smoke --concurrency=1",
-    "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/.eslintcache",
+    "lint": "turbo run sync --output-logs=errors-only && eslint . --cache --cache-location node_modules/.cache/eslint/.eslintcache",
     "lint:fix": "eslint . --fix --cache --cache-location node_modules/.cache/eslint/.eslintcache",
     "format": "prettier --write . --cache --cache-location node_modules/.cache/prettier/.prettiercache",
     "format:check": "prettier --check . --cache --cache-location node_modules/.cache/prettier/.prettiercache",
@@ -50,7 +50,10 @@
     "prepare": "husky && pnpm --filter @rxova/website-schemas run build",
     "test:scripts": "vitest run --coverage",
     "typecheck:scripts": "tsc -p tsconfig.json",
-    "serve:site": "node scripts/e2e/serve.ts"
+    "serve:site": "node scripts/e2e/serve.ts",
+    "sherif:check": "sherif --fail-on-warnings",
+    "knip:check": "knip",
+    "check:repo": "pnpm run check:size && pnpm run check:comments && pnpm run check:registry && rxova-repo-config lint-changesets && turbo run //#typecheck:scripts check:astro check:og //#validate:content"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^1.0.1",
@@ -69,10 +72,12 @@
     "eslint-plugin-astro": "^3.2.0",
     "globals": "^17.12.0",
     "husky": "^9.1.7",
+    "knip": "^6.38.0",
     "lint-staged": "^17.5.1",
     "parse5": "^8.0.1",
     "prettier": "^3.9.7",
     "prettier-plugin-astro": "^1.0.0",
+    "sherif": "^1.13.0",
     "tsx": "^4.23.13",
     "turbo": "^2.10.13",
     "typescript": "6.0.3",
@@ -90,6 +95,14 @@
           "skipOnRelease": true
         },
         {
+          "name": "dependency versions",
+          "command": "pnpm run sherif:check"
+        },
+        {
+          "name": "unused code",
+          "command": "pnpm run knip:check"
+        },
+        {
           "name": "dependency dedupe",
           "command": "pnpm exec turbo run //#dedupe:check",
           "skipOnRelease": true
@@ -97,10 +110,6 @@
         {
           "name": "format",
           "command": "pnpm run format:check"
-        },
-        {
-          "name": "astro types",
-          "command": "pnpm exec turbo run sync"
         },
         {
           "name": "lint",

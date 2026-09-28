@@ -10,7 +10,7 @@ import { baseFor } from '@rxova/website-schemas'
 // widens the dev server's fs allowlist so `pnpm dev` can read it.
 import sources from '../../../../sources.json'
 
-export interface LandingLink {
+interface LandingLink {
   label: string
   href: string
   external?: boolean

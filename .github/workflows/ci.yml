@@ -24,19 +24,33 @@ jobs:
   commitlint:
     uses: rxova/shared/.github/workflows/commit-messages.yml@main
 
-  # The pre-push gate, step for step: `repoConfig.verify.steps` in package.json is the only list.
+  # Lint, format, actionlint, this repository's own checks (`check:repo`), build and typecheck.
   checks:
-    name: audit · format · lint · types · build · pack
     needs: [commitlint]
     if: needs.commitlint.outputs.code-changed == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v7
-      - uses: rxova/shared/actions/setup-pnpm@main
-      - uses: rxova/shared/actions/turbo-cache@main
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run verify
+    uses: rxova/shared/.github/workflows/repo-checks.yml@main
+    with:
+      build-command: pnpm exec turbo run build
+      extra-command: pnpm run check:repo
+
+  # The site deploys on one Node and one OS, so the suite runs on those.
+  test:
+    needs: [commitlint]
+    if: needs.commitlint.outputs.code-changed == 'true'
+    uses: rxova/shared/.github/workflows/unit-tests.yml@main
+    with:
+      node-versions: '[24]'
+      operating-systems: '["ubuntu-latest"]'
+
+  supply-chain:
+    needs: [commitlint]
+    if: needs.commitlint.outputs.code-changed == 'true'
+    uses: rxova/shared/.github/workflows/supply-chain.yml@main
+
+  package-contract:
+    needs: [commitlint]
+    if: needs.commitlint.outputs.code-changed == 'true'
+    uses: rxova/shared/.github/workflows/package-contract.yml@main
 
   # Published-package changes need a changeset. Escape hatch: the `skip-changeset` label.
   changeset:
@@ -80,7 +94,7 @@ jobs:
   all-checks:
     name: all checks
     if: always()
-    needs: [commitlint, checks, changeset, e2e, docs-checks]
+    needs: [commitlint, checks, test, supply-chain, package-contract, changeset, e2e, docs-checks]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

@@ -5,7 +5,7 @@ type Component = Parameters<AstroContainer['renderToString']>[0]
 type Options = Parameters<AstroContainer['renderToString']>[1]
 
 /** Drops Astro's inline `<script>` elements, so assertions see only the markup. Not a sanitizer. */
-export const withoutScripts = (html: string): string => {
+const withoutScripts = (html: string): string => {
   const start = html.indexOf('<script')
   if (start === -1) return html
   const end = html.indexOf('</script>', start) + '</script>'.length
