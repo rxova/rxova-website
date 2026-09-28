@@ -1,5 +1,13 @@
 # @rxova/preview
 
+## 0.0.17
+
+### Patch Changes
+
+- Updated dependencies [[`1b75207`](https://github.com/rxova/rxova-website/commit/1b7520719cbc8b2698d3ac50176a2a81c5013ab5), [`23f39fc`](https://github.com/rxova/rxova-website/commit/23f39fc866a1d9cb8b081c5c948e33288f30ca4f), [`334afce`](https://github.com/rxova/rxova-website/commit/334afcef3b158737640061fef0e32ded9ba7c9fb), [`23f39fc`](https://github.com/rxova/rxova-website/commit/23f39fc866a1d9cb8b081c5c948e33288f30ca4f)]:
+  - @rxova/astro-ui@0.6.1
+  - @rxova/brand@1.3.0
+
 ## 0.0.16
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @rxova/brand
 
+## 1.3.0
+
+### Minor Changes
+
+- [#145](https://github.com/rxova/rxova-website/pull/145) [`23f39fc`](https://github.com/rxova/rxova-website/commit/23f39fc866a1d9cb8b081c5c948e33288f30ca4f) - `SECTIONS` reads Projects (`/projects/`), Blog, Updates. The site root is now the about page, reached by the mark, so About leaves the menu and Projects joins it; every header and footer that reads `SECTIONS` follows.
+
+### Patch Changes
+
+- [#147](https://github.com/rxova/rxova-website/pull/147) [`334afce`](https://github.com/rxova/rxova-website/commit/334afcef3b158737640061fef0e32ded9ba7c9fb) - The dark `--rx-primary` is `#9d82f6`, up from `#9375f5`, so violet text on `--rx-tag-bg` (version badges, chips, step numbers) passes AA at 4.9:1 instead of 4.3:1.
+
 ## 1.2.0
 
 ### Minor Changes
