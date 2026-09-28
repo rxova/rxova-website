@@ -1,6 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
   <title id="title">Rxova route-based composition pipeline</title>
   <desc id="desc">Independent repositories build static route trees, the website validates and persists them, and an assembler copies the enabled trees into one GitHub Pages deployment.</desc>
+  <!-- The light values below are @rxova/brand tokens; this swaps in their dark twins. As an <img>, the
+       SVG resolves prefers-color-scheme from the page's color-scheme, so it follows the theme toggle. -->
+  <style>
+    @media (prefers-color-scheme: dark) {
+      [fill="#fbfaf7"] { fill: #1e1b17; }
+      [fill="#fff"] { fill: #0b0a08; }
+      [fill="#f0ede6"] { fill: #2b2721; }
+      [fill="#14140f"] { fill: #f4f1ea; }
+      [fill="#605c54"] { fill: #bbb3a6; }
+      [fill="#8b867c"] { fill: #9a9385; }
+      [fill="#6b3df0"] { fill: #9d82f6; }
+      [stroke="#6b3df0"] { stroke: #9d82f6; }
+      [stroke="#d5d0c6"] { stroke: #565043; }
+    }
+  </style>
   <defs>
     <linearGradient id="accent" x1="0" x2="1">
       <stop offset="0" stop-color="#0a84ff"/>
