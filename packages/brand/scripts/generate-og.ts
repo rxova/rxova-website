@@ -162,7 +162,9 @@ if (checkOnly) {
     process.exit(1)
   }
 
-  const manifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, 'utf8')) : {}
+  const manifest = (
+    existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, 'utf8')) : {}
+  ) as { fingerprint?: string }
   if (manifest.fingerprint !== fingerprint) {
     console.error(
       'Social cards are stale — the palette, a tagline, the project list or this\n' +

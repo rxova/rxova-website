@@ -1,6 +1,6 @@
 {
-  "extends": "@rxova/repo-tooling/tsconfig.base.json",
+  "extends": "@rxova/repo-config/tsconfig.node.json",
   // Specs pass functions to the page, so they see the DOM too.
-  "compilerOptions": { "lib": ["ES2024", "DOM"] },
+  "compilerOptions": { "lib": ["ES2023", "DOM"] },
   "include": ["e2e/**/*.ts", "playwright.config.ts"]
 }

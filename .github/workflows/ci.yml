@@ -3,12 +3,6 @@ name: CI
 on:
   push:
     branches: [main]
-    # Only paths that can't reach a check or a release; content markdown is source and gets a run.
-    # Push only: on `pull_request` a skipped workflow never reports, so a required check would hang.
-    paths-ignore:
-      - 'docs/**'
-      - '**/CHANGELOG.md'
-      - '**/LICENSE'
   pull_request:
     # No `edited` (body edits would cancel and re-bill runs; pr-title.yml handles retitles).
     # `labeled`/`unlabeled` re-run the full graph so the `skip-changeset` label takes effect.
@@ -25,97 +19,46 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # The root of the graph: everything else declares `needs: [commitlint]`. Runs on push too,
-  # since a skipped job skips its dependents.
+  # The root of the graph: lints the commits and decides what the range touched
+  # (`repoConfig.scope`). A release commit or a documentation-only range skips the heavy jobs.
   commitlint:
-    name: commit messages
-    runs-on: ubuntu-latest
-    # Every job here carries a ceiling, so a hung job can't bill for hours.
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: ./.github/actions/setup-pnpm
-      - run: pnpm install --frozen-lockfile
+    uses: rxova/shared/.github/workflows/commit-messages.yml@main
 
-      - name: Lint the branch commits
-        if: github.event_name == 'pull_request'
-        run: >-
-          pnpm exec commitlint --verbose
-          --from ${{ github.event.pull_request.base.sha }}
-          --to ${{ github.event.pull_request.head.sha }}
-
-      # The squash-merge subject is the PR title, which no branch commit contains (retitles: pr-title.yml).
-      # Passed via env, never interpolated into the shell: a title is attacker-controlled.
-      - name: Lint the PR title
-        if: github.event_name == 'pull_request'
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: echo "$PR_TITLE" | pnpm exec commitlint --verbose
-
-      # On main: the squashed subject plus changesets' `chore: version packages` commit.
-      # Cheap, and it keeps this job unskippable.
-      - name: Lint the pushed commit
-        if: github.event_name == 'push'
-        run: pnpm exec commitlint --last --verbose
-
-  # One job, in `packages/tooling/src/repo/verify.ts`'s order, so CI and the pre-push gate run
-  # the same checks in the same sequence; one job pays setup and minute rounding once.
+  # The pre-push gate, step for step: `repoConfig.verify.steps` in package.json is the only list.
   checks:
     name: audit · format · lint · types · build · pack
     needs: [commitlint]
+    if: needs.commitlint.outputs.code-changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
-      - uses: ./.github/actions/setup-pnpm
-      - uses: ./.github/actions/turbo-cache
+      - uses: rxova/shared/actions/setup-pnpm@main
+      - uses: rxova/shared/actions/turbo-cache@main
       - run: pnpm install --frozen-lockfile
-      # The pre-push gate, step for step: packages/tooling/src/repo/verify.ts is the only list.
       - run: pnpm run verify
 
+  # Published-package changes need a changeset. Escape hatch: the `skip-changeset` label.
   changeset:
     name: changeset present
     needs: [commitlint]
-    # Pull requests only (it diffs base against head), and not the version PR, which has
-    # already consumed every changeset.
-    if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main'
-    permissions:
-      contents: read
-      # check-changeset.ts reads the skip-changeset label through the API; without this
-      # the call 403s and the label silently does nothing.
-      pull-requests: read
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: ./.github/actions/setup-pnpm
-      - run: pnpm install --frozen-lockfile
-      # Published-package changes need a changeset. Escape hatches: the `skip-changeset` label, or
-      # `[skip-changeset]` in the title (applies on the next push or label event).
-      - name: Require a changeset for published-package changes
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: node --import tsx ./packages/tooling/src/repo/check-changeset.ts
+    uses: rxova/shared/.github/workflows/changeset-gate.yml@main
 
   e2e:
     name: e2e
     needs: [commitlint]
+    if: needs.commitlint.outputs.code-changed == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
-      - uses: ./.github/actions/setup-pnpm
-      - uses: ./.github/actions/turbo-cache
+      - uses: rxova/shared/actions/setup-pnpm@main
+      - uses: rxova/shared/actions/turbo-cache@main
       - run: pnpm install --frozen-lockfile
-      - name: Install Chromium
-        run: pnpm --filter @rxova/e2e exec playwright install --with-deps chromium
+      - uses: rxova/shared/actions/setup-playwright@main
+        with:
+          browsers: chromium
+          working-directory: apps/e2e
       # Each app against its own preview, then the assembled site as the deploy composes it.
       - name: Run the behaviour specs
         run: pnpm run e2e
@@ -127,16 +70,20 @@ jobs:
           path: '**/test-results'
           retention-days: 7
 
-  # `all checks` is the one required status: it needs every job and fails on any failure or
-  # cancellation (skipped counts as passed). The `edited` title re-check lives in pr-title.yml.
+  # The light job a documentation-only range runs instead: formatting.
+  docs-checks:
+    needs: [commitlint]
+    if: needs.commitlint.outputs.docs-only == 'true'
+    uses: rxova/shared/.github/workflows/docs-checks.yml@main
+
+  # `all checks` is the one required status: every job passed or was skipped.
   all-checks:
     name: all checks
     if: always()
-    needs: [commitlint, checks, changeset, e2e]
+    needs: [commitlint, checks, changeset, e2e, docs-checks]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Fail if any job failed or was cancelled
-        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
-        run: exit 1
-      - run: echo "Every job passed or was skipped."
+      - uses: rxova/shared/actions/require-jobs@main
+        with:
+          needs: ${{ toJSON(needs) }}

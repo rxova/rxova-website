@@ -195,6 +195,21 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.10.0(jiti@2.6.1))
+      '@playwright/test':
+        specifier: 1.63.0
+        version: 1.63.0
+      '@rxova/docs-kit':
+        specifier: ^0.1.0
+        version: 0.1.0
+      '@rxova/repo-config':
+        specifier: ^0.4.1
+        version: 0.4.1(@changesets/changelog-github@1.0.1)(@commitlint/config-conventional@21.2.2)(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@eslint/js@10.0.1(eslint@10.10.0(jiti@2.6.1)))(@playwright/test@1.63.0)(@vitest/coverage-v8@5.0.1)(eslint-plugin-astro@3.2.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@typescript-eslint/parser@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))(eslint@10.10.0(jiti@2.6.1))(typescript-eslint@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3)))(eslint@10.10.0(jiti@2.6.1))(globals@17.12.0)(prettier@3.9.9)(publint@0.3.24)(tsdown@0.23.0(@volar/typescript@2.4.28(typescript@6.0.3))(oxc-resolver@11.21.2)(publint@0.3.24)(tsx@4.23.13)(typescript@6.0.3))(typescript-eslint@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))(typescript@6.0.3)(vitest@5.0.1)
+      '@rxova/ts-utils':
+        specifier: ^0.2.1
+        version: 0.2.1(react@19.3.0)
+      '@rxova/website-schemas':
+        specifier: workspace:^
+        version: link:packages/website-schemas
       '@types/node':
         specifier: ^26.6.1
         version: 26.6.1
@@ -216,12 +231,15 @@ importers:
       lint-staged:
         specifier: ^17.5.1
         version: 17.5.1
+      parse5:
+        specifier: ^8.0.1
+        version: 8.0.1
       prettier:
         specifier: ^3.9.7
         version: 3.9.9
       prettier-plugin-astro:
         specifier: ^1.0.0
-        version: 1.0.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9)
+        version: 1.1.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9)
       tsx:
         specifier: ^4.23.13
         version: 4.23.13
@@ -237,15 +255,18 @@ importers:
       vitest:
         specifier: ^5.0.1
         version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(happy-dom@20.14.5)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
 
   apps/e2e:
     devDependencies:
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
-      '@rxova/repo-tooling':
-        specifier: workspace:*
-        version: link:../../packages/tooling
       '@types/node':
         specifier: ^26.6.1
         version: 26.6.1
@@ -274,9 +295,6 @@ importers:
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
-      '@rxova/repo-tooling':
-        specifier: workspace:*
-        version: link:../../packages/tooling
       '@vitest/coverage-v8':
         specifier: ^5.0.1
         version: 5.0.1(vitest@5.0.1)
@@ -335,9 +353,6 @@ importers:
       '@rxova/react-otp-input':
         specifier: ^1.0.4
         version: 1.0.4(react@19.3.0)
-      '@rxova/repo-tooling':
-        specifier: workspace:*
-        version: link:../../packages/tooling
       '@types/node':
         specifier: ^26.6.1
         version: 26.6.1
@@ -411,9 +426,6 @@ importers:
       '@astrojs/starlight':
         specifier: ^0.42.1
         version: 0.42.1(astro@7.3.5(@types/node@26.6.1)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))(typescript@6.0.3)
-      '@rxova/repo-tooling':
-        specifier: workspace:*
-        version: link:../tooling
       '@types/node':
         specifier: ^26.6.1
         version: 26.6.1
@@ -451,9 +463,6 @@ importers:
       '@resvg/resvg-js':
         specifier: ^2.6.2
         version: 2.6.2
-      '@rxova/repo-tooling':
-        specifier: workspace:*
-        version: link:../tooling
       '@types/node':
         specifier: ^26.6.1
         version: 26.6.1
@@ -466,43 +475,6 @@ importers:
       satori:
         specifier: ^0.33.4
         version: 0.33.4
-      tsx:
-        specifier: ^4.23.13
-        version: 4.23.13
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
-      vitest:
-        specifier: ^5.0.1
-        version: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(happy-dom@20.14.5)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
-
-  packages/tooling:
-    dependencies:
-      '@rxova/website-schemas':
-        specifier: workspace:^
-        version: link:../website-schemas
-      parse5:
-        specifier: ^8.0.1
-        version: 8.0.1
-      prettier:
-        specifier: ^3.9.7
-        version: 3.9.9
-      yaml:
-        specifier: ^2.9.1
-        version: 2.9.1
-      zod:
-        specifier: ^4.6.5
-        version: 4.6.5
-    devDependencies:
-      '@playwright/test':
-        specifier: 1.63.0
-        version: 1.63.0
-      '@types/node':
-        specifier: ^26.6.1
-        version: 26.6.1
-      '@vitest/coverage-v8':
-        specifier: ^5.0.1
-        version: 5.0.1(vitest@5.0.1)
       tsx:
         specifier: ^4.23.13
         version: 4.23.13
@@ -2072,6 +2044,11 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
+  '@rxova/docs-kit@0.1.0':
+    resolution: {integrity: sha512-NWiPfp0AJVp64X9MK77meVNGgQZMXlDXdHVAxY9s8VAefm7V0i2KLw4aWe7HfIezFaUFwlf3oowHJ2Ih4MBU7Q==}
+    engines: {node: '>=22.13'}
+    hasBin: true
+
   '@rxova/journey-core@1.0.0-rc.3':
     resolution: {integrity: sha512-GDOFQY8/u6hS+gcQEzXOXRAm+7yvk8wFbgJq+J1dQe+kr1NJ4kxJBJYM+9WK2GjJJ3zvzFB3ng+6v9rLzj85Vg==}
 
@@ -2087,6 +2064,79 @@ packages:
     engines: {node: '>=20.19.0'}
     peerDependencies:
       react: '>=18.0.0'
+
+  '@rxova/repo-config@0.4.1':
+    resolution: {integrity: sha512-D0F7fVdUbaIQM4knYm1VqhODVgcE18b4TTPV8ZrBrZ5X9xzNW3R8o+0yoaiobCwp5oLNls4oYkS1eIsXqznVKQ==}
+    engines: {node: '>=22.13'}
+    hasBin: true
+    peerDependencies:
+      '@arethetypeswrong/cli': '>=0.17'
+      '@changesets/changelog-github': '>=0.5'
+      '@commitlint/config-conventional': '>=19'
+      '@eslint/js': '>=9'
+      '@playwright/test': '>=1.50'
+      '@vitest/coverage-v8': '>=3'
+      eslint: '>=9'
+      eslint-plugin-astro: '>=3'
+      eslint-plugin-jsx-a11y: '>=6.10'
+      eslint-plugin-react: '>=7.37'
+      eslint-plugin-react-hooks: '>=7'
+      globals: '>=15'
+      knip: '>=5'
+      prettier: '>=3.5'
+      publint: '>=0.3'
+      tsdown: '>=0.15'
+      typescript: '>=5.5'
+      typescript-eslint: '>=8'
+      vitest: '>=3'
+    peerDependenciesMeta:
+      '@arethetypeswrong/cli':
+        optional: true
+      '@changesets/changelog-github':
+        optional: true
+      '@commitlint/config-conventional':
+        optional: true
+      '@eslint/js':
+        optional: true
+      '@playwright/test':
+        optional: true
+      '@vitest/coverage-v8':
+        optional: true
+      eslint:
+        optional: true
+      eslint-plugin-astro:
+        optional: true
+      eslint-plugin-jsx-a11y:
+        optional: true
+      eslint-plugin-react:
+        optional: true
+      eslint-plugin-react-hooks:
+        optional: true
+      globals:
+        optional: true
+      knip:
+        optional: true
+      prettier:
+        optional: true
+      publint:
+        optional: true
+      tsdown:
+        optional: true
+      typescript:
+        optional: true
+      typescript-eslint:
+        optional: true
+      vitest:
+        optional: true
+
+  '@rxova/ts-utils@0.2.1':
+    resolution: {integrity: sha512-iy7t/hN0HfJTijwHH/RYpP3mMCKb4WcIHAtfJkUmyAB/rT6idIYdEaNlNCdjAQ8EyMQlANsadkCXJd0Bz+4Htg==}
+    engines: {node: '>=22.13'}
+    peerDependencies:
+      react: '>=18'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@shikijs/core@4.4.3':
     resolution: {integrity: sha512-QCR4q2ZO/ILJEuwiBMel4wdcTDb1JGwfjKTxPDF6x8ixOaluPrVqIn06C99AcRPhmYlBR56d/Fb+GN58GzExpg==}
@@ -3951,6 +4001,12 @@ packages:
 
   prettier-plugin-astro@1.0.0:
     resolution: {integrity: sha512-xOlwKNSaPkPPiJeOhiFk8/MA2eH5A+in99dID+weTJhPcq+FBdIaB/3UNFdy9ckmc8/bT7QNyxSb78cnopgElQ==}
+    engines: {node: '>=22.12.0'}
+    peerDependencies:
+      prettier: ^3.5.3
+
+  prettier-plugin-astro@1.1.0:
+    resolution: {integrity: sha512-ujJ1VX+iin4eYJPHVCEbmXHzrEVsi1SaVehHtbAteTZv8VTrZyBiZPmYc6Ud6+fkr/UBMXuEu3N3+d49h7YfKw==}
     engines: {node: '>=22.12.0'}
     peerDependencies:
       prettier: ^3.5.3
@@ -6102,6 +6158,8 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
+  '@rxova/docs-kit@0.1.0': {}
+
   '@rxova/journey-core@1.0.0-rc.3': {}
 
   '@rxova/react-intl-currency-input@1.0.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
@@ -6111,6 +6169,32 @@ snapshots:
 
   '@rxova/react-otp-input@1.0.4(react@19.3.0)':
     dependencies:
+      react: 19.3.0
+
+  '@rxova/repo-config@0.4.1(@changesets/changelog-github@1.0.1)(@commitlint/config-conventional@21.2.2)(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@eslint/js@10.0.1(eslint@10.10.0(jiti@2.6.1)))(@playwright/test@1.63.0)(@vitest/coverage-v8@5.0.1)(eslint-plugin-astro@3.2.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@typescript-eslint/parser@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))(eslint@10.10.0(jiti@2.6.1))(typescript-eslint@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3)))(eslint@10.10.0(jiti@2.6.1))(globals@17.12.0)(prettier@3.9.9)(publint@0.3.24)(tsdown@0.23.0(@volar/typescript@2.4.28(typescript@6.0.3))(oxc-resolver@11.21.2)(publint@0.3.24)(tsx@4.23.13)(typescript@6.0.3))(typescript-eslint@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))(typescript@6.0.3)(vitest@5.0.1)':
+    dependencies:
+      prettier-plugin-astro: 1.1.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9)
+    optionalDependencies:
+      '@changesets/changelog-github': 1.0.1
+      '@commitlint/config-conventional': 21.2.2
+      '@eslint/js': 10.0.1(eslint@10.10.0(jiti@2.6.1))
+      '@playwright/test': 1.63.0
+      '@vitest/coverage-v8': 5.0.1(vitest@5.0.1)
+      eslint: 10.10.0(jiti@2.6.1)
+      eslint-plugin-astro: 3.2.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@typescript-eslint/parser@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))(eslint@10.10.0(jiti@2.6.1))(typescript-eslint@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))
+      globals: 17.12.0
+      prettier: 3.9.9
+      publint: 0.3.24
+      tsdown: 0.23.0(@volar/typescript@2.4.28(typescript@6.0.3))(oxc-resolver@11.21.2)(publint@0.3.24)(tsx@4.23.13)(typescript@6.0.3)
+      typescript: 6.0.3
+      typescript-eslint: 8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3)
+      vitest: 5.0.1(@types/node@26.6.1)(@vitest/coverage-v8@5.0.1)(happy-dom@20.14.5)(vite@8.1.5(@types/node@26.6.1)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.13)(yaml@2.9.1))
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
+
+  '@rxova/ts-utils@0.2.1(react@19.3.0)':
+    optionalDependencies:
       react: 19.3.0
 
   '@shikijs/core@4.4.3':
@@ -8112,6 +8196,17 @@ snapshots:
   prelude-ls@1.2.1: {}
 
   prettier-plugin-astro@1.0.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9):
+    dependencies:
+      '@astrojs/compiler-rs': 0.4.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)
+      '@prettier/parse-srcset': 3.1.0
+      prettier: 3.9.9
+      sass-formatter: 0.8.0
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
+    optional: true
+
+  prettier-plugin-astro@1.1.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9):
     dependencies:
       '@astrojs/compiler-rs': 0.4.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)
       '@prettier/parse-srcset': 3.1.0

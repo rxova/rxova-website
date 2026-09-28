@@ -52,7 +52,7 @@ export function enhanceStream(): void {
     const placed = place(entryFacets, active, limit)
     matching = placed.matching
     entries.forEach((el, i) => {
-      const { hidden, beyond } = placed.placements[i] as { hidden: boolean; beyond: boolean }
+      const { hidden, beyond } = placed.placements[i]
       el.hidden = hidden
       el.classList.toggle('beyond', beyond)
     })

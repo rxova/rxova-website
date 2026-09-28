@@ -1,42 +1,18 @@
-import { defineConfig, globalIgnores } from 'eslint/config'
-import js from '@eslint/js'
-import globals from 'globals'
-import tseslint from 'typescript-eslint'
-import astro from 'eslint-plugin-astro'
+import { rxova } from '@rxova/repo-config/eslint'
 
-export default defineConfig(
-  globalIgnores([
-    '**/node_modules/',
-    '**/dist/',
-    '**/.astro/',
-    '**/.turbo/',
+export default rxova({
+  tsconfigRootDir: import.meta.dirname,
+  astro: true,
+  node: true,
+  tests: true,
+  ignores: [
     '_site/',
     'artifacts/',
     'build/',
-    'coverage/',
     '.lock/',
-  ]),
-  js.configs.recommended,
-  {
-    files: ['**/*.{ts,tsx,mjs,js}'],
-    extends: [tseslint.configs.recommended],
-  },
-  // Astro components (frontmatter + template) and their inline browser scripts.
-  ...astro.configs.recommended,
-  {
-    files: ['**/*.astro'],
-    languageOptions: { globals: { ...globals.browser } },
-  },
-  {
-    // Node tooling and package sources (sites.ts reads process.env for the origin
-    // override), so they get Node globals.
-    files: ['**/src/**/*.{ts,mjs}', '**/scripts/**/*.{ts,mjs}'],
-    languageOptions: { globals: globals.node },
-  },
-  {
-    // Astro config files run under Node, and read process.env for the base URL the
-    // aggregator will mount each surface at.
-    files: ['**/*.config.mjs'],
-    languageOptions: { globals: globals.node },
-  },
-)
+    // The walkthroughs' code is displayed exactly as written, like .prettierignore says.
+    'apps/site/src/showcases/*/after.*',
+    'apps/site/src/showcases/*/before.*',
+  ],
+  consoleAllowed: ['scripts/**', '**/scripts/**'],
+})

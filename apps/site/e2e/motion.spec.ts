@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
-const sweep = (page: import('@playwright/test').Page) =>
+const sweep = (page: Page) =>
   page
     .locator('nav.links a:not(.btn)')
     .first()

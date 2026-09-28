@@ -46,7 +46,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --coverage",
     "check:exports": "publint --strict",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build",
+    "pack:smoke": "rxova-repo-config pack-smoke"
   },
   "peerDependencies": {
     "zod": "^4.0.0"

@@ -1,9 +1,10 @@
-import { unitConfig } from '@rxova/repo-tooling/vitest'
+import { baseVitestConfig } from '@rxova/repo-config/vitest'
 
 // The screenshot driver is covered by running it; the decisions it makes are in gallery.ts.
-export default unitConfig({
+export default baseVitestConfig({
+  root: import.meta.dirname,
   include: ['scripts/**/*.test.ts'],
-  coverage: ['scripts/**/*.ts'],
-  exclude: ['scripts/screenshots.ts'],
-  thresholds: { perFile: true, statements: 95, branches: 95, functions: 95, lines: 95 },
+  coverageInclude: ['scripts/**/*.ts'],
+  exclude: ['scripts/**/*.test.ts', 'scripts/screenshots.ts'],
+  reporter: ['text', 'json-summary'],
 })

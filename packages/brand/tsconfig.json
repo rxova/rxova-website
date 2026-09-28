@@ -1,10 +1,9 @@
 {
-  "extends": "@rxova/repo-tooling/tsconfig.base.json",
+  "extends": "@rxova/repo-config/tsconfig.base.json",
   "compilerOptions": {
     // Shipped as source, so imports keep their `.ts` extension and resolve the way bundlers do.
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true
+    "allowImportingTsExtensions": true,
+    "types": ["node"]
   },
   "include": ["src/**/*.ts", "scripts/**/*.ts", "*.config.ts"]
 }

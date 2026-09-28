@@ -3,7 +3,7 @@
 How a project's docs get onto **rxova.org**. This is the contract a source repo
 (`rxova/journey`, `rxova/react-inputs`, `rxova/use-everywhere`, and any future
 package) implements — **gate 1**, the sender. The aggregator's half — **gate 2**,
-validate and persist — lives in [`packages/tooling/src/deploy/ingest.ts`](../packages/tooling/src/deploy/ingest.ts) and
+validate and persist — lives in [`scripts/deploy/ingest.ts`](../scripts/deploy/ingest.ts) and
 [`.github/workflows/ingest.yml`](../.github/workflows/ingest.yml).
 
 The aggregator **never builds your docs**. It never checks your repo out and never
@@ -101,13 +101,13 @@ notify-aggregator:
 
 ## What gate 2 does with it
 
-1. **2a — metadata** ([`validateDispatch`](../packages/tooling/src/deploy/ingest.ts)). Rejects an
+1. **2a — metadata** ([`validateDispatch`](../scripts/deploy/ingest.ts)). Rejects an
    unsupported `schema`; an unknown `project`, or one disabled in `sources.json`; a
    `base` that disagrees with the derived `/packages/<id>/`; a `ref`, `sha` or
    `run_id` that is not shaped like one. It also re-asserts that the mount derived
    from the id is unique and stays inside the tree.
 2. **Download** the `docs-dist` artifact from your `run_id`, in your repo.
-3. **2b — contents** ([`checkDist`](../packages/tooling/src/deploy/ingest.ts)). Rejects a dist that is
+3. **2b — contents** ([`checkDist`](../scripts/deploy/ingest.ts)). Rejects a dist that is
    missing, empty, or has no `index.html`.
 4. **Persist.** Packs the dist and stores it as the project's canonical release
    asset — tag `content-<id>`, asset `docs-<id>.tgz` — replacing the previous one.

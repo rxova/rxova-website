@@ -1,7 +1,7 @@
 name: Snapshot
 
-# Publishes an immutable prerelease to the `next` dist-tag (never `latest`, no changelog) so a
-# consumer repo can try an in-progress change end to end: `pnpm add @rxova/brand@next`.
+# Publishes an immutable prerelease under a dist-tag (never `latest`) to try an in-progress
+# change in another repository: `pnpm add @rxova/<package>@next`.
 
 on:
   workflow_dispatch:
@@ -16,31 +16,9 @@ permissions:
 
 jobs:
   snapshot:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      HUSKY: '0'
     permissions:
       contents: read
       id-token: write # trusted publishing
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: ./.github/actions/setup-pnpm
-        with:
-          registry-url: 'https://registry.npmjs.org'
-      - name: Upgrade npm for trusted publishing
-        run: npm install -g npm@^11.5.1
-      - run: pnpm install --frozen-lockfile
-
-      # Verify before publishing: a snapshot goes to the real registry, and a
-      # broken one wastes a round-trip in whichever repo is waiting on it.
-      - run: pnpm run verify
-
-      - name: Version as a snapshot
-        run: pnpm exec changeset version --snapshot ${{ inputs.tag }}
-      - name: Publish
-        run: pnpm exec changeset publish --tag ${{ inputs.tag }} --no-git-tag
-        env:
-          NPM_CONFIG_PROVENANCE: 'true'
+    uses: rxova/shared/.github/workflows/snapshot-release.yml@main
+    with:
+      tag: ${{ inputs.tag }}
