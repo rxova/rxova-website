@@ -65,11 +65,11 @@
 }
 
 /* Sequence-diagram participant boxes and lifelines. */
-.sl-markdown-content svg[aria-roledescription='sequence'] .actor {
+.sl-markdown-content svg[aria-roledescription="sequence"] .actor {
   fill: var(--rx-card) !important;
   stroke: var(--rx-rule-strong) !important;
 }
 
-.sl-markdown-content svg[aria-roledescription='sequence'] .actor-line {
+.sl-markdown-content svg[aria-roledescription="sequence"] .actor-line {
   stroke: var(--rx-rule-strong) !important;
 }

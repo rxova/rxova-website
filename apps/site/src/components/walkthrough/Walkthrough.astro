@@ -3,20 +3,20 @@
  * A project's walkthrough: one job by hand, then with the project, as a guided tour of numbered
  * notes. Without JS both sides show in full with every note listed; the script makes it the tour.
  */
-import type { Showcase } from '../../lib/walkthrough'
-import Bar from './Bar.astro'
-import Caption from './Caption.astro'
-import Panes from './Panes.astro'
+import type { Showcase } from "../../lib/walkthrough";
+import Bar from "./Bar.astro";
+import Caption from "./Caption.astro";
+import Panes from "./Panes.astro";
 
 interface Props {
-  story: Showcase
+  story: Showcase;
   /** Prefixes the ids inside, which must be unique on a page with several. */
-  id: string
+  id: string;
   /** An ancestor showing one tour at a time: the tour plays only while it has `is-active`. */
-  host?: string
+  host?: string;
 }
 
-const { story, id, host } = Astro.props
+const { story, id, host } = Astro.props;
 ---
 
 <section class="walkthrough" aria-labelledby={`${id}-heading`} data-walkthrough data-host={host}>
@@ -33,9 +33,9 @@ const { story, id, host } = Astro.props
 </section>
 
 <script>
-  import { enhanceWalkthroughs } from '../../scripts/walkthrough'
+  import { enhanceWalkthroughs } from "../../scripts/walkthrough";
 
-  enhanceWalkthroughs()
+  enhanceWalkthroughs();
 </script>
 
 <style>
@@ -48,7 +48,7 @@ const { story, id, host } = Astro.props
   }
 
   @media (prefers-color-scheme: dark) {
-    :global(html:not([data-theme='light'])) .walkthrough {
+    :global(html:not([data-theme="light"])) .walkthrough {
       --wt-before: hsl(339 100% 80%);
       --wt-before-soft: hsl(339 39% 20%);
       --wt-after: hsl(139 70% 72%);
@@ -56,7 +56,7 @@ const { story, id, host } = Astro.props
     }
   }
 
-  :global(html[data-theme='dark']) .walkthrough {
+  :global(html[data-theme="dark"]) .walkthrough {
     --wt-before: hsl(339 100% 80%);
     --wt-before-soft: hsl(339 39% 20%);
     --wt-after: hsl(139 70% 72%);
@@ -95,7 +95,7 @@ const { story, id, host } = Astro.props
   }
 
   /* The brand gradient's one placement in the panel: the side worth copying. */
-  .walkthrough[data-show='after'] .window {
+  .walkthrough[data-show="after"] .window {
     border-color: transparent;
     background:
       linear-gradient(var(--rx-bg), var(--rx-bg)) padding-box,
@@ -144,7 +144,7 @@ const { story, id, host } = Astro.props
       display: none;
     }
     .walkthrough[data-expanded] .window,
-    .walkthrough[data-expanded][data-show='after'] .window {
+    .walkthrough[data-expanded][data-show="after"] .window {
       border: 0;
       border-radius: 0;
       background: var(--rx-bg);

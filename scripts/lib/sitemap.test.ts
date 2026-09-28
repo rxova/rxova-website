@@ -1,11 +1,11 @@
 // Pins the pages that must NOT be listed and the delegation to each project's own
 // sitemap; a wrong entry fails silently.
 
-import { describe, it, beforeEach, afterAll } from 'vitest'
-import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { describe, it, beforeEach, afterAll } from "vitest";
+import assert from "node:assert/strict";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 import {
   writeSitemaps,
@@ -16,370 +16,370 @@ import {
   childSitemapPaths,
   AI_USER_AGENTS,
   SITEMAP_PAGES,
-} from './sitemap.ts'
+} from "./sitemap.ts";
 
-const roots: string[] = []
-let root: string
+const roots: string[] = [];
+let root: string;
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), 'rxova-sitemap-'))
-  roots.push(root)
-})
+  root = mkdtempSync(join(tmpdir(), "rxova-sitemap-"));
+  roots.push(root);
+});
 afterAll(() => {
-  for (const dir of roots) rmSync(dir, { recursive: true, force: true })
-})
+  for (const dir of roots) rmSync(dir, { recursive: true, force: true });
+});
 
-const ORIGIN = 'https://rxova.org'
+const ORIGIN = "https://rxova.org";
 
 function write(path: string, body: string): void {
-  const full = join(root, path)
-  mkdirSync(join(full, '..'), { recursive: true })
-  writeFileSync(full, body)
+  const full = join(root, path);
+  mkdirSync(join(full, ".."), { recursive: true });
+  writeFileSync(full, body);
 }
 
-const page = (head = '') =>
-  `<!doctype html><html><head>${head}</head><body><main>x</main></body></html>`
+const page = (head = "") =>
+  `<!doctype html><html><head>${head}</head><body><main>x</main></body></html>`;
 
 /** What @astrojs/sitemap writes: an index naming one or more urlsets, with absolute locs. */
 const childIndex = (mount: string, files: string[]) =>
   '<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex>' +
-  files.map((f) => `<sitemap><loc>${ORIGIN}/${mount}/${f}</loc></sitemap>`).join('') +
-  '</sitemapindex>\n'
+  files.map((f) => `<sitemap><loc>${ORIGIN}/${mount}/${f}</loc></sitemap>`).join("") +
+  "</sitemapindex>\n";
 
-const read = (name: string) => readFileSync(join(root, name), 'utf8')
-const locs = (xml: string) => [...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1])
+const read = (name: string) => readFileSync(join(root, name), "utf8");
+const locs = (xml: string) => [...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1]);
 
-describe('urlForFile', () => {
-  it('maps directory-style build output onto the URLs it is served at', () => {
-    assert.equal(urlForFile('index.html'), '/')
-    assert.equal(urlForFile('about/index.html'), '/about/')
-    assert.equal(urlForFile('blog/test-post/index.html'), '/blog/test-post/')
-    assert.equal(urlForFile('404.html'), '/404.html')
-  })
-})
+describe("urlForFile", () => {
+  it("maps directory-style build output onto the URLs it is served at", () => {
+    assert.equal(urlForFile("index.html"), "/");
+    assert.equal(urlForFile("about/index.html"), "/about/");
+    assert.equal(urlForFile("blog/test-post/index.html"), "/blog/test-post/");
+    assert.equal(urlForFile("404.html"), "/404.html");
+  });
+});
 
-describe('isIndexable', () => {
-  it('accepts an ordinary page', () => {
-    assert.equal(isIndexable(page()), true)
-  })
+describe("isIndexable", () => {
+  it("accepts an ordinary page", () => {
+    assert.equal(isIndexable(page()), true);
+  });
 
-  it('rejects a page that asked not to be indexed', () => {
-    assert.equal(isIndexable(page('<meta name="robots" content="noindex">')), false)
-    assert.equal(isIndexable(page('<meta name="ROBOTS" content="noindex, follow">')), false)
-  })
+  it("rejects a page that asked not to be indexed", () => {
+    assert.equal(isIndexable(page('<meta name="robots" content="noindex">')), false);
+    assert.equal(isIndexable(page('<meta name="ROBOTS" content="noindex, follow">')), false);
+  });
 
-  it('rejects a redirect stub, which is not a destination', () => {
-    assert.equal(isIndexable(page('<meta http-equiv="refresh" content="0; url=/x/">')), false)
-  })
+  it("rejects a redirect stub, which is not a destination", () => {
+    assert.equal(isIndexable(page('<meta http-equiv="refresh" content="0; url=/x/">')), false);
+  });
 
-  it('is not fooled by a page merely mentioning the word', () => {
-    assert.equal(isIndexable(page('<meta name="description" content="noindexing tips">')), true)
-  })
+  it("is not fooled by a page merely mentioning the word", () => {
+    assert.equal(isIndexable(page('<meta name="description" content="noindexing tips">')), true);
+  });
 
-  it('reads a robots meta with no content as no instruction', () => {
-    assert.equal(isIndexable(page('<meta name="robots">')), true)
-  })
-})
+  it("reads a robots meta with no content as no instruction", () => {
+    assert.equal(isIndexable(page('<meta name="robots">')), true);
+  });
+});
 
-describe('lastmodFor', () => {
-  const ld = (obj: unknown) => `<script type="application/ld+json">${JSON.stringify(obj)}</script>`
+describe("lastmodFor", () => {
+  const ld = (obj: unknown) => `<script type="application/ld+json">${JSON.stringify(obj)}</script>`;
 
-  it('prefers dateModified over datePublished', () => {
+  it("prefers dateModified over datePublished", () => {
     const html = ld({
-      '@type': 'BlogPosting',
-      datePublished: '2026-08-03T09:00:00.000Z',
-      dateModified: '2026-08-07T11:00:00.000Z',
-    })
-    assert.equal(lastmodFor(html), '2026-08-07')
-  })
+      "@type": "BlogPosting",
+      datePublished: "2026-08-03T09:00:00.000Z",
+      dateModified: "2026-08-07T11:00:00.000Z",
+    });
+    assert.equal(lastmodFor(html), "2026-08-07");
+  });
 
-  it('falls back to datePublished, then to a time element', () => {
+  it("falls back to datePublished, then to a time element", () => {
     assert.equal(
-      lastmodFor(ld({ '@type': 'BlogPosting', datePublished: '2026-08-03T09:00:00.000Z' })),
-      '2026-08-03',
-    )
-    assert.equal(lastmodFor('<time datetime="2026-07-28T12:00:00.000Z">July</time>'), '2026-07-28')
-  })
+      lastmodFor(ld({ "@type": "BlogPosting", datePublished: "2026-08-03T09:00:00.000Z" })),
+      "2026-08-03",
+    );
+    assert.equal(lastmodFor('<time datetime="2026-07-28T12:00:00.000Z">July</time>'), "2026-07-28");
+  });
 
   // A page with no date omits `lastmod` rather than being stamped with the build date.
-  it('returns undefined when the page claims no date', () => {
-    assert.equal(lastmodFor('<html><body><main>No dates here</main></body></html>'), undefined)
-  })
+  it("returns undefined when the page claims no date", () => {
+    assert.equal(lastmodFor("<html><body><main>No dates here</main></body></html>"), undefined);
+  });
 
-  it('survives unparseable JSON-LD rather than taking the sitemap down', () => {
-    assert.equal(lastmodFor('<script type="application/ld+json">{ not json </script>'), undefined)
-  })
+  it("survives unparseable JSON-LD rather than taking the sitemap down", () => {
+    assert.equal(lastmodFor('<script type="application/ld+json">{ not json </script>'), undefined);
+  });
 
   // Pages escape `<` as `\u003c` before embedding JSON-LD, so a real page's JSON-LD
   // is not byte-identical to what JSON.parse expects until that is undone.
-  it('reads JSON-LD that was escaped for safe embedding', () => {
+  it("reads JSON-LD that was escaped for safe embedding", () => {
     const html =
       '<script type="application/ld+json">' +
-      JSON.stringify({ '@type': 'BlogPosting', datePublished: '2026-08-03' }).replace(
+      JSON.stringify({ "@type": "BlogPosting", datePublished: "2026-08-03" }).replace(
         /</g,
-        '\\u003c',
+        "\\u003c",
       ) +
-      '</script>'
-    assert.equal(lastmodFor(html), '2026-08-03')
-  })
+      "</script>";
+    assert.equal(lastmodFor(html), "2026-08-03");
+  });
 
-  it('reads the first dated node of a JSON-LD array, skipping ones without a usable date', () => {
+  it("reads the first dated node of a JSON-LD array, skipping ones without a usable date", () => {
     const html = ld([
       null,
-      { '@type': 'Organization' },
-      { datePublished: 'soon' },
-      { dateModified: '2026-06-01' },
-    ])
-    assert.equal(lastmodFor(html), '2026-06-01')
-  })
-})
+      { "@type": "Organization" },
+      { datePublished: "soon" },
+      { dateModified: "2026-06-01" },
+    ]);
+    assert.equal(lastmodFor(html), "2026-06-01");
+  });
+});
 
-describe('writeSitemaps', () => {
-  it('stamps lastmod only on pages that state a date', async () => {
-    write('index.html', page())
+describe("writeSitemaps", () => {
+  it("stamps lastmod only on pages that state a date", async () => {
+    write("index.html", page());
     write(
-      'blog/a-post/index.html',
+      "blog/a-post/index.html",
       page('<script type="application/ld+json">{"datePublished":"2026-08-03T09:00:00Z"}</script>'),
-    )
+    );
 
-    await writeSitemaps(root, [], ORIGIN)
-    const xml = read(SITEMAP_PAGES)
+    await writeSitemaps(root, [], ORIGIN);
+    const xml = read(SITEMAP_PAGES);
 
     assert.match(
       xml,
       /<loc>https:\/\/rxova\.org\/blog\/a-post\/<\/loc><lastmod>2026-08-03<\/lastmod>/,
-    )
-    assert.match(xml, /<loc>https:\/\/rxova\.org\/<\/loc><\/url>/)
-  })
+    );
+    assert.match(xml, /<loc>https:\/\/rxova\.org\/<\/loc><\/url>/);
+  });
 
-  it('lists the pages nobody else covers, at absolute URLs', async () => {
-    write('index.html', page())
-    write('about/index.html', page())
-    write('blog/test-post/index.html', page())
+  it("lists the pages nobody else covers, at absolute URLs", async () => {
+    write("index.html", page());
+    write("about/index.html", page());
+    write("blog/test-post/index.html", page());
 
-    await writeSitemaps(root, [], ORIGIN)
+    await writeSitemaps(root, [], ORIGIN);
 
     assert.deepEqual(locs(read(SITEMAP_PAGES)), [
-      'https://rxova.org/',
-      'https://rxova.org/about/',
-      'https://rxova.org/blog/test-post/',
-    ])
-  })
+      "https://rxova.org/",
+      "https://rxova.org/about/",
+      "https://rxova.org/blog/test-post/",
+    ]);
+  });
 
-  it('omits noindex pages, redirect stubs and the 404', async () => {
-    write('index.html', page())
-    write('privacy/index.html', page('<meta name="robots" content="noindex">'))
+  it("omits noindex pages, redirect stubs and the 404", async () => {
+    write("index.html", page());
+    write("privacy/index.html", page('<meta name="robots" content="noindex">'));
     write(
-      'docs/devtool/protocol/index.html',
+      "docs/devtool/protocol/index.html",
       page('<meta http-equiv="refresh" content="0; url=/p/">'),
-    )
-    write('404.html', page())
+    );
+    write("404.html", page());
 
-    await writeSitemaps(root, [], ORIGIN)
+    await writeSitemaps(root, [], ORIGIN);
 
-    assert.deepEqual(locs(read(SITEMAP_PAGES)), ['https://rxova.org/'])
-  })
+    assert.deepEqual(locs(read(SITEMAP_PAGES)), ["https://rxova.org/"]);
+  });
 
-  it('defers to a project that ships its own sitemap instead of listing its pages', async () => {
-    write('index.html', page())
-    write('packages/journey/index.html', page())
-    write('packages/journey/core/api/index.html', page())
-    write(`packages/journey/${SITEMAP_INDEX}`, childIndex('packages/journey', ['sitemap-0.xml']))
+  it("defers to a project that ships its own sitemap instead of listing its pages", async () => {
+    write("index.html", page());
+    write("packages/journey/index.html", page());
+    write("packages/journey/core/api/index.html", page());
+    write(`packages/journey/${SITEMAP_INDEX}`, childIndex("packages/journey", ["sitemap-0.xml"]));
 
-    const { children } = await writeSitemaps(root, [{ mount: 'packages/journey' }], ORIGIN)
+    const { children } = await writeSitemaps(root, [{ mount: "packages/journey" }], ORIGIN);
 
     // Its pages appear once, under its own sitemap — not a second time under ours.
-    assert.deepEqual(locs(read(SITEMAP_PAGES)), ['https://rxova.org/'])
+    assert.deepEqual(locs(read(SITEMAP_PAGES)), ["https://rxova.org/"]);
     // The urlset, NOT the child index: see childSitemapPaths.
-    assert.deepEqual(children, ['packages/journey/sitemap-0.xml'])
+    assert.deepEqual(children, ["packages/journey/sitemap-0.xml"]);
     assert.deepEqual(locs(read(SITEMAP_INDEX)), [
-      'https://rxova.org/sitemap-pages.xml',
-      'https://rxova.org/packages/journey/sitemap-0.xml',
-    ])
-  })
+      "https://rxova.org/sitemap-pages.xml",
+      "https://rxova.org/packages/journey/sitemap-0.xml",
+    ]);
+  });
 
   // A nested sitemap index is invalid and a crawler drops every URL below it; pinned as
   // an absence because the failure is silent.
-  it('never lists a child sitemap index in the root index', async () => {
-    write('index.html', page())
+  it("never lists a child sitemap index in the root index", async () => {
+    write("index.html", page());
     write(
       `packages/journey/${SITEMAP_INDEX}`,
-      childIndex('packages/journey', ['sitemap-0.xml', 'sitemap-1.xml']),
-    )
+      childIndex("packages/journey", ["sitemap-0.xml", "sitemap-1.xml"]),
+    );
 
-    await writeSitemaps(root, [{ mount: 'packages/journey' }], ORIGIN)
+    await writeSitemaps(root, [{ mount: "packages/journey" }], ORIGIN);
 
     assert.deepEqual(locs(read(SITEMAP_INDEX)), [
-      'https://rxova.org/sitemap-pages.xml',
-      'https://rxova.org/packages/journey/sitemap-0.xml',
-      'https://rxova.org/packages/journey/sitemap-1.xml',
-    ])
-  })
+      "https://rxova.org/sitemap-pages.xml",
+      "https://rxova.org/packages/journey/sitemap-0.xml",
+      "https://rxova.org/packages/journey/sitemap-1.xml",
+    ]);
+  });
 
   // Better a project's pages listed by us than a mount that appears in no
   // sitemap at all — which is what deferring to an index naming nothing means.
-  it('sweeps a project whose sitemap index names nothing usable', async () => {
-    write('index.html', page())
-    write('packages/journey/index.html', page())
-    write(`packages/journey/${SITEMAP_INDEX}`, '<sitemapindex/>')
+  it("sweeps a project whose sitemap index names nothing usable", async () => {
+    write("index.html", page());
+    write("packages/journey/index.html", page());
+    write(`packages/journey/${SITEMAP_INDEX}`, "<sitemapindex/>");
 
-    const { children } = await writeSitemaps(root, [{ mount: 'packages/journey' }], ORIGIN)
+    const { children } = await writeSitemaps(root, [{ mount: "packages/journey" }], ORIGIN);
 
-    assert.deepEqual(children, [])
+    assert.deepEqual(children, []);
     assert.deepEqual(locs(read(SITEMAP_PAGES)), [
-      'https://rxova.org/',
-      'https://rxova.org/packages/journey/',
-    ])
-  })
+      "https://rxova.org/",
+      "https://rxova.org/packages/journey/",
+    ]);
+  });
 
-  it('sweeps up a project that ships no sitemap of its own', async () => {
-    write('index.html', page())
-    write('updates/repos/journey/index.html', page())
+  it("sweeps up a project that ships no sitemap of its own", async () => {
+    write("index.html", page());
+    write("updates/repos/journey/index.html", page());
 
-    const { children } = await writeSitemaps(root, [{ mount: 'updates' }], ORIGIN)
+    const { children } = await writeSitemaps(root, [{ mount: "updates" }], ORIGIN);
 
-    assert.deepEqual(children, [])
+    assert.deepEqual(children, []);
     assert.deepEqual(locs(read(SITEMAP_PAGES)), [
-      'https://rxova.org/',
-      'https://rxova.org/updates/repos/journey/',
-    ])
-  })
+      "https://rxova.org/",
+      "https://rxova.org/updates/repos/journey/",
+    ]);
+  });
 
   // Storybook's app shell and `iframe.html` are not destinations and ship no sitemap,
   // so they must not fall into the sweep.
-  it('excludes a storybook surface entirely rather than sweeping its shell', async () => {
-    write('index.html', page())
-    write('storybook/react-inputs/index.html', page())
-    write('storybook/react-inputs/iframe.html', page())
+  it("excludes a storybook surface entirely rather than sweeping its shell", async () => {
+    write("index.html", page());
+    write("storybook/react-inputs/index.html", page());
+    write("storybook/react-inputs/iframe.html", page());
 
     const { children } = await writeSitemaps(
       root,
-      [{ mount: 'storybook/react-inputs', kind: 'storybook' }],
+      [{ mount: "storybook/react-inputs", kind: "storybook" }],
       ORIGIN,
-    )
+    );
 
-    assert.deepEqual(locs(read(SITEMAP_PAGES)), ['https://rxova.org/'])
-    assert.deepEqual(children, [])
-  })
+    assert.deepEqual(locs(read(SITEMAP_PAGES)), ["https://rxova.org/"]);
+    assert.deepEqual(children, []);
+  });
 
-  it('points robots.txt at the root index', async () => {
-    write('index.html', page())
+  it("points robots.txt at the root index", async () => {
+    write("index.html", page());
 
-    await writeSitemaps(root, [], ORIGIN)
+    await writeSitemaps(root, [], ORIGIN);
 
-    assert.match(read('robots.txt'), /^Sitemap: https:\/\/rxova\.org\/sitemap-index\.xml$/m)
-  })
+    assert.match(read("robots.txt"), /^Sitemap: https:\/\/rxova\.org\/sitemap-index\.xml$/m);
+  });
 
   // Google-Extended and Applebot-Extended are consent grants that exist only in robots.txt;
   // dropping them is a silent revocation.
-  it('names the AI agents it allows, including the two that are grants and not crawlers', async () => {
-    write('index.html', page())
+  it("names the AI agents it allows, including the two that are grants and not crawlers", async () => {
+    write("index.html", page());
 
-    await writeSitemaps(root, [], ORIGIN)
+    await writeSitemaps(root, [], ORIGIN);
 
-    const robots = read('robots.txt')
+    const robots = read("robots.txt");
     for (const agent of AI_USER_AGENTS) {
-      assert.match(robots, new RegExp(`^User-agent: ${agent}$`, 'm'))
+      assert.match(robots, new RegExp(`^User-agent: ${agent}$`, "m"));
     }
-    assert.ok(AI_USER_AGENTS.includes('Google-Extended'))
-    assert.ok(AI_USER_AGENTS.includes('Applebot-Extended'))
-  })
+    assert.ok(AI_USER_AGENTS.includes("Google-Extended"));
+    assert.ok(AI_USER_AGENTS.includes("Applebot-Extended"));
+  });
 
   // Group selection is most-specific-wins, so the named agents read their own
   // group and never the wildcard's — the Allow has to be inside it.
-  it('gives the named agents their own Allow rather than leaning on the wildcard', async () => {
-    write('index.html', page())
+  it("gives the named agents their own Allow rather than leaning on the wildcard", async () => {
+    write("index.html", page());
 
-    await writeSitemaps(root, [], ORIGIN)
+    await writeSitemaps(root, [], ORIGIN);
 
-    const groups = read('robots.txt')
+    const groups = read("robots.txt")
       .split(/\n\s*\n/)
-      .filter((block) => block.includes('User-agent:'))
+      .filter((block) => block.includes("User-agent:"));
 
-    for (const block of groups) assert.match(block, /^Allow: \/$/m)
-  })
+    for (const block of groups) assert.match(block, /^Allow: \/$/m);
+  });
 
   // A comment, not a directive: a strict parser may reject an unknown robots.txt field.
-  it('points humans reading robots.txt at the agent index', async () => {
-    write('index.html', page())
+  it("points humans reading robots.txt at the agent index", async () => {
+    write("index.html", page());
 
-    await writeSitemaps(root, [], ORIGIN)
+    await writeSitemaps(root, [], ORIGIN);
 
-    assert.match(read('robots.txt'), /^# .*: https:\/\/rxova\.org\/llms\.txt$/m)
-  })
+    assert.match(read("robots.txt"), /^# .*: https:\/\/rxova\.org\/llms\.txt$/m);
+  });
 
-  it('honours a staging origin so a preview does not advertise production URLs', async () => {
-    write('index.html', page())
+  it("honours a staging origin so a preview does not advertise production URLs", async () => {
+    write("index.html", page());
 
-    await writeSitemaps(root, [], 'https://web.rxova.org')
+    await writeSitemaps(root, [], "https://web.rxova.org");
 
-    assert.deepEqual(locs(read(SITEMAP_PAGES)), ['https://web.rxova.org/'])
-  })
-})
+    assert.deepEqual(locs(read(SITEMAP_PAGES)), ["https://web.rxova.org/"]);
+  });
+});
 
-describe('childSitemapPaths', () => {
+describe("childSitemapPaths", () => {
   const index = (locs: string[]) =>
     `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex>${locs
       .map((loc: string) => `<sitemap><loc>${loc}</loc></sitemap>`)
-      .join('')}</sitemapindex>\n`
+      .join("")}</sitemapindex>\n`;
 
-  it('flattens a child index to the urlsets it names', () => {
+  it("flattens a child index to the urlsets it names", () => {
     assert.deepEqual(
       childSitemapPaths(
         index([
-          'https://rxova.org/packages/use-everywhere/sitemap-0.xml',
-          'https://rxova.org/packages/use-everywhere/sitemap-1.xml',
+          "https://rxova.org/packages/use-everywhere/sitemap-0.xml",
+          "https://rxova.org/packages/use-everywhere/sitemap-1.xml",
         ]),
-        'packages/use-everywhere',
+        "packages/use-everywhere",
       ),
-      ['packages/use-everywhere/sitemap-0.xml', 'packages/use-everywhere/sitemap-1.xml'],
-    )
-  })
+      ["packages/use-everywhere/sitemap-0.xml", "packages/use-everywhere/sitemap-1.xml"],
+    );
+  });
 
   // Already a leaf. Descending into it would find pages, not sitemaps.
-  it('references a child that is a plain urlset as it stands', () => {
+  it("references a child that is a plain urlset as it stands", () => {
     assert.deepEqual(
       childSitemapPaths(
-        '<urlset><url><loc>https://rxova.org/packages/x/</loc></url></urlset>',
-        'packages/x',
+        "<urlset><url><loc>https://rxova.org/packages/x/</loc></url></urlset>",
+        "packages/x",
       ),
       [`packages/x/${SITEMAP_INDEX}`],
-    )
-  })
+    );
+  });
 
   // The child was built by its own repo against its own `site`, which on a
   // staging deploy is not the origin being written here.
-  it('keeps only the path, so a foreign origin in the child cannot leak through', () => {
+  it("keeps only the path, so a foreign origin in the child cannot leak through", () => {
     assert.deepEqual(
-      childSitemapPaths(index(['https://example.test/packages/x/sitemap-0.xml']), 'packages/x'),
-      ['packages/x/sitemap-0.xml'],
-    )
-  })
+      childSitemapPaths(index(["https://example.test/packages/x/sitemap-0.xml"]), "packages/x"),
+      ["packages/x/sitemap-0.xml"],
+    );
+  });
 
   it("drops a loc that escapes the project's own mount", () => {
     assert.deepEqual(
       childSitemapPaths(
         index([
-          'https://rxova.org/packages/other/sitemap-0.xml',
-          'https://rxova.org/packages/x/../sitemap-0.xml',
-          'https://rxova.org/packages/x/sitemap-0.xml',
+          "https://rxova.org/packages/other/sitemap-0.xml",
+          "https://rxova.org/packages/x/../sitemap-0.xml",
+          "https://rxova.org/packages/x/sitemap-0.xml",
         ]),
-        'packages/x',
+        "packages/x",
       ),
-      ['packages/x/sitemap-0.xml'],
-    )
-  })
+      ["packages/x/sitemap-0.xml"],
+    );
+  });
 
-  it('unescapes the XML in a loc, and accepts a bare path or a repeat only once', () => {
+  it("unescapes the XML in a loc, and accepts a bare path or a repeat only once", () => {
     assert.deepEqual(
       childSitemapPaths(
         index([
-          'https://rxova.org/packages/x/sitemap-0.xml?a=1&amp;b=&lt;2&gt;',
-          '/packages/x/sitemap-1.xml',
-          'https://rxova.org/packages/x/sitemap-1.xml',
+          "https://rxova.org/packages/x/sitemap-0.xml?a=1&amp;b=&lt;2&gt;",
+          "/packages/x/sitemap-1.xml",
+          "https://rxova.org/packages/x/sitemap-1.xml",
         ]),
-        'packages/x',
+        "packages/x",
       ),
-      ['packages/x/sitemap-0.xml', 'packages/x/sitemap-1.xml'],
-    )
-  })
-})
+      ["packages/x/sitemap-0.xml", "packages/x/sitemap-1.xml"],
+    );
+  });
+});

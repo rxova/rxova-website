@@ -39,7 +39,7 @@ jobs:
     if: needs.commitlint.outputs.code-changed == 'true'
     uses: rxova/shared/.github/workflows/unit-tests.yml@main
     with:
-      node-versions: '[24]'
+      node-versions: "[24]"
       operating-systems: '["ubuntu-latest"]'
 
   supply-chain:
@@ -81,7 +81,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: e2e-traces
-          path: '**/test-results'
+          path: "**/test-results"
           retention-days: 7
 
   # The light job a documentation-only range runs instead: formatting.

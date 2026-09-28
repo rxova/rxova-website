@@ -1,12 +1,12 @@
 ---
 /** One collapsible block of a `DocAccordion`: a title, an optional one-line summary, and the slot. */
 interface Props {
-  title: string
-  summary?: string
-  defaultOpen?: boolean
+  title: string;
+  summary?: string;
+  defaultOpen?: boolean;
 }
 
-const { title, summary, defaultOpen = false } = Astro.props
+const { title, summary, defaultOpen = false } = Astro.props;
 ---
 
 <details class="doc-accordion-item" open={defaultOpen}>
@@ -46,7 +46,7 @@ const { title, summary, defaultOpen = false } = Astro.props
   }
 
   summary::after {
-    content: '+';
+    content: "+";
     flex: 0 0 auto;
     font-size: 1.3rem;
     line-height: 1;
@@ -54,7 +54,7 @@ const { title, summary, defaultOpen = false } = Astro.props
   }
 
   .doc-accordion-item[open] summary::after {
-    content: '−';
+    content: "−";
   }
 
   .summary-text {

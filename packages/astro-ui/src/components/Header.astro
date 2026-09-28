@@ -3,26 +3,26 @@
  * The single rxova.org header, rendered by the website's layout; callers pass
  * the menu fully resolved. Not for the Starlight docs sites, which use `sharedStarlightConfig`.
  */
-import ThemeToggle from './ThemeToggle.astro'
+import ThemeToggle from "./ThemeToggle.astro";
 
 export interface HeaderItem {
-  label: string
+  label: string;
   /** Fully resolved by the caller — absolute or root-relative as its base needs. */
-  href: string
+  href: string;
   /** Marks the item for the surface the reader is on. */
-  current?: boolean
+  current?: boolean;
 }
 
 interface Props {
   /** Where the brand mark links — the site root, resolved by the caller. */
-  homeHref: string
+  homeHref: string;
   /** Logo `src`, resolved by the caller for its base. */
-  logoSrc: string
+  logoSrc: string;
   /** The menu, in the one fixed order every surface shows it. */
-  items: readonly HeaderItem[]
+  items: readonly HeaderItem[];
 }
 
-const { homeHref, logoSrc, items } = Astro.props
+const { homeHref, logoSrc, items } = Astro.props;
 ---
 
 {/* Outside <main> so it spans the viewport; sticky, not fixed, so nothing needs a top margin. */}
@@ -34,7 +34,7 @@ const { homeHref, logoSrc, items } = Astro.props
     </a>
     <nav aria-label="Sections">
       {items.map((item) => (
-        <a href={item.href} aria-current={item.current ? 'page' : undefined}>
+        <a href={item.href} aria-current={item.current ? "page" : undefined}>
           {item.label}
         </a>
       ))}
@@ -108,7 +108,7 @@ const { homeHref, logoSrc, items } = Astro.props
   }
   /* The current section is marked for everyone, not only for assistive tech —
      aria-current on its own is invisible. */
-  nav a[aria-current='page'] {
+  nav a[aria-current="page"] {
     color: var(--rx-fg);
     text-decoration: underline;
     text-underline-offset: 5px;

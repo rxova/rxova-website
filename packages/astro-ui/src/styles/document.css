@@ -3,7 +3,7 @@
  * element styles. Never inside a Starlight document, where the unlayered reset would flatten the page.
  */
 
-@import './chrome.css';
+@import "./chrome.css";
 
 /* --- Reset ---------------------------------------------------------------- */
 

@@ -1,11 +1,11 @@
 ---
-import BackLink from '@rxova/astro-ui/components/BackLink.astro'
-import BaseLayout from './BaseLayout.astro'
+import BackLink from "@rxova/astro-ui/components/BackLink.astro";
+import BaseLayout from "./BaseLayout.astro";
 // See ./BaseLayout.astro for why the reset is imported per surface rather than
 // by BaseLayout.
-import '../styles/global.css'
+import "../styles/global.css";
 
-const { title, path } = Astro.props
+const { title, path } = Astro.props;
 ---
 
 <BaseLayout title={`${title} — Rxova`} robots="noindex" path={path}>

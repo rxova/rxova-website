@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'dist-tag to publish under'
+        description: "dist-tag to publish under"
         required: false
-        default: 'next'
+        default: "next"
 
 permissions:
   contents: read

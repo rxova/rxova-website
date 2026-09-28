@@ -3,8 +3,8 @@
  * !important. One block covers both modes because every --rx-* neutral already flips.
  */
 
-@import '@rxova/brand/tokens.css';
-@import './footer.css';
+@import "@rxova/brand/tokens.css";
+@import "./footer.css";
 
 :root {
   /* Accent. */
@@ -108,7 +108,7 @@ header.header {
 }
 
 .rx-switcher__current::before {
-  content: '';
+  content: "";
   display: inline-block;
   width: 0.5rem;
   height: 0.5rem;

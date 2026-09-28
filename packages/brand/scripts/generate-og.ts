@@ -3,36 +3,36 @@
  * comparing a hash of the inputs rather than the PNGs, which resvg rasterises differently per platform.
  */
 
-import { createHash } from 'node:crypto'
-import { readFileSync, writeFileSync, existsSync } from 'node:fs'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import satori from 'satori'
-import { Resvg } from '@resvg/resvg-js'
-import ts from 'typescript'
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import satori from "satori";
+import { Resvg } from "@resvg/resvg-js";
+import ts from "typescript";
 
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
-const checkOnly = process.argv.includes('--check')
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+const checkOnly = process.argv.includes("--check");
 
-const WIDTH = 1200
-const HEIGHT = 630
+const WIDTH = 1200;
+const HEIGHT = 630;
 
 // Read the palette straight out of tokens.css rather than restating it here —
 // a second copy of the brand colours is a second thing to forget to update.
-const tokens = readFileSync(join(repoRoot, 'src/tokens.css'), 'utf8')
-const darkBlock = tokens.slice(tokens.indexOf(":root[data-theme='dark']"))
+const tokens = readFileSync(join(repoRoot, "src/tokens.css"), "utf8");
+const darkBlock = tokens.slice(tokens.search(/:root\[data-theme=["']dark["']\]/));
 const token = (name: string, source = darkBlock): string => {
-  const value = source.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1]
-  if (!value) throw new Error(`token --${name} not found in tokens.css`)
-  return value.trim()
-}
+  const value = source.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1];
+  if (!value) throw new Error(`token --${name} not found in tokens.css`);
+  return value.trim();
+};
 
-const BG = token('rx-bg')
-const FG = token('rx-fg')
-const MUTED = token('rx-muted')
-const [ACCENT_A, ACCENT_B, ACCENT_C] = ['rx-accent-a', 'rx-accent-b', 'rx-accent-c'].map((n) =>
+const BG = token("rx-bg");
+const FG = token("rx-fg");
+const MUTED = token("rx-muted");
+const [ACCENT_A, ACCENT_B, ACCENT_C] = ["rx-accent-a", "rx-accent-b", "rx-accent-c"].map((n) =>
   token(n, tokens),
-)
+);
 
 const font = (weight: 400 | 700) =>
   readFileSync(
@@ -40,57 +40,57 @@ const font = (weight: 400 | 700) =>
       repoRoot,
       `node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-${weight}-normal.woff`,
     ),
-  )
+  );
 
-const markDataUri = `data:image/png;base64,${readFileSync(join(repoRoot, 'assets/rxova-logo-256.png')).toString('base64')}`
+const markDataUri = `data:image/png;base64,${readFileSync(join(repoRoot, "assets/rxova-logo-256.png")).toString("base64")}`;
 
 /** The card. Satori takes React-element-shaped objects; no JSX in a plain .ts script. */
 interface Card {
-  title: string
-  tagline: string
+  title: string;
+  tagline: string;
 }
 
 const card = ({ title, tagline }: Card) => ({
-  type: 'div',
+  type: "div",
   props: {
     style: {
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
+      width: "100%",
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
       background: BG,
-      padding: '72px 80px',
-      fontFamily: 'Space Grotesk',
+      padding: "72px 80px",
+      fontFamily: "Space Grotesk",
     },
     children: [
       {
-        type: 'div',
+        type: "div",
         props: {
-          style: { display: 'flex', alignItems: 'center', gap: 20 },
+          style: { display: "flex", alignItems: "center", gap: 20 },
           children: [
-            { type: 'img', props: { src: markDataUri, width: 64, height: 64 } },
+            { type: "img", props: { src: markDataUri, width: 64, height: 64 } },
             {
-              type: 'div',
-              props: { style: { fontSize: 34, color: MUTED, fontWeight: 400 }, children: 'Rxova' },
+              type: "div",
+              props: { style: { fontSize: 34, color: MUTED, fontWeight: 400 }, children: "Rxova" },
             },
           ],
         },
       },
       {
-        type: 'div',
+        type: "div",
         props: {
-          style: { display: 'flex', flexDirection: 'column', gap: 24 },
+          style: { display: "flex", flexDirection: "column", gap: 24 },
           children: [
             {
-              type: 'div',
+              type: "div",
               props: {
-                style: { fontSize: 76, color: FG, fontWeight: 700, letterSpacing: '-0.03em' },
+                style: { fontSize: 76, color: FG, fontWeight: 700, letterSpacing: "-0.03em" },
                 children: title,
               },
             },
             {
-              type: 'div',
+              type: "div",
               props: {
                 style: { fontSize: 34, color: MUTED, lineHeight: 1.35, maxWidth: 900 },
                 children: tagline,
@@ -101,7 +101,7 @@ const card = ({ title, tagline }: Card) => ({
       },
       // The gradient is the brand's only chroma; on the card it earns one rule.
       {
-        type: 'div',
+        type: "div",
         props: {
           style: {
             height: 10,
@@ -112,7 +112,7 @@ const card = ({ title, tagline }: Card) => ({
       },
     ],
   },
-})
+});
 
 async function render(spec: Card) {
   // Satori takes plain element-shaped objects at runtime; its types only name React's.
@@ -120,64 +120,64 @@ async function render(spec: Card) {
     width: WIDTH,
     height: HEIGHT,
     fonts: [
-      { name: 'Space Grotesk', data: font(400), weight: 400, style: 'normal' },
-      { name: 'Space Grotesk', data: font(700), weight: 700, style: 'normal' },
+      { name: "Space Grotesk", data: font(400), weight: 400, style: "normal" },
+      { name: "Space Grotesk", data: font(700), weight: 700, style: "normal" },
     ],
-  })
-  return new Resvg(svg, { fitTo: { mode: 'width', value: WIDTH } }).render().asPng()
+  });
+  return new Resvg(svg, { fitTo: { mode: "width", value: WIDTH } }).render().asPng();
 }
 
 // Imported dynamically: sites.ts is TypeScript, and Node strips the types.
-const { PROJECTS } = await import('../src/sites.ts')
+const { PROJECTS } = await import("../src/sites.ts");
 
 const cards = [
   {
     // The file name is the id, so it stays lower-case like every other path
     // here; the title is the brand name as it is written.
-    file: 'rxova.png',
-    title: 'Rxova',
+    file: "rxova.png",
+    title: "Rxova",
     // The only tagline written here; the rest come from PROJECTS.
-    tagline: 'Small TypeScript libraries and developer tools.',
+    tagline: "Small TypeScript libraries and developer tools.",
   },
   ...PROJECTS.map((p) => ({ file: `${p.id}.png`, title: p.label, tagline: p.tagline })),
-]
+];
 
-const manifestPath = join(repoRoot, 'scripts/og-manifest.json')
+const manifestPath = join(repoRoot, "scripts/og-manifest.json");
 // Comments are left out, so editing one never marks the cards stale.
-const script = readFileSync(join(repoRoot, 'scripts/generate-og.ts'), 'utf8')
-const fingerprint = createHash('sha256')
-  .update(tokens.replace(/\/\*[\s\S]*?\*\//g, ''))
+const script = readFileSync(join(repoRoot, "scripts/generate-og.ts"), "utf8");
+const fingerprint = createHash("sha256")
+  .update(tokens.replace(/\/\*[\s\S]*?\*\//g, ""))
   .update(
     ts
       .createPrinter({ removeComments: true })
-      .printFile(ts.createSourceFile('generate-og.ts', script, ts.ScriptTarget.Latest)),
+      .printFile(ts.createSourceFile("generate-og.ts", script, ts.ScriptTarget.Latest)),
   )
   .update(JSON.stringify(cards))
-  .digest('hex')
+  .digest("hex");
 
 if (checkOnly) {
-  const missing = cards.filter((c) => !existsSync(join(repoRoot, 'assets/og', c.file)))
+  const missing = cards.filter((c) => !existsSync(join(repoRoot, "assets/og", c.file)));
   if (missing.length > 0) {
-    console.error(`Missing social cards: ${missing.map((c) => c.file).join(', ')}`)
-    process.exit(1)
+    console.error(`Missing social cards: ${missing.map((c) => c.file).join(", ")}`);
+    process.exit(1);
   }
 
   const manifest = (
-    existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, 'utf8')) : {}
-  ) as { fingerprint?: string }
+    existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, "utf8")) : {}
+  ) as { fingerprint?: string };
   if (manifest.fingerprint !== fingerprint) {
     console.error(
-      'Social cards are stale — the palette, a tagline, the project list or this\n' +
-        'script changed since they were last rendered.\nRun `pnpm run og` and commit.',
-    )
-    process.exit(1)
+      "Social cards are stale — the palette, a tagline, the project list or this\n" +
+        "script changed since they were last rendered.\nRun `pnpm run og` and commit.",
+    );
+    process.exit(1);
   }
 
-  console.log(`✓ all ${cards.length} social cards are up to date`)
+  console.log(`✓ all ${cards.length} social cards are up to date`);
 } else {
   for (const spec of cards) {
-    writeFileSync(join(repoRoot, 'assets/og', spec.file), await render(spec))
-    console.log(`✓ assets/og/${spec.file}`)
+    writeFileSync(join(repoRoot, "assets/og", spec.file), await render(spec));
+    console.log(`✓ assets/og/${spec.file}`);
   }
-  writeFileSync(manifestPath, `${JSON.stringify({ fingerprint, cards }, null, 2)}\n`)
+  writeFileSync(manifestPath, `${JSON.stringify({ fingerprint, cards }, null, 2)}\n`);
 }

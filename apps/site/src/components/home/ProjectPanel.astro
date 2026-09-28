@@ -1,27 +1,27 @@
 ---
 /** One project on the showcase stage: install line, snippet or walkthrough, tags and links. */
-import type { LandingProject } from '../../lib/projects'
-import { walkthroughPath } from '../../lib/walkthrough'
-import { showcases } from '../../showcases'
-import CopyButton from '@rxova/astro-ui/components/CopyButton.astro'
-import Walkthrough from '../walkthrough/Walkthrough.astro'
-import Arrow from './Arrow.astro'
-import LinkRow from './LinkRow.astro'
+import type { LandingProject } from "../../lib/projects";
+import { walkthroughPath } from "../../lib/walkthrough";
+import { showcases } from "../../showcases";
+import CopyButton from "@rxova/astro-ui/components/CopyButton.astro";
+import Walkthrough from "../walkthrough/Walkthrough.astro";
+import Arrow from "./Arrow.astro";
+import LinkRow from "./LinkRow.astro";
 
 interface Props {
-  project: LandingProject
+  project: LandingProject;
   /** The panel the page opens on. */
-  active: boolean
+  active: boolean;
   /** Render the walkthrough here, rather than a link the rail fills from its own page. */
-  inline: boolean
+  inline: boolean;
 }
 
-const { project: p, active, inline } = Astro.props
-const story = showcases[p.id]
+const { project: p, active, inline } = Astro.props;
+const story = showcases[p.id];
 ---
 
 <article
-  class={active ? 'panel is-active' : 'panel'}
+  class={active ? "panel is-active" : "panel"}
   id={`project-${p.id}`}
   data-panel={p.id}
   aria-labelledby={`panel-heading-${p.id}`}
@@ -66,9 +66,9 @@ const story = showcases[p.id]
 
   <LinkRow label={`${p.label} links`}>
     {p.links.map((l) => (
-      <a href={l.href} {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+      <a href={l.href} {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
         {l.label}
-        <Arrow dir={l.external ? 'out' : 'across'} />
+        <Arrow dir={l.external ? "out" : "across"} />
       </a>
     ))}
   </LinkRow>
@@ -199,7 +199,7 @@ const story = showcases[p.id]
     overflow-wrap: anywhere;
   }
   .manifest-pkg + .manifest-pkg::before {
-    content: '·';
+    content: "·";
     color: var(--rx-faint);
     margin-right: 0.5rem;
   }

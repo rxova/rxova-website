@@ -3,23 +3,23 @@
  * Facts a page reads from somewhere else, as a framed table: column headings, a row heading per
  * row, cells that may render as code. Scrollable and focusable when narrow, so a keyboard can reach it.
  */
-export type Cell = string | { code: string }
+export type Cell = string | { code: string };
 
 export interface DataRow {
-  label: string
-  cells: readonly Cell[]
+  label: string;
+  cells: readonly Cell[];
 }
 
 interface Props {
   /** The accessible name of the scrollable region: "Framework compatibility". */
-  label: string
-  columns: readonly string[]
-  rows: readonly DataRow[]
+  label: string;
+  columns: readonly string[];
+  rows: readonly DataRow[];
   /** Where the facts come from, under the table. */
-  caption?: string
+  caption?: string;
 }
 
-const { label, columns, rows, caption } = Astro.props
+const { label, columns, rows, caption } = Astro.props;
 ---
 
 <div class="rx-table" tabindex="0" role="region" aria-label={label}>
@@ -39,7 +39,7 @@ const { label, columns, rows, caption } = Astro.props
             {row.label}
           </th>
           {row.cells.map((cell) => (
-            <td>{typeof cell === 'string' ? cell : <code>{cell.code}</code>}</td>
+            <td>{typeof cell === "string" ? cell : <code>{cell.code}</code>}</td>
           ))}
         </tr>
       ))}

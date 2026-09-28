@@ -3,8 +3,8 @@ title: CtaBand
 description: A centred call to action with a row of pill buttons.
 ---
 
-import Story from '../../../components/Story.astro'
-import CtaBand from '@rxova/astro-ui/components/CtaBand.astro'
+import Story from "../../../components/Story.astro";
+import CtaBand from "@rxova/astro-ui/components/CtaBand.astro";
 
 Title, lede and up to a handful of actions. One action is usually `primary`; the rest render
 as outlined pills. External links get `rel="noopener"` and a small marker. Internal hrefs must
@@ -15,9 +15,9 @@ arrive base-aware, since the component writes them verbatim.
     title="Model the flow, not the click handlers"
     lede="Install the core and have a running machine in about eight lines. The React bindings are a separate package; take them when you want them."
     actions={[
-      { text: 'Start with Core', href: '#', variant: 'primary' },
-      { text: 'React quickstart', href: '#' },
-      { text: 'GitHub', href: 'https://github.com/rxova', external: true },
+      { text: "Start with Core", href: "#", variant: "primary" },
+      { text: "React quickstart", href: "#" },
+      { text: "GitHub", href: "https://github.com/rxova", external: true },
     ]}
   />
 </Story>
@@ -28,12 +28,12 @@ arrive base-aware, since the component writes them verbatim.
     lede="Start with the quickstart, or read how the transition graph resolves before you commit to it."
     actions={[
       {
-        text: 'Star on GitHub',
-        href: 'https://github.com/rxova',
-        variant: 'primary',
+        text: "Star on GitHub",
+        href: "https://github.com/rxova",
+        variant: "primary",
         external: true,
       },
-      { text: 'Read the docs', href: '#' },
+      { text: "Read the docs", href: "#" },
     ]}
   />
 </Story>

@@ -1,23 +1,23 @@
 ---
 /** One project's walkthrough on its own page: fetched into the landing's rail, or read without JS.
  * `noindex`, so it stays out of the sitemap: the landing is where the walkthrough belongs. */
-import BackLink from '@rxova/astro-ui/components/BackLink.astro'
-import Walkthrough from '../../components/walkthrough/Walkthrough.astro'
-import BaseLayout from '../../layouts/BaseLayout.astro'
-import { landingProjects } from '../../lib/projects'
-import { walkthroughPath } from '../../lib/walkthrough'
-import { showcases } from '../../showcases'
+import BackLink from "@rxova/astro-ui/components/BackLink.astro";
+import Walkthrough from "../../components/walkthrough/Walkthrough.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { landingProjects } from "../../lib/projects";
+import { walkthroughPath } from "../../lib/walkthrough";
+import { showcases } from "../../showcases";
 // See ../../layouts/BaseLayout.astro for why the reset is imported per page rather than by BaseLayout.
-import '../../styles/global.css'
+import "../../styles/global.css";
 
 export function getStaticPaths() {
   return landingProjects.flatMap((project) => {
-    const story = showcases[project.id]
-    return story ? [{ params: { id: project.id }, props: { project, story } }] : []
-  })
+    const story = showcases[project.id];
+    return story ? [{ params: { id: project.id }, props: { project, story } }] : [];
+  });
 }
 
-const { project, story } = Astro.props
+const { project, story } = Astro.props;
 ---
 
 <BaseLayout

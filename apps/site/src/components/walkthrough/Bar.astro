@@ -1,25 +1,25 @@
 ---
 /** The tour's controls: the Before/After switch, step and play buttons, and the scrubber. Hidden until the script runs. */
-import Collapse from '@rxova/astro-ui/components/icons/Collapse.astro'
-import Expand from '@rxova/astro-ui/components/icons/Expand.astro'
-import Next from '@rxova/astro-ui/components/icons/Next.astro'
-import Pause from '@rxova/astro-ui/components/icons/Pause.astro'
-import Play from '@rxova/astro-ui/components/icons/Play.astro'
-import Prev from '@rxova/astro-ui/components/icons/Prev.astro'
-import Replay from '@rxova/astro-ui/components/icons/Replay.astro'
-import VisuallyHidden from '@rxova/astro-ui/components/VisuallyHidden.astro'
-import Scrubber from './Scrubber.astro'
+import Collapse from "@rxova/astro-ui/components/icons/Collapse.astro";
+import Expand from "@rxova/astro-ui/components/icons/Expand.astro";
+import Next from "@rxova/astro-ui/components/icons/Next.astro";
+import Pause from "@rxova/astro-ui/components/icons/Pause.astro";
+import Play from "@rxova/astro-ui/components/icons/Play.astro";
+import Prev from "@rxova/astro-ui/components/icons/Prev.astro";
+import Replay from "@rxova/astro-ui/components/icons/Replay.astro";
+import VisuallyHidden from "@rxova/astro-ui/components/VisuallyHidden.astro";
+import Scrubber from "./Scrubber.astro";
 
 interface Props {
   /** The switch's labels, e.g. "By hand" and "With journey". */
-  labels: { before: string; after: string }
+  labels: { before: string; after: string };
 }
 
-const { labels } = Astro.props
+const { labels } = Astro.props;
 const sides = [
-  { key: 'before', label: labels.before, short: 'Before' },
-  { key: 'after', label: labels.after, short: 'After' },
-] as const
+  { key: "before", label: labels.before, short: "Before" },
+  { key: "after", label: labels.after, short: "After" },
+] as const;
 ---
 
 <div class="bar" hidden data-bar>
@@ -29,7 +29,7 @@ const sides = [
         type="button"
         class="tab"
         data-show={side.key}
-        aria-pressed={side.key === 'before' ? 'true' : 'false'}
+        aria-pressed={side.key === "before" ? "true" : "false"}
       >
         {/* The full label where the window has room; "Before" and "After" where it does not. */}
         <span class="tab-long">{side.label}</span>
@@ -123,12 +123,12 @@ const sides = [
   }
 
   /* Each side always in its own colour; the unchosen one at full strength, which keeps the red at AA. */
-  .tab[data-show='before'] {
+  .tab[data-show="before"] {
     --tab: var(--wt-before);
     --tab-soft: var(--wt-before-soft);
   }
 
-  .tab[data-show='after'] {
+  .tab[data-show="after"] {
     --tab: var(--wt-after);
     --tab-soft: var(--wt-after-soft);
   }
@@ -141,7 +141,7 @@ const sides = [
     background: color-mix(in srgb, var(--tab-soft) 50%, transparent);
   }
 
-  .tab[aria-pressed='true'] {
+  .tab[aria-pressed="true"] {
     background: var(--tab-soft);
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--tab) 45%, transparent);
   }
@@ -199,18 +199,18 @@ const sides = [
     display: none;
   }
 
-  .play[data-state='playing'] .pause,
-  .play[data-state='paused'] .resume,
-  .play[data-state='ended'] .replay {
+  .play[data-state="playing"] .pause,
+  .play[data-state="paused"] .resume,
+  .play[data-state="ended"] .replay {
     display: block;
   }
 
   .expand .close,
-  .expand[aria-pressed='true'] .open {
+  .expand[aria-pressed="true"] .open {
     display: none;
   }
 
-  .expand[aria-pressed='true'] .close {
+  .expand[aria-pressed="true"] .close {
     display: block;
   }
 

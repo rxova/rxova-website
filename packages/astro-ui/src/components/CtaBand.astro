@@ -4,19 +4,19 @@
  * base-aware; external ones get `rel="noopener"` and a visible marker.
  */
 export interface CtaAction {
-  text: string
-  href: string
-  variant?: 'primary' | 'minimal'
-  external?: boolean
+  text: string;
+  href: string;
+  variant?: "primary" | "minimal";
+  external?: boolean;
 }
 
 interface Props {
-  title: string
-  lede: string
-  actions: readonly CtaAction[]
+  title: string;
+  lede: string;
+  actions: readonly CtaAction[];
 }
 
-const { title, lede, actions } = Astro.props
+const { title, lede, actions } = Astro.props;
 ---
 
 <aside class="rx-cta not-content">
@@ -25,9 +25,9 @@ const { title, lede, actions } = Astro.props
   <div class="rx-cta__actions">
     {actions.map((action) => (
       <a
-        class:list={['rx-btn', `rx-btn--${action.variant ?? 'minimal'}`]}
+        class:list={["rx-btn", `rx-btn--${action.variant ?? "minimal"}`]}
         href={action.href}
-        rel={action.external ? 'noopener' : undefined}
+        rel={action.external ? "noopener" : undefined}
       >
         {action.text}
         {action.external && (

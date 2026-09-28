@@ -4,7 +4,7 @@ date: 2026-07-28T11:00:00Z
 repos: [rxova-website, brand]
 authors: [jonatan-kruszewski]
 tags: [feature]
-version: '@rxova/brand@0.5.0'
+version: "@rxova/brand@0.5.0"
 ---
 
 `/blog` and `/updates` are built in the brand repo and mounted on rxova.org as two more

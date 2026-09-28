@@ -1,23 +1,23 @@
-import Header from '@rxova/astro-ui/components/Header.astro'
+import Header from "@rxova/astro-ui/components/Header.astro";
 
-import type { Meta, Story } from './types.ts'
+import type { Meta, Story } from "./types.ts";
 
 const meta: Meta = {
-  title: 'Chrome/Header',
+  title: "Chrome/Header",
   component: Header,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   args: {
-    homeHref: '#',
-    logoSrc: 'https://rxova.org/rxova-logo-256.png',
+    homeHref: "#",
+    logoSrc: "https://rxova.org/rxova-logo-256.png",
     items: [
-      { label: 'Projects', href: '#', current: true },
-      { label: 'Blog', href: '#' },
-      { label: 'Updates', href: '#' },
-      { label: 'About', href: '#' },
+      { label: "Projects", href: "#", current: true },
+      { label: "Blog", href: "#" },
+      { label: "Updates", href: "#" },
+      { label: "About", href: "#" },
     ],
   },
-}
+};
 
-export default meta
+export default meta;
 
-export const Default: Story = {}
+export const Default: Story = {};

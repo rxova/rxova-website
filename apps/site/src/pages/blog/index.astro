@@ -1,22 +1,22 @@
 ---
-import { canonicalUrl } from '@rxova/brand'
+import { canonicalUrl } from "@rxova/brand";
 
-import Content from '../../layouts/Page.astro'
-import PageHeader from '@rxova/astro-ui/components/PageHeader.astro'
-import ShowMore from '@rxova/astro-ui/components/ShowMore.astro'
-import VisuallyHidden from '@rxova/astro-ui/components/VisuallyHidden.astro'
-import { getPosts, resolveAuthors, byline, formatDate, isoDate, href } from '../../lib/blog'
-import { excerpt } from '@rxova/astro-ui/lib/entries'
+import Content from "../../layouts/Page.astro";
+import PageHeader from "@rxova/astro-ui/components/PageHeader.astro";
+import ShowMore from "@rxova/astro-ui/components/ShowMore.astro";
+import VisuallyHidden from "@rxova/astro-ui/components/VisuallyHidden.astro";
+import { getPosts, resolveAuthors, byline, formatDate, isoDate, href } from "../../lib/blog";
+import { excerpt } from "@rxova/astro-ui/lib/entries";
 
 /** How many posts before the index starts batching; a card is shorter than a full update entry. */
-const PAGE_SIZE = 10
+const PAGE_SIZE = 10;
 
 /** About two to three lines of a card; real text, so "Read more" can follow the ellipsis inline. */
-const EXCERPT_CHARS = 200
+const EXCERPT_CHARS = 200;
 
-const updatesUrl = '/updates/'
+const updatesUrl = "/updates/";
 
-const posts = await getPosts()
+const posts = await getPosts();
 
 // Resolve bylines up front: `resolveAuthors` is async and Astro templates cannot
 // await inside a map.
@@ -26,46 +26,46 @@ const items = await Promise.all(
     authors: await resolveAuthors(post.data.authors),
     // The post's opening, not `description`, which is written for search results
     // and social cards.
-    lead: excerpt(post.body ?? '', EXCERPT_CHARS),
+    lead: excerpt(post.body ?? "", EXCERPT_CHARS),
   })),
-)
+);
 
-const feedUrl = `${canonicalUrl('/blog')}rss.xml`
+const feedUrl = `${canonicalUrl("/blog")}rss.xml`;
 
 /**
  * The index as a `Blog`, with its posts as `BlogPosting`s, so a crawler sees dated
  * articles by named authors before fetching any of them.
  */
 const blogJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Blog',
-  name: 'Rxova Blog',
-  url: canonicalUrl('/blog'),
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  name: "Rxova Blog",
+  url: canonicalUrl("/blog"),
   description:
-    'Essays and design rationale from the Rxova projects — the why behind the decisions.',
-  inLanguage: 'en',
+    "Essays and design rationale from the Rxova projects — the why behind the decisions.",
+  inLanguage: "en",
   blogPost: items.map(({ post, authors }) => ({
-    '@type': 'BlogPosting',
+    "@type": "BlogPosting",
     headline: post.data.title,
     description: post.data.description,
     url: canonicalUrl(`/blog/${post.id}`),
     datePublished: isoDate(post.data.pubDate),
     ...(post.data.updatedDate && { dateModified: isoDate(post.data.updatedDate) }),
     author: authors.map((a) => ({
-      '@type': 'Person',
+      "@type": "Person",
       name: a.name,
       ...(a.url && { url: a.url }),
     })),
-    ...(post.data.tags.length > 0 && { keywords: post.data.tags.join(', ') }),
+    ...(post.data.tags.length > 0 && { keywords: post.data.tags.join(", ") }),
   })),
-}
+};
 ---
 
 <Content
   title="Blog — Rxova"
   description="Essays and design rationale from the Rxova projects — the why behind the decisions."
   path="/blog"
-  feed={{ href: feedUrl, title: 'Rxova Blog' }}
+  feed={{ href: feedUrl, title: "Rxova Blog" }}
   jsonLd={blogJsonLd}
 >
   <PageHeader title="Blog" measure="narrow">
@@ -91,7 +91,7 @@ const blogJsonLd = {
         </p>
         <p class="desc">
           {lead.text}
-          {lead.truncated && '…'}{' '}
+          {lead.truncated && "…"}{" "}
           <a class="more" href={href(post.id)}>
             Read more<VisuallyHidden> of “{post.data.title}”</VisuallyHidden>
             <span aria-hidden="true"> →</span>
@@ -105,9 +105,9 @@ const blogJsonLd = {
 </Content>
 
 <script>
-  import { enhanceShowMore } from '@rxova/astro-ui/scripts/show-more'
+  import { enhanceShowMore } from "@rxova/astro-ui/scripts/show-more";
 
-  enhanceShowMore()
+  enhanceShowMore();
 </script>
 
 <style>

@@ -3,7 +3,7 @@ title: Typography and prose
 description: Every element starlight.css maps a token onto, on one page.
 ---
 
-import { Aside, Tabs, TabItem, Steps, Badge, FileTree } from '@astrojs/starlight/components'
+import { Aside, Tabs, TabItem, Steps, Badge, FileTree } from "@astrojs/starlight/components";
 
 Body copy in Space Grotesk 400. This paragraph exists to show the measure, the line
 height and the way `--rx-muted` reads against `--rx-bg` in both themes — flip the
@@ -26,18 +26,18 @@ Code blocks are where `--rx-font-mono` and the surface tokens meet, and where th
 IBM Plex Mono weights actually get exercised.
 
 ```ts title="astro.config.mjs"
-import { sharedStarlightConfig } from '@rxova/brand'
+import { sharedStarlightConfig } from "@rxova/brand";
 
 export default defineConfig({
   integrations: [
     starlight(
       sharedStarlightConfig({
-        project: 'journey',
-        sidebar: [{ label: 'Guides', autogenerate: { directory: 'guides' } }],
+        project: "journey",
+        sidebar: [{ label: "Guides", autogenerate: { directory: "guides" } }],
       }),
     ),
   ],
-})
+});
 ```
 
 ```bash

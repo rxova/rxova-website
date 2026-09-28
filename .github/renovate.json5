@@ -1,19 +1,19 @@
 {
-  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
 
   // The org preset holds the shared rules; only this repository's own are below.
-  extends: ['github>rxova/shared//renovate/default.json5'],
+  extends: ["github>rxova/shared//renovate/default.json5"],
 
   packageRules: [
     {
       // The Actions pinned in .github/workflows get their own weekly pull request, so a red
       // Actions bump never holds back the npm one, or the other way round.
-      matchManagers: ['github-actions'],
-      groupName: 'all actions',
+      matchManagers: ["github-actions"],
+      groupName: "all actions",
     },
     {
       // Pins and digests merge themselves too, like the preset's patch and minor updates.
-      matchUpdateTypes: ['pin', 'digest'],
+      matchUpdateTypes: ["pin", "digest"],
       automerge: true,
       platformAutomerge: true,
     },

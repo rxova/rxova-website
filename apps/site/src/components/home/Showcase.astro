@@ -3,26 +3,26 @@
  * The projects: a rail of one line each beside a stage showing one panel. Without JS the rail
  * is in-page links and every panel is stacked; the script upgrades the rail to a tablist.
  */
-import type { LandingProject } from '../../lib/projects'
-import { inlineWalkthroughId } from '../../lib/walkthrough'
-import { showcases } from '../../showcases'
-import Eyebrow from './Eyebrow.astro'
-import ProjectPanel from './ProjectPanel.astro'
+import type { LandingProject } from "../../lib/projects";
+import { inlineWalkthroughId } from "../../lib/walkthrough";
+import { showcases } from "../../showcases";
+import Eyebrow from "./Eyebrow.astro";
+import ProjectPanel from "./ProjectPanel.astro";
 
 interface Props {
-  projects: readonly LandingProject[]
+  projects: readonly LandingProject[];
   /** The index of the panel the page opens on. */
-  featured: number
+  featured: number;
 }
 
-const { projects, featured } = Astro.props
+const { projects, featured } = Astro.props;
 
 // One walkthrough in the page; the rest are fetched from their own pages when wanted.
 const inlineId = inlineWalkthroughId(
   projects.map((p) => p.id),
-  projects[featured]?.id ?? '',
+  projects[featured]?.id ?? "",
   (id) => id in showcases,
-)
+);
 ---
 
 <section class="showcase" id="projects" aria-labelledby="projects-heading">
@@ -32,7 +32,7 @@ const inlineId = inlineWalkthroughId(
     <div class="rail" id="project-rail" aria-label="Projects">
       {projects.map((p, i) => (
         <a
-          class={i === featured ? 'rail-item is-active' : 'rail-item'}
+          class={i === featured ? "rail-item is-active" : "rail-item"}
           href={`#project-${p.id}`}
           data-rail={p.id}
         >
@@ -57,78 +57,78 @@ const inlineId = inlineWalkthroughId(
   import {
     fillWalkthroughSlot,
     fillWalkthroughSlotsWhenIdle,
-  } from '../../scripts/walkthrough-slots'
+  } from "../../scripts/walkthrough-slots";
 
   interface RailTab extends HTMLAnchorElement {
-    dataset: DOMStringMap & { rail: string }
+    dataset: DOMStringMap & { rail: string };
   }
 
   /** The rail becomes a tablist: tab roles, automatic activation, arrows, Home and End. */
   function enhanceRail(): void {
-    const rail = document.getElementById('project-rail')
-    const stage = document.querySelector<HTMLElement>('.stage')
-    if (!rail || !stage) return
+    const rail = document.getElementById("project-rail");
+    const stage = document.querySelector<HTMLElement>(".stage");
+    if (!rail || !stage) return;
 
-    const tabs = [...rail.querySelectorAll<RailTab>('.rail-item')]
+    const tabs = [...rail.querySelectorAll<RailTab>(".rail-item")];
     const panels = new Map(
-      [...stage.querySelectorAll<HTMLElement>('.panel')].map((p) => [p.dataset.panel ?? '', p]),
-    )
-    if (tabs.length === 0 || panels.size === 0) return
+      [...stage.querySelectorAll<HTMLElement>(".panel")].map((p) => [p.dataset.panel ?? "", p]),
+    );
+    if (tabs.length === 0 || panels.size === 0) return;
 
-    rail.setAttribute('role', 'tablist')
-    rail.setAttribute('aria-orientation', 'vertical')
+    rail.setAttribute("role", "tablist");
+    rail.setAttribute("aria-orientation", "vertical");
 
     const select = (next: RailTab, focus: boolean): void => {
       for (const tab of tabs) {
-        const on = tab === next
-        tab.setAttribute('aria-selected', String(on))
-        tab.tabIndex = on ? 0 : -1
-        tab.classList.toggle('is-active', on)
+        const on = tab === next;
+        tab.setAttribute("aria-selected", String(on));
+        tab.tabIndex = on ? 0 : -1;
+        tab.classList.toggle("is-active", on);
 
-        const panel = panels.get(tab.dataset.rail)
-        if (!panel) continue
-        panel.classList.toggle('is-active', on)
+        const panel = panels.get(tab.dataset.rail);
+        if (!panel) continue;
+        panel.classList.toggle("is-active", on);
         // Out of the accessibility tree too, so only the visible panel is read.
-        panel.setAttribute('aria-hidden', String(!on))
-        if (on) void fillWalkthroughSlot(panel)
+        panel.setAttribute("aria-hidden", String(!on));
+        if (on) void fillWalkthroughSlot(panel);
       }
-      if (focus) next.focus()
-    }
+      if (focus) next.focus();
+    };
 
     // The tab the build marked active (the featured project), else the first.
-    const initial = tabs.find((tab) => tab.classList.contains('is-active')) ?? tabs[0]
+    const initial = tabs.find((tab) => tab.classList.contains("is-active")) ?? tabs[0];
 
     tabs.forEach((tab) => {
-      tab.setAttribute('role', 'tab')
-      tab.setAttribute('aria-controls', `project-${tab.dataset.rail}`)
+      tab.setAttribute("role", "tab");
+      tab.setAttribute("aria-controls", `project-${tab.dataset.rail}`);
       // A tab is no longer a link: the href would jump the page on activation.
-      tab.removeAttribute('href')
-      tab.tabIndex = tab === initial ? 0 : -1
+      tab.removeAttribute("href");
+      tab.tabIndex = tab === initial ? 0 : -1;
 
-      tab.addEventListener('click', () => select(tab, false))
-      tab.addEventListener('keydown', (event: KeyboardEvent) => {
-        const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[event.key]
-        let target: RailTab | undefined
-        if (step) target = tabs[(tabs.indexOf(tab) + step + tabs.length) % tabs.length]
-        else if (event.key === 'Home') target = tabs[0]
-        else if (event.key === 'End') target = tabs[tabs.length - 1]
-        else if (event.key === ' ' || event.key === 'Enter') target = tab
-        if (!target) return
-        event.preventDefault()
-        select(target, true)
-      })
-    })
+      tab.addEventListener("click", () => select(tab, false));
+      tab.addEventListener("keydown", (event: KeyboardEvent) => {
+        const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[event.key];
+        let target: RailTab | undefined;
+        if (step) target = tabs[(tabs.indexOf(tab) + step + tabs.length) % tabs.length];
+        else if (event.key === "Home") target = tabs[0];
+        else if (event.key === "End") target = tabs[tabs.length - 1];
+        else if (event.key === " " || event.key === "Enter") target = tab;
+        if (!target) return;
+        event.preventDefault();
+        select(target, true);
+      });
+    });
 
-    for (const panel of panels.values()) panel.setAttribute('role', 'tabpanel')
-    select(initial, false)
+    for (const panel of panels.values()) panel.setAttribute("role", "tabpanel");
+    select(initial, false);
 
     // `/#project-journey` still names a panel, now that the tabs own the anchors.
-    const fromHash = tabs.find((t) => `#project-${t.dataset.rail}` === location.hash)
-    if (fromHash) select(fromHash, false)
+    const fromHash = tabs.find((t) => `#project-${t.dataset.rail}` === location.hash);
+    if (fromHash) select(fromHash, false);
   }
 
-  enhanceRail()
-  fillWalkthroughSlotsWhenIdle()
+  enhanceRail();
+  fillWalkthroughSlotsWhenIdle();
 </script>
 
 <style>
@@ -222,7 +222,7 @@ const inlineId = inlineWalkthroughId(
      because an unsized area takes the widest panel's max-content width. */
   :global(html[data-js]) .stage {
     display: grid;
-    grid-template-areas: 'panel';
+    grid-template-areas: "panel";
     grid-template-columns: minmax(0, 1fr);
   }
   @media (prefers-reduced-motion: reduce) {

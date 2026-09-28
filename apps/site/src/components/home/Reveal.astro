@@ -3,18 +3,18 @@
  * Fades its element in the first time it scrolls into view. Visible by default: it only hides
  * once the script has confirmed IntersectionObserver and that the reader allows motion.
  */
-import type { HTMLTag } from 'astro/types'
+import type { HTMLTag } from "astro/types";
 
 interface Props {
-  as?: HTMLTag
-  class?: string
-  [attribute: string]: unknown
+  as?: HTMLTag;
+  class?: string;
+  [attribute: string]: unknown;
 }
 
-const { as: Tag = 'div', class: className, ...rest } = Astro.props
+const { as: Tag = "div", class: className, ...rest } = Astro.props;
 ---
 
-<Tag class:list={[className, 'reveal']} {...rest}>
+<Tag class:list={[className, "reveal"]} {...rest}>
   <slot />
 </Tag>
 
@@ -43,33 +43,33 @@ const { as: Tag = 'div', class: className, ...rest } = Astro.props
 
 <script>
   function enhanceReveals(): void {
-    const targets = [...document.querySelectorAll<HTMLElement>('.reveal')]
-    if (targets.length === 0) return
+    const targets = [...document.querySelectorAll<HTMLElement>(".reveal")];
+    if (targets.length === 0) return;
 
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)')
-    if (reduced.matches || !('IntersectionObserver' in window)) return
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    if (reduced.matches || !("IntersectionObserver" in window)) return;
 
-    document.documentElement.dataset.revealing = ''
+    document.documentElement.dataset.revealing = "";
 
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (!entry.isIntersecting) continue
-          entry.target.classList.add('is-in')
-          observer.unobserve(entry.target)
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add("is-in");
+          observer.unobserve(entry.target);
         }
       },
       // A little before the fold, so the motion is done when the eye arrives.
-      { rootMargin: '0px 0px -12% 0px', threshold: 0.05 },
-    )
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.05 },
+    );
 
-    for (const target of targets) observer.observe(target)
+    for (const target of targets) observer.observe(target);
 
     // Failsafe: whatever the observer missed, nothing stays hidden.
     window.setTimeout(() => {
-      for (const target of targets) target.classList.add('is-in')
-    }, 3000)
+      for (const target of targets) target.classList.add("is-in");
+    }, 3000);
   }
 
-  enhanceReveals()
+  enhanceReveals();
 </script>

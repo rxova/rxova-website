@@ -1,33 +1,33 @@
 ---
 /** The blog and updates layout: `BaseLayout`'s document and chrome, plus page metadata
  * (description, Open Graph, feed, JSON-LD) and prose styles for rendered markdown. */
-import { canonicalUrl, siteUrl } from '@rxova/brand'
-import BaseLayout from './BaseLayout.astro'
+import { canonicalUrl, siteUrl } from "@rxova/brand";
+import BaseLayout from "./BaseLayout.astro";
 // See ./BaseLayout.astro for why the reset is imported per page rather than by BaseLayout.
-import '../styles/global.css'
+import "../styles/global.css";
 
 interface Props {
-  title: string
-  description: string
+  title: string;
+  description: string;
   /** Canonical path, e.g. `/blog/why-rxova-has-a-blog`. */
-  path: string
-  ogType?: 'website' | 'article'
+  path: string;
+  ogType?: "website" | "article";
   /** Absolute URL of the social card, chosen by the caller; defaults to the umbrella card. */
-  image?: string
+  image?: string;
   /** Advertises an RSS feed for this section, as `rel="alternate"`. */
-  feed?: { href: string; title: string }
+  feed?: { href: string; title: string };
   /** JSON-LD for this page, emitted verbatim as `application/ld+json`. */
-  jsonLd?: unknown
+  jsonLd?: unknown;
 }
 
-const { title, description, path, ogType = 'website', image, feed, jsonLd } = Astro.props
+const { title, description, path, ogType = "website", image, feed, jsonLd } = Astro.props;
 
 // Normalised, so no caller can declare a URL without the trailing slash (a 301).
-const url = canonicalUrl(path)
-const ogImage = image ?? siteUrl('/og/rxova.png')
+const url = canonicalUrl(path);
+const ogImage = image ?? siteUrl("/og/rxova.png");
 
 /** Serialise JSON-LD for an inline `<script>`; `<` is escaped so a `</script>` cannot close it. */
-const serialiseJsonLd = (value: unknown): string => JSON.stringify(value).replace(/</g, '\\u003c')
+const serialiseJsonLd = (value: unknown): string => JSON.stringify(value).replace(/</g, "\\u003c");
 ---
 
 <BaseLayout title={title} path={path}>

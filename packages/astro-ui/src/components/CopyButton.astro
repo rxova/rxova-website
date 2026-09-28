@@ -3,17 +3,17 @@
  * An icon button that puts `text` on the clipboard and shows a tick for a moment. Drawn in
  * `currentColor`, so it sits on any surface, a dark terminal included; the caller places it.
  */
-import Check from './icons/Check.astro'
-import Copy from './icons/Copy.astro'
+import Check from "./icons/Check.astro";
+import Copy from "./icons/Copy.astro";
 
 interface Props {
   /** What goes on the clipboard. */
-  text: string
+  text: string;
   /** The accessible name and tooltip; there is no visible text, so this is what a screen reader says. */
-  label?: string
+  label?: string;
 }
 
-const { text, label = 'Copy' } = Astro.props
+const { text, label = "Copy" } = Astro.props;
 ---
 
 <button class="rx-copy" type="button" data-rx-copy={text} aria-label={label} title={label}>
@@ -23,24 +23,24 @@ const { text, label = 'Copy' } = Astro.props
 </button>
 
 <script>
-  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-rx-copy]')) {
-    if (button.dataset.rxCopyBound) continue
-    button.dataset.rxCopyBound = ''
-    const status = button.querySelector<HTMLElement>('.rx-copy__status')
-    button.addEventListener('click', async () => {
+  for (const button of document.querySelectorAll<HTMLButtonElement>("[data-rx-copy]")) {
+    if (button.dataset.rxCopyBound) continue;
+    button.dataset.rxCopyBound = "";
+    const status = button.querySelector<HTMLElement>(".rx-copy__status");
+    button.addEventListener("click", async () => {
       try {
-        await navigator.clipboard.writeText(button.dataset.rxCopy ?? '')
+        await navigator.clipboard.writeText(button.dataset.rxCopy ?? "");
       } catch {
         // Clipboard access can be denied; saying nothing beats claiming a copy that did not happen.
-        return
+        return;
       }
-      button.dataset.state = 'done'
-      if (status) status.textContent = 'Copied'
+      button.dataset.state = "done";
+      if (status) status.textContent = "Copied";
       window.setTimeout(() => {
-        delete button.dataset.state
-        if (status) status.textContent = ''
-      }, 1600)
-    })
+        delete button.dataset.state;
+        if (status) status.textContent = "";
+      }, 1600);
+    });
   }
 </script>
 
@@ -81,11 +81,11 @@ const { text, label = 'Copy' } = Astro.props
   }
 
   .rx-copy :global(.rx-copy__done),
-  .rx-copy[data-state='done'] :global(.rx-copy__idle) {
+  .rx-copy[data-state="done"] :global(.rx-copy__idle) {
     visibility: hidden;
   }
 
-  .rx-copy[data-state='done'] :global(.rx-copy__done) {
+  .rx-copy[data-state="done"] :global(.rx-copy__done) {
     visibility: visible;
   }
 

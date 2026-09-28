@@ -1,190 +1,190 @@
 // Pins the fallback for a project with no llms.txt of its own, and that disabled
 // or non-prose sources never appear (a stale entry fails silently).
 
-import { describe, it, beforeEach, afterAll } from 'vitest'
-import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { describe, it, beforeEach, afterAll } from "vitest";
+import assert from "node:assert/strict";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
-import { writeLlms, llmsIndex, LLMS_FILE, type LlmsSource } from './llms.ts'
+import { writeLlms, llmsIndex, LLMS_FILE, type LlmsSource } from "./llms.ts";
 
-const roots: string[] = []
-let root: string
+const roots: string[] = [];
+let root: string;
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), 'rxova-llms-'))
-  roots.push(root)
-})
+  root = mkdtempSync(join(tmpdir(), "rxova-llms-"));
+  roots.push(root);
+});
 afterAll(() => {
-  for (const dir of roots) rmSync(dir, { recursive: true, force: true })
-})
+  for (const dir of roots) rmSync(dir, { recursive: true, force: true });
+});
 
-const ORIGIN = 'https://rxova.org'
+const ORIGIN = "https://rxova.org";
 
 function write(path: string, body: string): void {
-  const full = join(root, path)
-  mkdirSync(join(full, '..'), { recursive: true })
-  writeFileSync(full, body)
+  const full = join(root, path);
+  mkdirSync(join(full, ".."), { recursive: true });
+  writeFileSync(full, body);
 }
 
-const read = () => readFileSync(join(root, LLMS_FILE), 'utf8')
+const read = () => readFileSync(join(root, LLMS_FILE), "utf8");
 const links = (doc: string) =>
-  [...doc.matchAll(/^- \[([^\]]*)\]\(([^)]*)\)/gm)].map((m) => [m[1], m[2]])
+  [...doc.matchAll(/^- \[([^\]]*)\]\(([^)]*)\)/gm)].map((m) => [m[1], m[2]]);
 
 /** The links under `## Libraries` only, leaving out the site's own sections. */
 const libraryLinks = (doc: string) => {
-  const start = doc.indexOf('## Libraries')
-  if (start === -1) return []
-  const end = doc.indexOf('\n## ', start + 1)
-  return links(doc.slice(start, end === -1 ? undefined : end))
-}
+  const start = doc.indexOf("## Libraries");
+  if (start === -1) return [];
+  const end = doc.indexOf("\n## ", start + 1);
+  return links(doc.slice(start, end === -1 ? undefined : end));
+};
 
 /** A resolved source, shaped as registry.ts hands them over. */
 const source = (id: string, over: Partial<LlmsSource> = {}): LlmsSource => ({
   id,
-  kind: 'package',
+  kind: "package",
   base: `/packages/${id}/`,
   mount: `packages/${id}`,
   landing: {},
   ...over,
-})
+});
 
-describe('llmsIndex', () => {
-  it('opens with the H1 and blockquote summary llmstxt.org specifies', () => {
-    const doc = llmsIndex({ projects: [], sites: [] }, ORIGIN)
-    const lines = doc.split('\n')
+describe("llmsIndex", () => {
+  it("opens with the H1 and blockquote summary llmstxt.org specifies", () => {
+    const doc = llmsIndex({ projects: [], sites: [] }, ORIGIN);
+    const lines = doc.split("\n");
 
-    assert.equal(lines[0], '# Rxova')
-    assert.equal(lines[1], '')
-    assert.match(lines[2] ?? '', /^> /)
-  })
+    assert.equal(lines[0], "# Rxova");
+    assert.equal(lines[1], "");
+    assert.match(lines[2] ?? "", /^> /);
+  });
 
-  it('omits a section that has no entries rather than printing an empty heading', () => {
-    const entry = { label: 'journey', url: 'https://rxova.org/packages/journey/' }
-    const doc = llmsIndex({ projects: [entry], sites: [] }, ORIGIN)
+  it("omits a section that has no entries rather than printing an empty heading", () => {
+    const entry = { label: "journey", url: "https://rxova.org/packages/journey/" };
+    const doc = llmsIndex({ projects: [entry], sites: [] }, ORIGIN);
 
-    assert.match(doc, /## Libraries/)
-    assert.doesNotMatch(doc, /## Also on this site/)
-  })
+    assert.match(doc, /## Libraries/);
+    assert.doesNotMatch(doc, /## Also on this site/);
+  });
 
-  it('appends the blurb as the link note, and omits the separator without one', () => {
+  it("appends the blurb as the link note, and omits the separator without one", () => {
     const doc = llmsIndex(
       {
-        projects: [{ label: 'a', url: 'https://rxova.org/a/', note: 'Does a thing.' }],
-        sites: [{ label: 'b', url: 'https://rxova.org/b/' }],
+        projects: [{ label: "a", url: "https://rxova.org/a/", note: "Does a thing." }],
+        sites: [{ label: "b", url: "https://rxova.org/b/" }],
       },
       ORIGIN,
-    )
+    );
 
-    assert.match(doc, /^- \[a]\(https:\/\/rxova\.org\/a\/\): Does a thing\.$/m)
-    assert.match(doc, /^- \[b]\(https:\/\/rxova\.org\/b\/\)$/m)
-  })
-})
+    assert.match(doc, /^- \[a]\(https:\/\/rxova\.org\/a\/\): Does a thing\.$/m);
+    assert.match(doc, /^- \[b]\(https:\/\/rxova\.org\/b\/\)$/m);
+  });
+});
 
-describe('writeLlms', () => {
-  it('links a project to its own llms.txt when it publishes one', async () => {
-    write(`packages/journey/${LLMS_FILE}`, '# journey\n')
+describe("writeLlms", () => {
+  it("links a project to its own llms.txt when it publishes one", async () => {
+    write(`packages/journey/${LLMS_FILE}`, "# journey\n");
 
-    await writeLlms(root, [source('journey')], ORIGIN)
+    await writeLlms(root, [source("journey")], ORIGIN);
 
     assert.deepEqual(libraryLinks(read()), [
-      ['journey', 'https://rxova.org/packages/journey/llms.txt'],
-    ])
-  })
+      ["journey", "https://rxova.org/packages/journey/llms.txt"],
+    ]);
+  });
 
   // The property that lets this repo and a project repo ship in either order.
-  it('falls back to the docs root for a project that ships none', async () => {
-    write('packages/journey/index.html', '<!doctype html>')
+  it("falls back to the docs root for a project that ships none", async () => {
+    write("packages/journey/index.html", "<!doctype html>");
 
-    await writeLlms(root, [source('journey')], ORIGIN)
+    await writeLlms(root, [source("journey")], ORIGIN);
 
-    assert.deepEqual(libraryLinks(read()), [['journey', 'https://rxova.org/packages/journey/']])
-  })
+    assert.deepEqual(libraryLinks(read()), [["journey", "https://rxova.org/packages/journey/"]]);
+  });
 
-  it('mixes the two without either affecting the other', async () => {
-    write(`packages/react-inputs/${LLMS_FILE}`, '# react-inputs\n')
+  it("mixes the two without either affecting the other", async () => {
+    write(`packages/react-inputs/${LLMS_FILE}`, "# react-inputs\n");
 
-    await writeLlms(root, [source('journey'), source('react-inputs')], ORIGIN)
+    await writeLlms(root, [source("journey"), source("react-inputs")], ORIGIN);
 
     assert.deepEqual(libraryLinks(read()), [
-      ['journey', 'https://rxova.org/packages/journey/'],
-      ['react-inputs', 'https://rxova.org/packages/react-inputs/llms.txt'],
-    ])
-  })
+      ["journey", "https://rxova.org/packages/journey/"],
+      ["react-inputs", "https://rxova.org/packages/react-inputs/llms.txt"],
+    ]);
+  });
 
   // /blog and /updates are built by the site app, so no sources.json entry announces
   // them; the index lists them anyway, beside any mounted site.
   it("lists the site app's own sections with no source for them", async () => {
-    const { sites } = await writeLlms(root, [], ORIGIN)
+    const { sites } = await writeLlms(root, [], ORIGIN);
     assert.deepEqual(
       sites.map((s) => [s.label, s.url]),
       [
-        ['blog', 'https://rxova.org/blog/'],
-        ['updates', 'https://rxova.org/updates/'],
+        ["blog", "https://rxova.org/blog/"],
+        ["updates", "https://rxova.org/updates/"],
       ],
-    )
-    assert.match(read(), /## Also on this site\n\n- \[blog\]\(https:\/\/rxova\.org\/blog\/\)/)
-  })
+    );
+    assert.match(read(), /## Also on this site\n\n- \[blog\]\(https:\/\/rxova\.org\/blog\/\)/);
+  });
 
-  it('separates the libraries from the other sites on this domain', async () => {
+  it("separates the libraries from the other sites on this domain", async () => {
     const { projects, sites } = await writeLlms(
       root,
-      [source('journey'), source('blog', { kind: 'site', base: '/blog/', mount: 'blog' })],
+      [source("journey"), source("blog", { kind: "site", base: "/blog/", mount: "blog" })],
       ORIGIN,
-    )
+    );
 
     assert.deepEqual(
       projects.map((p) => p.label),
-      ['journey'],
-    )
+      ["journey"],
+    );
     // The mounted `blog` source stands in for the landing's own, so it is listed once.
     assert.deepEqual(
       sites.map((s) => s.label),
-      ['blog', 'updates'],
-    )
-    assert.match(read(), /## Libraries[\s\S]*## Also on this site/)
-  })
+      ["blog", "updates"],
+    );
+    assert.match(read(), /## Libraries[\s\S]*## Also on this site/);
+  });
 
   // A component explorer has no prose to read; its project's index is the useful
   // destination, and listing both sends an agent down the wrong one half the time.
-  it('skips storybook, which has nothing for an agent to read', async () => {
+  it("skips storybook, which has nothing for an agent to read", async () => {
     await writeLlms(
       root,
       [
-        source('react-inputs'),
-        source('storybook-react-inputs', {
-          kind: 'storybook',
-          base: '/storybook/react-inputs/',
-          mount: 'storybook/react-inputs',
+        source("react-inputs"),
+        source("storybook-react-inputs", {
+          kind: "storybook",
+          base: "/storybook/react-inputs/",
+          mount: "storybook/react-inputs",
         }),
       ],
       ORIGIN,
-    )
+    );
 
     assert.deepEqual(libraryLinks(read()), [
-      ['react-inputs', 'https://rxova.org/packages/react-inputs/'],
-    ])
-  })
+      ["react-inputs", "https://rxova.org/packages/react-inputs/"],
+    ]);
+  });
 
-  it('carries the blurb sources.json already holds', async () => {
+  it("carries the blurb sources.json already holds", async () => {
     await writeLlms(
       root,
-      [source('journey', { landing: { blurb: 'Model multi-step, branching flows as a graph.' } })],
+      [source("journey", { landing: { blurb: "Model multi-step, branching flows as a graph." } })],
       ORIGIN,
-    )
+    );
 
-    assert.match(read(), /: Model multi-step, branching flows as a graph\.$/m)
-  })
+    assert.match(read(), /: Model multi-step, branching flows as a graph\.$/m);
+  });
 
-  it('honours a staging origin so a preview does not advertise production URLs', async () => {
-    write(`packages/journey/${LLMS_FILE}`, '# journey\n')
+  it("honours a staging origin so a preview does not advertise production URLs", async () => {
+    write(`packages/journey/${LLMS_FILE}`, "# journey\n");
 
-    await writeLlms(root, [source('journey')], 'https://web.rxova.org')
+    await writeLlms(root, [source("journey")], "https://web.rxova.org");
 
     assert.deepEqual(links(read()), [
-      ['journey', 'https://web.rxova.org/packages/journey/llms.txt'],
-      ['blog', 'https://web.rxova.org/blog/'],
-      ['updates', 'https://web.rxova.org/updates/'],
-    ])
-  })
-})
+      ["journey", "https://web.rxova.org/packages/journey/llms.txt"],
+      ["blog", "https://web.rxova.org/blog/"],
+      ["updates", "https://web.rxova.org/updates/"],
+    ]);
+  });
+});

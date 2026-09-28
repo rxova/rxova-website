@@ -16,6 +16,6 @@ export {
   type ProjectId,
   type RepoId,
   type SectionId,
-} from './sites.ts'
+} from "./sites.ts";
 
-export { renderFeed, escapeXml, rfc822, type FeedItem, type FeedOptions } from './feed.ts'
+export { renderFeed, escapeXml, rfc822, type FeedItem, type FeedOptions } from "./feed.ts";

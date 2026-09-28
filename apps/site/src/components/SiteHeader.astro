@@ -3,23 +3,23 @@
  * The landing's adapter onto @rxova/astro-ui's shared `Header`, supplying only the menu:
  * derived from what is deployed (`navSurfaces`), with root-relative links. The mark is home.
  */
-import Header from '@rxova/astro-ui/components/Header.astro'
-import { navSurfaces } from '../lib/projects'
+import Header from "@rxova/astro-ui/components/Header.astro";
+import { navSurfaces } from "../lib/projects";
 
 interface Props {
   /** Current path, so the active item can be marked. */
-  path: string
+  path: string;
 }
 
-const { path } = Astro.props
+const { path } = Astro.props;
 
-const surfaces = navSurfaces
+const surfaces = navSurfaces;
 
 /** `/` matches only itself; everything else its subtree. Pages pass `/blog` or `/blog/x`. */
-const here = path.endsWith('/') ? path : `${path}/`
-const isCurrent = (href: string) => (href === '/' ? here === '/' : here.startsWith(href))
+const here = path.endsWith("/") ? path : `${path}/`;
+const isCurrent = (href: string) => (href === "/" ? here === "/" : here.startsWith(href));
 
-const items = surfaces.map((s) => ({ label: s.label, href: s.href, current: isCurrent(s.href) }))
+const items = surfaces.map((s) => ({ label: s.label, href: s.href, current: isCurrent(s.href) }));
 ---
 
 <Header homeHref="/" logoSrc="/rxova-logo-256.png" items={items} />

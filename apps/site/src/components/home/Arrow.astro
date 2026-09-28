@@ -1,15 +1,15 @@
 ---
 /** The arrow after a link's label: `across` to a page on this site, `out` to one elsewhere. Drawn, so both match the label. */
 interface Props {
-  dir: 'across' | 'out'
+  dir: "across" | "out";
 }
 
-const { dir } = Astro.props
+const { dir } = Astro.props;
 
 const PATHS = {
   across: '<path d="M3 8h10M9 4l4 4-4 4" />',
   out: '<path d="M4.5 11.5l7-7M5.5 4.5h6v6" />',
-}
+};
 ---
 
 <svg
@@ -39,8 +39,8 @@ const PATHS = {
   :global(.links a:hover) .arrow {
     transform: translate(2px, 0);
   }
-  :global(.btn:hover) .arrow[data-dir='out'],
-  :global(.links a:hover) .arrow[data-dir='out'] {
+  :global(.btn:hover) .arrow[data-dir="out"],
+  :global(.links a:hover) .arrow[data-dir="out"] {
     transform: translate(2px, -2px);
   }
   @media (prefers-reduced-motion: reduce) {

@@ -1,19 +1,19 @@
 ---
 /** Titled source listings, one per recipe: a heading linking to the library, then the source in a code frame. */
 export interface Recipe {
-  id: string
-  label: string
-  href: string
-  source: string
+  id: string;
+  label: string;
+  href: string;
+  source: string;
 }
 
 interface Props {
-  recipes: readonly Recipe[]
+  recipes: readonly Recipe[];
   /** Heading ids are `<idPrefix>-<recipe.id>`, so a page can link to one recipe. */
-  idPrefix?: string
+  idPrefix?: string;
 }
 
-const { recipes, idPrefix = 'recipe' } = Astro.props
+const { recipes, idPrefix = "recipe" } = Astro.props;
 ---
 
 <div class="rx-recipes">

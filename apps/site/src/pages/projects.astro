@@ -1,14 +1,14 @@
 ---
-import { siteUrl } from '@rxova/brand'
-import BaseLayout from '../layouts/BaseLayout.astro'
-import Intro from '../components/home/Intro.astro'
-import Principles from '../components/home/Principles.astro'
-import Showcase from '../components/home/Showcase.astro'
-import Standards from '../components/home/Standards.astro'
-import { featuredIndex } from '../lib/home'
-import { landingProjects, projectListSentence } from '../lib/projects'
+import { siteUrl } from "@rxova/brand";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Intro from "../components/home/Intro.astro";
+import Principles from "../components/home/Principles.astro";
+import Showcase from "../components/home/Showcase.astro";
+import Standards from "../components/home/Standards.astro";
+import { featuredIndex } from "../lib/home";
+import { landingProjects, projectListSentence } from "../lib/projects";
 // The reset this page's scoped CSS is written against; not in BaseLayout, which also builds the shell templates.
-import '../styles/global.css'
+import "../styles/global.css";
 ---
 
 <BaseLayout title="Projects — Rxova" path="/projects">
@@ -24,14 +24,14 @@ import '../styles/global.css'
       content={`Take one package, keep the rest of your stack. Independent TypeScript libraries: ${projectListSentence}.`}
     />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={siteUrl('/projects/')} />
+    <meta property="og:url" content={siteUrl("/projects/")} />
     <!-- A 1200x630 card; a square logo gets centre-cropped by Slack and Twitter. -->
-    <meta property="og:image" content={siteUrl('/og/rxova.png')} />
+    <meta property="og:image" content={siteUrl("/og/rxova.png")} />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- Before first paint: the one switch for the enhanced layouts. Without it the page is
          complete, just stacked and unanimated. -->
     <script is:inline>
-      document.documentElement.dataset.js = ''
+      document.documentElement.dataset.js = "";
     </script>
   </Fragment>
 

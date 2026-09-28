@@ -1,10 +1,10 @@
 ---
-title: 'eslint-plugin-use-everywhere 0.1.0'
+title: "eslint-plugin-use-everywhere 0.1.0"
 date: 2026-08-07T17:30:00Z
 repos: [use-everywhere]
 authors: [jonatan-kruszewski]
 tags: [release, feature]
-version: 'eslint-plugin-use-everywhere@0.1.0'
+version: "eslint-plugin-use-everywhere@0.1.0"
 ---
 
 Four rules, for the four mistakes this library cannot warn you about at runtime.
@@ -31,7 +31,7 @@ the stale capture can outlive several renders without anything looking wrong.
 Flat config, ESLint 9+, and no type information required — so it costs nothing to turn on:
 
 ```js
-import useEverywhere from 'eslint-plugin-use-everywhere'
+import useEverywhere from "eslint-plugin-use-everywhere";
 
-export default [useEverywhere.configs.recommended]
+export default [useEverywhere.configs.recommended];
 ```

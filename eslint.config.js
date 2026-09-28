@@ -1,4 +1,4 @@
-import { rxova } from '@rxova/repo-config/eslint'
+import { rxova } from "@rxova/repo-config/eslint";
 
 export default rxova({
   tsconfigRootDir: import.meta.dirname,
@@ -6,13 +6,13 @@ export default rxova({
   node: true,
   tests: true,
   ignores: [
-    '_site/',
-    'artifacts/',
-    'build/',
-    '.lock/',
+    "_site/",
+    "artifacts/",
+    "build/",
+    ".lock/",
     // The walkthroughs' code is displayed exactly as written, like .prettierignore says.
-    'apps/site/src/showcases/*/after.*',
-    'apps/site/src/showcases/*/before.*',
+    "apps/site/src/showcases/*/after.*",
+    "apps/site/src/showcases/*/before.*",
   ],
-  consoleAllowed: ['scripts/**', '**/scripts/**'],
-})
+  consoleAllowed: ["scripts/**", "**/scripts/**"],
+});

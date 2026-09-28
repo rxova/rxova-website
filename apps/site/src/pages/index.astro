@@ -3,27 +3,27 @@
  * The landing: who maintains rxova, why it exists and what the projects are held to, told mostly in
  * pictures. The copy is ../lib/about.ts, shared with /projects.
  */
-import { siteUrl } from '@rxova/brand'
-import AboutIntro from '../components/about/AboutIntro.astro'
-import AboutPrinciples from '../components/about/AboutPrinciples.astro'
-import Contributing from '../components/about/Contributing.astro'
-import FollowLinks from '../components/about/FollowLinks.astro'
-import Maintenance from '../components/about/Maintenance.astro'
-import Origins from '../components/about/Origins.astro'
-import { MAINTAINER } from '../lib/about'
-import { organizationJsonLd, scriptJson } from '../lib/home'
-import { landingProjects, projectListSentence } from '../lib/projects'
-import BaseLayout from '../layouts/BaseLayout.astro'
+import { siteUrl } from "@rxova/brand";
+import AboutIntro from "../components/about/AboutIntro.astro";
+import AboutPrinciples from "../components/about/AboutPrinciples.astro";
+import Contributing from "../components/about/Contributing.astro";
+import FollowLinks from "../components/about/FollowLinks.astro";
+import Maintenance from "../components/about/Maintenance.astro";
+import Origins from "../components/about/Origins.astro";
+import { MAINTAINER } from "../lib/about";
+import { organizationJsonLd, scriptJson } from "../lib/home";
+import { landingProjects, projectListSentence } from "../lib/projects";
+import BaseLayout from "../layouts/BaseLayout.astro";
 // See ../layouts/BaseLayout.astro for why the reset is imported per page rather than
 // by BaseLayout.
-import '../styles/global.css'
+import "../styles/global.css";
 
 const organizationJson = scriptJson(
   organizationJsonLd(landingProjects, MAINTAINER, projectListSentence),
-)
-const blogFeed = '/blog/rss.xml'
+);
+const blogFeed = "/blog/rss.xml";
 
-const description = `Rxova is built and maintained by ${MAINTAINER.name} — small TypeScript libraries for the hard parts of the browser, with stable APIs, thorough tests, and documentation that answers the question you arrived with.`
+const description = `Rxova is built and maintained by ${MAINTAINER.name} — small TypeScript libraries for the hard parts of the browser, with stable APIs, thorough tests, and documentation that answers the question you arrived with.`;
 ---
 
 <BaseLayout title="Rxova — small libraries for the hard parts of the browser" path="/">
@@ -32,8 +32,8 @@ const description = `Rxova is built and maintained by ${MAINTAINER.name} — sma
     <meta property="og:title" content="Rxova" />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={siteUrl('/')} />
-    <meta property="og:image" content={siteUrl('/og/rxova.png')} />
+    <meta property="og:url" content={siteUrl("/")} />
+    <meta property="og:image" content={siteUrl("/og/rxova.png")} />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- The blog is its own surface, so only the domain root can advertise its feed. -->
     <link rel="alternate" type="application/rss+xml" title="Rxova Blog" href={blogFeed} />

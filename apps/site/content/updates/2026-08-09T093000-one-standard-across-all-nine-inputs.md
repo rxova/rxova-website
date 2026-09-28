@@ -4,7 +4,7 @@ date: 2026-08-09T09:30:00Z
 repos: [react-inputs]
 authors: [jonatan-kruszewski]
 tags: [breaking, feature]
-version: '@rxova/react-inputs@1.0.0'
+version: "@rxova/react-inputs@1.0.0"
 links:
   - label: Migration guide
     href: https://rxova.org/packages/react-inputs/components/otp/migrating

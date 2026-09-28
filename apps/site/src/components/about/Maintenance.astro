@@ -1,13 +1,13 @@
 ---
 /** What one maintainer commits to. */
-import { COMMITMENTS } from '../../lib/about'
-import { navSurfaces } from '../../lib/projects'
-import Eyebrow from '../home/Eyebrow.astro'
-import Reveal from '../home/Reveal.astro'
-import SectionHeading from '../home/SectionHeading.astro'
+import { COMMITMENTS } from "../../lib/about";
+import { navSurfaces } from "../../lib/projects";
+import Eyebrow from "../home/Eyebrow.astro";
+import Reveal from "../home/Reveal.astro";
+import SectionHeading from "../home/SectionHeading.astro";
 
 // Read from the menu, so the link and the header can never disagree on the section.
-const updatesHref = navSurfaces.find((s) => s.id === 'updates')?.href
+const updatesHref = navSurfaces.find((s) => s.id === "updates")?.href;
 ---
 
 <section class="maintenance" aria-labelledby="maintained">
@@ -15,7 +15,7 @@ const updatesHref = navSurfaces.find((s) => s.id === 'updates')?.href
     <Eyebrow>Maintenance</Eyebrow>
     <SectionHeading id="maintained">One person's work, said plainly.</SectionHeading>
     <p class="lede">
-      Don't trust a badge. {updatesHref ? 'Updates logs' : 'The repositories log'} every release and
+      Don't trust a badge. {updatesHref ? "Updates logs" : "The repositories log"} every release and
       decision, and every commit is public.
     </p>
     {updatesHref && (

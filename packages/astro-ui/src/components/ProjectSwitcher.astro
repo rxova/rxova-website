@@ -3,14 +3,14 @@
  * Cross-project navigation as a zero-JS `<details>`. Every href is absolute: a relative one would
  * resolve under the current site's base path.
  */
-import { PROJECTS, RXOVA_ORIGIN, type ProjectId } from '@rxova/brand'
+import { PROJECTS, RXOVA_ORIGIN, type ProjectId } from "@rxova/brand";
 
 interface Props {
   /** Which project this site is, so it can be marked as current. */
-  current?: ProjectId
+  current?: ProjectId;
 }
 
-const { current } = Astro.props
+const { current } = Astro.props;
 ---
 
 <details class="rx-switcher">
@@ -28,8 +28,8 @@ const { current } = Astro.props
       <li>
         <a
           href={`${RXOVA_ORIGIN}${project.mount}`}
-          class={project.id === current ? 'rx-switcher__current' : undefined}
-          aria-current={project.id === current ? 'page' : undefined}
+          class={project.id === current ? "rx-switcher__current" : undefined}
+          aria-current={project.id === current ? "page" : undefined}
         >
           {project.label}
         </a>

@@ -76,7 +76,6 @@
     "lint-staged": "^17.5.1",
     "parse5": "^8.0.1",
     "prettier": "^3.9.7",
-    "prettier-plugin-astro": "^1.0.0",
     "sherif": "^1.13.0",
     "tsx": "^4.23.13",
     "turbo": "^2.10.13",

@@ -3,22 +3,22 @@
  * Screenshots shown rather than described: each in a hairline frame through Astro's `<Image>`,
  * a mono label and a line of detail under it, and an optional link beneath the row.
  */
-import { Image } from 'astro:assets'
-import type { ImageMetadata } from 'astro'
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
 
 export interface Shot {
-  src: ImageMetadata
-  alt: string
-  title: string
-  body: string
+  src: ImageMetadata;
+  alt: string;
+  title: string;
+  body: string;
 }
 
 interface Props {
-  shots: readonly Shot[]
-  link?: { href: string; text: string; external?: boolean }
+  shots: readonly Shot[];
+  link?: { href: string; text: string; external?: boolean };
 }
 
-const { shots, link } = Astro.props
+const { shots, link } = Astro.props;
 ---
 
 <div class="rx-shots">
@@ -31,7 +31,7 @@ const { shots, link } = Astro.props
           </div>
           <figcaption class="rx-shots__caption">
             <span class="rx-shots__index" aria-hidden="true">
-              {String(index + 1).padStart(2, '0')}
+              {String(index + 1).padStart(2, "0")}
             </span>
             <span class="rx-shots__title">{shot.title}</span>
             <span class="rx-shots__body">{shot.body}</span>
@@ -42,7 +42,7 @@ const { shots, link } = Astro.props
   </ul>
 
   {link && (
-    <a class="rx-shots__link" href={link.href} rel={link.external ? 'noopener' : undefined}>
+    <a class="rx-shots__link" href={link.href} rel={link.external ? "noopener" : undefined}>
       {link.text}
       <svg
         viewBox="0 0 16 16"
@@ -108,12 +108,12 @@ const { shots, link } = Astro.props
 
   /* A light capture is the brightest thing on a dark page; dimmed, it sits on the surface instead of glaring. */
   @media (prefers-color-scheme: dark) {
-    :global(html:not([data-theme='light'])) .rx-shots__frame :global(img) {
+    :global(html:not([data-theme="light"])) .rx-shots__frame :global(img) {
       filter: brightness(0.8);
     }
   }
 
-  :global(html[data-theme='dark']) .rx-shots__frame :global(img) {
+  :global(html[data-theme="dark"]) .rx-shots__frame :global(img) {
     filter: brightness(0.8);
   }
 

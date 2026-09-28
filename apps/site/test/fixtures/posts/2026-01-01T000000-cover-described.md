@@ -1,6 +1,6 @@
 ---
 title: A post whose cover carries information
-description: 'Fixture: a described cover, an embedded body image, and the shapes that must not be mistaken for one.'
+description: "Fixture: a described cover, an embedded body image, and the shapes that must not be mistaken for one."
 pubDate: 2026-01-01T00:00:00Z
 authors: [jonatan-kruszewski]
 tags: [fixture]
