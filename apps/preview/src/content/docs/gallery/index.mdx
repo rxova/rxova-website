@@ -15,7 +15,7 @@ gets, since a `.astro` file renders on the server and has no client-side knobs t
    state worth looking at and a props table.
 2. Run `pnpm --filter @rxova/preview screenshots`. It builds this site, opens every gallery
    page in Chromium and writes `packages/astro-ui/screenshots/<component>.png` (and a
-   `-dark` twin), which the pull request embeds.
+   `-dark` twin). The folder is git-ignored: attach the images to the pull request.
 
 ```mdx
 import Story from '../../../components/Story.astro'
