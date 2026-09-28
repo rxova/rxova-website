@@ -1,8 +1,8 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 test.use({ colorScheme: 'light' })
 
-const html = (page: import('@playwright/test').Page) => page.locator('html')
+const html = (page: Page) => page.locator('html')
 
 test('follows the system until the reader picks, then keeps the pick', async ({ page }) => {
   await page.goto('/')

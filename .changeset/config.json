@@ -1,13 +1,18 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@4.0.1/schema.json",
   "changelog": [
-    "@changesets/changelog-github",
-    { "repo": "rxova/rxova-website", "disableThanks": true }
+    "@rxova/repo-config/changelog",
+    {
+      "repo": "rxova/rxova-website"
+    }
   ],
   "commit": false,
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "privatePackages": { "version": true, "tag": false },
+  "privatePackages": {
+    "version": true,
+    "tag": false
+  },
   "ignore": []
 }

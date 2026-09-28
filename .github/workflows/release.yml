@@ -1,7 +1,8 @@
 name: Release
 
-# Gated on CI having gone green for the exact commit being released, so a push to main
-# cannot publish something a PR would have been blocked on.
+# Runs after CI goes green on main: opens the `chore: version packages` pull request, and
+# publishes with npm trusted publishing once that is merged.
+
 on:
   workflow_run:
     workflows: [CI]
@@ -9,96 +10,18 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency: release-${{ github.ref }}
+
 permissions:
   contents: read
 
 jobs:
-  # Publish and version are separate jobs: publish runs on the commit CI validated, version on
-  # main's tip, so a changeset merged mid-CI can't pre-empt a publish.
-  publish:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    # Serialised, not keyed per commit: overlapping jobs would race `npm publish` on the same version.
-    # The queued run finds nothing left to publish; a cancelled pending one is covered by its successor.
-    concurrency:
-      group: publish-${{ github.ref }}
-      cancel-in-progress: false
-    env:
-      HUSKY: '0'
+  release:
+    # workflow_run fires on failure as well, so the conclusion is checked.
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    # The version commit and tags, the version pull request, and npm trusted publishing (OIDC).
     permissions:
-      contents: write # tags
-      id-token: write # npm trusted publishing (OIDC provenance)
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # The commit CI signed off on, not main's tip. Detached HEAD is fine: this
-          # path only pushes tags and creates releases through the API.
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
-          fetch-depth: 0
-      - uses: ./.github/actions/setup-pnpm
-        with:
-          registry-url: 'https://registry.npmjs.org'
-      - name: Upgrade npm for trusted publishing
-        run: npm install -g npm@^11.5.1
-      - run: pnpm install --frozen-lockfile
-
-      # Otherwise the action would try to open a version PR from a detached HEAD,
-      # duplicating the version job.
-      - name: Look for pending changesets
-        id: pending
-        run: |
-          count=$(find .changeset -maxdepth 1 -name '*.md' ! -name 'README.md' | wc -l)
-          echo "count=$count" >> "$GITHUB_OUTPUT"
-          echo "Pending changesets: $count"
-
-      # Publishes only versions the registry lacks: a no-op on a commit with nothing
-      # publishable, a recovery on one whose release was missed.
-      - name: Publish
-        if: ${{ steps.pending.outputs.count == '0' }}
-        uses: changesets/action@v2
-        with:
-          # v2 input names. Actions ignores unknown inputs, so v1 names would silently
-          # fall back to defaults instead of failing.
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          publish-script: pnpm exec changeset publish
-        env:
-          NPM_CONFIG_PROVENANCE: 'true'
-
-  version:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    # Only the newest matters here — the version PR is regenerated from the tip
-    # every time — so superseding an in-flight run costs nothing.
-    concurrency:
-      group: version-${{ github.ref }}
-      cancel-in-progress: true
-    env:
-      # The changesets action makes a version commit; the local pre-commit hook
-      # has no business running in CI.
-      HUSKY: '0'
-    permissions:
-      contents: write # the version commit
-      pull-requests: write # the version PR
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Check out main by name, not the workflow_run's detached SHA, so the
-          # changesets action knows its base branch when opening the version PR.
-          ref: main
-          fetch-depth: 0
-      - uses: ./.github/actions/setup-pnpm
-      - run: pnpm install --frozen-lockfile
-
-      # No `publish-script` input on purpose: with no changesets this exits
-      # without doing anything and the publish job above is what releases.
-      - name: Create or update the version PR
-        uses: changesets/action@v2
-        with:
-          # v2 input names (`version-script`, `commit-message`, `pr-title`); the token
-          # is the `github-token` input, which v2 reads instead of the env var.
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          version-script: pnpm exec changeset version
-          commit-message: 'chore: version packages'
-          pr-title: 'chore: version packages'
+      contents: write
+      pull-requests: write
+      id-token: write
+    uses: rxova/shared/.github/workflows/changesets-release.yml@main

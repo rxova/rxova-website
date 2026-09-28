@@ -25,6 +25,7 @@
   ],
   "files": [
     "src",
+    "!src/**/*.test.ts",
     "assets",
     "MIGRATION.md"
   ],
@@ -37,7 +38,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "pack:smoke": "node --import tsx scripts/pack-smoke.ts",
+    "pack:smoke": "rxova-repo-config pack-smoke",
     "check:exports": "publint --strict",
     "og": "node --import tsx scripts/generate-og.ts",
     "check:og": "node --import tsx scripts/generate-og.ts --check",
@@ -49,7 +50,6 @@
   },
   "devDependencies": {
     "@resvg/resvg-js": "^2.6.2",
-    "@rxova/repo-tooling": "workspace:*",
     "@types/node": "^26.6.1",
     "@vitest/coverage-v8": "^5.0.1",
     "publint": "^0.3.24",
@@ -57,5 +57,10 @@
     "tsx": "^4.23.13",
     "typescript": "6.0.3",
     "vitest": "^5.0.1"
+  },
+  "repoConfig": {
+    "packSmoke": {
+      "load": "never"
+    }
   }
 }

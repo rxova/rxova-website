@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v7
       # Same pinned pnpm + cached setup-node as CI uses, so the two
       # workflows cannot drift to different Node or pnpm versions.
-      - uses: ./.github/actions/setup-pnpm
+      - uses: rxova/shared/actions/setup-pnpm@main
         with:
           node-version: ${{ env.NODE_VERSION }}
       - run: pnpm install --frozen-lockfile
@@ -61,7 +61,7 @@ jobs:
       - uses: actions/checkout@v7
       # The scripts below import @rxova/website-schemas, so this job needs the workspace
       # installed, not a bare setup-node.
-      - uses: ./.github/actions/setup-pnpm
+      - uses: rxova/shared/actions/setup-pnpm@main
         with:
           node-version: ${{ env.NODE_VERSION }}
       - run: pnpm install --frozen-lockfile
@@ -77,13 +77,13 @@ jobs:
       - name: Gather persisted docs
         env:
           GH_TOKEN: ${{ github.token }}
-        run: node packages/tooling/src/deploy/fetch-docs.ts artifacts
+        run: node scripts/deploy/fetch-docs.ts artifacts
 
       # The token lets assemble add the analytics beacon to docs published verbatim.
       - name: Assemble _site
         env:
           CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
-        run: node packages/tooling/src/deploy/assemble.ts artifacts _site
+        run: node scripts/deploy/assemble.ts artifacts _site
 
       - name: Add .nojekyll + CNAME
         env:

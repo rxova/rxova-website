@@ -14,5 +14,5 @@ pnpm exec lint-staged
 # `tsc` cannot parse .astro, so without check:astro the shared chrome — every
 # component this package exists to ship — would go unchecked until CI.
 #
-# The tooling's tests are the only fast suite; the apps' suites build Astro and run in CI.
-pnpm exec turbo run typecheck @rxova/repo-tooling#test check:astro
+# The repository scripts' tests are the only fast suite; the apps' suites build Astro and run in CI.
+pnpm exec turbo run typecheck //#typecheck:scripts //#test:scripts check:astro

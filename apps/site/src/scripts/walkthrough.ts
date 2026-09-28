@@ -1,4 +1,5 @@
 /** Turns each `[data-walkthrough]` into the guided tour. The timing rules live in ../lib/walkthrough.ts. */
+import { prefersReducedMotion } from '@rxova/ts-utils'
 import { PLAY_LABELS, stepAt, stepCount, timeline, type PlayState } from '../lib/walkthrough'
 
 interface Step {
@@ -69,7 +70,7 @@ function enhance(root: HTMLElement): void {
   const { starts, end } = timeline(steps.map((step) => step.side))
   scrubber.max = String(end)
 
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+  const reduced = prefersReducedMotion()
   let state: PlayState = 'paused'
   let time = 0
   let frame: number | undefined

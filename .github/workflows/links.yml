@@ -19,9 +19,9 @@ jobs:
       RX_NETWORK_TESTS: '1'
     steps:
       - uses: actions/checkout@v7
-      - uses: ./.github/actions/setup-pnpm
+      - uses: rxova/shared/actions/setup-pnpm@main
       - run: pnpm install --frozen-lockfile
       - name: Landing links and snippet imports
-        run: pnpm --filter @rxova/repo-tooling exec vitest run src/repo/links.test.ts
+        run: pnpm exec vitest run scripts/repo/links.test.ts
       - name: Brand project links
         run: pnpm --filter @rxova/brand exec vitest run src/sites.links.test.ts
