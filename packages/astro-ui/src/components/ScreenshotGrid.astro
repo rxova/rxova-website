@@ -106,6 +106,17 @@ const { shots, link } = Astro.props
     height: auto;
   }
 
+  /* A light capture is the brightest thing on a dark page; dimmed, it sits on the surface instead of glaring. */
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme='light'])) .rx-shots__frame :global(img) {
+      filter: brightness(0.8);
+    }
+  }
+
+  :global(html[data-theme='dark']) .rx-shots__frame :global(img) {
+    filter: brightness(0.8);
+  }
+
   /* Index beside the label, detail hanging under the label; the indent binds the pair. */
   .rx-shots__caption {
     display: grid;
