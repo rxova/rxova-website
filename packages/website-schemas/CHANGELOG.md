@@ -1,5 +1,11 @@
 # @rxova/website-schemas
 
+## 0.7.1
+
+### Patch Changes
+
+- [#149](https://github.com/rxova/rxova-website/pull/149) [`9791755`](https://github.com/rxova/rxova-website/commit/9791755fc4a5221b5339bfe4e6dff4c510fb1298) - Ship a README and the MIT license with the package.
+
 ## 0.7.0
 
 ### Minor Changes
