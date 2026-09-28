@@ -132,6 +132,24 @@ const { story, id, host } = Astro.props
   :global(html.walkthrough-locked) {
     overflow: hidden;
   }
+  /* A phone: a full-page modal. Just the window, edge to edge, clear of the notch and home bar. */
+  @media (max-width: 40rem) {
+    .walkthrough[data-expanded] {
+      height: 100dvh;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+        env(safe-area-inset-left);
+    }
+    .walkthrough[data-expanded] .heading,
+    .walkthrough[data-expanded] .lede {
+      display: none;
+    }
+    .walkthrough[data-expanded] .window,
+    .walkthrough[data-expanded][data-show='after'] .window {
+      border: 0;
+      border-radius: 0;
+      background: var(--rx-bg);
+    }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .window {
