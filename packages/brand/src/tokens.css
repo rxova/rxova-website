@@ -47,8 +47,8 @@
   --rx-muted: #bbb3a6;
   --rx-fg: #f4f1ea;
 
-  /* Lightened so the accent keeps AA contrast on a dark surface. */
-  --rx-primary: #9375f5;
+  /* Lightened so the accent keeps AA contrast on every dark surface, --rx-tag-bg included (4.9:1). */
+  --rx-primary: #9d82f6;
   --rx-primary-dark: #8159f3;
   --rx-primary-darker: #6b3df0;
   --rx-primary-darkest: #5a2fd6;
@@ -79,7 +79,7 @@
     --rx-muted: #bbb3a6;
     --rx-fg: #f4f1ea;
 
-    --rx-primary: #9375f5;
+    --rx-primary: #9d82f6;
     --rx-primary-dark: #8159f3;
     --rx-primary-darker: #6b3df0;
     --rx-primary-darkest: #5a2fd6;
