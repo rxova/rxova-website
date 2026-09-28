@@ -15,9 +15,6 @@ import { sourceEntry, mountFor, baseFor } from '@rxova/website-schemas'
 
 import { errorMessage } from '@rxova/ts-utils'
 
-/** Allowed characters of an untrusted git ref from a `repository_dispatch` payload. */
-export const REF_PATTERN = /^[A-Za-z0-9._/-]+$/
-
 class RegistryError extends Error {
   constructor(message: string) {
     super(`sources.json: ${message}`)

@@ -51,7 +51,7 @@ async function write(path: string, content: string): Promise<void> {
   await writeFile(path, content)
 }
 
-export async function snapshotRoot(root: SnapshotRoot, outDir: string): Promise<void> {
+async function snapshotRoot(root: SnapshotRoot, outDir: string): Promise<void> {
   const assets: string[] = []
   for (const file of await listFiles(root.dir)) {
     const extension = extname(file)

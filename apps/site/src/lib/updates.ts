@@ -5,11 +5,11 @@
 
 import { getCollection, type CollectionEntry } from 'astro:content'
 
-import { REPOS, type RepoId } from '@rxova/brand'
+import { REPOS } from '@rxova/brand'
 
 import { newestFirst, usedValues, byline, formatDate, isoDate } from '@rxova/astro-ui/lib/entries'
 
-export { REPOS, type RepoId }
+export { REPOS }
 export { resolveAuthors } from './authors'
 export { byline, formatDate, isoDate }
 

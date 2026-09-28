@@ -38,7 +38,7 @@ export interface LlmsEntry {
 }
 
 /** An agent's entry for one project: its llms.txt (`indexed`) if published, else its docs root. */
-export async function projectEntry(
+async function projectEntry(
   outDir: string,
   source: Pick<LlmsSource, 'base' | 'mount'>,
   origin: string,
@@ -87,7 +87,7 @@ export function llmsIndex(
  * Sections the site app builds itself, so no `sources.json` entry announces them. They are
  * listed under "Also on this site" beside any mounted `kind: "site"` source.
  */
-export const OWN_SECTIONS: readonly { label: string; path: string }[] = [
+const OWN_SECTIONS: readonly { label: string; path: string }[] = [
   { label: 'blog', path: '/blog/' },
   { label: 'updates', path: '/updates/' },
 ]

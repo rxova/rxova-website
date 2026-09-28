@@ -14,7 +14,7 @@ export interface Note {
   lines: { before: readonly string[]; after: readonly string[] }
 }
 
-export interface Side {
+interface Side {
   /** The tab, e.g. "By hand" or "With journey". */
   label: string
   code: string

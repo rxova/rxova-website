@@ -102,7 +102,7 @@ export const STANDARDS: readonly Standard[] = [
 ] as const
 
 /** A small picture of a principle on its /about card. */
-export type PrincipleVisual =
+type PrincipleVisual =
   | { kind: 'packages'; core: string; bindings: string }
   | { kind: 'tags'; tags: readonly string[] }
   | { kind: 'command'; command: string }
