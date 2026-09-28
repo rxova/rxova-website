@@ -103,6 +103,25 @@ test.describe('with reduced motion', () => {
   })
 })
 
+test.describe('on a phone', () => {
+  test.use({ viewport: { width: 390, height: 664 } })
+
+  test('expands into a full-page modal: just the window, edge to edge', async ({ page }) => {
+    await open(page)
+    await page.locator(`${root} [data-expand]`).click()
+    await expect(page.locator(root)).toHaveAttribute('data-expanded', '')
+    await expect(page.locator(`${root} .heading`)).toBeHidden()
+    await expect(page.locator(`${root} .lede`)).toBeHidden()
+    // Edge to edge: the window is as wide as the expanded walkthrough, with no padding or border between.
+    const window = await page.locator(`${root} .window`).boundingBox()
+    const frame = await page.locator(root).boundingBox()
+    expect(window?.width).toBe(frame?.width)
+    expect(window?.x).toBe(frame?.x)
+    await page.locator(`${root} [data-expand]`).click()
+    await expect(page.locator(`${root} .heading`)).toBeVisible()
+  })
+})
+
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false })
 
