@@ -48,7 +48,7 @@
   "scripts": {
     "check:astro": "astro check",
     "check:exports": "publint --strict",
-    "pack:smoke": "node --import tsx ../brand/scripts/pack-smoke.ts",
+    "pack:smoke": "rxova-repo-config pack-smoke",
     "test": "vitest run --coverage"
   },
   "dependencies": {
@@ -58,14 +58,17 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@astrojs/starlight": "^0.42.1",
-    "@rxova/repo-tooling": "workspace:*",
     "@types/node": "^26.6.1",
     "@vitest/coverage-v8": "^5.0.1",
-    "astro": "^7.3.2",
+    "astro": "^7.3.3",
     "happy-dom": "^20.14.5",
     "publint": "^0.3.24",
-    "tsx": "^4.23.13",
     "typescript": "6.0.3",
     "vitest": "^5.0.1"
+  },
+  "repoConfig": {
+    "packSmoke": {
+      "load": "never"
+    }
   }
 }

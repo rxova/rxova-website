@@ -5,11 +5,11 @@
 
 import { getCollection, type CollectionEntry } from 'astro:content'
 
-import { REPOS, type RepoId } from '@rxova/brand'
+import { REPOS } from '@rxova/brand'
 
 import { newestFirst, usedValues, byline, formatDate, isoDate } from '@rxova/astro-ui/lib/entries'
 
-export { REPOS, type RepoId }
+export { REPOS }
 export { resolveAuthors } from './authors'
 export { byline, formatDate, isoDate }
 
@@ -32,8 +32,8 @@ export function repoLabel(id: string): string {
 
 /** Only the repos some entry actually mentions — an empty filter chip is noise. */
 export function usedRepos(entries: readonly UpdateEntry[]): { id: string; label: string }[] {
-  const used = new Set(usedValues(entries, (e) => e.data.repos as string[]))
-  return REPOS.filter((r) => used.has(r.id)).map((r) => ({ id: r.id as string, label: r.label }))
+  const used = new Set(usedValues(entries, (e) => e.data.repos))
+  return REPOS.filter((r) => used.has(r.id)).map((r) => ({ id: r.id, label: r.label }))
 }
 
 /** Same, for tags. The enum is the vocabulary; this is what is in use. */

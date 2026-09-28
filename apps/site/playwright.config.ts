@@ -1,3 +1,8 @@
-import { astroPreview, e2eConfig } from '@rxova/repo-tooling/playwright'
+import { astroPreview, basePlaywrightConfig } from '@rxova/repo-config/playwright'
 
-export default e2eConfig({ command: astroPreview(4481), port: 4481 })
+export default basePlaywrightConfig({
+  command: astroPreview(4481),
+  port: 4481,
+  fullyParallel: true,
+  workers: '50%',
+})

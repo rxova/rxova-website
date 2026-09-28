@@ -9,6 +9,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check:astro": "astro check",
+    "sync": "astro sync",
     "screenshots": "node scripts/screenshots.ts",
     "test": "vitest run --coverage"
   },
@@ -16,12 +17,11 @@
     "@astrojs/starlight": "^0.42.1",
     "@rxova/astro-ui": "workspace:*",
     "@rxova/brand": "workspace:*",
-    "astro": "^7.3.2"
+    "astro": "^7.3.3"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@playwright/test": "1.63.0",
-    "@rxova/repo-tooling": "workspace:*",
     "@vitest/coverage-v8": "^5.0.1",
     "sharp": "^0.35.4",
     "typescript": "6.0.3",

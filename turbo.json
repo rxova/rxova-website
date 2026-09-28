@@ -2,6 +2,8 @@
   "$schema": "https://v2-10-7.turborepo.dev/schema.json",
   "ui": "tui",
   "globalDependencies": [".nvmrc"],
+  // Set by rxova/shared's setup-playwright, where it installs the browsers outside the checkout.
+  "globalPassThroughEnv": ["PLAYWRIGHT_BROWSERS_PATH"],
   "tasks": {
     // The sites build. @rxova/brand ships uncompiled source and has no `build` script;
     // `^build` is declared anyway in case it gains one.
@@ -23,7 +25,7 @@
         "$TURBO_ROOT$/packages/brand/src/**",
         "$TURBO_ROOT$/packages/brand/assets/**",
         "$TURBO_ROOT$/packages/astro-ui/src/**",
-        "$TURBO_ROOT$/packages/tooling/src/deploy/sync-brand-og.ts"
+        "$TURBO_ROOT$/scripts/deploy/sync-brand-og.ts"
       ],
       "outputs": ["dist/**"],
       "outputLogs": "new-only"
@@ -56,16 +58,33 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    // The tooling's tests read the real registry, redirect map and CI workflow at the repo root, and import
-    // @rxova/website-schemas from its dist/.
-    "@rxova/repo-tooling#test": {
-      "dependsOn": ["^build"],
+    // The repository scripts' tests read the real registry and redirect map at the root, and
+    // import @rxova/website-schemas from its dist/.
+    "//#test:scripts": {
+      "dependsOn": ["@rxova/website-schemas#build"],
       "outputs": ["coverage/**"],
       "inputs": [
-        "$TURBO_DEFAULT$",
-        "$TURBO_ROOT$/sources.json",
-        "$TURBO_ROOT$/redirects.json",
-        "$TURBO_ROOT$/.github/workflows/ci.yml"
+        "scripts/**",
+        "vitest.config.ts",
+        "tsconfig.json",
+        "package.json",
+        "sources.json",
+        "redirects.json",
+        "packages/brand/src/**",
+        "packages/website-schemas/src/**"
+      ],
+      "outputLogs": "new-only"
+    },
+    "//#typecheck:scripts": {
+      "dependsOn": ["@rxova/website-schemas#build"],
+      "outputs": [],
+      "inputs": [
+        "scripts/**",
+        "vitest.config.ts",
+        "tsconfig.json",
+        "package.json",
+        "packages/brand/src/**",
+        "packages/website-schemas/src/**"
       ],
       "outputLogs": "new-only"
     },
@@ -103,6 +122,12 @@
       ],
       "outputs": ["coverage/**"],
       "outputLogs": "new-only"
+    },
+    // The types `astro:content` and `import.meta.env` resolve to, which type-aware lint reads.
+    "sync": {
+      "dependsOn": ["^build"],
+      "outputs": [".astro/**"],
+      "outputLogs": "errors-only"
     },
     // Ordered after this package's own `build` (not a data dependency): two concurrent astro
     // runs in one package race on `node_modules/.astro/data-store.json` and fail.
@@ -153,7 +178,7 @@
         "apps/site/content/authors/**",
         "packages/website-schemas/src/**",
         "packages/brand/src/sites.ts",
-        "packages/tooling/src/repo/validate-content.ts"
+        "scripts/repo/validate-content.ts"
       ],
       "outputLogs": "new-only"
     },

@@ -20,34 +20,40 @@
     "dev": "pnpm -C apps/site dev",
     "build": "turbo run build",
     "preview": "pnpm -C apps/site preview",
-    "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
+    "typecheck": "turbo run typecheck //#typecheck:scripts",
+    "test": "turbo run test //#test:scripts",
     "check:astro": "turbo run check:astro",
     "check:og": "turbo run check:og",
     "og": "turbo run og --filter=@rxova/brand",
     "check:exports": "turbo run check:exports",
-    "check:registry": "node packages/tooling/src/deploy/check-registry.ts",
-    "check:size": "node packages/tooling/src/repo/check-file-size.ts",
-    "check:comments": "node packages/tooling/src/repo/check-comments.ts",
+    "check:registry": "node scripts/deploy/check-registry.ts",
+    "check:size": "rxova-repo-config check-file-size",
+    "check:comments": "node scripts/repo/check-comments.ts",
     "pack:smoke": "turbo run pack:smoke --concurrency=1",
-    "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/.eslintcache",
+    "lint": "turbo run sync --output-logs=errors-only && eslint . --cache --cache-location node_modules/.cache/eslint/.eslintcache",
     "lint:fix": "eslint . --fix --cache --cache-location node_modules/.cache/eslint/.eslintcache",
     "format": "prettier --write . --cache --cache-location node_modules/.cache/prettier/.prettiercache",
     "format:check": "prettier --check . --cache --cache-location node_modules/.cache/prettier/.prettiercache",
     "audit:check": "pnpm audit --audit-level=high --ignore-registry-errors",
     "dedupe:check": "pnpm dedupe --check",
-    "assemble": "node packages/tooling/src/deploy/assemble.ts",
-    "sync:og": "node packages/tooling/src/deploy/sync-brand-og.ts",
+    "assemble": "node scripts/deploy/assemble.ts",
+    "sync:og": "node scripts/deploy/sync-brand-og.ts",
     "brand:dev": "turbo run dev --filter=@rxova/preview",
     "preview:build": "turbo run build --filter=@rxova/preview",
-    "validate:content": "node --import tsx ./packages/tooling/src/repo/validate-content.ts",
-    "verify": "node --import tsx ./packages/tooling/src/repo/verify.ts",
-    "lock:diff": "node packages/tooling/src/lock/cli.ts diff",
-    "lock:snapshot": "node packages/tooling/src/lock/cli.ts snapshot",
+    "validate:content": "node --import tsx ./scripts/repo/validate-content.ts",
+    "verify": "rxova-repo-config verify",
+    "lock:diff": "node scripts/lock/cli.ts diff",
+    "lock:snapshot": "node scripts/lock/cli.ts snapshot",
     "e2e": "turbo run e2e",
     "visual": "pnpm --filter @rxova/e2e visual",
     "release": "changeset publish",
-    "prepare": "husky && pnpm --filter @rxova/website-schemas run build"
+    "prepare": "husky && pnpm --filter @rxova/website-schemas run build",
+    "test:scripts": "vitest run --coverage",
+    "typecheck:scripts": "tsc -p tsconfig.json",
+    "serve:site": "node scripts/e2e/serve.ts",
+    "sherif:check": "sherif --fail-on-warnings",
+    "knip:check": "knip",
+    "check:repo": "pnpm run check:size && pnpm run check:comments && pnpm run check:registry && rxova-repo-config lint-changesets && turbo run //#typecheck:scripts check:astro check:og //#validate:content"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^1.0.1",
@@ -55,26 +61,101 @@
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "1.63.0",
+    "@rxova/docs-kit": "^0.1.0",
+    "@rxova/repo-config": "^0.4.1",
+    "@rxova/ts-utils": "^0.2.1",
+    "@rxova/website-schemas": "workspace:^",
     "@types/node": "^26.6.1",
     "@vitest/coverage-v8": "^5.0.1",
     "eslint": "^10.10.0",
     "eslint-plugin-astro": "^3.2.0",
     "globals": "^17.12.0",
     "husky": "^9.1.7",
+    "knip": "^6.38.0",
     "lint-staged": "^17.5.1",
+    "parse5": "^8.0.1",
     "prettier": "^3.9.7",
     "prettier-plugin-astro": "^1.0.0",
+    "sherif": "^1.13.0",
     "tsx": "^4.23.13",
     "turbo": "^2.10.13",
     "typescript": "6.0.3",
     "typescript-eslint": "^8.70.0",
-    "vitest": "^5.0.1"
+    "vitest": "^5.0.1",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.5"
   },
-  "lint-staged": {
-    "*.{ts,tsx,astro,mjs,js}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,jsonc,css,md,mdx,yaml,yml}": "prettier --write"
+  "repoConfig": {
+    "verify": {
+      "steps": [
+        {
+          "name": "audit",
+          "command": "pnpm run audit:check",
+          "skipOnRelease": true
+        },
+        {
+          "name": "dependency versions",
+          "command": "pnpm run sherif:check"
+        },
+        {
+          "name": "unused code",
+          "command": "pnpm run knip:check"
+        },
+        {
+          "name": "dependency dedupe",
+          "command": "pnpm exec turbo run //#dedupe:check",
+          "skipOnRelease": true
+        },
+        {
+          "name": "format",
+          "command": "pnpm run format:check"
+        },
+        {
+          "name": "lint",
+          "command": "pnpm run lint"
+        },
+        {
+          "name": "changesets",
+          "command": "pnpm exec rxova-repo-config lint-changesets"
+        },
+        {
+          "name": "file sizes",
+          "command": "pnpm run check:size"
+        },
+        {
+          "name": "comment lengths",
+          "command": "pnpm run check:comments"
+        },
+        {
+          "name": "docs registry",
+          "command": "pnpm run check:registry"
+        },
+        {
+          "name": "types, tests, astro check, social cards, builds and package metadata",
+          "command": "pnpm exec turbo run typecheck //#typecheck:scripts check:astro check:og build check:exports test //#test:scripts //#validate:content"
+        },
+        {
+          "name": "pack smoke",
+          "command": "pnpm run pack:smoke",
+          "skipOnRelease": true
+        }
+      ]
+    },
+    "scope": {
+      "ignore": [
+        "**/*.md",
+        "**/*.mdx"
+      ],
+      "keep": [
+        "apps/**",
+        "packages/*/*/**",
+        "packages/brand/MIGRATION.md",
+        "**/{test,tests,__tests__,fixtures,__fixtures__}/**"
+      ],
+      "site": [
+        "apps/site/**"
+      ]
+    }
   }
 }

@@ -62,11 +62,11 @@ name — stays uniform, so ingest and fetch never branch on kind.
 
 ## What lives where
 
-| Where                                                 | Owns                                                                                 |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `packages/` in this repo                              | prose, frontmatter schemas, design tokens, the site chrome and the docs chrome       |
-| package repositories                                  | documentation content, built into complete pages with `@rxova/astro-ui`              |
-| `apps/`, `packages/tooling/` and workflows, this repo | the site's own pages, the deploy, and the analytics beacon added to docs at assembly |
+| Where                                        | Owns                                                                                 |
+| -------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `packages/` in this repo                     | prose, frontmatter schemas, design tokens, the site chrome and the docs chrome       |
+| package repositories                         | documentation content, built into complete pages with `@rxova/astro-ui`              |
+| `apps/`, `scripts/` and workflows, this repo | the site's own pages, the deploy, and the analytics beacon added to docs at assembly |
 
 The renderer sits with the content: each package repository builds its own HTML and
 assets. The chrome is shared by package rather than by composition. Every docs build

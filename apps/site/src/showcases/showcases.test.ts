@@ -48,6 +48,7 @@ describe('lineMarkers', () => {
 describe('ts-extended-errors: an error that has to cross a boundary', () => {
   /** What the API receives when the charge throws `cause`: the worker's result, through JSON. */
   async function overTheWire(cause: unknown) {
+    // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- the cause under test is whatever was thrown, Error or not
     const result = await runCheckout('order-7', () => Promise.reject(cause))
     expect(result.ok).toBe(false)
     return JSON.parse(JSON.stringify((result as { error: unknown }).error)) as unknown

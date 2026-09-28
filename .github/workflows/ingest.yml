@@ -1,7 +1,7 @@
 name: Ingest docs
 
 # Gate 2 of the docs pipeline (docs/INPUTS-CONTRACT.md): validates a `docs` dispatch and its dist,
-# persists the dist as a release asset and redeploys; gates live in packages/tooling/src/deploy/ingest.ts.
+# persists the dist as a release asset and redeploys; gates live in scripts/deploy/ingest.ts.
 
 on:
   repository_dispatch:
@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v7
       # Not a bare setup-node: ingest.ts imports @rxova/website-schemas, so the workspace
       # has to be installed.
-      - uses: ./.github/actions/setup-pnpm
+      - uses: rxova/shared/actions/setup-pnpm@main
         with:
           node-version: '24'
       - run: pnpm install --frozen-lockfile
@@ -40,7 +40,7 @@ jobs:
         name: Validate dispatch (gate 2a)
         env:
           CLIENT_PAYLOAD: ${{ toJSON(github.event.client_payload) }}
-        run: node packages/tooling/src/deploy/ingest.ts
+        run: node scripts/deploy/ingest.ts
 
       # Cross-repo download needs SOURCE_ARTIFACTS_TOKEN with actions:read on the source repo;
       # surfaces built in this repo use the job's own token.
@@ -55,7 +55,7 @@ jobs:
 
       # Gate 2b. Only now, with the tree on disk, is it trusted.
       - name: Validate dist (gate 2b)
-        run: node packages/tooling/src/deploy/ingest.ts --check-dist incoming
+        run: node scripts/deploy/ingest.ts --check-dist incoming
 
       # Persist as the project's canonical asset. Replace the asset in place if the
       # release exists, create the release the first time a project is ingested.
