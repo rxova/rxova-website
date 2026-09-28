@@ -6,15 +6,15 @@
 
 interface Props {
   /** Pin the button to the viewport's top-right corner; `false` when it sits in a header. */
-  floating?: boolean
+  floating?: boolean;
 }
 
-const { floating = true } = Astro.props
+const { floating = true } = Astro.props;
 ---
 
 <button
   id="theme-toggle"
-  class:list={['theme-toggle', { 'theme-toggle--floating': floating }]}
+  class:list={["theme-toggle", { "theme-toggle--floating": floating }]}
   type="button"
   aria-label="Toggle theme"
 >
@@ -97,67 +97,67 @@ const { floating = true } = Astro.props
 </style>
 
 <script is:inline>
-  ;(function () {
-    const root = document.documentElement
-    const btn = document.getElementById('theme-toggle')
-    const glyph = btn.querySelector('.icon')
-    const media = window.matchMedia('(prefers-color-scheme: dark)')
+  (function () {
+    const root = document.documentElement;
+    const btn = document.getElementById("theme-toggle");
+    const glyph = btn.querySelector(".icon");
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
 
     // Lucide icons (ISC licensed).
     const ICON_MOON =
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>'
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
     const ICON_SUN =
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>'
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
 
     function current() {
-      return root.getAttribute('data-theme') || (media.matches ? 'dark' : 'light')
+      return root.getAttribute("data-theme") || (media.matches ? "dark" : "light");
     }
     function stored() {
       try {
-        const t = localStorage.getItem('starlight-theme')
-        return t === 'light' || t === 'dark' ? t : null
+        const t = localStorage.getItem("starlight-theme");
+        return t === "light" || t === "dark" ? t : null;
       } catch {
         /* localStorage may be unavailable */
-        return null
+        return null;
       }
     }
     // Re-read the saved choice and reflect it in the DOM. Same job as the
     // pre-paint script in <head>, minus the write.
     function sync() {
-      const t = stored()
-      if (t) root.setAttribute('data-theme', t)
-      else root.removeAttribute('data-theme')
-      render()
+      const t = stored();
+      if (t) root.setAttribute("data-theme", t);
+      else root.removeAttribute("data-theme");
+      render();
     }
     function render() {
-      const dark = current() === 'dark'
+      const dark = current() === "dark";
       // Show the icon of the theme you'd switch TO.
-      glyph.innerHTML = dark ? ICON_SUN : ICON_MOON
-      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme')
+      glyph.innerHTML = dark ? ICON_SUN : ICON_MOON;
+      btn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
     }
     function apply(t) {
-      root.setAttribute('data-theme', t)
+      root.setAttribute("data-theme", t);
       try {
         // Starlight's key — see the pre-paint script in <head>.
-        localStorage.setItem('starlight-theme', t)
+        localStorage.setItem("starlight-theme", t);
       } catch {
         /* localStorage may be unavailable */
       }
-      render()
+      render();
     }
 
-    btn.addEventListener('click', function () {
-      apply(current() === 'dark' ? 'light' : 'dark')
-    })
+    btn.addEventListener("click", function () {
+      apply(current() === "dark" ? "light" : "dark");
+    });
     // Track the OS preference while the user hasn't overridden it.
-    media.addEventListener('change', function () {
-      if (!root.getAttribute('data-theme')) render()
-    })
+    media.addEventListener("change", function () {
+      if (!root.getAttribute("data-theme")) render();
+    });
     // Back from a docs site restores this page from the bfcache without rerunning any script;
     // `pageshow` is the only notification, so re-sync the theme there.
-    window.addEventListener('pageshow', function (e) {
-      if (e.persisted) sync()
-    })
-    render()
-  })()
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) sync();
+    });
+    render();
+  })();
 </script>

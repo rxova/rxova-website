@@ -5,38 +5,38 @@ packages:
 
 overrides:
   # GHSA-f88m-g3jw-g9cj: sharp <0.35.0 inherits four libvips CVEs via Astro's 0.34 pin; drop when Astro depends on >=0.35.0
-  sharp: '>=0.35.0'
+  sharp: ">=0.35.0"
 
   # Not a security pin: one satteri version keeps `pnpm dedupe --check` stable across OSes; drop when @astrojs/mdx uses the 0.4 line
-  satteri: '0.10.5'
+  satteri: "0.10.5"
 
   # GHSA-rgw5-rvv9-x895: brace-expansion <5.0.9 builds unbounded arrays; arrives 39 ways, so no direct bump reaches it
-  brace-expansion: '>=5.0.9'
+  brace-expansion: ">=5.0.9"
 
   # GHSA-6g55-p6wh-862q: postcss <=8.5.22 reads an arbitrary .map via sourceMappingURL when `from` is unset
-  postcss: '>=8.5.23'
+  postcss: ">=8.5.23"
 
   # fast-uri <3.1.6: host-parsing and SSRF advisories via ajv; held to 3.x because ajv expects that major
-  fast-uri: '>=3.1.6 <4'
+  fast-uri: ">=3.1.6 <4"
 
   # GHSA-5p4m-2wfm-xmqj: js-yaml `!!omap` is quadratic; pinned per major (3.x callers use the pre-4.0 API), closed to avoid 5.x
-  js-yaml@3: '>=3.15.2 <4'
-  js-yaml@4: '>=4.3.2 <5'
+  js-yaml@3: ">=3.15.2 <4"
+  js-yaml@4: ">=4.3.2 <5"
 
   # GHSA-w27v-7q3p-w38r: svgo <4.1.0 `removeScripts` can be bypassed; drop when Astro depends on >=4.1.0
-  svgo: '>=4.1.0 <5'
+  svgo: ">=4.1.0 <5"
 
   # GHSA-2v37-7h3g-55p8: nanoid size-0 custom alphabet never terminates; 3.x only (postcss requires it); drop when postcss needs >=3.3.18
-  nanoid@3: '>=3.3.18 <4'
+  nanoid@3: ">=3.3.18 <4"
 
   # GHSA-7w5x-hrqm-74c2: smol-toml backtracks on malformed TOML (DoS), via Astro; drop when Astro depends on >=1.7.1
-  smol-toml: '>=1.7.1 <2'
+  smol-toml: ">=1.7.1 <2"
 
   # GHSA-px8p-9vwx-vf98: fflate <0.7.5 `unzipSync` loops on malformed ZIP64, via satori; drop when satori depends on >=0.7.5
-  fflate: '>=0.7.5 <0.8'
+  fflate: ">=0.7.5 <0.8"
 
   # GHSA-9rgm-9g3h-6x36: devalue <5.9.1 `parse`/`unflatten` DoS, via Astro; drop when Astro depends on >=5.9.2
-  devalue: '>=5.9.2 <6'
+  devalue: ">=5.9.2 <6"
 
 # esbuild + sharp ship prebuilt binaries via install scripts that Astro needs.
 # Listed explicitly so a new script-running dependency fails loudly instead of being skipped.
@@ -52,6 +52,6 @@ fetchRetryMintimeout: 5000
 fetchRetryMaxtimeout: 10000
 minimumReleaseAgeExclude:
   - ts-extended-errors@1.0.0
-  - '@rxova/docs-kit@0.1.0'
-  - '@rxova/repo-config@0.4.1'
-  - '@rxova/ts-utils@0.2.1'
+  - "@rxova/docs-kit@0.1.0"
+  - "@rxova/repo-config@0.4.1"
+  - "@rxova/ts-utils@0.2.1"

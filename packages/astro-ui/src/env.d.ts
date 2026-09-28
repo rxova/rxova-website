@@ -7,9 +7,9 @@
 // Re-check against Starlight's `global.d.ts` on a major bump.
 declare global {
   interface StarlightThemeProvider {
-    updatePickers(theme?: string): void
+    updatePickers(theme?: string): void;
   }
-  var StarlightThemeProvider: StarlightThemeProvider
+  var StarlightThemeProvider: StarlightThemeProvider;
 }
 
-export {}
+export {};

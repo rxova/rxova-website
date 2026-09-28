@@ -31,7 +31,7 @@ jobs:
       # has to be installed.
       - uses: rxova/shared/actions/setup-pnpm@main
         with:
-          node-version: '24'
+          node-version: "24"
       - run: pnpm install --frozen-lockfile
 
       # Gate 2a. Event data goes through env, never ${{ }} interpolation: the payload is

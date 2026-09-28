@@ -4,7 +4,7 @@ name: Links
 # and demo resolves. Weekly rather than per pull request, so a flaky registry cannot fail one.
 on:
   schedule:
-    - cron: '0 6 * * 1'
+    - cron: "0 6 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      RX_NETWORK_TESTS: '1'
+      RX_NETWORK_TESTS: "1"
     steps:
       - uses: actions/checkout@v7
       - uses: rxova/shared/actions/setup-pnpm@main

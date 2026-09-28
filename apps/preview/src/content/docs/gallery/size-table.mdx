@@ -3,8 +3,8 @@ title: SizeTable
 description: Per-package bundle budgets as a table.
 ---
 
-import Story from '../../../components/Story.astro'
-import SizeTable from '@rxova/astro-ui/components/SizeTable.astro'
+import Story from "../../../components/Story.astro";
+import SizeTable from "@rxova/astro-ui/components/SizeTable.astro";
 
 A real table rather than cards: these are numbers people compare against whatever they ship
 today, and a column of right-aligned tabular figures is the shape that supports comparing.
@@ -18,11 +18,11 @@ The box scrolls sideways on a narrow viewport and is focusable, so a keyboard ca
     compression="brotli"
     caption="Read from each package's size-limit configuration when this page was built. CI checks the same numbers on every commit."
     rows={[
-      { pkg: '@rxova/react-inputs', entry: 'everything', limitKb: 10 },
-      { pkg: '@rxova/react-intl-currency-input', entry: 'CurrencyInput', limitKb: 3 },
-      { pkg: '@rxova/react-otp-input', entry: 'OtpInput', limitKb: 3 },
-      { pkg: '@rxova/react-rating-input', entry: 'Rating', limitKb: 2 },
-      { pkg: '@rxova/react-phone-input', entry: 'PhoneInput', limitKb: 4 },
+      { pkg: "@rxova/react-inputs", entry: "everything", limitKb: 10 },
+      { pkg: "@rxova/react-intl-currency-input", entry: "CurrencyInput", limitKb: 3 },
+      { pkg: "@rxova/react-otp-input", entry: "OtpInput", limitKb: 3 },
+      { pkg: "@rxova/react-rating-input", entry: "Rating", limitKb: 2 },
+      { pkg: "@rxova/react-phone-input", entry: "PhoneInput", limitKb: 4 },
     ]}
   />
 </Story>
@@ -31,7 +31,7 @@ The box scrolls sideways on a narrow viewport and is focusable, so a keyboard ca
   <SizeTable
     compression="gzip"
     caption="A single package."
-    rows={[{ pkg: 'ts-extended-errors', entry: 'ExtendedError', limitKb: 2 }]}
+    rows={[{ pkg: "ts-extended-errors", entry: "ExtendedError", limitKb: 2 }]}
   />
 </Story>
 

@@ -4,30 +4,30 @@
  * A renamed or dropped token goes transparent instead of showing a stale colour.
  */
 const NEUTRALS = [
-  'rx-bg',
-  'rx-card',
-  'rx-tag-bg',
-  'rx-rule',
-  'rx-rule-strong',
-  'rx-faint',
-  'rx-muted',
-  'rx-fg',
-]
+  "rx-bg",
+  "rx-card",
+  "rx-tag-bg",
+  "rx-rule",
+  "rx-rule-strong",
+  "rx-faint",
+  "rx-muted",
+  "rx-fg",
+];
 
 const ACCENTS = [
-  'rx-primary',
-  'rx-primary-light',
-  'rx-primary-lightest',
-  'rx-accent-a',
-  'rx-accent-b',
-  'rx-accent-c',
-]
+  "rx-primary",
+  "rx-primary-light",
+  "rx-primary-lightest",
+  "rx-accent-a",
+  "rx-accent-b",
+  "rx-accent-c",
+];
 ---
 
 <div class="rows">
   {[
-    { label: 'Neutral ladder', tokens: NEUTRALS },
-    { label: 'Accents', tokens: ACCENTS },
+    { label: "Neutral ladder", tokens: NEUTRALS },
+    { label: "Accents", tokens: ACCENTS },
   ].map((group) => (
     <section>
       <h3>{group.label}</h3>

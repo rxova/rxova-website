@@ -3,10 +3,10 @@
  * The non-Starlight surface, on document.css rather than starlight.css. SiteFooter renders here, so a
  * lost footer.css import shows up unstyled; ProjectSwitcher does not, as its styles are Starlight-only.
  */
-import '@rxova/brand/fonts.css'
-import '@rxova/astro-ui/styles/document.css'
-import SiteFooter from '@rxova/astro-ui/components/SiteFooter.astro'
-import { PROJECTS, RXOVA_ORIGIN } from '@rxova/brand'
+import "@rxova/brand/fonts.css";
+import "@rxova/astro-ui/styles/document.css";
+import SiteFooter from "@rxova/astro-ui/components/SiteFooter.astro";
+import { PROJECTS, RXOVA_ORIGIN } from "@rxova/brand";
 ---
 
 <html lang="en">
@@ -30,8 +30,8 @@ import { PROJECTS, RXOVA_ORIGIN } from '@rxova/brand'
       <h2>Type ramp</h2>
       <h3>Heading three</h3>
       <p>
-        Inline <code>code</code>, a <a href={RXOVA_ORIGIN}>link to the umbrella origin</a>,{' '}
-        <strong>bold</strong> and <em>italic</em>. Tab to the links: the focus ring is{' '}
+        Inline <code>code</code>, a <a href={RXOVA_ORIGIN}>link to the umbrella origin</a>,{" "}
+        <strong>bold</strong> and <em>italic</em>. Tab to the links: the focus ring is{" "}
         <code>--rx-fg</code>: the foreground, deliberately, rather than the brand violet.
       </p>
 

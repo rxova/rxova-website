@@ -4,16 +4,16 @@
  * Figures are server-rendered at their final value, so with JS off or motion reduced it is a static panel.
  */
 export interface Stat {
-  value: string
-  label: string
-  note: string
+  value: string;
+  label: string;
+  note: string;
 }
 
 interface Props {
-  stats: readonly Stat[]
+  stats: readonly Stat[];
 }
 
-const { stats } = Astro.props
+const { stats } = Astro.props;
 ---
 
 <div class="rx-stats">
@@ -32,52 +32,52 @@ const { stats } = Astro.props
 </div>
 
 <script>
-  const DURATION = 1100
+  const DURATION = 1100;
 
   const animate = (panel: HTMLElement) => {
     // Values are display strings ("7.58 kB", "95%"); the leading number animates and the rest stays.
-    const figures = [...panel.querySelectorAll<HTMLElement>('.rx-stats__value')].flatMap((el) => {
-      const match = /^(\d+(?:\.\d+)?)(.*)$/s.exec(el.textContent ?? '')
-      if (!match) return []
-      const [, number = '', suffix = ''] = match
-      const final = el.textContent ?? ''
+    const figures = [...panel.querySelectorAll<HTMLElement>(".rx-stats__value")].flatMap((el) => {
+      const match = /^(\d+(?:\.\d+)?)(.*)$/s.exec(el.textContent ?? "");
+      if (!match) return [];
+      const [, number = "", suffix = ""] = match;
+      const final = el.textContent ?? "";
       return [
         {
           el,
           target: Number(number),
-          decimals: (number.split('.')[1] ?? '').length,
+          decimals: (number.split(".")[1] ?? "").length,
           suffix,
           final,
         },
-      ]
-    })
+      ];
+    });
 
     const frame = (start: number) => {
-      const t = Math.min(1, (performance.now() - start) / DURATION)
+      const t = Math.min(1, (performance.now() - start) / DURATION);
       // easeOutExpo: quick to nearly-there, then settles.
-      const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t)
+      const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
       for (const f of figures) {
-        f.el.textContent = t === 1 ? f.final : (f.target * eased).toFixed(f.decimals) + f.suffix
+        f.el.textContent = t === 1 ? f.final : (f.target * eased).toFixed(f.decimals) + f.suffix;
       }
-      if (t < 1) requestAnimationFrame(() => frame(start))
-    }
+      if (t < 1) requestAnimationFrame(() => frame(start));
+    };
 
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (!entry.isIntersecting) continue
-          observer.disconnect()
-          for (const f of figures) f.el.textContent = '0' + f.suffix
-          requestAnimationFrame(() => frame(performance.now()))
+          if (!entry.isIntersecting) continue;
+          observer.disconnect();
+          for (const f of figures) f.el.textContent = "0" + f.suffix;
+          requestAnimationFrame(() => frame(performance.now()));
         }
       },
       { threshold: 0.3 },
-    )
-    observer.observe(panel)
-  }
+    );
+    observer.observe(panel);
+  };
 
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    for (const panel of document.querySelectorAll<HTMLElement>('.rx-stats')) animate(panel)
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    for (const panel of document.querySelectorAll<HTMLElement>(".rx-stats")) animate(panel);
   }
 </script>
 
@@ -147,7 +147,7 @@ const { stats } = Astro.props
 
   /* A gradient wash that fades up from the bottom of the hovered tile. */
   .rx-stats__item::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     background: var(--rx-gradient);

@@ -3,14 +3,14 @@
  * "Show more" controls for a batched list; they ship `hidden` until a script drives them.
  * `enhanceShowMore` from `@rxova/astro-ui/scripts/show-more` batches a plain list.
  */
-import VisuallyHidden from './VisuallyHidden.astro'
+import VisuallyHidden from "./VisuallyHidden.astro";
 
 interface Props {
   /** What the list holds, for the button's accessible name: "Show more posts". */
-  noun: string
+  noun: string;
 }
 
-const { noun } = Astro.props
+const { noun } = Astro.props;
 ---
 
 <div class="more" data-reveal-controls hidden>

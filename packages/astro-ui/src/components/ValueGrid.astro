@@ -3,20 +3,20 @@
  * A grid of claims in the landing's language: a gradient hairline over each, a faint-ink Lucide
  * icon beside the title, the body hanging under it. `icon` is a `lucide-static` name, inlined at build time.
  */
-import { lucideGlyph } from '../lib/icons.ts'
+import { lucideGlyph } from "../lib/icons.ts";
 
 export interface ValueItem {
-  title: string
+  title: string;
   /** Set as HTML, so it may carry inline `<code>`. */
-  body: string
-  icon: string
+  body: string;
+  icon: string;
 }
 
 interface Props {
-  items: readonly ValueItem[]
+  items: readonly ValueItem[];
 }
 
-const { items } = Astro.props
+const { items } = Astro.props;
 ---
 
 <ul class="rx-vg">

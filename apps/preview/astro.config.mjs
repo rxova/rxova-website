@@ -1,7 +1,7 @@
-import { defineConfig } from 'astro/config'
-import starlight from '@astrojs/starlight'
-import { RXOVA_ORIGIN } from '@rxova/brand'
-import { sharedStarlightConfig } from '@rxova/astro-ui/starlight'
+import { defineConfig } from "astro/config";
+import starlight from "@astrojs/starlight";
+import { RXOVA_ORIGIN } from "@rxova/brand";
+import { sharedStarlightConfig } from "@rxova/astro-ui/starlight";
 
 /**
  * The preview site, built like a real docs site via `sharedStarlightConfig()` so CI tests
@@ -14,18 +14,18 @@ export default defineConfig({
       sharedStarlightConfig({
         // A real project id: the shared config resolves the title, social links
         // and OG image from it, so a fake id would preview chrome no site renders.
-        project: 'journey',
-        editLinkBase: 'apps/preview',
-        customCss: ['@rxova/astro-ui/styles/landing.css', './src/styles/gallery.css'],
+        project: "journey",
+        editLinkBase: "apps/preview",
+        customCss: ["@rxova/astro-ui/styles/landing.css", "./src/styles/gallery.css"],
         sidebar: [
-          { label: 'Gallery', items: [{ autogenerate: { directory: 'gallery' } }] },
-          { label: 'Preview', items: [{ autogenerate: { directory: 'preview' } }] },
+          { label: "Gallery", items: [{ autogenerate: { directory: "gallery" } }] },
+          { label: "Preview", items: [{ autogenerate: { directory: "preview" } }] },
           {
-            label: 'Other surfaces',
-            items: [{ label: 'Plain Astro page', link: '/plain/' }],
+            label: "Other surfaces",
+            items: [{ label: "Plain Astro page", link: "/plain/" }],
           },
         ],
       }),
     ),
   ],
-})
+});

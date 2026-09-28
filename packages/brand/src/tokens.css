@@ -4,7 +4,7 @@
  */
 
 :root,
-:root[data-theme='light'] {
+:root[data-theme="light"] {
   color-scheme: light;
 
   /* Surfaces, ordered background -> foreground. */
@@ -34,7 +34,7 @@
   --rx-shadow-soft: 0 20px 60px -30px rgb(107 61 240 / 0.35);
 }
 
-:root[data-theme='dark'] {
+:root[data-theme="dark"] {
   color-scheme: dark;
 
   --rx-bg: #0b0a08;
@@ -103,9 +103,9 @@
   --rx-gradient: linear-gradient(90deg, var(--rx-accent-a), var(--rx-accent-b), var(--rx-accent-c));
 
   --rx-font-sans:
-    'Space Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --rx-font-mono:
-    'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    "IBM Plex Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
   --rx-radius: 12px;
   --rx-radius-sm: 6px;

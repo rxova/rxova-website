@@ -3,6 +3,6 @@
  * No reset, which is document.css: unlayered, it would flatten a Starlight page this is composed into.
  */
 
-@import '@rxova/brand/tokens.css';
+@import "@rxova/brand/tokens.css";
 /* The footer every surface renders, Starlight or not. */
-@import './footer.css';
+@import "./footer.css";

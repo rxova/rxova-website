@@ -3,43 +3,43 @@
  * The rxova footer on every surface: brand block, link columns, then copyright and legal links.
  * Styles live in `../styles/footer.css`. Hrefs are absolute unless `origin` is '' (on rxova.org).
  */
-import { PROJECTS, RXOVA_ORIGIN, SECTIONS, getProject, type ProjectId } from '@rxova/brand'
+import { PROJECTS, RXOVA_ORIGIN, SECTIONS, getProject, type ProjectId } from "@rxova/brand";
 
 /** A standalone surface of rxova.org, for the "Site" column. */
 export interface SiteLink {
-  label: string
+  label: string;
   /** A page URL ending in `/`: absolute, or root-relative when `origin` is ''. */
-  href: string
+  href: string;
 }
 
 interface Props {
   /** Current project, if this is a docs site. Omitted on the landing. */
-  project?: ProjectId
+  project?: ProjectId;
   /** Optional per-site "Docs" column. */
-  docs?: { label: string; href: string }[]
+  docs?: { label: string; href: string }[];
   /**
    * Standalone surfaces listed under "Site", below Home. Only the umbrella repo knows which are
    * deployed; the default (for docs sites) is `SECTIONS`: Projects, Blog and Updates.
    */
-  site?: readonly SiteLink[]
+  site?: readonly SiteLink[];
   /**
    * Projects whose docs are actually mounted; only the umbrella repo knows which are deployed.
    * Defaults to every project, which is right for a docs site.
    */
-  projects?: readonly SiteLink[]
+  projects?: readonly SiteLink[];
   /** Prefix for every rxova.org link. '' on rxova.org itself, so links stay on the serving origin. */
-  origin?: string
+  origin?: string;
 }
 
-const { project, docs, site, projects, origin = RXOVA_ORIGIN } = Astro.props
-const self = project ? getProject(project) : undefined
-const year = new Date().getFullYear()
+const { project, docs, site, projects, origin = RXOVA_ORIGIN } = Astro.props;
+const self = project ? getProject(project) : undefined;
+const year = new Date().getFullYear();
 
 const projectLinks: readonly SiteLink[] =
-  projects ?? PROJECTS.map((p) => ({ label: p.label, href: `${origin}${p.mount}` }))
+  projects ?? PROJECTS.map((p) => ({ label: p.label, href: `${origin}${p.mount}` }));
 
 const surfaces: readonly SiteLink[] =
-  site ?? SECTIONS.map((section) => ({ label: section.label, href: `${origin}${section.path}` }))
+  site ?? SECTIONS.map((section) => ({ label: section.label, href: `${origin}${section.path}` }));
 ---
 
 <footer class="rx-footer">

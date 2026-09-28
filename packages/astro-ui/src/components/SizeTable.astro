@@ -4,19 +4,19 @@
  * supports comparing against whatever the reader ships today.
  */
 export interface SizeRow {
-  pkg: string
-  entry: string
-  limitKb: number
+  pkg: string;
+  entry: string;
+  limitKb: number;
 }
 
 interface Props {
-  rows: readonly SizeRow[]
+  rows: readonly SizeRow[];
   /** The column heading: "brotli", "gzip". */
-  compression: string
-  caption: string
+  compression: string;
+  caption: string;
 }
 
-const { rows, compression, caption } = Astro.props
+const { rows, compression, caption } = Astro.props;
 ---
 
 {/* Focusable and labelled: the box scrolls sideways on a narrow viewport, and a scrollable region needs a tab stop. */}

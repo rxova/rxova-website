@@ -3,9 +3,9 @@ title: ScreenshotGrid
 description: Captioned screenshots in card frames, with an optional link beneath.
 ---
 
-import Story from '../../../components/Story.astro'
-import ScreenshotGrid from '@rxova/astro-ui/components/ScreenshotGrid.astro'
-import card from '@rxova/brand/assets/og/journey.png'
+import Story from "../../../components/Story.astro";
+import ScreenshotGrid from "@rxova/astro-ui/components/ScreenshotGrid.astro";
+import card from "@rxova/brand/assets/og/journey.png";
 
 Something shown rather than described. Images go through Astro's `<Image>`, so they get a
 width, a height and a srcset; each sits in a hairline frame with a numbered mono label and a
@@ -19,26 +19,26 @@ line of detail under it. The social card stands in for a screenshot here.
     shots={[
       {
         src: card,
-        alt: 'The journey social card',
-        title: 'Timeline and state',
-        body: 'The realized timeline, the current step, and the context behind it.',
+        alt: "The journey social card",
+        title: "Timeline and state",
+        body: "The realized timeline, the current step, and the context behind it.",
       },
       {
         src: card,
-        alt: 'The journey social card',
-        title: 'Transition log',
-        body: 'Every event, the transition it matched, and the diff it committed.',
+        alt: "The journey social card",
+        title: "Transition log",
+        body: "Every event, the transition it matched, and the diff it committed.",
       },
       {
         src: card,
-        alt: 'The journey social card',
-        title: 'Live commands',
-        body: 'Send events into the running machine and watch the snapshot answer.',
+        alt: "The journey social card",
+        title: "Live commands",
+        body: "Send events into the running machine and watch the snapshot answer.",
       },
     ]}
     link={{
-      href: 'https://chromewebstore.google.com/',
-      text: 'Get it from the Chrome Web Store',
+      href: "https://chromewebstore.google.com/",
+      text: "Get it from the Chrome Web Store",
       external: true,
     }}
   />
@@ -47,8 +47,8 @@ line of detail under it. The social card stands in for a screenshot here.
 <Story title="Two shots, no link" note="The link is optional.">
   <ScreenshotGrid
     shots={[
-      { src: card, alt: 'The journey social card', title: 'Before', body: 'The flow as a list.' },
-      { src: card, alt: 'The journey social card', title: 'After', body: 'The flow as a graph.' },
+      { src: card, alt: "The journey social card", title: "Before", body: "The flow as a list." },
+      { src: card, alt: "The journey social card", title: "After", body: "The flow as a graph." },
     ]}
   />
 </Story>

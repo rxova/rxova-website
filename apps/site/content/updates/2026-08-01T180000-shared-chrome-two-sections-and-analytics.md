@@ -4,7 +4,7 @@ date: 2026-08-01T18:00:00Z
 repos: [rxova-website, brand]
 authors: [jonatan-kruszewski]
 tags: [feature]
-version: '@rxova/brand@0.8.2'
+version: "@rxova/brand@0.8.2"
 ---
 
 One header and one footer across every page now, both from `@rxova/brand`.

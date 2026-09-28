@@ -114,7 +114,7 @@ repos: [rxova-website, brand] # at least one, see below
 authors: [rxova]
 tags: [feature, infra] # from the fixed list, see below
 draft: false # optional; sketches render locally and never in production, see Sketches
-version: '@rxova/journey-core@1.4.0' # optional
+version: "@rxova/journey-core@1.4.0" # optional
 links: # optional — no obligation to chase down a release URL
   - label: Release notes
     href: https://github.com/rxova/journey/releases/tag/v1.4.0

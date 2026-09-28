@@ -4,23 +4,23 @@
  * (one per `mode.slot`), so a page writes fenced blocks and gets the docs' Shiki highlighting.
  */
 export interface Mode {
-  name: string
+  name: string;
   /** The named slot holding this mode's code. */
-  slot: string
-  summary: string
+  slot: string;
+  summary: string;
 }
 
 interface Props {
-  modes: readonly Mode[]
+  modes: readonly Mode[];
 }
 
-const { modes } = Astro.props
+const { modes } = Astro.props;
 const panes = await Promise.all(
   modes.map(async (mode) => ({
     ...mode,
-    html: Astro.slots.has(mode.slot) ? await Astro.slots.render(mode.slot) : '',
+    html: Astro.slots.has(mode.slot) ? await Astro.slots.render(mode.slot) : "",
   })),
-)
+);
 ---
 
 <ol class="rx-modes">

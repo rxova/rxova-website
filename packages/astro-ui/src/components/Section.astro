@@ -4,18 +4,18 @@
  * of Starlight's prose rules, which would otherwise give every stat and card title a paragraph's measure.
  */
 interface Props {
-  id?: string
-  eyebrow?: string
-  title: string
-  lede?: string
+  id?: string;
+  eyebrow?: string;
+  title: string;
+  lede?: string;
   /** Draws the gradient hairline above the heading; the brand spends the gradient sparingly. */
-  accent?: boolean
+  accent?: boolean;
 }
 
-const { id, eyebrow, title, lede, accent = false } = Astro.props
+const { id, eyebrow, title, lede, accent = false } = Astro.props;
 ---
 
-<section class:list={['rx-sec', 'not-content', { 'rx-sec--accent': accent }]} id={id}>
+<section class:list={["rx-sec", "not-content", { "rx-sec--accent": accent }]} id={id}>
   <header class="rx-sec__head">
     {eyebrow && <p class="rx-sec__eyebrow">{eyebrow}</p>}
     <h2 class="rx-sec__title">{title}</h2>

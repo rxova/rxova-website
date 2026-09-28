@@ -1,17 +1,17 @@
 // Legacy-URL redirects as static stubs (GitHub Pages has no redirect rules): each entry
 // becomes a page with <meta http-equiv="refresh"> plus <link rel="canonical">.
 
-import { readFile, mkdir, writeFile, access } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
+import { readFile, mkdir, writeFile, access } from "node:fs/promises";
+import { join, dirname } from "node:path";
 
-import { z } from 'zod'
+import { z } from "zod";
 
-import { errorMessage, escapeHtml } from '@rxova/ts-utils'
+import { errorMessage, escapeHtml } from "@rxova/ts-utils";
 
 /** A rooted, directory-style path — the only shape the assembled tree can serve. */
-const FROM_PATTERN = /^\/(?:[\w.-]+\/)+$/
+const FROM_PATTERN = /^\/(?:[\w.-]+\/)+$/;
 
-const toPath = z.string().regex(/^\//, 'must be a rooted path, e.g. /packages/journey/bridge/')
+const toPath = z.string().regex(/^\//, "must be a rooted path, e.g. /packages/journey/bridge/");
 
 // Keys are checked below, not by a key schema: zod's "Invalid key in record" names
 // neither the offending path nor the problem.
@@ -20,67 +20,67 @@ const redirectsFile = z
     $comment: z.unknown().optional(),
     redirects: z.record(z.string(), toPath).default({}),
   })
-  .strict()
+  .strict();
 
 class RedirectError extends Error {
   constructor(message: string) {
-    super(`redirects.json: ${message}`)
-    this.name = 'RedirectError'
+    super(`redirects.json: ${message}`);
+    this.name = "RedirectError";
   }
 }
 
 /** Read and validate redirects.json. Throws `RedirectError` on anything malformed. */
 export async function loadRedirects(file: string): Promise<Record<string, string>> {
-  let raw: unknown
+  let raw: unknown;
   try {
-    raw = JSON.parse(await readFile(file, 'utf8'))
+    raw = JSON.parse(await readFile(file, "utf8"));
   } catch (err) {
-    throw new RedirectError(`could not be read or parsed — ${errorMessage(err)}`)
+    throw new RedirectError(`could not be read or parsed — ${errorMessage(err)}`);
   }
 
-  const parsed = redirectsFile.safeParse(raw)
+  const parsed = redirectsFile.safeParse(raw);
   if (!parsed.success) {
     throw new RedirectError(
-      'is invalid:\n' +
+      "is invalid:\n" +
         parsed.error.issues
-          .map((i) => `  ${i.path.length ? i.path.join('.') : '(file)'} — ${i.message}`)
-          .join('\n'),
-    )
+          .map((i) => `  ${i.path.length ? i.path.join(".") : "(file)"} — ${i.message}`)
+          .join("\n"),
+    );
   }
 
   for (const [from, to] of Object.entries(parsed.data.redirects)) {
     if (!FROM_PATTERN.test(from)) {
       throw new RedirectError(
         `"${from}" must be a rooted directory path, e.g. /docs/devtool/examples/`,
-      )
+      );
     }
-    if (from === to) throw new RedirectError(`"${from}" redirects to itself`)
+    if (from === to) throw new RedirectError(`"${from}" redirects to itself`);
     // A chain would need two hops to resolve, and the second hop is written by the
     // same pass — so it may not exist yet when a crawler follows the first.
     if (parsed.data.redirects[to]) {
-      throw new RedirectError(`"${from}" points at "${to}", which is itself a redirect`)
+      throw new RedirectError(`"${from}" points at "${to}", which is itself a redirect`);
     }
   }
 
-  return parsed.data.redirects
+  return parsed.data.redirects;
 }
 
 async function exists(p: string): Promise<boolean> {
   try {
-    await access(p)
-    return true
+    await access(p);
+    return true;
   } catch {
-    return false
+    return false;
   }
 }
 
 /** Where a rooted URL path is served from in the built tree. */
 const fileFor = (outDir: string, path: string): string =>
-  path.endsWith('/') ? join(outDir, path, 'index.html') : join(outDir, path)
+  path.endsWith("/") ? join(outDir, path, "index.html") : join(outDir, path);
 
 export function stubDocument(to: string, origin: string): string {
-  const target = escapeHtml(to)
-  const canonical = escapeHtml(new URL(to, origin).href)
+  const target = escapeHtml(to);
+  const canonical = escapeHtml(new URL(to, origin).href);
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -93,7 +93,7 @@ export function stubDocument(to: string, origin: string): string {
     <p>This page has moved to <a href="${target}">${target}</a>.</p>
   </body>
 </html>
-`
+`;
 }
 
 /**
@@ -105,34 +105,34 @@ export async function writeRedirects(
   redirects: Record<string, string>,
   origin: string,
 ): Promise<string[]> {
-  const broken = []
-  const colliding = []
+  const broken = [];
+  const colliding = [];
 
   for (const [from, to] of Object.entries(redirects)) {
-    if (!(await exists(fileFor(outDir, to)))) broken.push(`${from} -> ${to}`)
-    if (await exists(fileFor(outDir, from))) colliding.push(from)
+    if (!(await exists(fileFor(outDir, to)))) broken.push(`${from} -> ${to}`);
+    if (await exists(fileFor(outDir, from))) colliding.push(from);
   }
 
   if (broken.length > 0) {
     throw new RedirectError(
-      `redirect target(s) missing from the assembled site:\n  - ${broken.join('\n  - ')}\n` +
-        'Either the target moved again, or the project that owns it is disabled.',
-    )
+      `redirect target(s) missing from the assembled site:\n  - ${broken.join("\n  - ")}\n` +
+        "Either the target moved again, or the project that owns it is disabled.",
+    );
   }
   if (colliding.length > 0) {
     throw new RedirectError(
-      `redirect source(s) are real pages on the site:\n  - ${colliding.join('\n  - ')}\n` +
-        'A redirect may only stand in for a URL that no longer exists.',
-    )
+      `redirect source(s) are real pages on the site:\n  - ${colliding.join("\n  - ")}\n` +
+        "A redirect may only stand in for a URL that no longer exists.",
+    );
   }
 
   for (const [from, to] of Object.entries(redirects)) {
-    const file = fileFor(outDir, from)
-    await mkdir(dirname(file), { recursive: true })
-    await writeFile(file, stubDocument(to, origin))
+    const file = fileFor(outDir, from);
+    await mkdir(dirname(file), { recursive: true });
+    await writeFile(file, stubDocument(to, origin));
   }
 
-  const count = Object.keys(redirects).length
-  if (count > 0) console.log(`  ✓ redirects: ${count} legacy URL(s)`)
-  return Object.keys(redirects)
+  const count = Object.keys(redirects).length;
+  if (count > 0) console.log(`  ✓ redirects: ${count} legacy URL(s)`);
+  return Object.keys(redirects);
 }

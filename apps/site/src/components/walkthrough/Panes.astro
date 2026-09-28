@@ -3,36 +3,36 @@
  * Both sides of the story, each with its label, its notes and its code, gutter-numbered by note.
  * The tour stacks them in one cell and shows one; without JS they sit one above the other.
  */
-import { Code } from 'astro-expressive-code/components'
-import { lineMarkers, type Showcase } from '../../lib/walkthrough'
+import { Code } from "astro-expressive-code/components";
+import { lineMarkers, type Showcase } from "../../lib/walkthrough";
 
 interface Props {
-  story: Showcase
+  story: Showcase;
   /** Prefixes the ids inside. */
-  id: string
+  id: string;
 }
 
-const { story, id } = Astro.props
+const { story, id } = Astro.props;
 
 // Inline code in a note, without pulling a markdown renderer into a component.
 const code = (text: string) =>
   text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
 
-const sides = (['before', 'after'] as const).map((key) => {
-  const side = story[key]
-  const text = side.code.trimEnd()
+const sides = (["before", "after"] as const).map((key) => {
+  const side = story[key];
+  const text = side.code.trimEnd();
   return {
     key,
     label: side.label,
     lang: side.lang,
     code: text,
-    notes: story.notes.map((note) => (key === 'before' ? note.problem : note.fix)),
-    markers: { [key === 'before' ? 'del' : 'ins']: lineMarkers(text, story.notes, key) },
-  }
-})
+    notes: story.notes.map((note) => (key === "before" ? note.problem : note.fix)),
+    markers: { [key === "before" ? "del" : "ins"]: lineMarkers(text, story.notes, key) },
+  };
+});
 ---
 
 <div class="panes">
@@ -137,8 +137,8 @@ const sides = (['before', 'after'] as const).map((key) => {
     display: none;
   }
 
-  :global(.walkthrough[data-show='before']) .pane.after,
-  :global(.walkthrough[data-show='after']) .pane.before {
+  :global(.walkthrough[data-show="before"]) .pane.after,
+  :global(.walkthrough[data-show="after"]) .pane.before {
     visibility: hidden;
     opacity: 0;
   }

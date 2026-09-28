@@ -4,7 +4,7 @@ date: 2026-08-03T10:00:00Z
 repos: [rxova-website, brand, react-inputs, use-everywhere]
 authors: [jonatan-kruszewski]
 tags: [infra, feature]
-version: '@rxova/website-schemas@0.6.0'
+version: "@rxova/website-schemas@0.6.0"
 ---
 
 `@rxova/website-schemas` grew two contracts. Page-component bundles: a producer's artifact

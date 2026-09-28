@@ -1,36 +1,36 @@
 ---
 // Only the chrome's stylesheets. Pages that own their document import document.css (the reset)
 // themselves.
-import '@rxova/brand/fonts.css'
-import '@rxova/astro-ui/styles/chrome.css'
-import SiteFooter from '@rxova/astro-ui/components/SiteFooter.astro'
-import ThemeScript from '@rxova/astro-ui/components/ThemeScript.astro'
-import CloudflareAnalytics from '../components/CloudflareAnalytics.astro'
-import SiteHeader from '../components/SiteHeader.astro'
-import { mountedProjects, navSurfaces } from '../lib/projects'
+import "@rxova/brand/fonts.css";
+import "@rxova/astro-ui/styles/chrome.css";
+import SiteFooter from "@rxova/astro-ui/components/SiteFooter.astro";
+import ThemeScript from "@rxova/astro-ui/components/ThemeScript.astro";
+import CloudflareAnalytics from "../components/CloudflareAnalytics.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import { mountedProjects, navSurfaces } from "../lib/projects";
 // The same files @rxova/brand/fonts.css points at, so the preloads and the
 // @font-face rules share one URL. See `fontPreloads`.
-import spaceGrotesk400 from '@fontsource/space-grotesk/files/space-grotesk-latin-400-normal.woff2?url'
-import spaceGrotesk500 from '@fontsource/space-grotesk/files/space-grotesk-latin-500-normal.woff2?url'
-import spaceGrotesk600 from '@fontsource/space-grotesk/files/space-grotesk-latin-600-normal.woff2?url'
-import spaceGrotesk700 from '@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2?url'
-import plexMono400 from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url'
+import spaceGrotesk400 from "@fontsource/space-grotesk/files/space-grotesk-latin-400-normal.woff2?url";
+import spaceGrotesk500 from "@fontsource/space-grotesk/files/space-grotesk-latin-500-normal.woff2?url";
+import spaceGrotesk600 from "@fontsource/space-grotesk/files/space-grotesk-latin-600-normal.woff2?url";
+import spaceGrotesk700 from "@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2?url";
+import plexMono400 from "@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url";
 
 interface Props {
-  title: string
-  robots?: string
-  path?: string
+  title: string;
+  robots?: string;
+  path?: string;
 }
 
-const { title, robots, path = '/' } = Astro.props
+const { title, robots, path = "/" } = Astro.props;
 // Root-relative, so a preview or staging build links to itself rather than to production.
-const footerSurfaces = navSurfaces.map(({ label, href }) => ({ label, href }))
+const footerSurfaces = navSurfaces.map(({ label, href }) => ({ label, href }));
 
 // Only the projects whose docs this deploy contains; see `mountedProjects`.
-const footerProjects = mountedProjects.map(({ label, href }) => ({ label, href }))
+const footerProjects = mountedProjects.map(({ label, href }) => ({ label, href }));
 
 // Derived from the URL being built, never a prop, so it cannot drift from the page.
-const canonical = new URL(Astro.url.pathname, Astro.site).href
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
 
 /** Preloads the brand fonts (`font-display: optional`) so they arrive before first layout. */
 const fontPreloads = [
@@ -39,7 +39,7 @@ const fontPreloads = [
   spaceGrotesk600,
   spaceGrotesk700,
   plexMono400,
-]
+];
 ---
 
 <!doctype html>

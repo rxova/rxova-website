@@ -1,16 +1,16 @@
 ---
 /** Why Rxova exists, as the bugs that became packages, each drawn beside its sentence. */
-import { getProject } from '@rxova/brand'
-import { ORIGINS } from '../../lib/about'
-import { landingProjects } from '../../lib/projects'
-import Arrow from '../home/Arrow.astro'
-import Eyebrow from '../home/Eyebrow.astro'
-import Reveal from '../home/Reveal.astro'
-import SectionHeading from '../home/SectionHeading.astro'
+import { getProject } from "@rxova/brand";
+import { ORIGINS } from "../../lib/about";
+import { landingProjects } from "../../lib/projects";
+import Arrow from "../home/Arrow.astro";
+import Eyebrow from "../home/Eyebrow.astro";
+import Reveal from "../home/Reveal.astro";
+import SectionHeading from "../home/SectionHeading.astro";
 
 // A package links to its docs only when the docs are deployed; otherwise it is named.
-const docsHref = (id: string) => landingProjects.find((p) => p.id === id)?.mount
-const OTP = ['4', '8', '1', '5', '9', '2']
+const docsHref = (id: string) => landingProjects.find((p) => p.id === id)?.mount;
+const OTP = ["4", "8", "1", "5", "9", "2"];
 ---
 
 <section class="origins" aria-labelledby="why">
@@ -21,43 +21,43 @@ const OTP = ['4', '8', '1', '5', '9', '2']
 
   <ul class="cases">
     {ORIGINS.map((origin, i) => {
-      const href = docsHref(origin.project)
-      const label = getProject(origin.project).label
+      const href = docsHref(origin.project);
+      const label = getProject(origin.project).label;
       return (
         <Reveal as="li" class="case" style={`--d: ${i * 70}ms`}>
           <div class="case-body">
             <p class="case-kicker">The bug</p>
             <p class="case-bug">{origin.bug}</p>
             <div class="demo" aria-hidden="true">
-              {origin.id === 'currency' && (
+              {origin.id === "currency" && (
                 <span class="field">
                   $ 1,2<span class="typed">4</span>50.00
                   <span class="caret" />
                 </span>
               )}
-              {origin.id === 'otp' && (
+              {origin.id === "otp" && (
                 <span class="otp">
                   {OTP.map((digit) => (
                     <span class="slot">{digit}</span>
                   ))}
                 </span>
               )}
-              {origin.id === 'errors' && (
+              {origin.id === "errors" && (
                 <span class="json">
                   <span class="json-row">
                     <span class="json-label">thrown</span>
                     <code>
-                      NotFoundError {'{'} code: 'E404' {'}'}
+                      NotFoundError {"{"} code: 'E404' {"}"}
                     </code>
                   </span>
                   <span class="json-row">
                     <span class="json-label">plain JSON</span>
-                    <code class="json-lost">{'{}'}</code>
+                    <code class="json-lost">{"{}"}</code>
                   </span>
                   <span class="json-row json-fixed">
                     <span class="json-label">rebuilt</span>
                     <code>
-                      NotFoundError {'{'} code: 'E404' {'}'}
+                      NotFoundError {"{"} code: 'E404' {"}"}
                     </code>
                     <svg class="json-tick" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                       <path d="m3.2 8.4 3 3 6.6-6.8" />
@@ -65,7 +65,7 @@ const OTP = ['4', '8', '1', '5', '9', '2']
                   </span>
                 </span>
               )}
-              {origin.id === 'flow' && (
+              {origin.id === "flow" && (
                 <svg class="flow" viewBox="0 0 300 56" fill="none">
                   <circle class="flow-start" cx="14" cy="28" r="8" />
                   <path
@@ -86,7 +86,7 @@ const OTP = ['4', '8', '1', '5', '9', '2']
             {href ? <a href={href}>{label}</a> : <span class="package">{label}</span>}
           </p>
         </Reveal>
-      )
+      );
     })}
   </ul>
 

@@ -4,7 +4,7 @@ date: 2026-07-24T12:00:00Z
 repos: [react-inputs]
 authors: [jonatan-kruszewski]
 tags: [release, breaking]
-version: '@rxova/react-inputs@0.1.1'
+version: "@rxova/react-inputs@0.1.1"
 ---
 
 `react-intl-currency-input`, `react-feedback-stars` and `react-otp-slots` were three repos

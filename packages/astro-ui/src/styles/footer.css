@@ -3,7 +3,7 @@
  * Imported by `starlight.css` and `chrome.css`; uses `--rx-*` tokens only.
  */
 
-@import '@rxova/brand/tokens.css';
+@import "@rxova/brand/tokens.css";
 
 .rx-footer {
   margin-top: 4rem;

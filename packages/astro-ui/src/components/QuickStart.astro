@@ -3,13 +3,13 @@
  * An install command with a `CopyButton` beside a "Use" pane. The snippet arrives through the slot,
  * so a page can write a fenced block and get the same Shiki highlighting as the docs.
  */
-import CopyButton from './CopyButton.astro'
+import CopyButton from "./CopyButton.astro";
 
 interface Props {
-  command: string
+  command: string;
 }
 
-const { command } = Astro.props
+const { command } = Astro.props;
 ---
 
 <div class="rx-qs">

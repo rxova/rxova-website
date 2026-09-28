@@ -1,11 +1,11 @@
 ---
 /** The four rules as numbered cards, each with a small picture; ids are the landing's anchors. */
-import CopyButton from '@rxova/astro-ui/components/CopyButton.astro'
-import { PRINCIPLES } from '../../lib/about'
-import { STANDARD_ICONS } from '../../lib/home'
-import Eyebrow from '../home/Eyebrow.astro'
-import Reveal from '../home/Reveal.astro'
-import SectionHeading from '../home/SectionHeading.astro'
+import CopyButton from "@rxova/astro-ui/components/CopyButton.astro";
+import { PRINCIPLES } from "../../lib/about";
+import { STANDARD_ICONS } from "../../lib/home";
+import Eyebrow from "../home/Eyebrow.astro";
+import Reveal from "../home/Reveal.astro";
+import SectionHeading from "../home/SectionHeading.astro";
 ---
 
 <section class="band" aria-labelledby="principles">
@@ -30,11 +30,11 @@ import SectionHeading from '../home/SectionHeading.astro'
             set:html={STANDARD_ICONS[p.icon]}
           />
           <span class="rule-number" aria-hidden="true">
-            {String(i + 1).padStart(2, '0')}
+            {String(i + 1).padStart(2, "0")}
           </span>
         </div>
         <h3 class="rule-title">{p.card.title}</h3>
-        {p.card.visual?.kind === 'packages' && (
+        {p.card.visual?.kind === "packages" && (
           <p class="packages">
             <span class="core">{p.card.visual.core}</span>
             <svg class="to" viewBox="0 0 28 12" fill="none" aria-hidden="true">
@@ -44,14 +44,14 @@ import SectionHeading from '../home/SectionHeading.astro'
             <span class="bindings">{p.card.visual.bindings}</span>
           </p>
         )}
-        {p.card.visual?.kind === 'tags' && (
+        {p.card.visual?.kind === "tags" && (
           <ul class="tags">
             {p.card.visual.tags.map((tag) => (
               <li>{tag}</li>
             ))}
           </ul>
         )}
-        {p.card.visual?.kind === 'command' && (
+        {p.card.visual?.kind === "command" && (
           <div class="command">
             <span class="prompt" aria-hidden="true">
               $

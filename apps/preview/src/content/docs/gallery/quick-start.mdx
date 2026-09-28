@@ -3,8 +3,8 @@ title: QuickStart
 description: An install command with a copy button, beside a slotted snippet.
 ---
 
-import Story from '../../../components/Story.astro'
-import QuickStart from '@rxova/astro-ui/components/QuickStart.astro'
+import Story from "../../../components/Story.astro";
+import QuickStart from "@rxova/astro-ui/components/QuickStart.astro";
 
 Two panes: the install command in a terminal-looking box with a copy button, and a "Use" pane
 holding whatever the page slots in. Write the snippet as a fenced block, so it gets the same
@@ -14,14 +14,14 @@ Shiki highlighting as the rest of the docs.
   <QuickStart command="npm i @rxova/journey-core">
 
 ```ts
-import { createLinearJourney } from '@rxova/journey-core'
+import { createLinearJourney } from "@rxova/journey-core";
 
 const machine = createLinearJourney({
-  context: { name: '' },
-  steps: ['account', 'review'],
-})
+  context: { name: "" },
+  steps: ["account", "review"],
+});
 
-await machine.navigate.goToNextStep()
+await machine.navigate.goToNextStep();
 ```
 
   </QuickStart>
@@ -31,7 +31,7 @@ await machine.navigate.goToNextStep()
   <QuickStart command="pnpm add @rxova/react-otp-input @rxova/react-rating-input @rxova/react-intl-currency-input @rxova/react-phone-input">
 
 ```tsx
-import { OtpInput } from '@rxova/react-otp-input'
+import { OtpInput } from "@rxova/react-otp-input";
 ```
 
   </QuickStart>

@@ -3,8 +3,8 @@ title: ModeTabs
 description: A numbered progression, each mode's code in the named slot it points at.
 ---
 
-import Story from '../../../components/Story.astro'
-import ModeTabs from '@rxova/astro-ui/components/ModeTabs.astro'
+import Story from "../../../components/Story.astro";
+import ModeTabs from "@rxova/astro-ui/components/ModeTabs.astro";
 
 Rows rather than tabs, so every mode is visible at once and the argument (the same field
 grows with you) can be seen. Each mode names a slot; the page writes a fenced block into that
@@ -20,7 +20,7 @@ slot and gets the docs' highlighting.
     <Fragment slot="linear">
 
 ```ts
-steps: ['account', 'details', 'payment', 'review']
+steps: ["account", "details", "payment", "review"];
 ```
 
     </Fragment>

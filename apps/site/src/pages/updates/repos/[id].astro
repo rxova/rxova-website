@@ -3,33 +3,33 @@
  * One repo's slice of the updates feed, prerendered so crawlers, no-JS visitors and docs sites get a URL.
  * Every repo in REPOS gets a page, even with no entries yet, so a docs link never 404s.
  */
-import { render } from 'astro:content'
+import { render } from "astro:content";
 
-import { siteUrl, canonicalUrl } from '@rxova/brand'
+import { siteUrl, canonicalUrl } from "@rxova/brand";
 
-import PageHeader from '@rxova/astro-ui/components/PageHeader.astro'
-import Content from '../../../layouts/Page.astro'
-import UpdatesStream from '../../../components/updates/UpdatesStream.astro'
-import type { StreamItem } from '../../../components/updates/stream/Entry.astro'
-import { getUpdates, resolveAuthors, REPOS, href } from '../../../lib/updates'
+import PageHeader from "@rxova/astro-ui/components/PageHeader.astro";
+import Content from "../../../layouts/Page.astro";
+import UpdatesStream from "../../../components/updates/UpdatesStream.astro";
+import type { StreamItem } from "../../../components/updates/stream/Entry.astro";
+import { getUpdates, resolveAuthors, REPOS, href } from "../../../lib/updates";
 
 export async function getStaticPaths() {
-  const entries = await getUpdates()
+  const entries = await getUpdates();
   return REPOS.map((repo) => ({
     params: { id: repo.id },
     props: {
       repo,
       entries: entries.filter((e) => (e.data.repos as string[]).includes(repo.id)),
     },
-  }))
+  }));
 }
 
-const { repo, entries } = Astro.props
+const { repo, entries } = Astro.props;
 
 // A project repo shares its own card rather than the umbrella one; infrastructure
 // repos have no card.
-const ogImage = repo.project ? siteUrl(`/og/${repo.id}.png`) : undefined
-const feedUrl = `${canonicalUrl('/updates')}rss.xml`
+const ogImage = repo.project ? siteUrl(`/og/${repo.id}.png`) : undefined;
+const feedUrl = `${canonicalUrl("/updates")}rss.xml`;
 
 const items: StreamItem[] = await Promise.all(
   entries.map(async (entry) => ({
@@ -37,7 +37,7 @@ const items: StreamItem[] = await Promise.all(
     Body: (await render(entry)).Content,
     authorNames: (await resolveAuthors(entry.data.authors)).map((a) => a.name),
   })),
-)
+);
 ---
 
 <Content
@@ -45,13 +45,13 @@ const items: StreamItem[] = await Promise.all(
   description={`What is moving in ${repo.label} — releases, fixes and infrastructure.`}
   path={`/updates/repos/${repo.id}`}
   image={ogImage}
-  feed={{ href: feedUrl, title: 'Rxova Updates' }}
+  feed={{ href: feedUrl, title: "Rxova Updates" }}
 >
-  <PageHeader title={repo.label} back={{ href: href(), label: 'All repos' }} variant="detail">
-    Updates mentioning {repo.label}. See{' '}
+  <PageHeader title={repo.label} back={{ href: href(), label: "All repos" }} variant="detail">
+    Updates mentioning {repo.label}. See{" "}
     <a href={repo.repo} target="_blank" rel="noopener noreferrer">
       the repository ↗
-    </a>{' '}
+    </a>{" "}
     for commits and releases.
   </PageHeader>
 

@@ -3,17 +3,17 @@
  * The umbrella navigation for a docs site: the project switcher, then the rxova.org sections.
  * Starlight shows it in the header bar on wide screens and in the menu on phones.
  */
-import { RXOVA_ORIGIN, SECTIONS, type ProjectId } from '@rxova/brand'
-import ProjectSwitcher from './ProjectSwitcher.astro'
+import { RXOVA_ORIGIN, SECTIONS, type ProjectId } from "@rxova/brand";
+import ProjectSwitcher from "./ProjectSwitcher.astro";
 
 interface Props {
   /** The project whose docs these are, marked in the switcher. */
-  current?: ProjectId
+  current?: ProjectId;
   /** Prefix for the section links. '' links root-relative, for a build served on rxova.org. */
-  origin?: string
+  origin?: string;
 }
 
-const { current, origin = RXOVA_ORIGIN } = Astro.props
+const { current, origin = RXOVA_ORIGIN } = Astro.props;
 ---
 
 <nav class="rx-sections" aria-label="rxova.org">

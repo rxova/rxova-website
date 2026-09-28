@@ -1,13 +1,13 @@
 ---
 /** A row of links whose underline sweeps in on hover; buttons in the row keep their own look. */
-import type { HTMLAttributes } from 'astro/types'
+import type { HTMLAttributes } from "astro/types";
 
-type Props = HTMLAttributes<'nav'> & { label: string }
+type Props = HTMLAttributes<"nav"> & { label: string };
 
-const { label, class: className, ...rest } = Astro.props
+const { label, class: className, ...rest } = Astro.props;
 ---
 
-<nav class:list={['links', className]} aria-label={label} {...rest}>
+<nav class:list={["links", className]} aria-label={label} {...rest}>
   <slot />
 </nav>
 

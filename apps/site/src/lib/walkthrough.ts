@@ -5,29 +5,29 @@
 
 /** One problem on the `before` side and the fix for it on the `after` side. */
 export interface Note {
-  problem: string
-  fix: string
+  problem: string;
+  fix: string;
   /**
    * Fragments of the lines each side's note points at. Every line containing
    * one is marked with the note's number in the code's gutter.
    */
-  lines: { before: readonly string[]; after: readonly string[] }
+  lines: { before: readonly string[]; after: readonly string[] };
 }
 
 interface Side {
   /** The tab, e.g. "By hand" or "With journey". */
-  label: string
-  code: string
+  label: string;
+  code: string;
   /** Expressive Code language: ts, tsx, diff, sh… */
-  lang: string
+  lang: string;
 }
 
 export interface Showcase {
-  heading: string
-  lede: string
-  before: Side
-  after: Side
-  notes: readonly Note[]
+  heading: string;
+  lede: string;
+  before: Side;
+  after: Side;
+  notes: readonly Note[];
 }
 
 /**
@@ -37,26 +37,26 @@ export interface Showcase {
 export function lineMarkers(
   code: string,
   notes: readonly Note[],
-  side: 'before' | 'after',
+  side: "before" | "after",
 ): { range: string; label: string }[] {
-  const lines = code.split('\n')
+  const lines = code.split("\n");
   return notes.flatMap((note, index) => {
     const numbers = note.lines[side].flatMap((fragment) => {
-      const found = lines.flatMap((line, at) => (line.includes(fragment) ? [at + 1] : []))
+      const found = lines.flatMap((line, at) => (line.includes(fragment) ? [at + 1] : []));
       if (found.length === 0) {
-        throw new Error(`note ${String(index + 1)}: no ${side} line has ${fragment}`)
+        throw new Error(`note ${String(index + 1)}: no ${side} line has ${fragment}`);
       }
-      return found
-    })
+      return found;
+    });
     return [...new Set(numbers)]
       .sort((a, b) => a - b)
-      .map((line) => ({ range: String(line), label: String(index + 1) }))
-  })
+      .map((line) => ({ range: String(line), label: String(index + 1) }));
+  });
 }
 
 /** How long each note stays up, and the extra pause at the turn from Before to After. */
-export const NOTE_MS = 3600
-export const TURN_MS = 1200
+export const NOTE_MS = 3600;
+export const TURN_MS = 1200;
 
 /** When each step starts and when the tour ends: the view is a function of one clock. */
 export function timeline(
@@ -64,38 +64,38 @@ export function timeline(
   noteMs = NOTE_MS,
   turnMs = TURN_MS,
 ): { starts: number[]; end: number } {
-  const starts: number[] = []
-  let clock = 0
+  const starts: number[] = [];
+  let clock = 0;
   sides.forEach((side, index) => {
-    starts.push(clock)
-    const turning = side === 'after' && sides[index - 1] === 'before'
-    clock += noteMs + (turning ? turnMs : 0)
-  })
-  return { starts, end: clock }
+    starts.push(clock);
+    const turning = side === "after" && sides[index - 1] === "before";
+    clock += noteMs + (turning ? turnMs : 0);
+  });
+  return { starts, end: clock };
 }
 
 /** The step in play at time `t`: the last one to have started. */
 export function stepAt(starts: readonly number[], t: number): number {
-  let index = 0
-  for (const [i, start] of starts.entries()) if (start <= t) index = i
-  return index
+  let index = 0;
+  for (const [i, start] of starts.entries()) if (start <= t) index = i;
+  return index;
 }
 
-export type PlayState = 'playing' | 'paused' | 'ended'
+export type PlayState = "playing" | "paused" | "ended";
 
 /** The play button's accessible name in each state. */
 export const PLAY_LABELS: Record<PlayState, string> = {
-  playing: 'Pause the walkthrough',
-  paused: 'Play the walkthrough',
-  ended: 'Replay the walkthrough',
-}
+  playing: "Pause the walkthrough",
+  paused: "Play the walkthrough",
+  ended: "Replay the walkthrough",
+};
 
 /** "Problem 2 of 4" on the Before side, "Fix 2 of 4" on the After. */
 export const stepCount = (side: string, index: number, total: number): string =>
-  `${side === 'before' ? 'Problem' : 'Fix'} ${String(index + 1)} of ${String(total)}`
+  `${side === "before" ? "Problem" : "Fix"} ${String(index + 1)} of ${String(total)}`;
 
 /** Where a project's walkthrough is prerendered alone: the rail fetches it, no-JS readers open it. */
-export const walkthroughPath = (id: string): string => `/walkthroughs/${id}/`
+export const walkthroughPath = (id: string): string => `/walkthroughs/${id}/`;
 
 /**
  * The one walkthrough the landing renders inline, carrying the tour's styles and script for the
@@ -106,5 +106,5 @@ export function inlineWalkthroughId(
   featured: string,
   hasStory: (id: string) => boolean,
 ): string | undefined {
-  return hasStory(featured) ? featured : ids.find(hasStory)
+  return hasStory(featured) ? featured : ids.find(hasStory);
 }

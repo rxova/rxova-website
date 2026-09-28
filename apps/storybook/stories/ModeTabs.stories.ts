@@ -1,24 +1,24 @@
-import ModeTabs from '@rxova/astro-ui/components/ModeTabs.astro'
+import ModeTabs from "@rxova/astro-ui/components/ModeTabs.astro";
 
-import type { Meta, Story } from './types.ts'
+import type { Meta, Story } from "./types.ts";
 
 const meta: Meta = {
-  title: 'Landing/ModeTabs',
+  title: "Landing/ModeTabs",
   component: ModeTabs,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   args: {
     modes: [
       {
-        name: 'Linear',
-        slot: 'linear',
+        name: "Linear",
+        slot: "linear",
         summary:
-          'A fixed sequence. Use the array shorthand when every step just goes to the next one.',
+          "A fixed sequence. Use the array shorthand when every step just goes to the next one.",
       },
       {
-        name: 'Graph',
-        slot: 'graph',
+        name: "Graph",
+        slot: "graph",
         summary:
-          'Branching, retries and conditional routing. Keyed by step, then by event, matched in order.',
+          "Branching, retries and conditional routing. Keyed by step, then by event, matched in order.",
       },
     ],
     slots: {
@@ -35,21 +35,21 @@ const meta: Meta = {
 }</code></pre>`,
     },
   },
-}
+};
 
-export default meta
+export default meta;
 
-export const TwoModes: Story = {}
+export const TwoModes: Story = {};
 
 export const MissingSlot: Story = {
   args: {
     modes: [
-      { name: 'Linear', slot: 'linear', summary: 'Has a pane.' },
+      { name: "Linear", slot: "linear", summary: "Has a pane." },
       {
-        name: 'Headless',
-        slot: 'headless',
-        summary: 'Names a slot the page did not fill: an empty pane, not a failure.',
+        name: "Headless",
+        slot: "headless",
+        summary: "Names a slot the page did not fill: an empty pane, not a failure.",
       },
     ],
   },
-}
+};

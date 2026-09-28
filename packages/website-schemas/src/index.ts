@@ -3,7 +3,7 @@
  * dispatch and entry filenames. Re-exports only; consumers import the root.
  */
 
-export * from './filenames.ts'
-export * from './content.ts'
-export * from './registry.ts'
-export * from './dispatch.ts'
+export * from "./filenames.ts";
+export * from "./content.ts";
+export * from "./registry.ts";
+export * from "./dispatch.ts";

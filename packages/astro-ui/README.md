@@ -14,22 +14,22 @@
 
 ```js
 // astro.config.mjs
-import { defineConfig } from 'astro/config'
-import starlight from '@astrojs/starlight'
-import { sharedStarlightConfig } from '@rxova/astro-ui/starlight'
+import { defineConfig } from "astro/config";
+import starlight from "@astrojs/starlight";
+import { sharedStarlightConfig } from "@rxova/astro-ui/starlight";
 
 export default defineConfig({
-  site: process.env.DOCS_URL ?? 'https://rxova.org',
-  base: process.env.DOCS_BASE_URL ?? '/',
+  site: process.env.DOCS_URL ?? "https://rxova.org",
+  base: process.env.DOCS_BASE_URL ?? "/",
   integrations: [
     starlight(
       sharedStarlightConfig({
-        project: 'use-everywhere',
-        sidebar: [{ label: 'Learn', items: [{ autogenerate: { directory: 'learn' } }] }],
+        project: "use-everywhere",
+        sidebar: [{ label: "Learn", items: [{ autogenerate: { directory: "learn" } }] }],
       }),
     ),
   ],
-})
+});
 ```
 
 That gets you the tokens, the typefaces, the rxova mark linking back to the
@@ -39,9 +39,9 @@ umbrella site, the cross-project switcher, the shared footer and Pagefind search
 
 ```astro
 ---
-import '@rxova/brand/fonts.css'
-import '@rxova/astro-ui/styles/document.css'
-import SiteFooter from '@rxova/astro-ui/components/SiteFooter.astro'
+import "@rxova/brand/fonts.css";
+import "@rxova/astro-ui/styles/document.css";
+import SiteFooter from "@rxova/astro-ui/components/SiteFooter.astro";
 ---
 ```
 

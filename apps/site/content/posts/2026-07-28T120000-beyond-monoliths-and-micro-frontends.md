@@ -1,6 +1,6 @@
 ---
-title: 'Beyond Monoliths and Micro-Frontends: Exploring Route-Based Composition'
-description: 'How to compose independently built applications at route boundaries without pretending they are either one frontend monolith or runtime micro-frontends.'
+title: "Beyond Monoliths and Micro-Frontends: Exploring Route-Based Composition"
+description: "How to compose independently built applications at route boundaries without pretending they are either one frontend monolith or runtime micro-frontends."
 pubDate: 2026-07-28T12:00:00Z
 authors: [jonatan-kruszewski]
 tags: [architecture, static-sites, route-composition]

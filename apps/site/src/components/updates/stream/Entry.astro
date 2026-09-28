@@ -1,25 +1,25 @@
 ---
 /** One update, rendered in full; its `#id` is the permalink. */
-import type { UpdateEntry } from '../../../lib/updates'
-import { repoLabel, formatDate, isoDate, byline, href } from '../../../lib/updates'
-import { localHref } from '../../../lib/internal-links'
+import type { UpdateEntry } from "../../../lib/updates";
+import { repoLabel, formatDate, isoDate, byline, href } from "../../../lib/updates";
+import { localHref } from "../../../lib/internal-links";
 
 export interface StreamItem {
-  entry: UpdateEntry
-  Body: import('astro/runtime/server/index.js').AstroComponentFactory
-  authorNames: string[]
+  entry: UpdateEntry;
+  Body: import("astro/runtime/server/index.js").AstroComponentFactory;
+  authorNames: string[];
 }
 
-type Props = StreamItem
+type Props = StreamItem;
 
-const { entry, Body, authorNames } = Astro.props
+const { entry, Body, authorNames } = Astro.props;
 ---
 
 <li
   class="entry"
   id={entry.id}
-  data-repos={entry.data.repos.join(' ')}
-  data-tags={entry.data.tags.join(' ')}
+  data-repos={entry.data.repos.join(" ")}
+  data-tags={entry.data.tags.join(" ")}
 >
   <div class="when">
     <time datetime={isoDate(entry.data.date)}>{formatDate(entry.data.date)}</time>
@@ -48,7 +48,7 @@ const { entry, Body, authorNames } = Astro.props
     {entry.data.links.length > 0 && (
       <nav class="links" aria-label={`${entry.data.title} links`}>
         {entry.data.links.map((l) => {
-          const local = localHref(l.href)
+          const local = localHref(l.href);
           return local ? (
             <a href={local}>
               {l.label} <span aria-hidden="true">→</span>
@@ -57,7 +57,7 @@ const { entry, Body, authorNames } = Astro.props
             <a href={l.href} target="_blank" rel="noopener noreferrer">
               {l.label} <span aria-hidden="true">↗</span>
             </a>
-          )
+          );
         })}
       </nav>
     )}

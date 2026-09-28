@@ -6,26 +6,26 @@
 ---
 
 <script is:inline>
-  ;(function () {
+  (function () {
     function stored() {
       try {
-        const t = localStorage.getItem('starlight-theme')
-        return t === 'light' || t === 'dark' ? t : null
+        const t = localStorage.getItem("starlight-theme");
+        return t === "light" || t === "dark" ? t : null;
       } catch {
         /* localStorage may be unavailable */
-        return null
+        return null;
       }
     }
     function sync() {
-      const t = stored()
-      if (t) document.documentElement.setAttribute('data-theme', t)
-      else document.documentElement.removeAttribute('data-theme')
+      const t = stored();
+      if (t) document.documentElement.setAttribute("data-theme", t);
+      else document.documentElement.removeAttribute("data-theme");
     }
-    sync()
+    sync();
     // Back from a docs site restores this page from the bfcache without rerunning the script;
     // `pageshow` is the only notification, so re-sync the theme there.
-    window.addEventListener('pageshow', function (e) {
-      if (e.persisted) sync()
-    })
-  })()
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) sync();
+    });
+  })();
 </script>

@@ -4,7 +4,7 @@ date: 2026-07-25T10:00:00Z
 repos: [brand]
 authors: [jonatan-kruszewski]
 tags: [release]
-version: '@rxova/brand@0.1.0'
+version: "@rxova/brand@0.1.0"
 ---
 
 Four surfaces on one origin only feel like one site if they share their tokens. `@rxova/brand`

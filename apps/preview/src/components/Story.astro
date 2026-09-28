@@ -4,12 +4,12 @@
  * script captures every `[data-story]` on the page, so keep each frame self-contained.
  */
 interface Props {
-  title: string
+  title: string;
   /** One line on what this state shows or why it exists. */
-  note?: string
+  note?: string;
 }
 
-const { title, note } = Astro.props
+const { title, note } = Astro.props;
 ---
 
 <figure class="story not-content" data-story>

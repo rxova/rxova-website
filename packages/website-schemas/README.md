@@ -9,9 +9,9 @@ pnpm add -D @rxova/website-schemas zod
 ```
 
 ```ts
-import { dispatchPayload, sourceEntry } from '@rxova/website-schemas'
+import { dispatchPayload, sourceEntry } from "@rxova/website-schemas";
 
-const payload = dispatchPayload.parse(JSON.parse(process.env.CLIENT_PAYLOAD ?? '{}'))
+const payload = dispatchPayload.parse(JSON.parse(process.env.CLIENT_PAYLOAD ?? "{}"));
 ```
 
 | Export                                                             | What it is                                                  |

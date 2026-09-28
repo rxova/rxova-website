@@ -3,5 +3,5 @@
  * Imported by the pages that own their document, not by BaseLayout, which also builds the shell templates.
  */
 
-@import '@rxova/brand/fonts.css';
-@import '@rxova/astro-ui/styles/document.css';
+@import "@rxova/brand/fonts.css";
+@import "@rxova/astro-ui/styles/document.css";
