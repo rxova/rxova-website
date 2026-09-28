@@ -76,8 +76,8 @@ the export checks for this package.
 
 `apps/preview` also carries the gallery: one page per component under
 `/gallery/`, each state in a `Story` frame. `pnpm --filter @rxova/preview
-screenshots` rebuilds it and writes `screenshots/<component>.png` here, light and
-dark, for the pull request that adds or changes a component.
+screenshots` rebuilds it and writes `screenshots/<component>.png` here (git-ignored), light
+and dark, to attach to the pull request that adds or changes a component.
 
 `apps/storybook` is the Storybook: a story file per component with its states,
 a Docs page built from the component's frontmatter, and a light/dark toolbar.

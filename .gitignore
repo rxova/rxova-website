@@ -12,6 +12,9 @@ coverage/
 # planning / private docs stash
 build/
 
+# component screenshots (`pnpm --filter @rxova/preview screenshots`), attached to pull requests
+packages/astro-ui/screenshots/
+
 # behaviour-lock snapshots (pnpm lock:diff) and Playwright output
 .lock/
 test-results/
