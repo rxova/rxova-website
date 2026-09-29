@@ -1,0 +1,46 @@
+---
+/** A docs site's phone menu links: every project's docs, then the rxova.dev sections as the site
+ * header labels them. The Starlight wrappers add the social links and theme picker after it. */
+import { PROJECTS, RXOVA_ORIGIN, SECTIONS, type ProjectId } from "@rxova/brand";
+
+interface Props {
+  /** The project whose docs these are, marked as current. */
+  current?: ProjectId;
+  /** Prefix for every link. '' links root-relative, for a build served on rxova.dev. */
+  origin?: string;
+}
+
+const { current, origin = RXOVA_ORIGIN } = Astro.props;
+---
+
+<nav class="rx-docs-menu" aria-label="rxova.dev">
+  <p class="rx-docs-menu__label" aria-hidden="true">
+    Docs
+  </p>
+  <ul class="rx-docs-menu__list" aria-label="Docs">
+    {PROJECTS.map((project) => (
+      <li>
+        <a
+          class="rx-docs-menu__link"
+          href={`${origin}${project.mount}`}
+          aria-current={project.id === current ? "page" : undefined}
+          translate="no"
+        >
+          {project.label}
+        </a>
+      </li>
+    ))}
+  </ul>
+  <p class="rx-docs-menu__label" aria-hidden="true">
+    rxova.dev
+  </p>
+  <ul class="rx-docs-menu__list" aria-label="Site">
+    {SECTIONS.map((section) => (
+      <li>
+        <a class="rx-docs-menu__link" href={`${origin}${section.path}`}>
+          {section.label}
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>

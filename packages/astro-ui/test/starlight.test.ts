@@ -45,7 +45,14 @@ const resolveExport = (specifier: string): string | undefined => {
   return undefined;
 };
 
-const SHARED_COMPONENTS = ["SiteTitle", "SocialIcons", "Footer", "ThemeSelect"];
+const SHARED_COMPONENTS = [
+  "SiteTitle",
+  "SocialIcons",
+  "Footer",
+  "ThemeSelect",
+  "Header",
+  "MobileMenuFooter",
+];
 
 describe("sharedStarlightConfig", () => {
   const sidebar = [{ label: "Guides", autogenerate: { directory: "guides" } }];
@@ -78,6 +85,8 @@ describe("sharedStarlightConfig", () => {
         SocialIcons: "@rxova/astro-ui/starlight/SocialIcons.astro",
         Footer: "@rxova/astro-ui/starlight/Footer.astro",
         ThemeSelect: "@rxova/astro-ui/starlight/ThemeSelect.astro",
+        Header: "@rxova/astro-ui/starlight/Header.astro",
+        MobileMenuFooter: "@rxova/astro-ui/starlight/MobileMenuFooter.astro",
       },
       pagefind: true,
     });
@@ -114,6 +123,8 @@ describe("sharedStarlightConfig", () => {
       SocialIcons: "@rxova/astro-ui/starlight/SocialIcons.astro",
       Footer: "./src/Footer.astro",
       ThemeSelect: "@rxova/astro-ui/starlight/ThemeSelect.astro",
+      Header: "@rxova/astro-ui/starlight/Header.astro",
+      MobileMenuFooter: "@rxova/astro-ui/starlight/MobileMenuFooter.astro",
       Hero: "./src/Hero.astro",
     });
   });

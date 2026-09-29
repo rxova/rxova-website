@@ -59,6 +59,10 @@ export function sharedStarlightConfig({
       Footer: "@rxova/astro-ui/starlight/Footer.astro",
       // Starlight's own picker, plus a resync when a page is restored from the bfcache.
       ThemeSelect: "@rxova/astro-ui/starlight/ThemeSelect.astro",
+      // Starlight's header, plus a phone menu on pages without a sidebar, which get none.
+      Header: "@rxova/astro-ui/starlight/Header.astro",
+      // The foot of Starlight's phone menu: the projects, the sections, the social links and theme.
+      MobileMenuFooter: "@rxova/astro-ui/starlight/MobileMenuFooter.astro",
       ...components,
     },
 
