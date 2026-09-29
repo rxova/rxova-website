@@ -2,14 +2,14 @@
 
 <p align="center">
   Design tokens, typefaces and project data for every
-  <a href="https://rxova.org">rxova.org</a> surface.
+  <a href="https://rxova.dev">rxova.dev</a> surface.
 </p>
 
 ---
 
 ## Why this exists
 
-`rxova.org` serves one surface per project from a single origin — an Astro
+`rxova.dev` serves one surface per project from a single origin — an Astro
 landing at `/`, plus [overlock](https://github.com/rxova/overlock),
 [journey](https://github.com/rxova/journey),
 [react-inputs](https://github.com/rxova/react-inputs) and

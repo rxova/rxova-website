@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "rxova.org: the landing page, the docs aggregator, and the brand packages, blog and updates it is built from",
+  "description": "rxova.dev: the landing page, the docs aggregator, and the brand packages, blog and updates it is built from",
   "license": "MIT",
   "author": "Jonatan Kruszewski <jonakrusze@gmail.com>",
-  "homepage": "https://rxova.org",
+  "homepage": "https://rxova.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rxova/rxova-website.git"

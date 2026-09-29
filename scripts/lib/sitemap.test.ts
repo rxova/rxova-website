@@ -28,7 +28,7 @@ afterAll(() => {
   for (const dir of roots) rmSync(dir, { recursive: true, force: true });
 });
 
-const ORIGIN = "https://rxova.org";
+const ORIGIN = "https://rxova.dev";
 
 function write(path: string, body: string): void {
   const full = join(root, path);
@@ -146,9 +146,9 @@ describe("writeSitemaps", () => {
 
     assert.match(
       xml,
-      /<loc>https:\/\/rxova\.org\/blog\/a-post\/<\/loc><lastmod>2026-08-03<\/lastmod>/,
+      /<loc>https:\/\/rxova\.dev\/blog\/a-post\/<\/loc><lastmod>2026-08-03<\/lastmod>/,
     );
-    assert.match(xml, /<loc>https:\/\/rxova\.org\/<\/loc><\/url>/);
+    assert.match(xml, /<loc>https:\/\/rxova\.dev\/<\/loc><\/url>/);
   });
 
   it("lists the pages nobody else covers, at absolute URLs", async () => {
@@ -159,9 +159,9 @@ describe("writeSitemaps", () => {
     await writeSitemaps(root, [], ORIGIN);
 
     assert.deepEqual(locs(read(SITEMAP_PAGES)), [
-      "https://rxova.org/",
-      "https://rxova.org/about/",
-      "https://rxova.org/blog/test-post/",
+      "https://rxova.dev/",
+      "https://rxova.dev/about/",
+      "https://rxova.dev/blog/test-post/",
     ]);
   });
 
@@ -176,7 +176,7 @@ describe("writeSitemaps", () => {
 
     await writeSitemaps(root, [], ORIGIN);
 
-    assert.deepEqual(locs(read(SITEMAP_PAGES)), ["https://rxova.org/"]);
+    assert.deepEqual(locs(read(SITEMAP_PAGES)), ["https://rxova.dev/"]);
   });
 
   it("defers to a project that ships its own sitemap instead of listing its pages", async () => {
@@ -188,12 +188,12 @@ describe("writeSitemaps", () => {
     const { children } = await writeSitemaps(root, [{ mount: "packages/journey" }], ORIGIN);
 
     // Its pages appear once, under its own sitemap — not a second time under ours.
-    assert.deepEqual(locs(read(SITEMAP_PAGES)), ["https://rxova.org/"]);
+    assert.deepEqual(locs(read(SITEMAP_PAGES)), ["https://rxova.dev/"]);
     // The urlset, NOT the child index: see childSitemapPaths.
     assert.deepEqual(children, ["packages/journey/sitemap-0.xml"]);
     assert.deepEqual(locs(read(SITEMAP_INDEX)), [
-      "https://rxova.org/sitemap-pages.xml",
-      "https://rxova.org/packages/journey/sitemap-0.xml",
+      "https://rxova.dev/sitemap-pages.xml",
+      "https://rxova.dev/packages/journey/sitemap-0.xml",
     ]);
   });
 
@@ -209,9 +209,9 @@ describe("writeSitemaps", () => {
     await writeSitemaps(root, [{ mount: "packages/journey" }], ORIGIN);
 
     assert.deepEqual(locs(read(SITEMAP_INDEX)), [
-      "https://rxova.org/sitemap-pages.xml",
-      "https://rxova.org/packages/journey/sitemap-0.xml",
-      "https://rxova.org/packages/journey/sitemap-1.xml",
+      "https://rxova.dev/sitemap-pages.xml",
+      "https://rxova.dev/packages/journey/sitemap-0.xml",
+      "https://rxova.dev/packages/journey/sitemap-1.xml",
     ]);
   });
 
@@ -226,8 +226,8 @@ describe("writeSitemaps", () => {
 
     assert.deepEqual(children, []);
     assert.deepEqual(locs(read(SITEMAP_PAGES)), [
-      "https://rxova.org/",
-      "https://rxova.org/packages/journey/",
+      "https://rxova.dev/",
+      "https://rxova.dev/packages/journey/",
     ]);
   });
 
@@ -239,8 +239,8 @@ describe("writeSitemaps", () => {
 
     assert.deepEqual(children, []);
     assert.deepEqual(locs(read(SITEMAP_PAGES)), [
-      "https://rxova.org/",
-      "https://rxova.org/updates/repos/journey/",
+      "https://rxova.dev/",
+      "https://rxova.dev/updates/repos/journey/",
     ]);
   });
 
@@ -257,7 +257,7 @@ describe("writeSitemaps", () => {
       ORIGIN,
     );
 
-    assert.deepEqual(locs(read(SITEMAP_PAGES)), ["https://rxova.org/"]);
+    assert.deepEqual(locs(read(SITEMAP_PAGES)), ["https://rxova.dev/"]);
     assert.deepEqual(children, []);
   });
 
@@ -266,7 +266,7 @@ describe("writeSitemaps", () => {
 
     await writeSitemaps(root, [], ORIGIN);
 
-    assert.match(read("robots.txt"), /^Sitemap: https:\/\/rxova\.org\/sitemap-index\.xml$/m);
+    assert.match(read("robots.txt"), /^Sitemap: https:\/\/rxova\.dev\/sitemap-index\.xml$/m);
   });
 
   // Google-Extended and Applebot-Extended are consent grants that exist only in robots.txt;
@@ -304,15 +304,15 @@ describe("writeSitemaps", () => {
 
     await writeSitemaps(root, [], ORIGIN);
 
-    assert.match(read("robots.txt"), /^# .*: https:\/\/rxova\.org\/llms\.txt$/m);
+    assert.match(read("robots.txt"), /^# .*: https:\/\/rxova\.dev\/llms\.txt$/m);
   });
 
   it("honours a staging origin so a preview does not advertise production URLs", async () => {
     write("index.html", page());
 
-    await writeSitemaps(root, [], "https://web.rxova.org");
+    await writeSitemaps(root, [], "https://web.rxova.dev");
 
-    assert.deepEqual(locs(read(SITEMAP_PAGES)), ["https://web.rxova.org/"]);
+    assert.deepEqual(locs(read(SITEMAP_PAGES)), ["https://web.rxova.dev/"]);
   });
 });
 
@@ -326,8 +326,8 @@ describe("childSitemapPaths", () => {
     assert.deepEqual(
       childSitemapPaths(
         index([
-          "https://rxova.org/packages/use-everywhere/sitemap-0.xml",
-          "https://rxova.org/packages/use-everywhere/sitemap-1.xml",
+          "https://rxova.dev/packages/use-everywhere/sitemap-0.xml",
+          "https://rxova.dev/packages/use-everywhere/sitemap-1.xml",
         ]),
         "packages/use-everywhere",
       ),
@@ -339,7 +339,7 @@ describe("childSitemapPaths", () => {
   it("references a child that is a plain urlset as it stands", () => {
     assert.deepEqual(
       childSitemapPaths(
-        "<urlset><url><loc>https://rxova.org/packages/x/</loc></url></urlset>",
+        "<urlset><url><loc>https://rxova.dev/packages/x/</loc></url></urlset>",
         "packages/x",
       ),
       [`packages/x/${SITEMAP_INDEX}`],
@@ -359,9 +359,9 @@ describe("childSitemapPaths", () => {
     assert.deepEqual(
       childSitemapPaths(
         index([
-          "https://rxova.org/packages/other/sitemap-0.xml",
-          "https://rxova.org/packages/x/../sitemap-0.xml",
-          "https://rxova.org/packages/x/sitemap-0.xml",
+          "https://rxova.dev/packages/other/sitemap-0.xml",
+          "https://rxova.dev/packages/x/../sitemap-0.xml",
+          "https://rxova.dev/packages/x/sitemap-0.xml",
         ]),
         "packages/x",
       ),
@@ -373,9 +373,9 @@ describe("childSitemapPaths", () => {
     assert.deepEqual(
       childSitemapPaths(
         index([
-          "https://rxova.org/packages/x/sitemap-0.xml?a=1&amp;b=&lt;2&gt;",
+          "https://rxova.dev/packages/x/sitemap-0.xml?a=1&amp;b=&lt;2&gt;",
           "/packages/x/sitemap-1.xml",
-          "https://rxova.org/packages/x/sitemap-1.xml",
+          "https://rxova.dev/packages/x/sitemap-1.xml",
         ]),
         "packages/x",
       ),

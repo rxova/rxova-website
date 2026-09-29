@@ -6,7 +6,7 @@ authors: [jonatan-kruszewski]
 tags: [feature, infra]
 links:
   - label: The first post
-    href: https://rxova.org/blog/test-post
+    href: https://rxova.dev/blog/test-post
 ---
 
 I want to document how Rxova gets built, not only ship it. Two pieces were missing.

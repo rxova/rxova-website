@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "What rxova.org deploys. The projects themselves are listed once, in @rxova/brand's PROJECTS;",
+    "What rxova.dev deploys. The projects themselves are listed once, in @rxova/brand's PROJECTS;",
     "an entry here deploys one of them, and `pnpm check:registry` rejects an id PROJECTS lacks.",
     "Nothing in .github/workflows changes: deploy.yml and ingest.yml both read this file.",
     "",

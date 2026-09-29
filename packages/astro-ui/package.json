@@ -2,7 +2,7 @@
   "name": "@rxova/astro-ui",
   "version": "0.6.1",
   "type": "module",
-  "description": "Astro components, Starlight preset and shared chrome for rxova.org",
+  "description": "Astro components, Starlight preset and shared chrome for rxova.dev",
   "keywords": [
     "rxova",
     "astro",
@@ -11,7 +11,7 @@
   ],
   "license": "MIT",
   "author": "Jonatan Kruszewski <jonakrusze@gmail.com>",
-  "homepage": "https://rxova.org",
+  "homepage": "https://rxova.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rxova/rxova-website.git",

@@ -7,7 +7,7 @@ tags: [breaking, feature]
 version: "@rxova/react-inputs@1.0.0"
 links:
   - label: Migration guide
-    href: https://rxova.org/packages/react-inputs/components/otp/migrating
+    href: https://rxova.dev/packages/react-inputs/components/otp/migrating
 ---
 
 Going from three components to nine broke the conventions that worked for three. Every styling

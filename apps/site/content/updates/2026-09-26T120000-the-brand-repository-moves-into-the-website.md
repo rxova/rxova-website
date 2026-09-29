@@ -6,7 +6,7 @@ authors: [jonatan-kruszewski]
 tags: [feature, infra]
 links:
   - label: rxova.org
-    href: https://rxova.org/
+    href: https://rxova.dev/
   - label: rxova/rxova-website
     href: https://github.com/rxova/rxova-website
 ---

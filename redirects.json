@@ -2,7 +2,7 @@
   "$comment": [
     "Legacy URLs that Google still holds, mapped to where that page lives now.",
     "",
-    "rxova.org is served by GitHub Pages, which has no redirect rules \u2014 it serves static",
+    "rxova.dev is served by GitHub Pages, which has no redirect rules \u2014 it serves static",
     "files and nothing else. So scripts/lib/redirects.ts materialises each `from` as a stub",
     "document carrying <meta http-equiv=\"refresh\"> plus a canonical link to `to`, which",
     "is what a search engine reads as a redirect. Browsers follow the refresh.",

@@ -117,7 +117,7 @@ header.header {
   background: var(--rx-gradient);
 }
 
-/* Umbrella navigation: the switcher and the rxova.org sections, beside the social icons. */
+/* Umbrella navigation: the switcher and the rxova.dev sections, beside the social icons. */
 .rx-sections {
   display: flex;
   align-items: center;

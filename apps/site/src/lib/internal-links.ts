@@ -2,14 +2,14 @@ import { RXOVA_ORIGIN } from "@rxova/brand";
 
 /**
  * Every `<a href>` in `html` that would not resolve in one request on the serving origin: an
- * absolute rxova.org URL, a relative path, or a page path without its trailing slash (a 301).
+ * absolute rxova.dev URL, a relative path, or a page path without its trailing slash (a 301).
  */
 export function internalLinkProblems(html: string): string[] {
   const problems: string[] = [];
   for (const [, href] of html.matchAll(/<a\s[^>]*?href="([^"]*)"/g)) {
     if (href === undefined || /^(#|mailto:|tel:)/.test(href)) continue;
     if (href.startsWith(RXOVA_ORIGIN)) {
-      problems.push(`${href}: absolute rxova.org link; use a root-relative path`);
+      problems.push(`${href}: absolute rxova.dev link; use a root-relative path`);
       continue;
     }
     if (/^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith("//")) continue;
@@ -27,7 +27,7 @@ export function internalLinkProblems(html: string): string[] {
 }
 
 /**
- * An rxova.org URL as a root-relative page link with its trailing slash, or undefined for any
+ * An rxova.dev URL as a root-relative page link with its trailing slash, or undefined for any
  * other site. For content that must store absolute URLs (feeds read them) but renders on-site.
  */
 export function localHref(href: string): string | undefined {

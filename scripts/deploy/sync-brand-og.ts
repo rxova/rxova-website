@@ -1,6 +1,6 @@
 /**
  * Copies @rxova/brand's social cards into the site's public/og (gitignored) at build time;
- * every site's og:image points at `https://rxova.org/og/<project>.png`.
+ * every site's og:image points at `https://rxova.dev/og/<project>.png`.
  */
 
 import { cpSync, mkdirSync } from "node:fs";

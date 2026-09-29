@@ -6,7 +6,7 @@ authors: [jonatan-kruszewski]
 tags: [feature]
 links:
   - label: rxova.org
-    href: https://rxova.org/
+    href: https://rxova.dev/
 ---
 
 The rxova.org landing page now opens straight on the projects. The old hero and its stacked list

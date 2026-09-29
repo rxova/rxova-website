@@ -1,10 +1,10 @@
 # rxova-website
 
-The site for [rxova.org](https://rxova.org) (the landing, the blog and the updates stream, as one
+The site for [rxova.dev](https://rxova.dev) (the landing, the blog and the updates stream, as one
 Astro app), the docs aggregator that publishes the whole domain, and the design system every page
 is built from.
 
-`rxova.org` is one static site on **GitHub Pages** (its DNS lives in AWS Route 53, but
+`rxova.dev` is one static site on **GitHub Pages** (its DNS lives in AWS Route 53, but
 serving is GitHub Pages). This repo is the only thing that publishes it. It builds the Astro
 site at `/`, gathers each project's already-built docs from its content release, stitches
 everything into one tree under a subpath, and deploys to GitHub Pages.
@@ -14,10 +14,10 @@ them here already built; this repo validates and publishes them. See
 [docs/INPUTS-CONTRACT.md](docs/INPUTS-CONTRACT.md).
 
 ```
-rxova.org/                         -> apps/site          (the site: landing, /about, /blog, /updates)
-rxova.org/packages/journey/        -> rxova/journey        docs (built there, persisted as content-journey)
-rxova.org/packages/react-inputs/   -> rxova/react-inputs   docs (built there, persisted as content-react-inputs)
-rxova.org/packages/use-everywhere/ -> rxova/use-everywhere docs (built there, persisted as content-use-everywhere)
+rxova.dev/                         -> apps/site          (the site: landing, /about, /blog, /updates)
+rxova.dev/packages/journey/        -> rxova/journey        docs (built there, persisted as content-journey)
+rxova.dev/packages/react-inputs/   -> rxova/react-inputs   docs (built there, persisted as content-react-inputs)
+rxova.dev/packages/use-everywhere/ -> rxova/use-everywhere docs (built there, persisted as content-use-everywhere)
 ```
 
 Which projects are mounted is `sources.json` — see [Adding a project](#adding-a-project).
@@ -83,7 +83,7 @@ having gone green for the exact commit:
 The **Snapshot** workflow publishes a throwaway `0.x.y-next.N` to the `next` tag for trying an
 in-progress change in a real consumer repo.
 
-## How a project's docs reach rxova.org
+## How a project's docs reach rxova.dev
 
 Two gates, and the aggregator builds nothing.
 
@@ -114,14 +114,14 @@ Two gates, and the aggregator builds nothing.
    asset (`docs-<id>.tgz` on tag `content-<id>`) and redeploys.
 
 A rejection at either gate fails the ingest and **leaves the live site untouched** — a bad
-push can't take rxova.org down, it just doesn't publish.
+push can't take rxova.dev down, it just doesn't publish.
 
 At deploy time `scripts/deploy/fetch-docs.ts` pulls every _enabled_ project's persisted docs from
 its content release and assembles the whole tree (Pages publishes a whole tree, so every
 mounted project must be present). Only the project that just changed is re-persisted; the rest
 are served from their last persisted dist — nothing is rebuilt here.
 
-## How rxova.org is found
+## How rxova.dev is found
 
 Being assembled from independently built trees has one cost a single site does not pay:
 nothing has the whole picture. Each Starlight docs site emits a perfectly good
@@ -136,7 +136,7 @@ cannot use them. So the last two steps of the assemble know things no single pro
   that ships none is swept into `sitemap-pages.xml`. Either way, adding a project costs no
   code change here. `noindex` pages, redirect stubs and `404.html` are never listed.
 
-Submit `https://rxova.org/sitemap-index.xml` once in Google Search Console; every project
+Submit `https://rxova.dev/sitemap-index.xml` once in Google Search Console; every project
 reached from it is discovered from then on, including projects added later.
 
 ## Adding a project
@@ -147,7 +147,7 @@ No workflow changes. `PROJECTS` in `packages/brand/src/sites.ts` is the one list
 1. Add the project to `PROJECTS` (the docs sites read it for their project switcher), run
    `pnpm og` to generate its social card, and add a changeset so the docs sites can pick up the
    new `@rxova/brand`.
-2. To put it on rxova.org, add its entry to `sources.json`:
+2. To put it on rxova.dev, add its entry to `sources.json`:
 
    ```jsonc
    {
@@ -184,7 +184,7 @@ deploy, where its mistakes are already live and often quiet: a dispatch accepted
 project, a dist mounted where the base URL disagrees with it, a project whose docs are silently
 absent from the published tree. The tests in `scripts/**/*.test.*` cover those paths — including
 gate 2's rejections and `checkDist` against real directories on disk — so a regression fails on
-the pull request instead of on rxova.org.
+the pull request instead of on rxova.dev.
 
 ## How docs are built (it isn't here)
 
@@ -206,7 +206,7 @@ Deploys to **GitHub Pages**. Enable Pages for this repo with **Source: GitHub Ac
 - Until the `PAGES_CUSTOM_DOMAIN` variable is set, the site publishes to the default Pages URL
   (`https://rxova.github.io/rxova-website/`) — a structural smoke test only, since asset paths
   assume the domain root. Do visual QA locally (`pnpm preview`).
-- **Cutover (Phase 3):** set variable `PAGES_CUSTOM_DOMAIN=rxova.org`, set the custom domain in
+- **Cutover (Phase 3):** set variable `PAGES_CUSTOM_DOMAIN=rxova.dev`, set the custom domain in
   Settings → Pages, and remove it from the journey repo's Pages settings. Route 53 is untouched —
   it already points at GitHub Pages.
 
@@ -214,7 +214,7 @@ Deploys to **GitHub Pages**. Enable Pages for this repo with **Source: GitHub Ac
 
 **Variables:**
 
-- `PAGES_CUSTOM_DOMAIN` — set to `rxova.org` at cutover; leave unset before (serves at default URL).
+- `PAGES_CUSTOM_DOMAIN` — set to `rxova.dev` at cutover; leave unset before (serves at default URL).
 
 Per-project gating used to live here as `JOURNEY_ENABLED` / `INPUTS_ENABLED` /
 `USE_EVERYWHERE_ENABLED`. It now lives in `sources.json` (`"enabled": true`), so which

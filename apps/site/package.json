@@ -42,5 +42,5 @@
     "vitest": "^5.0.1",
     "yaml": "^2.9.1"
   },
-  "description": "rxova.org: the landing, /about, /blog and /updates, one Astro app. Package docs are built elsewhere and composed in at deploy time."
+  "description": "rxova.dev: the landing, /about, /blog and /updates, one Astro app. Package docs are built elsewhere and composed in at deploy time."
 }

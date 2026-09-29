@@ -4,7 +4,7 @@ import { escapeXml, renderFeed, rfc822, type FeedItem } from "./feed.ts";
 
 const item = (over: Partial<FeedItem> = {}): FeedItem => ({
   title: "A post",
-  link: "https://rxova.org/blog/a-post/",
+  link: "https://rxova.dev/blog/a-post/",
   description: "What it is about.",
   pubDate: new Date("2026-08-03T09:00:00Z"),
   ...over,
@@ -37,8 +37,8 @@ describe("renderFeed", () => {
   const base = {
     title: "Rxova Blog",
     description: "Essays from the Rxova projects.",
-    siteUrl: "https://rxova.org/blog/",
-    feedUrl: "https://rxova.org/blog/rss.xml",
+    siteUrl: "https://rxova.dev/blog/",
+    feedUrl: "https://rxova.dev/blog/rss.xml",
   };
 
   it("renders a channel with a self-referencing atom link", () => {
@@ -46,13 +46,13 @@ describe("renderFeed", () => {
     expect(xml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
     expect(xml).toContain("<title>Rxova Blog</title>");
     expect(xml).toContain(
-      '<atom:link href="https://rxova.org/blog/rss.xml" rel="self" type="application/rss+xml" />',
+      '<atom:link href="https://rxova.dev/blog/rss.xml" rel="self" type="application/rss+xml" />',
     );
   });
 
   it("uses the entry URL as a permalink guid", () => {
     const xml = renderFeed({ ...base, items: [item()] });
-    expect(xml).toContain('<guid isPermaLink="true">https://rxova.org/blog/a-post/</guid>');
+    expect(xml).toContain('<guid isPermaLink="true">https://rxova.dev/blog/a-post/</guid>');
   });
 
   it("keeps the order it was given", () => {

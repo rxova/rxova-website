@@ -2,7 +2,7 @@
   "name": "@rxova/brand",
   "version": "1.3.1",
   "type": "module",
-  "description": "Design tokens, typefaces and project data for rxova.org",
+  "description": "Design tokens, typefaces and project data for rxova.dev",
   "keywords": [
     "rxova",
     "design-tokens",
@@ -10,7 +10,7 @@
   ],
   "license": "MIT",
   "author": "Jonatan Kruszewski <jonakrusze@gmail.com>",
-  "homepage": "https://rxova.org",
+  "homepage": "https://rxova.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rxova/rxova-website.git",

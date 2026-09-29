@@ -6,7 +6,7 @@ authors: [jonatan-kruszewski]
 tags: [feature, release]
 links:
   - label: All nine components
-    href: https://rxova.org/packages/react-inputs/
+    href: https://rxova.dev/packages/react-inputs/
 ---
 
 The suite was currency, rating and OTP. It is now nine: **date**, **time**, **phone**,

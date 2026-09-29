@@ -8,7 +8,7 @@ const meta: Meta = {
   tags: ["autodocs"],
   args: {
     homeHref: "#",
-    logoSrc: "https://rxova.org/rxova-logo-256.png",
+    logoSrc: "https://rxova.dev/rxova-logo-256.png",
     items: [
       { label: "Projects", href: "#", current: true },
       { label: "Blog", href: "#" },

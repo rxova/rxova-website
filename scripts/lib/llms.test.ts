@@ -19,7 +19,7 @@ afterAll(() => {
   for (const dir of roots) rmSync(dir, { recursive: true, force: true });
 });
 
-const ORIGIN = "https://rxova.org";
+const ORIGIN = "https://rxova.dev";
 
 function write(path: string, body: string): void {
   const full = join(root, path);
@@ -60,7 +60,7 @@ describe("llmsIndex", () => {
   });
 
   it("omits a section that has no entries rather than printing an empty heading", () => {
-    const entry = { label: "journey", url: "https://rxova.org/packages/journey/" };
+    const entry = { label: "journey", url: "https://rxova.dev/packages/journey/" };
     const doc = llmsIndex({ projects: [entry], sites: [] }, ORIGIN);
 
     assert.match(doc, /## Libraries/);
@@ -70,14 +70,14 @@ describe("llmsIndex", () => {
   it("appends the blurb as the link note, and omits the separator without one", () => {
     const doc = llmsIndex(
       {
-        projects: [{ label: "a", url: "https://rxova.org/a/", note: "Does a thing." }],
-        sites: [{ label: "b", url: "https://rxova.org/b/" }],
+        projects: [{ label: "a", url: "https://rxova.dev/a/", note: "Does a thing." }],
+        sites: [{ label: "b", url: "https://rxova.dev/b/" }],
       },
       ORIGIN,
     );
 
-    assert.match(doc, /^- \[a]\(https:\/\/rxova\.org\/a\/\): Does a thing\.$/m);
-    assert.match(doc, /^- \[b]\(https:\/\/rxova\.org\/b\/\)$/m);
+    assert.match(doc, /^- \[a]\(https:\/\/rxova\.dev\/a\/\): Does a thing\.$/m);
+    assert.match(doc, /^- \[b]\(https:\/\/rxova\.dev\/b\/\)$/m);
   });
 });
 
@@ -88,7 +88,7 @@ describe("writeLlms", () => {
     await writeLlms(root, [source("journey")], ORIGIN);
 
     assert.deepEqual(libraryLinks(read()), [
-      ["journey", "https://rxova.org/packages/journey/llms.txt"],
+      ["journey", "https://rxova.dev/packages/journey/llms.txt"],
     ]);
   });
 
@@ -98,7 +98,7 @@ describe("writeLlms", () => {
 
     await writeLlms(root, [source("journey")], ORIGIN);
 
-    assert.deepEqual(libraryLinks(read()), [["journey", "https://rxova.org/packages/journey/"]]);
+    assert.deepEqual(libraryLinks(read()), [["journey", "https://rxova.dev/packages/journey/"]]);
   });
 
   it("mixes the two without either affecting the other", async () => {
@@ -107,8 +107,8 @@ describe("writeLlms", () => {
     await writeLlms(root, [source("journey"), source("react-inputs")], ORIGIN);
 
     assert.deepEqual(libraryLinks(read()), [
-      ["journey", "https://rxova.org/packages/journey/"],
-      ["react-inputs", "https://rxova.org/packages/react-inputs/llms.txt"],
+      ["journey", "https://rxova.dev/packages/journey/"],
+      ["react-inputs", "https://rxova.dev/packages/react-inputs/llms.txt"],
     ]);
   });
 
@@ -119,11 +119,11 @@ describe("writeLlms", () => {
     assert.deepEqual(
       sites.map((s) => [s.label, s.url]),
       [
-        ["blog", "https://rxova.org/blog/"],
-        ["updates", "https://rxova.org/updates/"],
+        ["blog", "https://rxova.dev/blog/"],
+        ["updates", "https://rxova.dev/updates/"],
       ],
     );
-    assert.match(read(), /## Also on this site\n\n- \[blog\]\(https:\/\/rxova\.org\/blog\/\)/);
+    assert.match(read(), /## Also on this site\n\n- \[blog\]\(https:\/\/rxova\.dev\/blog\/\)/);
   });
 
   it("separates the libraries from the other sites on this domain", async () => {
@@ -162,7 +162,7 @@ describe("writeLlms", () => {
     );
 
     assert.deepEqual(libraryLinks(read()), [
-      ["react-inputs", "https://rxova.org/packages/react-inputs/"],
+      ["react-inputs", "https://rxova.dev/packages/react-inputs/"],
     ]);
   });
 
@@ -179,12 +179,12 @@ describe("writeLlms", () => {
   it("honours a staging origin so a preview does not advertise production URLs", async () => {
     write(`packages/journey/${LLMS_FILE}`, "# journey\n");
 
-    await writeLlms(root, [source("journey")], "https://web.rxova.org");
+    await writeLlms(root, [source("journey")], "https://web.rxova.dev");
 
     assert.deepEqual(links(read()), [
-      ["journey", "https://web.rxova.org/packages/journey/llms.txt"],
-      ["blog", "https://web.rxova.org/blog/"],
-      ["updates", "https://web.rxova.org/updates/"],
+      ["journey", "https://web.rxova.dev/packages/journey/llms.txt"],
+      ["blog", "https://web.rxova.dev/blog/"],
+      ["updates", "https://web.rxova.dev/updates/"],
     ]);
   });
 });

@@ -1,6 +1,6 @@
 /**
  * The site map: which projects and repos exist, and the URLs that reach them.
- * Every rxova.org surface reads it — the landing, the docs switcher and the updates repo filter.
+ * Every rxova.dev surface reads it — the landing, the docs switcher and the updates repo filter.
  */
 
 import { describe, expect, it } from "vitest";

@@ -1,4 +1,4 @@
-/** @rxova/brand — the project data behind rxova.org. Stylesheets are subpath exports (`@rxova/brand/tokens.css`). */
+/** @rxova/brand — the project data behind rxova.dev. Stylesheets are subpath exports (`@rxova/brand/tokens.css`). */
 
 export {
   RXOVA_ORIGIN,
