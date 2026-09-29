@@ -14,4 +14,4 @@ of each repo keeping a copy.
 
 And a `storybook` source kind: a project's workshop ingests like any other source and
 nests under one `/storybook/` tree. The react-inputs workshop is the first through —
-live at `rxova.org/storybook/react-inputs/`.
+live at `rxova.dev/storybook/react-inputs/`.

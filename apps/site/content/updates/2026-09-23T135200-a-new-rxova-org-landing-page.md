@@ -5,7 +5,7 @@ repos: [rxova-website, brand]
 authors: [jonatan-kruszewski]
 tags: [feature]
 links:
-  - label: rxova.org
+  - label: rxova.dev
     href: https://rxova.dev/
 ---
 
