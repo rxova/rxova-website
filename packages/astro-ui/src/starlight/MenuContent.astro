@@ -1,0 +1,25 @@
+---
+/**
+ * What a docs site's phone menu holds below its own sidebar: every project's docs, the rxova.dev
+ * sections, then the social links and the theme picker, which the header hides on phones.
+ */
+import DefaultSocialIcons from "@astrojs/starlight/components/SocialIcons.astro";
+import LanguageSelect from "@astrojs/starlight/components/LanguageSelect.astro";
+import { projectFromBase } from "@rxova/brand";
+import DocsMenu from "../components/DocsMenu.astro";
+import ThemeSelect from "./ThemeSelect.astro";
+
+// Overrides receive no props, so the current project is inferred from the base path.
+const current = projectFromBase(import.meta.env.BASE_URL);
+---
+
+<div class="rx-menu-content">
+  <DocsMenu current={current} />
+  <div class="rx-menu-content__prefs">
+    <div class="rx-menu-content__social">
+      <DefaultSocialIcons />
+    </div>
+    <ThemeSelect />
+    <LanguageSelect />
+  </div>
+</div>

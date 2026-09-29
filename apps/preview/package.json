@@ -11,7 +11,8 @@
     "check:astro": "astro check",
     "sync": "astro sync",
     "screenshots": "node scripts/screenshots.ts",
-    "test": "vitest run --coverage"
+    "test": "vitest run --coverage",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.1",

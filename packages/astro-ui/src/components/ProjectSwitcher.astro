@@ -1,8 +1,6 @@
 ---
-/**
- * Cross-project navigation as a zero-JS `<details>`. Every href is absolute: a relative one would
- * resolve under the current site's base path.
- */
+/** Cross-project navigation as a zero-JS `<details>`, labelled "Docs" so it never reads as the
+ * Projects link beside it. Every href is absolute: a relative one would resolve under the base. */
 import { PROJECTS, RXOVA_ORIGIN, type ProjectId } from "@rxova/brand";
 
 interface Props {
@@ -14,8 +12,8 @@ const { current } = Astro.props;
 ---
 
 <details class="rx-switcher">
-  <summary class="rx-switcher__trigger" aria-label="Switch project">
-    Projects
+  <summary class="rx-switcher__trigger">
+    Docs
     <svg aria-hidden="true" viewBox="0 0 16 16" width="12" height="12">
       <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75"></path>
     </svg>
