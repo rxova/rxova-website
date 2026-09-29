@@ -108,7 +108,7 @@ stream.
 
 ```yaml
 ---
-title: rxova.org gains a blog and an updates feed
+title: rxova.dev gains a blog and an updates feed
 date: 2026-07-27T09:15:00Z
 repos: [rxova-website, brand] # at least one, see below
 authors: [rxova]
