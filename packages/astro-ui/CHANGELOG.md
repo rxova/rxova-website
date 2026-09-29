@@ -1,5 +1,13 @@
 # @rxova/astro-ui
 
+## 0.6.2
+
+### Patch Changes
+
+- [#153](https://github.com/rxova/rxova-website/pull/153) [`1021d99`](https://github.com/rxova/rxova-website/commit/1021d99260194de133bd7d6d4bfc1143d779ff49) - The header, footer and section links point at rxova.dev.
+- Updated dependencies [[`1021d99`](https://github.com/rxova/rxova-website/commit/1021d99260194de133bd7d6d4bfc1143d779ff49)]:
+  - @rxova/brand@1.4.0
+
 ## 0.6.1
 
 ### Patch Changes

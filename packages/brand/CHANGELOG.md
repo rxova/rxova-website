@@ -1,5 +1,11 @@
 # @rxova/brand
 
+## 1.4.0
+
+### Minor Changes
+
+- [#153](https://github.com/rxova/rxova-website/pull/153) [`1021d99`](https://github.com/rxova/rxova-website/commit/1021d99260194de133bd7d6d4bfc1143d779ff49) - `RXOVA_ORIGIN` defaults to `https://rxova.dev`, the site's new home; rxova.org redirects there.
+
 ## 1.3.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@rxova/website-schemas",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "type": "module",
   "description": "The contracts between rxova repos: for the website",
   "keywords": [
