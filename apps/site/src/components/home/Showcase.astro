@@ -78,7 +78,20 @@ const inlineId = inlineWalkthroughId(
     rail.setAttribute("role", "tablist");
     rail.setAttribute("aria-orientation", "vertical");
 
-    const select = (next: RailTab, focus: boolean): void => {
+    /** Scrolls only the rail sideways until `tab` shows: on phones it can sit off the strip. Not
+     * `scrollIntoView`, which would also scroll the page to the rail on load. */
+    const reveal = (tab: RailTab, smooth: boolean): void => {
+      if (rail.scrollWidth <= rail.clientWidth) return;
+      const box = rail.getBoundingClientRect();
+      const item = tab.getBoundingClientRect();
+      const left =
+        item.left < box.left ? item.left - box.left : Math.max(0, item.right - box.right);
+      if (left === 0) return;
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      rail.scrollBy({ left, behavior: smooth && !reduce ? "smooth" : "instant" });
+    };
+
+    const select = (next: RailTab, focus: boolean, smooth = true): void => {
       for (const tab of tabs) {
         const on = tab === next;
         tab.setAttribute("aria-selected", String(on));
@@ -93,6 +106,7 @@ const inlineId = inlineWalkthroughId(
         if (on) void fillWalkthroughSlot(panel);
       }
       if (focus) next.focus();
+      reveal(next, smooth);
     };
 
     // The tab the build marked active (the featured project), else the first.
@@ -120,11 +134,11 @@ const inlineId = inlineWalkthroughId(
     });
 
     for (const panel of panels.values()) panel.setAttribute("role", "tabpanel");
-    select(initial, false);
+    select(initial, false, false);
 
     // `/#project-journey` still names a panel, now that the tabs own the anchors.
     const fromHash = tabs.find((t) => `#project-${t.dataset.rail}` === location.hash);
-    if (fromHash) select(fromHash, false);
+    if (fromHash) select(fromHash, false, false);
   }
 
   enhanceRail();
