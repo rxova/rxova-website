@@ -73,7 +73,7 @@ const blogJsonLd = {
     what actually changed, see the <a href={updatesUrl}>updates</a>.
   </PageHeader>
 
-  {items.length === 0 && <p class="empty">Nothing published yet.</p>}
+  {items.length === 0 && <p class="empty">No posts yet.</p>}
 
   <ul class="posts" data-reveal-list data-reveal-step={PAGE_SIZE}>
     {items.map(({ post, authors, lead }) => (
