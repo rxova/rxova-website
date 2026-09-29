@@ -15,7 +15,7 @@ test("filters by tag, counts the matches and records the filter in the URL", asy
   await page.locator(`[data-tag="${tag}"]`).click();
   await expect(page).toHaveURL(new RegExp(`\\?tag=${tag}$`));
   await expect(page.locator(`[data-tag="${tag}"]`)).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator("[data-count]")).toHaveText(`${tagged} of ${total} entries`);
+  await expect(page.locator("[data-count]")).toHaveText(`${tagged} of ${total} updates`);
   await expect(page.locator("[data-stream] .entry[hidden]")).toHaveCount(total - tagged);
 
   await page.locator("[data-clear]").click();
