@@ -102,8 +102,8 @@ describe("place", () => {
 
 describe("countText", () => {
   it("counts matches only while filtered, with the right plural", () => {
-    expect(countText(3, 12, true)).toBe("3 of 12 entries");
-    expect(countText(1, 1, true)).toBe("1 of 1 entry");
+    expect(countText(3, 12, true)).toBe("3 of 12 updates");
+    expect(countText(1, 1, true)).toBe("1 of 1 update");
     expect(countText(12, 12, false)).toBe("");
   });
 });

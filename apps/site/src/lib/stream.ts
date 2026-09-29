@@ -73,9 +73,9 @@ export function place(
   return { placements, matching, shown };
 }
 
-/** "3 of 12 entries" while filtered; counts matches, not the batch. */
+/** "3 of 12 updates" while filtered; counts matches, not the batch. */
 export function countText(matching: number, total: number, filtered: boolean): string {
-  return filtered ? `${matching} of ${total} ${total === 1 ? "entry" : "entries"}` : "";
+  return filtered ? `${matching} of ${total} ${total === 1 ? "update" : "updates"}` : "";
 }
 
 /** "Showing 8 of 20" while part of the matches is batched away. */
