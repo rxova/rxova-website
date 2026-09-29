@@ -1,5 +1,5 @@
 ---
-/** One project on the showcase stage: install line, snippet or walkthrough, tags and links. */
+/** One project on the showcase stage: heading and links, then install line, snippet or walkthrough and tags. */
 import type { LandingProject } from "../../lib/projects";
 import { walkthroughPath } from "../../lib/walkthrough";
 import { showcases } from "../../showcases";
@@ -18,6 +18,8 @@ interface Props {
 
 const { project: p, active, inline } = Astro.props;
 const story = showcases[p.id];
+// The heading links where the Docs link does; a project with no mounted docs keeps a plain heading.
+const docs = p.links.find((l) => l.label === "Docs");
 ---
 
 <article
@@ -28,10 +30,20 @@ const story = showcases[p.id];
 >
   <header class="panel-head">
     <h3 class="panel-title" id={`panel-heading-${p.id}`}>
-      {p.label}
+      {docs ? <a href={docs.href}>{p.label}</a> : p.label}
     </h3>
     <p class="panel-tagline">{p.tagline}</p>
   </header>
+
+  {/* Straight under the tagline, so Docs and GitHub are the first thing after what it is. */}
+  <LinkRow class="panel-links" label={`${p.label} links`}>
+    {p.links.map((l) => (
+      <a href={l.href} {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+        {l.label}
+        <Arrow dir={l.external ? "out" : "across"} />
+      </a>
+    ))}
+  </LinkRow>
 
   <p class="panel-blurb">{p.blurb}</p>
 
@@ -64,16 +76,7 @@ const story = showcases[p.id];
     ))}
   </ul>
 
-  <LinkRow label={`${p.label} links`}>
-    {p.links.map((l) => (
-      <a href={l.href} {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
-        {l.label}
-        <Arrow dir={l.external ? "out" : "across"} />
-      </a>
-    ))}
-  </LinkRow>
-
-  {/* After the links because it is tall, so Docs and GitHub stay in the panel's first screen. */}
+  {/* Last because it is tall. */}
   {story &&
     (inline ? (
       <Walkthrough story={story} id={`walkthrough-${p.id}`} host=".panel" />
@@ -122,10 +125,28 @@ const story = showcases[p.id];
     letter-spacing: -0.025em;
     line-height: 1.15;
   }
+  .panel-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .panel-title a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+  }
+  .panel-title a:focus-visible {
+    outline: 2px solid var(--rx-fg);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
   .panel-tagline {
     margin-top: 0.35rem;
     font-size: 1.02rem;
     color: var(--rx-fg);
+  }
+  /* `:global`, because the class lands on LinkRow's root, outside this component's scope. */
+  .panel :global(.panel-links) {
+    margin-bottom: 1.25rem;
   }
   .panel-blurb {
     max-width: 40rem;
