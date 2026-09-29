@@ -8,7 +8,7 @@ import type { ProjectId } from "@rxova/brand";
 export interface MaintainerLink {
   label: string;
   href: string;
-  /** Every one of these leaves rxova.org. */
+  /** Every one of these leaves rxova.dev. */
   external: true;
 }
 

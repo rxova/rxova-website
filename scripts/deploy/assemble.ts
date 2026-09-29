@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Assembles rxova.org from build artifacts. Usage: node assemble.ts [artifacts] [_site]
+// Assembles rxova.dev from build artifacts. Usage: node assemble.ts [artifacts] [_site]
 // Mounts come from sources.json; each artifact is copied as built, plus the analytics beacon.
 
 import { cp, mkdir, access, rm, readFile, writeFile, readdir } from "node:fs/promises";

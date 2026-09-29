@@ -1,12 +1,12 @@
 # The content architecture
 
-How **rxova.org/blog** and **rxova.org/updates** are put together, and why that way
+How **rxova.dev/blog** and **rxova.dev/updates** are put together, and why that way
 rather than the several other ways they could have been.
 
 The short version: the blog and the updates are routes of the site app, `apps/site`,
 built in the same `astro build` as the landing and `/about`. Package docs are the only
 thing brought in at deploy time: their repositories build complete pages with
-`@rxova/astro-ui`, whose header and footer link the rest of rxova.org, and this repo
+`@rxova/astro-ui`, whose header and footer link the rest of rxova.dev, and this repo
 publishes them as built, adding only the analytics beacon.
 
 ## One app, since September 2026
@@ -111,5 +111,5 @@ Complete pages built with a shared package keep the builds independent.
 repos shipped body-only pages and the deploy spliced them into a site template, under
 the site's header. A docs page then had two fixed bars from two builds: the site's
 ribbon and Starlight's own. Keeping them aligned took shared CSS offsets, and on iOS
-they slid apart when the page overscrolled. Drawing the rxova.org links inside
+they slid apart when the page overscrolled. Drawing the rxova.dev links inside
 Starlight's bar removed the second bar and the splicing with it.

@@ -1,10 +1,10 @@
 /**
- * The rxova.org site map. Each surface has its own base path, so cross-project links are absolute.
+ * The rxova.dev site map. Each surface has its own base path, so cross-project links are absolute.
  * Imported from `astro.config.mjs` under Node, so it must never import CSS or a component.
  */
 
-/** Canonical origin. Override for a staging deploy (e.g. https://web.rxova.org). */
-export const RXOVA_ORIGIN = process.env.RXOVA_ORIGIN ?? "https://rxova.org";
+/** Canonical origin. Override for a staging deploy (e.g. https://web.rxova.dev). */
+export const RXOVA_ORIGIN = process.env.RXOVA_ORIGIN ?? "https://rxova.dev";
 
 /**
  * Every rxova project, in display order: the landing's project rail and the docs switcher.
@@ -124,7 +124,7 @@ export function getRepo(id: RepoId): (typeof REPOS)[number] {
 }
 
 /**
- * The standalone sections of rxova.org, in menu order. Every surface's navigation reads this: the
+ * The standalone sections of rxova.dev, in menu order. Every surface's navigation reads this: the
  * site header, the docs header and the shared footer. The site root is the about page, reached by the mark.
  */
 export const SECTIONS = [

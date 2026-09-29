@@ -1,6 +1,6 @@
 ---
 /**
- * The umbrella navigation for a docs site: the project switcher, then the rxova.org sections.
+ * The umbrella navigation for a docs site: the project switcher, then the rxova.dev sections.
  * Starlight shows it in the header bar on wide screens and in the menu on phones.
  */
 import { RXOVA_ORIGIN, SECTIONS, type ProjectId } from "@rxova/brand";
@@ -9,14 +9,14 @@ import ProjectSwitcher from "./ProjectSwitcher.astro";
 interface Props {
   /** The project whose docs these are, marked in the switcher. */
   current?: ProjectId;
-  /** Prefix for the section links. '' links root-relative, for a build served on rxova.org. */
+  /** Prefix for the section links. '' links root-relative, for a build served on rxova.dev. */
   origin?: string;
 }
 
 const { current, origin = RXOVA_ORIGIN } = Astro.props;
 ---
 
-<nav class="rx-sections" aria-label="rxova.org">
+<nav class="rx-sections" aria-label="rxova.dev">
   <ProjectSwitcher current={current} />
   {SECTIONS.map((section) => (
     <a class="rx-sections__link" href={`${origin}${section.path}`}>

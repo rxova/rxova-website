@@ -11,7 +11,7 @@ import { attribute, element, walkNodes } from "./html.ts";
 import type { Source } from "./registry.ts";
 
 /** Canonical origin; mirrors `RXOVA_ORIGIN` in @rxova/brand, which depends on this package. */
-export const RXOVA_ORIGIN = process.env.RXOVA_ORIGIN ?? "https://rxova.org";
+export const RXOVA_ORIGIN = process.env.RXOVA_ORIGIN ?? "https://rxova.dev";
 
 /** The file a Starlight/Astro subtree publishes, and the name of our root index. */
 export const SITEMAP_INDEX = "sitemap-index.xml";

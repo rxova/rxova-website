@@ -10,9 +10,9 @@ const links = (html: string) =>
   );
 
 describe("SectionNav", () => {
-  it("links every rxova.org section absolutely by default, for a docs build served anywhere", async () => {
+  it("links every rxova.dev section absolutely by default, for a docs build served anywhere", async () => {
     expect(links(await render(SectionNav))).toEqual(
-      SECTIONS.map((s) => [s.label, `https://rxova.org${s.path}`]),
+      SECTIONS.map((s) => [s.label, `https://rxova.dev${s.path}`]),
     );
   });
 
@@ -25,7 +25,7 @@ describe("SectionNav", () => {
   it("leads with the project switcher, marking the current project", async () => {
     const html = await render(SectionNav, { props: { current: "journey" } });
     expect(html.indexOf("rx-switcher")).toBeLessThan(html.indexOf("rx-sections__link"));
-    expect(html).toContain('aria-label="rxova.org"');
+    expect(html).toContain('aria-label="rxova.dev"');
     const current = /<a[^>]*class="[^"]*rx-switcher__current[^"]*"[^>]*>\s*([^<]*?)\s*</.exec(html);
     expect(current?.[1]).toBe("journey");
   });

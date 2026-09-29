@@ -72,10 +72,10 @@ describe("assemble", () => {
     assert.match(index, /^# Rxova$/m);
     assert.match(
       index,
-      /^- \[react-inputs]\(https:\/\/rxova\.org\/packages\/react-inputs\/llms\.txt\)/m,
+      /^- \[react-inputs]\(https:\/\/rxova\.dev\/packages\/react-inputs\/llms\.txt\)/m,
     );
     // No index of its own yet, so the docs root — not a link that would 404.
-    assert.match(index, /^- \[journey]\(https:\/\/rxova\.org\/packages\/journey\/\)/m);
+    assert.match(index, /^- \[journey]\(https:\/\/rxova\.dev\/packages\/journey\/\)/m);
   });
 
   it("refuses to deploy when an enabled project has no artifact", async () => {

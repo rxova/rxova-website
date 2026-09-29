@@ -1,6 +1,6 @@
 # The docs ingest contract
 
-How a project's docs get onto **rxova.org**. This is the contract a source repo
+How a project's docs get onto **rxova.dev**. This is the contract a source repo
 (`rxova/journey`, `rxova/react-inputs`, `rxova/use-everywhere`, and any future
 package) implements — **gate 1**, the sender. The aggregator's half — **gate 2**,
 validate and persist — lives in [`scripts/deploy/ingest.ts`](../scripts/deploy/ingest.ts) and
@@ -11,7 +11,7 @@ runs your toolchain. You build your docs, upload them, and tell it where they ar
 it validates and publishes them as built.
 
 Your docs draw their own chrome. Build them with `@rxova/astro-ui`'s
-`sharedStarlightConfig`: its header links the rxova.org sections and the other
+`sharedStarlightConfig`: its header links the rxova.dev sections and the other
 projects, and its footer is the site footer. The only thing the aggregator adds is
 the Cloudflare analytics beacon, at deploy time, so do not ship your own.
 
@@ -84,7 +84,7 @@ notify-aggregator:
         path: dist
         if-no-files-found: error
 
-    - name: Notify rxova.org
+    - name: Notify rxova.dev
       env:
         GH_TOKEN: ${{ secrets.AGGREGATOR_DISPATCH_TOKEN }}
       run: |
@@ -117,7 +117,7 @@ notify-aggregator:
    the rest are served from their last persisted dist, not rebuilt.
 
 A rejection at any gate fails the ingest run and **leaves the live site
-untouched** — a bad push cannot take rxova.org down, it just does not publish.
+untouched** — a bad push cannot take rxova.dev down, it just does not publish.
 
 ## Tokens
 

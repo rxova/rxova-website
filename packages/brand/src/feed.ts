@@ -1,5 +1,5 @@
 /**
- * Hand-written RSS 2.0 for the rxova.org surfaces that publish a stream (/blog and /updates).
+ * Hand-written RSS 2.0 for the rxova.dev surfaces that publish a stream (/blog and /updates).
  * No Node-only imports, so it stays importable from an Astro endpoint in any runtime.
  */
 

@@ -1,6 +1,6 @@
 # @rxova/website-schemas
 
-The contracts between the rxova repositories and rxova.org, as [zod](https://zod.dev) schemas: the
+The contracts between the rxova repositories and rxova.dev, as [zod](https://zod.dev) schemas: the
 frontmatter of blog posts, updates and authors, the entries of the docs registry (`sources.json`),
 the `docs` dispatch a repository sends to publish its docs, and the entry filenames.
 

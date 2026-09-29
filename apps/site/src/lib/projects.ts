@@ -85,7 +85,7 @@ export function buildLandingProjects(
     if (!install) fail(`"${project.id}" has no packages in PROJECTS to install`);
 
     // A demo is an absolute URL the project's own repo deploys; a relative one would
-    // point at rxova.org and 404.
+    // point at rxova.dev and 404.
     if (demo !== undefined && !/^https?:\/\//.test(demo)) {
       fail(`"${project.id}" has a landing.demo that is not an absolute URL: ${demo}`);
     }
@@ -136,7 +136,7 @@ export const mountedProjects: readonly SiteSurface[] = landingProjects
   .map((p) => ({ id: p.id, label: p.label, href: p.mount }));
 
 /**
- * A section of rxova.org: built by this app (/blog, /updates, /about), or a mounted
+ * A section of rxova.dev: built by this app (/blog, /updates, /about), or a mounted
  * `kind: "site"` source, gated on `enabled` so the menu never advertises a 404. */
 export interface SiteSurface {
   id: string;

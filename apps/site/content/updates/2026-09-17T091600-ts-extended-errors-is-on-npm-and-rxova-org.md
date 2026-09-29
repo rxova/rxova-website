@@ -7,7 +7,7 @@ tags: [release, docs]
 version: ts-extended-errors@0.4.4
 links:
   - label: Documentation
-    href: https://rxova.org/packages/ts-extended-errors/
+    href: https://rxova.dev/packages/ts-extended-errors/
   - label: npm
     href: https://www.npmjs.com/package/ts-extended-errors
   - label: Release notes

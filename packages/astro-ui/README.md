@@ -2,7 +2,7 @@
 
 <p align="center">
   Astro components, the Starlight preset and the shared chrome for every
-  <a href="https://rxova.org">rxova.org</a> surface, built on
+  <a href="https://rxova.dev">rxova.dev</a> surface, built on
   <a href="../brand"><code>@rxova/brand</code></a>.
 </p>
 
@@ -19,7 +19,7 @@ import starlight from "@astrojs/starlight";
 import { sharedStarlightConfig } from "@rxova/astro-ui/starlight";
 
 export default defineConfig({
-  site: process.env.DOCS_URL ?? "https://rxova.org",
+  site: process.env.DOCS_URL ?? "https://rxova.dev",
   base: process.env.DOCS_BASE_URL ?? "/",
   integrations: [
     starlight(

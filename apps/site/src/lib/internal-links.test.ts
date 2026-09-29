@@ -22,9 +22,9 @@ describe("internalLinkProblems", () => {
     expect(internalLinkProblems(a(href))).toEqual([]);
   });
 
-  it("flags an absolute link to rxova.org", () => {
-    expect(internalLinkProblems(a("https://rxova.org/blog/"))).toEqual([
-      "https://rxova.org/blog/: absolute rxova.org link; use a root-relative path",
+  it("flags an absolute link to rxova.dev", () => {
+    expect(internalLinkProblems(a("https://rxova.dev/blog/"))).toEqual([
+      "https://rxova.dev/blog/: absolute rxova.dev link; use a root-relative path",
     ]);
   });
 
@@ -51,19 +51,19 @@ describe("internalLinkProblems", () => {
 
 describe("localHref", () => {
   it.each([
-    ["https://rxova.org", "/"],
-    ["https://rxova.org/", "/"],
-    ["https://rxova.org/blog/test-post", "/blog/test-post/"],
-    ["https://rxova.org/packages/journey/", "/packages/journey/"],
-    ["https://rxova.org/packages/x/errors#ue1001", "/packages/x/errors/#ue1001"],
-    ["https://rxova.org/updates?repo=journey", "/updates/?repo=journey"],
-    ["https://rxova.org/blog/rss.xml", "/blog/rss.xml"],
+    ["https://rxova.dev", "/"],
+    ["https://rxova.dev/", "/"],
+    ["https://rxova.dev/blog/test-post", "/blog/test-post/"],
+    ["https://rxova.dev/packages/journey/", "/packages/journey/"],
+    ["https://rxova.dev/packages/x/errors#ue1001", "/packages/x/errors/#ue1001"],
+    ["https://rxova.dev/updates?repo=journey", "/updates/?repo=journey"],
+    ["https://rxova.dev/blog/rss.xml", "/blog/rss.xml"],
   ])("turns %s into %s", (href, local) => {
     expect(localHref(href)).toBe(local);
   });
 
-  it.each(["https://github.com/rxova", "https://rxova.org.evil.example/", "/blog/"])(
-    "leaves %s alone, not being an absolute rxova.org URL",
+  it.each(["https://github.com/rxova", "https://rxova.dev.evil.example/", "/blog/"])(
+    "leaves %s alone, not being an absolute rxova.dev URL",
     (href) => {
       expect(localHref(href)).toBeUndefined();
     },

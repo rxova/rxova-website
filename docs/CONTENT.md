@@ -1,4 +1,4 @@
-# Writing for rxova.org
+# Writing for rxova.dev
 
 The blog and the updates stream are part of the site app, `apps/site`, and their prose
 lives in `apps/site/content`. The design and the reasoning behind it live in

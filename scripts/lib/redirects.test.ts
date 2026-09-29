@@ -19,7 +19,7 @@ afterAll(() => {
   for (const dir of roots) rmSync(dir, { recursive: true, force: true });
 });
 
-const ORIGIN = "https://rxova.org";
+const ORIGIN = "https://rxova.dev";
 
 function write(path: string, body: string): void {
   const full = join(root, path);
@@ -80,7 +80,7 @@ describe("stubDocument", () => {
     );
     assert.match(
       html,
-      /<link rel="canonical" href="https:\/\/rxova\.org\/packages\/journey\/bridge\/protocol\/" \/>/,
+      /<link rel="canonical" href="https:\/\/rxova\.dev\/packages\/journey\/bridge\/protocol\/" \/>/,
     );
   });
 });
