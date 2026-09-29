@@ -33,7 +33,7 @@ export const MAINTAINER = {
     },
   ] as const satisfies readonly MaintainerLink[],
   /** The project address, not a personal one — issues and mail age better in the open. */
-  email: "jonatan@rxova.org",
+  email: "jonyk@rxova.dev",
   /** The organisation the packages are published from. */
   org: "https://github.com/rxova",
 } as const;
