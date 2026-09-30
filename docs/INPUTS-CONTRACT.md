@@ -109,8 +109,10 @@ notify-aggregator:
 2. **Download** the `docs-dist` artifact from your `run_id`, in your repo.
 3. **2b — contents** ([`checkDist`](../scripts/deploy/ingest.ts)). Rejects a dist that is
    missing, empty, or has no `index.html`.
-4. **Persist.** Packs the dist and stores it as the project's canonical release
-   asset — tag `content-<id>`, asset `docs-<id>.tgz` — replacing the previous one.
+4. **Persist.** Packs the dist and adds it to release `content-<id>` as
+   `docs-<id>-<ingest run id>-<attempt>.tgz`, then deletes the project's older
+   assets. The new one lands before the old one goes, so a deploy running at the
+   same time always finds the project's docs; it takes the newest.
 5. **Deploy.** Reassembles the whole site from every enabled project's persisted
    docs and publishes to Pages. Each dist is copied as built, and every page not
    marked standalone gets the analytics beacon. Only your project changed;
