@@ -199,11 +199,11 @@ importers:
         specifier: 1.63.0
         version: 1.63.0
       '@rxova/docs-kit':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.1.1
+        version: 0.1.1
       '@rxova/repo-config':
-        specifier: ^0.4.1
-        version: 0.4.1(@changesets/changelog-github@1.0.1)(@commitlint/config-conventional@21.2.2)(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@eslint/js@10.0.1(eslint@10.10.0(jiti@2.6.1)))(@playwright/test@1.63.0)(@vitest/coverage-v8@5.0.1)(eslint-plugin-astro@3.2.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@typescript-eslint/parser@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))(eslint@10.10.0(jiti@2.6.1))(typescript-eslint@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3)))(eslint@10.10.0(jiti@2.6.1))(globals@17.12.0)(knip@6.38.0)(prettier@3.9.9)(publint@0.3.24)(tsdown@0.23.0(@volar/typescript@2.4.28(typescript@6.0.3))(oxc-resolver@11.21.2)(publint@0.3.24)(tsx@4.23.13)(typescript@6.0.3))(typescript-eslint@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))(typescript@6.0.3)(vitest@5.0.1)
+        specifier: ^0.5.0
+        version: 0.5.0(@changesets/changelog-github@1.0.1)(@commitlint/config-conventional@21.2.2)(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@eslint/js@10.0.1(eslint@10.10.0(jiti@2.6.1)))(@playwright/test@1.63.0)(@vitest/coverage-v8@5.0.1)(eslint-plugin-astro@3.2.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@typescript-eslint/parser@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))(eslint@10.10.0(jiti@2.6.1))(typescript-eslint@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3)))(eslint@10.10.0(jiti@2.6.1))(globals@17.12.0)(knip@6.38.0)(prettier@3.9.9)(publint@0.3.24)(tsdown@0.23.0(@volar/typescript@2.4.28(typescript@6.0.3))(oxc-resolver@11.21.2)(publint@0.3.24)(tsx@4.23.13)(typescript@6.0.3))(typescript-eslint@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))(typescript@6.0.3)(vitest@5.0.1)
       '@rxova/ts-utils':
         specifier: ^0.2.1
         version: 0.2.1(react@19.3.0)
@@ -2278,8 +2278,8 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@rxova/docs-kit@0.1.0':
-    resolution: {integrity: sha512-NWiPfp0AJVp64X9MK77meVNGgQZMXlDXdHVAxY9s8VAefm7V0i2KLw4aWe7HfIezFaUFwlf3oowHJ2Ih4MBU7Q==}
+  '@rxova/docs-kit@0.1.1':
+    resolution: {integrity: sha512-yizsZNcWGtDzH8NsGwy7oHxHn4bHqikGBturdEsrc576uA8fLFD45sni6BxDtm9IyQ6VLy6/Mem27BtboGIo1w==}
     engines: {node: '>=22.13'}
     hasBin: true
 
@@ -2299,8 +2299,8 @@ packages:
     peerDependencies:
       react: '>=18.0.0'
 
-  '@rxova/repo-config@0.4.1':
-    resolution: {integrity: sha512-D0F7fVdUbaIQM4knYm1VqhODVgcE18b4TTPV8ZrBrZ5X9xzNW3R8o+0yoaiobCwp5oLNls4oYkS1eIsXqznVKQ==}
+  '@rxova/repo-config@0.5.0':
+    resolution: {integrity: sha512-D//pjQEfBZoB3OOfEKsBzbYt3Z/TaCJlNZmjyK6PdNRVuUqS7jIhU6DbZFZyfXj4v6AHmX4diGUBQlF5YLEzdA==}
     engines: {node: '>=22.13'}
     hasBin: true
     peerDependencies:
@@ -6617,7 +6617,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@rxova/docs-kit@0.1.0': {}
+  '@rxova/docs-kit@0.1.1': {}
 
   '@rxova/journey-core@1.0.0-rc.3': {}
 
@@ -6630,7 +6630,7 @@ snapshots:
     dependencies:
       react: 19.3.0
 
-  '@rxova/repo-config@0.4.1(@changesets/changelog-github@1.0.1)(@commitlint/config-conventional@21.2.2)(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@eslint/js@10.0.1(eslint@10.10.0(jiti@2.6.1)))(@playwright/test@1.63.0)(@vitest/coverage-v8@5.0.1)(eslint-plugin-astro@3.2.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@typescript-eslint/parser@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))(eslint@10.10.0(jiti@2.6.1))(typescript-eslint@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3)))(eslint@10.10.0(jiti@2.6.1))(globals@17.12.0)(knip@6.38.0)(prettier@3.9.9)(publint@0.3.24)(tsdown@0.23.0(@volar/typescript@2.4.28(typescript@6.0.3))(oxc-resolver@11.21.2)(publint@0.3.24)(tsx@4.23.13)(typescript@6.0.3))(typescript-eslint@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))(typescript@6.0.3)(vitest@5.0.1)':
+  '@rxova/repo-config@0.5.0(@changesets/changelog-github@1.0.1)(@commitlint/config-conventional@21.2.2)(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@eslint/js@10.0.1(eslint@10.10.0(jiti@2.6.1)))(@playwright/test@1.63.0)(@vitest/coverage-v8@5.0.1)(eslint-plugin-astro@3.2.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@typescript-eslint/parser@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))(eslint@10.10.0(jiti@2.6.1))(typescript-eslint@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3)))(eslint@10.10.0(jiti@2.6.1))(globals@17.12.0)(knip@6.38.0)(prettier@3.9.9)(publint@0.3.24)(tsdown@0.23.0(@volar/typescript@2.4.28(typescript@6.0.3))(oxc-resolver@11.21.2)(publint@0.3.24)(tsx@4.23.13)(typescript@6.0.3))(typescript-eslint@8.70.0(eslint@10.10.0(jiti@2.6.1))(typescript@6.0.3))(typescript@6.0.3)(vitest@5.0.1)':
     dependencies:
       prettier-plugin-astro: 1.1.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9)
     optionalDependencies:
