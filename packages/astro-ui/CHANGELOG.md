@@ -1,5 +1,15 @@
 # @rxova/astro-ui
 
+## 0.7.0
+
+### Minor Changes
+
+- [#157](https://github.com/rxova/rxova-website/pull/157) [`f4d159f`](https://github.com/rxova/rxova-website/commit/f4d159f14592add66d1592127f56c4efcad00af3) - Give the docs header one row and one menu on phones. `sharedStarlightConfig` now also overrides `Header` and `MobileMenuFooter`: a splash page (no sidebar) gets a menu button beside search, and a page with a sidebar gets the same links at the foot of Starlight's own menu. Both hold every project's docs with the current one marked, the rxova.dev sections (Projects, Blog, Updates), GitHub, npm and the theme picker, which phones could not reach before. The menu buttons and every menu row are at least 44px tall. The desktop switcher is labelled "Docs", so it no longer reads as a second "Projects" beside the Projects link. A site that passes its own `Header` or `MobileMenuFooter` in `components` keeps it, and loses this menu on the pages it covers.
+
+### Patch Changes
+
+- [#155](https://github.com/rxova/rxova-website/pull/155) [`44941c3`](https://github.com/rxova/rxova-website/commit/44941c3a0ad799a5fba0efd6f3a98afe79b4db3f) - The footer's contact address is jonyk@rxova.dev.
+
 ## 0.6.2
 
 ### Patch Changes
