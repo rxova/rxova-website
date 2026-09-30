@@ -10,14 +10,14 @@ overrides:
   # Not a security pin: one satteri version keeps `pnpm dedupe --check` stable across OSes; drop when @astrojs/mdx uses the 0.4 line
   satteri: "0.10.5"
 
-  # GHSA-rgw5-rvv9-x895: brace-expansion <5.0.9 builds unbounded arrays; arrives 39 ways, so no direct bump reaches it
-  brace-expansion: ">=5.0.9"
+  # GHSA-rgw5-rvv9-x895, GHSA-6j4f-fj2g-mc7p, GHSA-qhr7-859c-m2p7, GHSA-q2hr-2g5m-vwhr: brace-expansion <5.0.12 DoS; arrives via minimatch many ways, so no direct bump reaches it
+  brace-expansion: ">=5.0.12"
 
   # GHSA-6g55-p6wh-862q: postcss <=8.5.22 reads an arbitrary .map via sourceMappingURL when `from` is unset
   postcss: ">=8.5.23"
 
-  # fast-uri <3.1.6: host-parsing and SSRF advisories via ajv; held to 3.x because ajv expects that major
-  fast-uri: ">=3.1.6 <4"
+  # fast-uri <3.1.8: host-parsing and SSRF advisories (incl. GHSA-hrr3-gc8f-f4qj) via ajv; held to 3.x because ajv expects that major
+  fast-uri: ">=3.1.8 <4"
 
   # GHSA-5p4m-2wfm-xmqj: js-yaml `!!omap` is quadratic; pinned per major (3.x callers use the pre-4.0 API), closed to avoid 5.x
   js-yaml@3: ">=3.15.2 <4"
