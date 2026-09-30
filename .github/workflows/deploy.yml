@@ -22,6 +22,8 @@ permissions:
   pages: write
   id-token: write
 
+# Last pending deploy wins: GitHub keeps only the newest waiting run, and every deploy rebuilds from
+# each project's newest persisted docs, so a superseded one loses nothing.
 concurrency:
   group: github-pages
   cancel-in-progress: false

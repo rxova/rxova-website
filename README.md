@@ -110,8 +110,8 @@ Two gates, and the aggregator builds nothing.
 2. **Gate 2 — this repo validates and persists** (`ingest.yml` + `scripts/deploy/ingest.ts`). It
    checks the metadata (known & enabled project, base matches the mount, ref/sha/run_id are
    what they claim), downloads the `docs-dist` artifact from that run, checks it is a real
-   docs tree (`index.html` at its root), then stores it as the project's canonical release
-   asset (`docs-<id>.tgz` on tag `content-<id>`) and redeploys.
+   docs tree (`index.html` at its root), then adds it to tag `content-<id>` under a new
+   per-run name (`docs-<id>-<run>-<attempt>.tgz`), prunes the older ones and redeploys.
 
 A rejection at either gate fails the ingest and **leaves the live site untouched** — a bad
 push can't take rxova.dev down, it just doesn't publish.

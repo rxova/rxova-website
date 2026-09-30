@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Unpacks each enabled project's docs-<id>.tgz (release content-<id>) into <artifactsDir>/docs-<id>
+// Unpacks each enabled project's newest docs asset (release content-<id>) into <artifactsDir>/docs-<id>
 // Usage: node fetch-docs.ts [artifactsDir=artifacts]. A missing release is fatal.
 
 import { execFileSync } from "node:child_process";
@@ -9,6 +9,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { errorMessage } from "@rxova/ts-utils";
+import { listAssets, newestAsset } from "../lib/docs-assets.ts";
 import { loadRegistry, enabledSources, type Source } from "../lib/registry.ts";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -56,21 +57,45 @@ export function download(
   mkdirSync(dest, { recursive: true });
 
   const tmp = mkdtempSync(join(tmpdir(), `fetch-${plan.id}-`));
-  try {
-    exec("gh", ["release", "download", plan.tag, "--pattern", plan.asset, "--dir", tmp], {
+  const run = (file: string, args: string[]) => String(exec(file, args, { stdio: "pipe" }));
+  const newest = () => {
+    const found = newestAsset(plan.asset, listAssets(plan.tag, run));
+    if (found === null) throw new Error("the release holds no docs asset");
+    return found;
+  };
+  const fetch = (asset: string) =>
+    exec("gh", ["release", "download", plan.tag, "--pattern", asset, "--dir", tmp], {
       stdio: "pipe",
     });
+
+  let asset: string;
+  try {
+    asset = newest();
+    try {
+      fetch(asset);
+    } catch (err) {
+      // A newer ingest of this project pruned it after we listed: take its replacement, once.
+      const replacement = newest();
+      if (replacement === asset) throw err;
+      asset = replacement;
+      fetch(asset);
+    }
   } catch (err) {
-    const detail = (err as { stderr?: Buffer }).stderr?.toString().trim() || errorMessage(err);
-    throw new Error(
-      `no persisted docs for "${plan.id}" (release ${plan.tag} / ${plan.asset}).\n` +
-        "Either it was never ingested, or it should be disabled in sources.json.\n" +
-        detail,
-      { cause: err },
-    );
+    throw notPersisted(plan, err);
   }
-  exec("tar", ["-xzf", join(tmp, plan.asset), "-C", dest], { stdio: "pipe" });
-  log(`  ✓ ${plan.id}: ${plan.tag} / ${plan.asset} -> ${dest}`);
+  exec("tar", ["-xzf", join(tmp, asset), "-C", dest], { stdio: "pipe" });
+  log(`  ✓ ${plan.id}: ${plan.tag} / ${asset} -> ${dest}`);
+}
+
+/** The error for docs that could not be fetched, with gh's own explanation. */
+function notPersisted(plan: FetchPlan, err: unknown): Error {
+  const detail = (err as { stderr?: Buffer }).stderr?.toString().trim() || errorMessage(err);
+  return new Error(
+    `no persisted docs for "${plan.id}" (release ${plan.tag}).\n` +
+      "Either it was never ingested, or it should be disabled in sources.json.\n" +
+      detail,
+    { cause: err },
+  );
 }
 
 /** Downloads every enabled project's docs into `argv[0]` (default `artifacts`); throws on failure. */

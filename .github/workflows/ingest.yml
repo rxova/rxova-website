@@ -57,13 +57,13 @@ jobs:
       - name: Validate dist (gate 2b)
         run: node scripts/deploy/ingest.ts --check-dist incoming
 
-      # Persist as the project's canonical asset. Replace the asset in place if the
-      # release exists, create the release the first time a project is ingested.
-      - name: Persist ${{ steps.validate.outputs.release_asset }}
+      # Persist under a new name per run, then prune older assets: never a moment with no asset for a
+      # concurrent deploy to read. The deploy takes each project's newest (scripts/lib/docs-assets.ts).
+      - name: Persist docs for ${{ steps.validate.outputs.project }}
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.validate.outputs.release_tag }}
-          ASSET: ${{ steps.validate.outputs.release_asset }}
+          LEGACY_ASSET: ${{ steps.validate.outputs.release_asset }}
           PROJECT: ${{ steps.validate.outputs.project }}
           REF: ${{ steps.validate.outputs.ref }}
           SHA: ${{ steps.validate.outputs.sha }}
@@ -72,17 +72,19 @@ jobs:
           RUN_ID: ${{ steps.validate.outputs.run_id }}
         run: |
           set -euo pipefail
+          ASSET="${LEGACY_ASSET%.tgz}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.tgz"
           tar -czf "$ASSET" -C incoming .
           notes=$(printf 'project: %s\nref: %s\nsha: %s\nframework: %s\nsource run: %s/%s/actions/runs/%s\ningested by: %s/%s/actions/runs/%s' \
             "$PROJECT" "$REF" "$SHA" "$FRAMEWORK" \
             "$GITHUB_SERVER_URL" "$SOURCE_REPO" "$RUN_ID" \
             "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID")
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$ASSET" --clobber
+            gh release upload "$TAG" "$ASSET"
             gh release edit "$TAG" --notes "$notes"
           else
             gh release create "$TAG" "$ASSET" --title "Docs content: $PROJECT" --notes "$notes"
           fi
+          node scripts/deploy/prune-docs.ts "$TAG" "$LEGACY_ASSET" "$ASSET"
 
   # Redeploys in the same run, so no token that can re-trigger workflows is needed. Only for
   # mounted projects; disabled ones are still validated and persisted above.
