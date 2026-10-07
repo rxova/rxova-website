@@ -15,7 +15,7 @@ export const story: Showcase = {
     {
       problem:
         "The route is an `if` chain inside `next()`, with the branch for carts that ship nothing buried in it.",
-      fix: "Each step lists where `goToNextStep` can go. Candidates are tried in order, and the first whose `when` passes wins.",
+      fix: "Each step lists where its `next` event can go. Candidates are tried in order, and the first whose `when` passes wins.",
       lines: {
         before: [
           "if (state.step === 'cart')",
@@ -28,14 +28,14 @@ export const story: Showcase = {
           "Tried in order",
           "{ to: 'address', when: ({ context }) => context.hasPhysicalItems }",
           "{ to: 'payment' },",
-          "payment: { goToNextStep",
+          "payment: { on: { next: 'review' } }",
         ],
       },
     },
     {
       problem:
         "`back()` works the route out again in reverse, so it forgets how the customer got there. Back after Edit address goes to `cart`, not `review`.",
-      fix: "The machine records the history, and `goToPreviousStep` walks it: Back after Edit address returns to `review`.",
+      fix: "The machine records the timeline, and `goToPreviousStep` walks it: Back after Edit address returns to `review`.",
       lines: {
         before: [
           "The route again, backwards",
@@ -45,17 +45,17 @@ export const story: Showcase = {
           "Back from there goes to cart",
         ],
         after: [
-          "review: { goToStepById",
-          "canGoBack: history.index > 0",
-          "Walks the recorded history",
-          "back: () => checkout.goToPreviousStep()",
+          "review: { on: { editAddress: 'address' } }",
+          "canGoBack: history.canGoBack",
+          "Walks the recorded timeline",
+          "back: () => checkout.navigate.goToPreviousStep()",
         ],
       },
     },
     {
       problem:
         "`next()` awaits the address check and then moves, even if the customer pressed Back in the meantime. A request that hangs never ends.",
-      fix: "The check is the transition's `when`, with a `timeoutMs`. Calls run one at a time, so a Back pressed during the check waits for it.",
+      fix: "The check is the event's `run`, awaited while the machine holds its position, with its own `timeoutMs`. `commit` stages the answer and the guard reads it, so guards never become async — and navigation is refused while the check is in flight, so the page disables its buttons on `loading` instead of racing it.",
       lines: {
         before: [
           "const ok = await validateAddress",
@@ -64,16 +64,19 @@ export const story: Showcase = {
           "No timeout",
         ],
         after: [
-          "Moves only once the check resolves true",
-          "{ to: 'payment', timeoutMs: 5000, when:",
-          "Calls run one at a time",
+          "`run` is awaited while the machine holds its position",
+          "timeoutMs: 5000,",
+          "run: ({ snapshot }) => validateAddress",
+          "commit: ({ result, updateContext })",
+          "candidates: [{ to: 'payment'",
+          "Refused while the check is in flight",
         ],
       },
     },
     {
       problem:
         "`loading` and `error` are set by hand around the one await, in the right order, for every step that does work.",
-      fix: "The machine keeps them: `async.isLoading` while the check runs, and the step's `error` if it throws or times out.",
+      fix: "The machine keeps them: `currentStep.async.isLoading` while the check runs, and the same step's `error` if it throws or times out.",
       lines: {
         before: [
           "loading: false,",
@@ -83,9 +86,9 @@ export const story: Showcase = {
           "set({ loading: false })",
         ],
         after: [
-          "leave the customer on address",
-          "loading: async.isLoading",
-          "error: async.byStep.address.error",
+          "timeout leaves the customer on address",
+          "loading: currentStep?.async.isLoading",
+          "error: currentStep?.async.error",
         ],
       },
     },

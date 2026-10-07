@@ -114,17 +114,25 @@ describe("journey: a checkout that branches, waits and goes back", () => {
     return { promise, resolve, reject };
   };
   const step = (checkout: ReturnType<typeof createCheckout>) =>
-    checkout.getSnapshot().currentStepId;
+    checkout.getSnapshot().currentStep?.id;
+  // `controls.start()` enters the initial step asynchronously, so a send in the
+  // same microtask is refused with `transitioning`. A page has settled long
+  // before anyone clicks; a synchronous test has to wait for it.
+  const started = async (validateAddress: Parameters<typeof createCheckout>[0]) => {
+    const checkout = createCheckout(validateAddress);
+    await tick();
+    return checkout;
+  };
 
   it("skips the address step for a cart with nothing to ship", async () => {
-    const checkout = createCheckout(async () => true);
-    await checkout.updateContext((context) => ({ ...context, hasPhysicalItems: false }));
+    const checkout = await started(async () => true);
+    checkout.context.update((context) => ({ ...context, hasPhysicalItems: false }));
     await footer(checkout).next();
     expect(step(checkout)).toBe("payment");
   });
 
   it('returns to review after "Edit address", not to the cart', async () => {
-    const checkout = createCheckout(async () => true);
+    const checkout = await started(async () => true);
     await footer(checkout).next();
     await footer(checkout).next();
     await footer(checkout).next();
@@ -137,7 +145,7 @@ describe("journey: a checkout that branches, waits and goes back", () => {
 
   it("stays on address when the check throws, and keeps the error", async () => {
     const check = deferred();
-    const checkout = createCheckout(() => check.promise);
+    const checkout = await started(() => check.promise);
     await footer(checkout).next();
     const moving = footer(checkout).next();
     await tick();
@@ -150,30 +158,34 @@ describe("journey: a checkout that branches, waits and goes back", () => {
   });
 
   it("stays on address, with no error, when the check says no", async () => {
-    const checkout = createCheckout(async () => false);
+    const checkout = await started(async () => false);
     await footer(checkout).next();
     await footer(checkout).next();
     expect(step(checkout)).toBe("address");
     expect(footer(checkout).error).toBeNull();
   });
 
-  it("makes a Back pressed during the check wait for it", async () => {
+  it("refuses a Back pressed during the check, and says why", async () => {
     const check = deferred();
-    const checkout = createCheckout(() => check.promise);
+    const checkout = await started(() => check.promise);
     await footer(checkout).next();
     const moving = footer(checkout).next();
     await tick();
+    // Refused rather than queued: the machine holds its position while `run` is in
+    // flight, so the move it was already making is the one that completes. The
+    // refusal is explicit, which is what lets a page disable Back on `loading`
+    // instead of silently dropping the click.
     const back = footer(checkout).back();
     await tick();
     expect(step(checkout)).toBe("address");
     check.resolve(true);
-    await moving;
-    await back;
-    expect(step(checkout)).toBe("address");
+    expect(await moving).toMatchObject({ ok: true, from: "address", to: "payment" });
+    expect(await back).toMatchObject({ ok: false, reason: "transitioning" });
+    expect(step(checkout)).toBe("payment");
   });
 
   it("gives up on a check that never answers after five seconds", async () => {
-    const checkout = createCheckout(() => new Promise<boolean>(() => {}));
+    const checkout = await started(() => new Promise<boolean>(() => {}));
     await footer(checkout).next();
     await footer(checkout).next();
     expect(step(checkout)).toBe("address");

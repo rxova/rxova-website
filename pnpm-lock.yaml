@@ -348,8 +348,8 @@ importers:
         specifier: 1.63.0
         version: 1.63.0
       '@rxova/journey-core':
-        specifier: 1.0.0-rc.3
-        version: 1.0.0-rc.3
+        specifier: ^1.0.1
+        version: 1.0.1
       '@rxova/react-intl-currency-input':
         specifier: ^1.0.2
         version: 1.0.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -2283,8 +2283,14 @@ packages:
     engines: {node: '>=22.13'}
     hasBin: true
 
-  '@rxova/journey-core@1.0.0-rc.3':
-    resolution: {integrity: sha512-GDOFQY8/u6hS+gcQEzXOXRAm+7yvk8wFbgJq+J1dQe+kr1NJ4kxJBJYM+9WK2GjJJ3zvzFB3ng+6v9rLzj85Vg==}
+  '@rxova/journey-core@1.0.1':
+    resolution: {integrity: sha512-Lz5BCmS98ut24o4wjWynrCM/oVXQu36vz2mcXRPDBBCz4Cv8q3/Lc72qGXPJUeX4t5jSzQdG1bcRw7+0EyNJAA==}
+    engines: {node: '>=20.11.0'}
+    peerDependencies:
+      immer: ^11.1.15
+    peerDependenciesMeta:
+      immer:
+        optional: true
 
   '@rxova/react-intl-currency-input@1.0.2':
     resolution: {integrity: sha512-t9srl7VSJRVXip+MrCkNo9TCaLJrldn8PubuBsmryfXXG3fk78FebhfhQC8qhdGBq9ZCqwAqVQ6DOP0L2uGecQ==}
@@ -6619,7 +6625,7 @@ snapshots:
 
   '@rxova/docs-kit@0.1.1': {}
 
-  '@rxova/journey-core@1.0.0-rc.3': {}
+  '@rxova/journey-core@1.0.1': {}
 
   '@rxova/react-intl-currency-input@1.0.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
