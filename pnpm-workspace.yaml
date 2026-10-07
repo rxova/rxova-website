@@ -4,8 +4,8 @@ packages:
   - apps/*
 
 overrides:
-  # GHSA-f88m-g3jw-g9cj: sharp <0.35.0 inherits four libvips CVEs via Astro's 0.34 pin; drop when Astro depends on >=0.35.0
-  sharp: ">=0.35.0"
+  # GHSA-f88m-g3jw-g9cj and CVE-2026-96889: sharp <0.35.5 inherits libvips and librsvg CVEs via Astro's pin; drop when Astro depends on >=0.35.5
+  sharp: ">=0.35.5"
 
   # Not a security pin: one satteri version keeps `pnpm dedupe --check` stable across OSes; drop when @astrojs/mdx uses the 0.4 line
   satteri: "0.10.5"
@@ -37,6 +37,15 @@ overrides:
 
   # GHSA-9rgm-9g3h-6x36: devalue <5.9.1 `parse`/`unflatten` DoS, via Astro; drop when Astro depends on >=5.9.2
   devalue: ">=5.9.2 <6"
+
+  # GHSA-pqg4-j6r4-53mv: shell-quote <1.11.0 `quote()` command injection via a line terminator after a `{ comment }` token; reached only through @changesets/cli > launch-editor, which pins 1.10.0, so no direct bump closes it
+  shell-quote: ">=1.11.0 <2"
+
+  # GHSA-ch52-4w7c-c8xp: http-cache-semantics <=4.2.0 max-stale handling can disclose cross-user cached responses, via Astro; drop when Astro depends on >=4.3.0
+  http-cache-semantics: ">=4.3.0 <5"
+
+  # GHSA-68fv-2mgg-jv7q: source-map-js <1.2.2 event-loop DoS through indexed source-map section offsets; reached through vitest > vite > postcss
+  source-map-js: ">=1.2.2 <2"
 
 # esbuild + sharp ship prebuilt binaries via install scripts that Astro needs.
 # Listed explicitly so a new script-running dependency fails loudly instead of being skipped.
