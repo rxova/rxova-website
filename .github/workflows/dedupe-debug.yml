@@ -1,0 +1,24 @@
+name: dedupe debug
+
+on:
+  push:
+    branches: [chore/dedupe-debug]
+
+permissions:
+  contents: read
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: rxova/shared/actions/setup-pnpm@main
+      - run: pnpm install --frozen-lockfile
+      - name: dedupe and print the exact diff
+        run: |
+          cp pnpm-lock.yaml "$RUNNER_TEMP/before.yaml"
+          pnpm dedupe || true
+          echo "===== BEGIN LOCKFILE DIFF ====="
+          diff -u "$RUNNER_TEMP/before.yaml" pnpm-lock.yaml || true
+          echo "===== END LOCKFILE DIFF ====="
