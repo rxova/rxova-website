@@ -115,9 +115,8 @@ describe("journey: a checkout that branches, waits and goes back", () => {
   };
   const step = (checkout: ReturnType<typeof createCheckout>) =>
     checkout.getSnapshot().currentStep?.id;
-  // `controls.start()` enters the initial step asynchronously, so a send in the
-  // same microtask is refused with `transitioning`. A page has settled long
-  // before anyone clicks; a synchronous test has to wait for it.
+  // `controls.start()` enters the initial step asynchronously, so a send in the same
+  // microtask is refused with `transitioning`. A page has settled; a test has to wait.
   const started = async (validateAddress: Parameters<typeof createCheckout>[0]) => {
     const checkout = createCheckout(validateAddress);
     await tick();
@@ -171,10 +170,8 @@ describe("journey: a checkout that branches, waits and goes back", () => {
     await footer(checkout).next();
     const moving = footer(checkout).next();
     await tick();
-    // Refused rather than queued: the machine holds its position while `run` is in
-    // flight, so the move it was already making is the one that completes. The
-    // refusal is explicit, which is what lets a page disable Back on `loading`
-    // instead of silently dropping the click.
+    // Refused rather than queued, so the move already in flight is the one that
+    // completes. Explicitly, which is what lets a page disable Back on `loading`.
     const back = footer(checkout).back();
     await tick();
     expect(step(checkout)).toBe("address");
