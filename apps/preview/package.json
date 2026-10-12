@@ -15,10 +15,10 @@
     "e2e": "playwright test"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.42.5",
+    "@astrojs/starlight": "^0.42.6",
     "@rxova/astro-ui": "workspace:*",
     "@rxova/brand": "workspace:*",
-    "astro": "^7.3.7"
+    "astro": "^7.3.8"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
