@@ -53,18 +53,18 @@
   },
   "dependencies": {
     "@rxova/brand": "workspace:^",
-    "lucide-static": "^1.53.0"
+    "lucide-static": "^1.57.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@astrojs/starlight": "^0.42.6",
-    "@types/node": "^26.6.4",
-    "@vitest/coverage-v8": "^5.0.3",
-    "astro": "^7.3.8",
+    "@types/node": "^26.6.5",
+    "@vitest/coverage-v8": "^5.0.5",
+    "astro": "^7.4.0",
     "happy-dom": "^20.14.6",
     "publint": "^0.3.25",
     "typescript": "6.0.3",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.5"
   },
   "repoConfig": {
     "packSmoke": {

@@ -13,7 +13,7 @@ overrides:
   brace-expansion: ">=5.0.12"
 
   # GHSA-6g55-p6wh-862q: postcss <=8.5.22 reads an arbitrary .map via sourceMappingURL when `from` is unset
-  postcss: ">=8.5.29"
+  postcss: ">=8.5.30"
 
   # fast-uri <3.1.8: host-parsing and SSRF advisories (incl. GHSA-hrr3-gc8f-f4qj) via ajv; held to 3.x because ajv expects that major
   fast-uri: ">=3.1.8 <4"
