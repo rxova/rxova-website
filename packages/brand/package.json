@@ -50,13 +50,13 @@
   },
   "devDependencies": {
     "@resvg/resvg-js": "^2.6.2",
-    "@types/node": "^26.6.4",
-    "@vitest/coverage-v8": "^5.0.3",
+    "@types/node": "^26.6.5",
+    "@vitest/coverage-v8": "^5.0.5",
     "publint": "^0.3.25",
-    "satori": "^0.44.0",
+    "satori": "^0.63.2",
     "tsx": "^4.23.15",
     "typescript": "6.0.3",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.5"
   },
   "repoConfig": {
     "packSmoke": {
