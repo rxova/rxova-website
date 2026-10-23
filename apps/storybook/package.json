@@ -12,12 +12,12 @@
   "devDependencies": {
     "@rxova/astro-ui": "workspace:*",
     "@rxova/brand": "workspace:*",
-    "@storybook-astro/framework": "^1.12.0",
-    "@storybook/addon-docs": "^10.6.1",
-    "@storybook/builder-vite": "^10.6.1",
-    "@types/node": "^26.6.4",
-    "astro": "^7.3.8",
-    "storybook": "^10.6.1",
+    "@storybook-astro/framework": "^1.13.0",
+    "@storybook/addon-docs": "^10.6.3",
+    "@storybook/builder-vite": "^10.6.3",
+    "@types/node": "^26.6.5",
+    "astro": "^7.4.2",
+    "storybook": "^10.6.3",
     "typescript": "6.0.3"
   }
 }

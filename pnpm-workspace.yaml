@@ -46,6 +46,10 @@ overrides:
   # GHSA-68fv-2mgg-jv7q: source-map-js <1.2.2 event-loop DoS through indexed source-map section offsets; reached through vitest > vite > postcss
   source-map-js: ">=1.2.2 <2"
 
+  # GHSA-3q9v-r3h8-5xhm: sanitize-html 2.18.0 re-sanitizes a discarded iframe's fallback without enforcing nestingLimit, so a deeply nested document overflows the stack
+  # Moderate, so under the gate, but the fix is a patch; reached through apps/storybook > @storybook-astro/framework
+  sanitize-html: ">=2.18.1 <3"
+
 # esbuild + sharp ship prebuilt binaries via install scripts that Astro needs.
 # Listed explicitly so a new script-running dependency fails loudly instead of being skipped.
 allowBuilds:
