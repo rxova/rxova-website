@@ -1,0 +1,319 @@
+---
+/** NX Link's home. Built from @rxova/astro-ui's landing components rather than new ones, so
+ * an app page and a package's docs read as the same site. */
+import CtaBand from "@rxova/astro-ui/components/CtaBand.astro";
+import DataTable from "@rxova/astro-ui/components/DataTable.astro";
+import ScreenshotGrid from "@rxova/astro-ui/components/ScreenshotGrid.astro";
+import Section from "@rxova/astro-ui/components/Section.astro";
+import ValueGrid from "@rxova/astro-ui/components/ValueGrid.astro";
+import Page from "../../../layouts/Page.astro";
+import {
+  APP_STORE_URL,
+  REPO_URL,
+  demoVideo,
+  hasDemoVideo,
+  screenshots,
+} from "../../../lib/nx-link";
+
+const title = "NX Link — photos off a Samsung NX camera, onto an iPhone";
+const description =
+  "A free iPhone app that copies photos from a Samsung NX300 or NX3000 over the camera's own Wi-Fi, with a live viewfinder and a remote shutter. Open source, no account, nothing collected.";
+
+/** The download, which does not exist until Apple approves the listing. */
+const download = APP_STORE_URL
+  ? { text: "Get it on the App Store", href: APP_STORE_URL, variant: "primary" as const }
+  : { text: "Read the source", href: REPO_URL, variant: "primary" as const, external: true };
+
+const values = [
+  {
+    icon: "images",
+    title: "The card, as a grid",
+    body: "Thumbnails for everything on the camera, cached on the phone so the second look is instant.",
+  },
+  {
+    icon: "hard-drive-download",
+    title: "Full-resolution originals",
+    body: "What lands in your photo library is the file off the card, EXIF intact — not a resized copy.",
+  },
+  {
+    icon: "scan-eye",
+    title: "Live viewfinder",
+    body: "What the camera sees, on the phone, as H.264 video while the camera is still framing it.",
+  },
+  {
+    icon: "aperture",
+    title: "Remote shutter",
+    body: "Fire the camera from the phone; the photo arrives on the phone the moment it is taken.",
+  },
+  {
+    icon: "lock",
+    title: "Nothing leaves the phone",
+    body: "No account, no server, no analytics. The app talks to one thing: your camera, on its own closed network.",
+  },
+  {
+    icon: "code",
+    title: "Free, and open",
+    body: `Every byte of the protocol work is <a href="${REPO_URL}">public</a>, including what Samsung never documented.`,
+  },
+];
+
+const steps = [
+  {
+    label: "On the camera",
+    body: "Open the wireless menu and choose Link, then Select Files from Smartphone.",
+  },
+  {
+    label: "On the iPhone",
+    body: "Settings › Wi-Fi, join the network whose name starts with AP_SSC_NX. It has no password, and no internet — stay on it anyway.",
+  },
+  {
+    label: "Open NX Link",
+    body: "It finds the camera and connects on its own. Tap the photos you want, then Save.",
+  },
+];
+
+const cameras = [
+  {
+    label: "NX300",
+    cells: ["Tested end to end", "Browse, transfer, live view, remote shutter"],
+  },
+  {
+    label: "NX3000",
+    cells: ["Tested end to end", "The same, and it shares JPEGs only — never RAW"],
+  },
+  {
+    label: "Other NX bodies",
+    cells: [
+      "Unverified",
+      "Nothing in the app is written for a model, so several should work. Reports welcome.",
+    ],
+  },
+];
+---
+
+<Page title={title} description={description} path="/apps/nx-link">
+  <header class="hero">
+    <p class="kicker">iPhone app</p>
+    <h1>Your camera can still send photos to your phone.</h1>
+    <p class="lede">
+      The app that used to receive them cannot run on a current iPhone. NX Link does. It joins a
+      Samsung NX camera's own Wi-Fi, lists the card, and copies the full-resolution originals
+      straight into your photo library — no cable, no card reader, no computer.
+    </p>
+    <div class="actions">
+      <a
+        class="btn btn--primary"
+        href={download.href}
+        rel={download.external ? "noopener" : undefined}
+      >
+        {download.text}
+      </a>
+      <a class="btn" href="#how">
+        How it works
+      </a>
+    </div>
+    {!APP_STORE_URL && (
+      <p class="pending">
+        The App Store listing is in review. Until it clears, the app builds and runs from source.
+      </p>
+    )}
+  </header>
+
+  <Section
+    eyebrow="What it does"
+    title="Everything the camera's wireless menu offers, from the phone."
+    lede="Each of these was built against real hardware and tested on it, rather than inferred from a protocol Samsung never documented."
+  >
+    <ValueGrid items={values} />
+  </Section>
+
+  {screenshots.length > 0 && (
+    <Section eyebrow="On the phone" title="What it looks like">
+      <ScreenshotGrid shots={screenshots} />
+    </Section>
+  )}
+
+  <Section
+    id="how"
+    eyebrow="How it works"
+    title="Three steps, once."
+    lede="The camera makes its own Wi-Fi network and serves the card over it. The app is the other end of that conversation."
+    accent
+  >
+    <ol class="steps">
+      {steps.map((step, index) => (
+        <li class="step">
+          <span class="step__number" aria-hidden="true">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <h3 class="step__label">{step.label}</h3>
+          <p class="step__body">{step.body}</p>
+        </li>
+      ))}
+    </ol>
+  </Section>
+
+  <Section
+    id="cameras"
+    eyebrow="Cameras"
+    title="Which cameras it works with"
+    lede="Two bodies have been tested from end to end. The app reads what a camera declares rather than branching on its model, so others may work."
+  >
+    <DataTable
+      label="Camera support"
+      columns={["Camera", "Status", "What works"]}
+      rows={cameras}
+      caption="NX Link is not affiliated with, endorsed by, or sponsored by Samsung."
+    />
+    <p class="aside">
+      One thing to know before you decide the app is broken: these cameras never offer RAW files
+      over Wi-Fi. If the camera shoots RAW only, its photos will not appear. Set it to JPEG or
+      RAW+JPEG.
+    </p>
+  </Section>
+
+  {hasDemoVideo && (
+    <Section id="demo" eyebrow="Demo" title="A real session, start to finish">
+      <video class="demo" controls preload="none" playsinline src={demoVideo}>
+        A screen recording of a transfer from a Samsung NX300 to an iPhone.
+      </video>
+    </Section>
+  )}
+
+  <Section eyebrow="Why it exists" title="A camera should outlive its app.">
+    <div class="prose">
+      <p>
+        Samsung left the camera business in 2015 and withdrew the Smart Camera app. The hardware did
+        not stop working: an NX300 still raises its access point, still indexes its card, still
+        answers. What disappeared was the one piece of software that knew how to ask.
+      </p>
+      <p>
+        That protocol was never documented. NX Link was written against two real cameras, a packet
+        at a time — reading the decompiled original app, the firmware, and in the end the SQLite
+        index on the camera's own memory card. <a href={REPO_URL}>The repository</a> records what
+        each of those turned up, including the mistakes, because the next person working on an NX
+        body deserves better than the week it took to find out.
+      </p>
+    </div>
+  </Section>
+
+  <CtaBand
+    title="Free, and open."
+    lede="No purchase, no account, no advertising, and no data collected. The source is yours to read, build and fork."
+    actions={[
+      download,
+      { text: "Support", href: "/apps/nx-link/support/" },
+      { text: "Privacy", href: "/apps/nx-link/privacy/" },
+    ]}
+  />
+</Page>
+
+<style>
+  /* Only the bottom: Page.astro's main already pads the top of every page. */
+  .hero {
+    padding-block: 0 clamp(1rem, 3vh, 2rem);
+  }
+  .kicker {
+    font-family: var(--rx-font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rx-faint);
+    margin-bottom: 1rem;
+  }
+  .hero h1 {
+    max-width: 18ch;
+    font-size: clamp(2.2rem, 5.2vw, 3.6rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-weight: 650;
+    text-wrap: balance;
+  }
+  .lede {
+    margin-top: 1.25rem;
+    max-width: 44rem;
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    color: var(--rx-muted);
+    text-wrap: pretty;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+  /* The same pill as CtaBand's, which owns its own copy of these rules. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.4rem;
+    border: 1px solid var(--rx-rule-strong);
+    border-radius: var(--rx-radius-pill);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--rx-fg);
+  }
+  .btn:hover {
+    border-color: var(--rx-primary);
+  }
+  .btn--primary {
+    color: var(--rx-on-primary);
+    background: var(--rx-primary);
+    border-color: transparent;
+  }
+  .btn--primary:hover {
+    background: var(--rx-primary-dark);
+    border-color: transparent;
+  }
+  .pending {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--rx-faint);
+  }
+
+  .steps {
+    display: grid;
+    gap: 1.75rem 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    list-style: none;
+    padding: 0;
+  }
+  .step {
+    border-top: 1px solid var(--rx-rule);
+    padding-top: 1rem;
+  }
+  .step__number {
+    font-family: var(--rx-font-mono);
+    font-size: 0.75rem;
+    color: var(--rx-faint);
+  }
+  .step__label {
+    margin-top: 0.4rem;
+    font-size: 1.05rem;
+    font-weight: 620;
+    letter-spacing: -0.01em;
+  }
+  .step__body {
+    margin-top: 0.5rem;
+    color: var(--rx-muted);
+    line-height: 1.65;
+  }
+
+  .aside {
+    margin-top: 1.5rem;
+    max-width: 48rem;
+    color: var(--rx-muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .demo {
+    width: 100%;
+    max-width: 24rem;
+    border: 1px solid var(--rx-rule);
+    border-radius: var(--rx-radius);
+  }
+</style>
