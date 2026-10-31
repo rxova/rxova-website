@@ -7,22 +7,16 @@ import ScreenshotGrid from "@rxova/astro-ui/components/ScreenshotGrid.astro";
 import Section from "@rxova/astro-ui/components/Section.astro";
 import ValueGrid from "@rxova/astro-ui/components/ValueGrid.astro";
 import Page from "../../../layouts/Page.astro";
-import {
-  APP_STORE_URL,
-  REPO_URL,
-  demoVideo,
-  hasDemoVideo,
-  screenshots,
-} from "../../../lib/nx-link";
+import { APP_STORE_URL, demoVideo, hasDemoVideo, screenshots } from "../../../lib/nx-link";
 
 const title = "NX Link — photos off a Samsung NX camera, onto an iPhone";
 const description =
-  "A free iPhone app that copies photos from a Samsung NX300 or NX3000 over the camera's own Wi-Fi, with a live viewfinder and a remote shutter. Open source, no account, nothing collected.";
+  "A free iPhone app that copies photos from a Samsung NX300 or NX3000 over the camera's own Wi-Fi, with a live viewfinder and a remote shutter. No account, no server, nothing collected.";
 
 /** The download, which does not exist until Apple approves the listing. */
 const download = APP_STORE_URL
   ? { text: "Get it on the App Store", href: APP_STORE_URL, variant: "primary" as const }
-  : { text: "Read the source", href: REPO_URL, variant: "primary" as const, external: true };
+  : { text: "How it works", href: "#how", variant: "primary" as const };
 
 const values = [
   {
@@ -52,8 +46,8 @@ const values = [
   },
   {
     icon: "code",
-    title: "Free, and open",
-    body: `Every byte of the protocol work is <a href="${REPO_URL}">public</a>, including what Samsung never documented.`,
+    title: "Built from the hardware up",
+    body: "Written against two real cameras, a packet at a time, including the parts Samsung never documented.",
   },
 ];
 
@@ -101,20 +95,18 @@ const cameras = [
       straight into your photo library — no cable, no card reader, no computer.
     </p>
     <div class="actions">
-      <a
-        class="btn btn--primary"
-        href={download.href}
-        rel={download.external ? "noopener" : undefined}
-      >
+      <a class="btn btn--primary" href={download.href}>
         {download.text}
       </a>
-      <a class="btn" href="#how">
-        How it works
-      </a>
+      {APP_STORE_URL && (
+        <a class="btn" href="#how">
+          How it works
+        </a>
+      )}
     </div>
     {!APP_STORE_URL && (
       <p class="pending">
-        The App Store listing is in review. Until it clears, the app builds and runs from source.
+        The App Store listing is in review. It will be downloadable here once Apple approves it.
       </p>
     )}
   </header>
@@ -190,16 +182,15 @@ const cameras = [
       <p>
         That protocol was never documented. NX Link was written against two real cameras, a packet
         at a time — reading the decompiled original app, the firmware, and in the end the SQLite
-        index on the camera's own memory card. <a href={REPO_URL}>The repository</a> records what
-        each of those turned up, including the mistakes, because the next person working on an NX
-        body deserves better than the week it took to find out.
+        index on the camera's own memory card. Every behaviour the app relies on was confirmed on
+        hardware rather than inferred, which is why it can say which cameras work instead of hoping.
       </p>
     </div>
   </Section>
 
   <CtaBand
-    title="Free, and open."
-    lede="No purchase, no account, no advertising, and no data collected. The source is yours to read, build and fork."
+    title="Free, and private."
+    lede="No purchase, no account, no advertising, and nothing collected about you or your photos."
     actions={[
       download,
       { text: "Support", href: "/apps/nx-link/support/" },

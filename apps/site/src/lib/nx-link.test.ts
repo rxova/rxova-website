@@ -7,7 +7,6 @@ import type { ImageMetadata } from "astro";
 
 import {
   APP_STORE_URL,
-  REPO_URL,
   SHOT_COPY,
   SUPPORT_EMAIL,
   buildScreenshots,
@@ -60,8 +59,7 @@ describe("the page's own facts", () => {
     expect(APP_STORE_URL).toBeNull();
   });
 
-  it("points support and source at reachable places", () => {
-    expect(REPO_URL).toMatch(/^https:\/\/github\.com\//);
+  it("points support at a reachable place", () => {
     expect(SUPPORT_EMAIL).toContain("@");
     expect(demoVideo.startsWith("/")).toBe(true);
   });

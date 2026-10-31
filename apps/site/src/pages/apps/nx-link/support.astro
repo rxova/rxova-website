@@ -2,7 +2,7 @@
 /** The support URL the App Store listing requires, answering the questions the app actually
  * generates, in the order they come up. */
 import Page from "../../../layouts/Page.astro";
-import { REPO_URL, SUPPORT_EMAIL } from "../../../lib/nx-link";
+import { SUPPORT_EMAIL } from "../../../lib/nx-link";
 
 const title = "NX Link — Support";
 const description =
@@ -77,9 +77,8 @@ const description =
 
     <h2>Report a problem</h2>
     <p>
-      Open an issue at <a href={`${REPO_URL}/issues`}>{REPO_URL}/issues</a>, or write to
-      <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>. Expect a reply within a few days;
-      this is a free app maintained by one person.
+      Write to <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>. Expect a reply within a few
+      days; this is a free app maintained by one person.
     </p>
     <p>
       For a connection problem, the app's <strong>Troubleshooting</strong> screen (the ⋯ menu)
