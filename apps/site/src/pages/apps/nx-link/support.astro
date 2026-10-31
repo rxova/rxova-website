@@ -1,0 +1,110 @@
+---
+/** The support URL the App Store listing requires, answering the questions the app actually
+ * generates, in the order they come up. */
+import Page from "../../../layouts/Page.astro";
+import { REPO_URL, SUPPORT_EMAIL } from "../../../lib/nx-link";
+
+const title = "NX Link — Support";
+const description =
+  "How to connect an NX300 or NX3000 to NX Link, what to do when the camera does not appear, and where to report a problem.";
+---
+
+<Page title={title} description={description} path="/apps/nx-link/support">
+  <article class="prose">
+    <h1>NX Link — Support</h1>
+
+    <h2>Connecting, in three steps</h2>
+    <ol>
+      <li>
+        On the camera: open the wireless menu, choose <strong>Link</strong>, then{" "}
+        <strong>Select Files from Smartphone</strong>.
+      </li>
+      <li>
+        On the iPhone: <strong>Settings › Wi-Fi</strong>, join the network whose name starts with
+        <code>AP_SSC_NX</code>. It has no password.
+      </li>
+      <li>Open NX Link. It finds the camera and connects on its own.</li>
+    </ol>
+    <p>
+      That network has no internet, by design. iOS will say so, and may offer to switch you back to
+      a network that does — stay on the camera's one until the transfer has finished.
+    </p>
+
+    <h2>The camera does not appear</h2>
+    <ul>
+      <li>
+        <strong>Check the phone is on the camera's network.</strong> iOS switches away from a
+        network with no internet more eagerly than you would expect, especially after a lock.
+      </li>
+      <li>
+        <strong>The camera gives up waiting.</strong> It switches its Wi-Fi off if nothing connects
+        within a minute or two. Start the mode on the camera again and reopen the app promptly.
+      </li>
+      <li>
+        <strong>Allow the Local Network prompt.</strong> If it was declined, the app cannot reach
+        the camera at all: Settings › NX Link › Local Network.
+      </li>
+      <li>
+        <strong>Use the right mode.</strong> Remote Viewfinder connects, but the camera will not
+        share its card in that mode. For transfers it has to be Select Files from Smartphone.
+      </li>
+    </ul>
+
+    <h2>Photos are missing from the grid</h2>
+    <p>
+      These cameras never offer RAW files over Wi-Fi. Only JPEGs are indexed, and only indexed files
+      can be listed — so a camera set to RAW only looks like a camera with an empty card. Set it to
+      JPEG or RAW+JPEG, and the photos you have already taken as RAW will still need the card
+      reader. This is firmware behaviour, confirmed by reading the index on the card itself; no app
+      can work around it.
+    </p>
+
+    <h2>A transfer is slow</h2>
+    <p>
+      A 20-megapixel original is around 8 MB and the camera's radio sets the pace: expect a few
+      seconds each. The camera also serves one request at a time, so the app queues deliberately
+      rather than asking for several at once — which is what makes the firmware drop the connection.
+      Leave the screen on while a batch runs.
+    </p>
+
+    <h2>Shooting from the phone says the shot failed</h2>
+    <p>
+      The camera is focus-priority: if autofocus cannot lock, it refuses the shot and reports it.
+      Point at something with more contrast, or switch the lens to manual focus and focus it
+      yourself. Remote zoom needs a power-zoom lens — the 16–50 PZ responds, the manual-zoom lenses
+      have no motor to drive.
+    </p>
+
+    <h2>Report a problem</h2>
+    <p>
+      Open an issue at <a href={`${REPO_URL}/issues`}>{REPO_URL}/issues</a>, or write to
+      <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>. Expect a reply within a few days;
+      this is a free app maintained by one person.
+    </p>
+    <p>
+      For a connection problem, the app's <strong>Troubleshooting</strong> screen (the ⋯ menu)
+      produces exactly the detail needed — the addresses it tried and what answered. Paste it into
+      the issue.
+    </p>
+
+    <h2>Another NX camera</h2>
+    <p>
+      Nothing in the app is written for a particular model: it reads what the camera declares and
+      adapts. The NX300 and NX3000 are the two it has been tested against, and reports from other
+      bodies are genuinely useful — the troubleshooting screen's output is the place to start.
+    </p>
+  </article>
+</Page>
+
+<style>
+  .prose h1 {
+    font-size: clamp(1.6rem, 4vw, 2.1rem);
+    letter-spacing: -0.02em;
+    font-weight: 650;
+    color: var(--rx-fg);
+    margin-bottom: 1.25rem;
+  }
+  .prose {
+    max-width: var(--rx-max);
+  }
+</style>
