@@ -7,7 +7,6 @@ import type { ImageMetadata } from "astro";
 /** The listing, once Apple has one. `null` until then. */
 export const APP_STORE_URL: string | null = null;
 
-export const REPO_URL = "https://github.com/rxova/nx-ios";
 export const SUPPORT_EMAIL = "jonyk@rxova.dev";
 
 export interface Screenshot {
