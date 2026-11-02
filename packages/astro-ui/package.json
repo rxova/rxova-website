@@ -53,14 +53,14 @@
   },
   "dependencies": {
     "@rxova/brand": "workspace:^",
-    "lucide-static": "^1.61.0"
+    "lucide-static": "^1.64.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
-    "@astrojs/starlight": "^0.42.6",
-    "@types/node": "^26.6.5",
+    "@astrojs/starlight": "^0.42.7",
+    "@types/node": "^26.6.6",
     "@vitest/coverage-v8": "^5.0.5",
-    "astro": "^7.4.2",
+    "astro": "^7.4.4",
     "happy-dom": "^21.0.4",
     "publint": "^0.3.25",
     "typescript": "6.0.3",

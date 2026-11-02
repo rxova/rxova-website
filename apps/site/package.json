@@ -21,7 +21,7 @@
     "@rxova/astro-ui": "workspace:^",
     "@rxova/brand": "workspace:^",
     "@rxova/website-schemas": "workspace:^",
-    "astro": "^7.4.2",
+    "astro": "^7.4.4",
     "astro-expressive-code": "^0.44.3",
     "sharp": "^0.35.5",
     "zod": "^4.6.7"
@@ -32,7 +32,7 @@
     "@rxova/journey-core": "^1.0.1",
     "@rxova/react-intl-currency-input": "^1.0.3",
     "@rxova/react-otp-input": "^1.0.5",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@vitest/coverage-v8": "^5.0.5",
     "react": "^19.3.1",
