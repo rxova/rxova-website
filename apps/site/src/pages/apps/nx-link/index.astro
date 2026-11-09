@@ -1,5 +1,5 @@
 ---
-/** NX Link's home. Built from @rxova/astro-ui's landing components rather than new ones, so
+/** NX LinkConnect's home. Built from @rxova/astro-ui's landing components rather than new ones, so
  * an app page and a package's docs read as the same site. */
 import CtaBand from "@rxova/astro-ui/components/CtaBand.astro";
 import DataTable from "@rxova/astro-ui/components/DataTable.astro";
@@ -9,7 +9,7 @@ import ValueGrid from "@rxova/astro-ui/components/ValueGrid.astro";
 import Page from "../../../layouts/Page.astro";
 import { APP_STORE_URL, demoVideo, hasDemoVideo, screenshots } from "../../../lib/nx-link";
 
-const title = "NX Link — photos off a Samsung NX camera, onto an iPhone";
+const title = "NX LinkConnect — photos off a Samsung NX camera, onto an iPhone";
 const description =
   "A free iPhone app that copies photos from a Samsung NX300 or NX3000 over the camera's own Wi-Fi, with a live viewfinder and a remote shutter. No account, no server, nothing collected.";
 
@@ -61,7 +61,7 @@ const steps = [
     body: "Settings › Wi-Fi, join the network whose name starts with AP_SSC_NX. It has no password, and no internet — stay on it anyway.",
   },
   {
-    label: "Open NX Link",
+    label: "Open NX LinkConnect",
     body: "It finds the camera and connects on its own. Tap the photos you want, then Save.",
   },
 ];
@@ -90,9 +90,9 @@ const cameras = [
     <p class="kicker">iPhone app</p>
     <h1>Your camera can still send photos to your phone.</h1>
     <p class="lede">
-      The app that used to receive them cannot run on a current iPhone. NX Link does. It joins a
-      Samsung NX camera's own Wi-Fi, lists the card, and copies the full-resolution originals
-      straight into your photo library — no cable, no card reader, no computer.
+      The app that used to receive them cannot run on a current iPhone. NX LinkConnect does. It
+      joins a Samsung NX camera's own Wi-Fi, lists the card, and copies the full-resolution
+      originals straight into your photo library — no cable, no card reader, no computer.
     </p>
     <div class="actions">
       <a class="btn btn--primary" href={download.href}>
@@ -155,7 +155,7 @@ const cameras = [
       label="Camera support"
       columns={["Camera", "Status", "What works"]}
       rows={cameras}
-      caption="NX Link is not affiliated with, endorsed by, or sponsored by Samsung."
+      caption="NX LinkConnect is not affiliated with, endorsed by, or sponsored by Samsung."
     />
     <p class="aside">
       One thing to know before you decide the app is broken: these cameras never offer RAW files
@@ -180,10 +180,11 @@ const cameras = [
         answers. What disappeared was the one piece of software that knew how to ask.
       </p>
       <p>
-        That protocol was never documented. NX Link was written against two real cameras, a packet
-        at a time — reading the decompiled original app, the firmware, and in the end the SQLite
-        index on the camera's own memory card. Every behaviour the app relies on was confirmed on
-        hardware rather than inferred, which is why it can say which cameras work instead of hoping.
+        That protocol was never documented. NX LinkConnect was written against two real cameras, a
+        packet at a time — reading the decompiled original app, the firmware, and in the end the
+        SQLite index on the camera's own memory card. Every behaviour the app relies on was
+        confirmed on hardware rather than inferred, which is why it can say which cameras work
+        instead of hoping.
       </p>
     </div>
   </Section>
