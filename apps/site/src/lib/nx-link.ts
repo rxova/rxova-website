@@ -59,11 +59,12 @@ export const screenshots: readonly Screenshot[] = buildScreenshots(
   import.meta.glob<{ default: ImageMetadata }>("../assets/apps/nx-link/*.png", { eager: true }),
 );
 
-/** The recording App Review is pointed at, once it exists. From `public/`, so it is a path
- * check rather than an import: a video has no business in the image pipeline. */
+/** A demo recording for this page, if one is ever made. A `public/` path check rather than
+ * an import: a video has no business in the image pipeline. */
 export const demoVideo = "/apps/nx-link/demo.mp4";
 
-/** Whether that recording has been made yet. */
+/** False for 1.0: the App Review recording is filmed off a card of personal photographs,
+ * so it is attached to the submission rather than published here. */
 export const hasDemoVideo = existsSync(
   new URL("../../public/apps/nx-link/demo.mp4", import.meta.url),
 );
