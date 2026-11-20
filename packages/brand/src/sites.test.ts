@@ -150,7 +150,7 @@ describe("projectFromBase", () => {
 
 describe("SECTIONS", () => {
   it("lists the site sections in menu order, each a page path Pages serves without a redirect", () => {
-    expect(SECTIONS.map((s) => s.label)).toEqual(["Projects", "Blog", "Updates"]);
+    expect(SECTIONS.map((s) => s.label)).toEqual(["Apps", "Projects", "Blog", "Updates"]);
     for (const section of SECTIONS) {
       expect(section.path).toBe(`/${section.id}/`);
     }

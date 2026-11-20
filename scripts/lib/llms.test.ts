@@ -112,18 +112,19 @@ describe("writeLlms", () => {
     ]);
   });
 
-  // /blog and /updates are built by the site app, so no sources.json entry announces
-  // them; the index lists them anyway, beside any mounted site.
+  // /apps, /blog and /updates are built by the site app, so no sources.json entry
+  // announces them; the index lists them anyway, beside any mounted site.
   it("lists the site app's own sections with no source for them", async () => {
     const { sites } = await writeLlms(root, [], ORIGIN);
     assert.deepEqual(
       sites.map((s) => [s.label, s.url]),
       [
+        ["apps", "https://rxova.dev/apps/"],
         ["blog", "https://rxova.dev/blog/"],
         ["updates", "https://rxova.dev/updates/"],
       ],
     );
-    assert.match(read(), /## Also on this site\n\n- \[blog\]\(https:\/\/rxova\.dev\/blog\/\)/);
+    assert.match(read(), /## Also on this site\n\n- \[apps\]\(https:\/\/rxova\.dev\/apps\/\)/);
   });
 
   it("separates the libraries from the other sites on this domain", async () => {
@@ -140,7 +141,7 @@ describe("writeLlms", () => {
     // The mounted `blog` source stands in for the landing's own, so it is listed once.
     assert.deepEqual(
       sites.map((s) => s.label),
-      ["blog", "updates"],
+      ["apps", "blog", "updates"],
     );
     assert.match(read(), /## Libraries[\s\S]*## Also on this site/);
   });
@@ -183,6 +184,7 @@ describe("writeLlms", () => {
 
     assert.deepEqual(links(read()), [
       ["journey", "https://web.rxova.dev/packages/journey/llms.txt"],
+      ["apps", "https://web.rxova.dev/apps/"],
       ["blog", "https://web.rxova.dev/blog/"],
       ["updates", "https://web.rxova.dev/updates/"],
     ]);

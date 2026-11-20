@@ -152,14 +152,24 @@ describe("site surfaces", () => {
     ).toEqual([]);
   });
 
-  it("puts Projects first, then the mounted surfaces, then Blog and Updates", () => {
+  it("lists brand's sections in menu order, then any mounted surface they do not already cover", () => {
     expect(landingSurfaces).toEqual([
+      { id: "apps", label: "Apps", href: "/apps/" },
       { id: "projects", label: "Projects", href: "/projects/" },
       { id: "blog", label: "Blog", href: "/blog/" },
       { id: "updates", label: "Updates", href: "/updates/" },
     ]);
-    expect(navSurfaces).toEqual([landingSurfaces[0], ...siteSurfaces, ...landingSurfaces.slice(1)]);
+    const extra = siteSurfaces.filter((s) => !landingSurfaces.some((l) => l.id === s.id));
+    expect(navSurfaces).toEqual([...landingSurfaces, ...extra]);
     expect(navSurfaces.map((s) => s.id)).not.toContain("about");
+  });
+
+  // A `blog` source mounting /blog/ is the same surface as brand's Blog section, so it takes
+  // the section's slot instead of adding a second menu item to the same page.
+  it("does not list a mounted site twice when a section already covers it", () => {
+    expect(
+      navSurfaces.filter((s) => s.id === "blog" || s.id === "updates").map((s) => s.id),
+    ).toEqual(["blog", "updates"]);
   });
 });
 
