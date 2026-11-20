@@ -1,5 +1,12 @@
 # @rxova/preview
 
+## 0.0.22
+
+### Patch Changes
+
+- Updated dependencies [[`1418ec3`](https://github.com/rxova/rxova-website/commit/1418ec36dfb0f0db27e78eb02268c5e37fb685db)]:
+  - @rxova/brand@1.6.0
+
 ## 0.0.21
 
 ### Patch Changes
