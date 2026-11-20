@@ -76,10 +76,24 @@ const cameras = [
     cells: ["Tested end to end", "The same, and it shares JPEGs only — never RAW"],
   },
   {
-    label: "Other NX bodies",
+    label: "NX300M, NX2000, NX30",
     cells: [
-      "Unverified",
-      "Nothing in the app is written for a model, so several should work. Reports welcome.",
+      "Expected to work",
+      "Everything the NX300 does. Same DRIMe IV processor, same wireless stack — untested only because I do not own one.",
+    ],
+  },
+  {
+    label: "NX3300, NX mini",
+    cells: [
+      "Expected to work",
+      "Everything the NX3000 does, JPEG-only sharing included. Same M7MU generation.",
+    ],
+  },
+  {
+    label: "Other NX bodies with Wi-Fi",
+    cells: [
+      "Worth trying",
+      "Nothing in the app is written for a model: it reads what the camera declares and adapts. Tell me how yours goes.",
     ],
   },
 ];
@@ -91,8 +105,9 @@ const cameras = [
     <h1>Your camera can still send photos to your phone.</h1>
     <p class="lede">
       The app that used to receive them cannot run on a current iPhone. NX LinkConnect does. It
-      joins a Samsung NX camera's own Wi-Fi, lists the card, and copies the full-resolution
-      originals straight into your photo library — no cable, no card reader, no computer.
+      joins a Samsung NX camera's own <span class="nowrap">Wi-Fi</span>, lists the card, and copies
+      the full-resolution originals straight into your photo library — no cable, no card reader, no
+      computer.
     </p>
     <div class="actions">
       <a class="btn btn--primary" href={download.href}>
@@ -149,7 +164,7 @@ const cameras = [
     id="cameras"
     eyebrow="Cameras"
     title="Which cameras it works with"
-    lede="Two bodies have been tested from end to end. The app reads what a camera declares rather than branching on its model, so others may work."
+    lede="Two bodies tested from end to end, and five more that share their hardware generation with one of them and should behave the same. The app reads what a camera declares rather than branching on its model, so there is nothing in it for your body to trip over."
   >
     <DataTable
       label="Camera support"
@@ -159,8 +174,8 @@ const cameras = [
     />
     <p class="aside">
       One thing to know before you decide the app is broken: these cameras never offer RAW files
-      over Wi-Fi. If the camera shoots RAW only, its photos will not appear. Set it to JPEG or
-      RAW+JPEG.
+      over <span class="nowrap">Wi-Fi</span>. If the camera shoots RAW only, its photos will not
+      appear. Set it to JPEG or RAW+JPEG.
     </p>
   </Section>
 
@@ -292,6 +307,11 @@ const cameras = [
     margin-top: 0.5rem;
     color: var(--rx-muted);
     line-height: 1.65;
+  }
+
+  /* "Wi-Fi" reads as two words when a line break lands on its hyphen. */
+  .nowrap {
+    white-space: nowrap;
   }
 
   .aside {
