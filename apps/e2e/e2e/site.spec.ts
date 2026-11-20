@@ -2,6 +2,8 @@
 import { expect, test } from "@playwright/test";
 
 const SECTIONS = [
+  { path: "/apps/", nav: "/apps/" },
+  { path: "/apps/nx-link/", nav: "/apps/" },
   { path: "/projects/", nav: "/projects/" },
   { path: "/blog/", nav: "/blog/" },
   { path: "/updates/", nav: "/updates/" },

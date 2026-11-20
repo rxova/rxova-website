@@ -88,6 +88,7 @@ export function llmsIndex(
  * listed under "Also on this site" beside any mounted `kind: "site"` source.
  */
 const OWN_SECTIONS: readonly { label: string; path: string }[] = [
+  { label: "apps", path: "/apps/" },
   { label: "blog", path: "/blog/" },
   { label: "updates", path: "/updates/" },
 ];

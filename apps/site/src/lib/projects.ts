@@ -165,11 +165,13 @@ export const landingSurfaces: readonly SiteSurface[] = SECTIONS.map((section) =>
   href: section.path,
 }));
 
-/** The menu: Projects, then any mounted surfaces, then this app's other sections. */
+/**
+ * The menu: brand's sections in their own order, then any mounted `kind: "site"` source not
+ * already one of them — a `blog` source keeps Blog's slot rather than appearing twice.
+ */
 export const navSurfaces: readonly SiteSurface[] = [
-  ...landingSurfaces.filter((s) => s.id === "projects"),
-  ...siteSurfaces,
-  ...landingSurfaces.filter((s) => s.id !== "projects"),
+  ...landingSurfaces,
+  ...siteSurfaces.filter((site) => !landingSurfaces.some((section) => section.id === site.id)),
 ];
 
 /** "a" · "a and b" · "a, b, and c" */

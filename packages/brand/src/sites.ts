@@ -128,6 +128,7 @@ export function getRepo(id: RepoId): (typeof REPOS)[number] {
  * site header, the docs header and the shared footer. The site root is the about page, reached by the mark.
  */
 export const SECTIONS = [
+  { id: "apps", label: "Apps", path: "/apps/" },
   { id: "projects", label: "Projects", path: "/projects/" },
   { id: "blog", label: "Blog", path: "/blog/" },
   { id: "updates", label: "Updates", path: "/updates/" },

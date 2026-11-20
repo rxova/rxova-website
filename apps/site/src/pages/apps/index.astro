@@ -1,0 +1,224 @@
+---
+/** The Apps index: the applications rxova ships to a store, as opposed to the packages on
+ * /projects. One card per app, each linking to the app's own page and its listing. */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import PageHeader from "@rxova/astro-ui/components/PageHeader.astro";
+import { canonicalUrl } from "@rxova/brand";
+import Page from "../../layouts/Page.astro";
+import { APPS } from "../../lib/apps";
+import { screenshots } from "../../lib/nx-link";
+
+/** One captured screen per app, beside its card. An app with none renders text only, which
+ * is why this is presentation here rather than a field every entry must fill. */
+const HERO_SHOTS: Record<string, ImageMetadata | undefined> = { "nx-link": screenshots[0]?.src };
+
+const description =
+  "Applications from Rxova: NX LinkConnect, a free iPhone app that copies photos off a Samsung NX camera over the camera's own Wi-Fi.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Rxova apps",
+  url: canonicalUrl("/apps"),
+  description,
+  inLanguage: "en",
+  hasPart: APPS.map((app) => ({
+    "@type": "SoftwareApplication",
+    name: app.label,
+    url: canonicalUrl(app.href),
+    applicationCategory: "MultimediaApplication",
+    operatingSystem: app.platform,
+  })),
+};
+---
+
+<Page title="Apps — Rxova" description={description} path="/apps" jsonLd={jsonLd}>
+  <PageHeader title="Apps">
+    The things Rxova ships to a store rather than to npm. Same standards as the packages: no
+    account, no analytics, and a page that tells you what the thing actually does before you install
+    it.
+  </PageHeader>
+
+  <ul class="apps">
+    {APPS.map((app) => (
+      <li class="app">
+        <div class="app__copy">
+          <div class="app__head">
+            <p class="app__platform">{app.platform}</p>
+            <h2 class="app__name">
+              <a href={app.href}>{app.label}</a>
+            </h2>
+            <p class="app__tagline">{app.tagline}</p>
+          </div>
+          <p class="app__blurb">{app.blurb}</p>
+          <ul class="facts">
+            {app.facts.map((fact) => (
+              <li class="fact">{fact}</li>
+            ))}
+          </ul>
+          <div class="app__actions">
+            {app.store && (
+              <a class="btn btn--primary" href={app.store.href}>
+                {app.store.label}
+              </a>
+            )}
+            <a class="btn" href={app.href}>
+              What it does
+            </a>
+          </div>
+        </div>
+        {HERO_SHOTS[app.id] && (
+          <a class="app__shot" href={app.href} tabindex="-1" aria-hidden="true">
+            <Image src={HERO_SHOTS[app.id]!} alt="" loading="lazy" widths={[260, 520]} />
+          </a>
+        )}
+      </li>
+    ))}
+  </ul>
+</Page>
+
+<style>
+  .apps {
+    display: grid;
+    gap: 1.25rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: center;
+    background: var(--rx-card);
+    border: 1px solid var(--rx-rule);
+    border-radius: 14px;
+    padding: 1.6rem 1.5rem;
+  }
+
+  .app__copy {
+    display: grid;
+    gap: 1rem;
+  }
+
+  /* The screen is decoration beside copy that already says everything: hidden from the
+     reading order, and gone entirely where there is no room for it. */
+  .app__shot img {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--rx-rule);
+    border-radius: 12px;
+  }
+
+  @media (max-width: 52rem) {
+    .app {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .app__shot {
+      display: none;
+    }
+  }
+
+  /* The brand spends the gradient sparingly: one hairline per card, over the name. */
+  .app__head {
+    padding-top: 1rem;
+    position: relative;
+  }
+  .app__head::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    width: 2.5rem;
+    height: 2px;
+    border-radius: var(--rx-radius-pill);
+    background: var(--rx-gradient);
+  }
+
+  .app__platform {
+    font-family: var(--rx-font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rx-faint);
+    margin: 0 0 0.5rem;
+  }
+
+  .app__name {
+    font-size: 1.5rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .app__name a {
+    color: var(--rx-fg);
+    text-decoration: none;
+  }
+  .app__name a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .app__tagline {
+    color: var(--rx-fg);
+    margin: 0.35rem 0 0;
+  }
+
+  .app__blurb {
+    color: var(--rx-muted);
+    line-height: 1.7;
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .fact {
+    font-family: var(--rx-font-mono);
+    font-size: 0.74rem;
+    color: var(--rx-muted);
+    background: var(--rx-tag-bg);
+    border-radius: var(--rx-radius-pill);
+    padding: 0.2rem 0.6rem;
+  }
+
+  .app__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  /* The same pill as the app pages' own actions, at a 44px target. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.7rem 1.4rem;
+    border: 1px solid var(--rx-rule-strong);
+    border-radius: var(--rx-radius-pill);
+    color: var(--rx-fg);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .btn:hover {
+    border-color: var(--rx-primary);
+  }
+  .btn--primary {
+    color: var(--rx-on-primary);
+    background: var(--rx-primary);
+    border-color: transparent;
+  }
+  .btn--primary:hover {
+    background: var(--rx-primary-dark);
+    border-color: transparent;
+  }
+</style>

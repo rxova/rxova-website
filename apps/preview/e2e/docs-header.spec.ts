@@ -36,6 +36,7 @@ test.describe("on a phone", () => {
     ]);
     // The same items, in the same order, as the rxova.dev header.
     await expect(panel.getByRole("list", { name: "Site" }).getByRole("link")).toHaveText([
+      "Apps",
       "Projects",
       "Blog",
       "Updates",
@@ -86,6 +87,7 @@ test.describe("on a phone", () => {
     const pane = page.locator("#starlight__sidebar");
     await expect(pane.getByRole("list", { name: "Docs" }).getByRole("link")).toHaveCount(5);
     await expect(pane.getByRole("list", { name: "Site" }).getByRole("link")).toHaveText([
+      "Apps",
       "Projects",
       "Blog",
       "Updates",
@@ -115,7 +117,12 @@ test.describe("on a desktop", () => {
       await expect(page.locator(".sl-menu-button")).toBeHidden();
       const bar = page.locator("header.header .rx-sections");
       await expect(bar.locator(".rx-switcher__trigger")).toHaveText("Docs");
-      await expect(bar.locator(".rx-sections__link")).toHaveText(["Projects", "Blog", "Updates"]);
+      await expect(bar.locator(".rx-sections__link")).toHaveText([
+        "Apps",
+        "Projects",
+        "Blog",
+        "Updates",
+      ]);
     });
   }
 });

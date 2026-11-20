@@ -1,12 +1,14 @@
 ---
 /** /about's opening: what Rxova is, three counts, and the maintainer card beside them. */
 import { MAINTAINER } from "../../lib/about";
+import { APPS } from "../../lib/apps";
 import { landingProjects } from "../../lib/projects";
 
-// Counted, not written: the projects are the ones the landing shows, and the zero is the
-// zero-dependencies standard (only rxova's own packages, React a peer).
+// Counted, not written: the projects and apps are the ones the site lists, and the zero is
+// the zero-dependencies standard (only rxova's own packages, React a peer).
 const counts = [
   { value: landingProjects.length, label: "projects" },
+  { value: APPS.length, label: APPS.length === 1 ? "app" : "apps" },
   { value: 0, label: "third-party deps" },
   { value: 1, label: "maintainer" },
 ];
@@ -125,8 +127,11 @@ const LINK_ICONS: Record<string, string> = {
     color: var(--rx-muted);
   }
 
+  /* A grid, not a wrapping row: four counts do not fit across a phone, and the divider has
+     to know which of them start a line. */
   .counts {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, max-content);
     gap: clamp(1.25rem, 3vw, 2.5rem);
     margin-top: 2rem;
   }
@@ -143,6 +148,17 @@ const LINK_ICONS: Record<string, string> = {
   .count + .count {
     padding-inline-start: clamp(1.25rem, 3vw, 2.5rem);
     border-inline-start: 1px solid var(--rx-rule);
+  }
+
+  /* Two columns on a phone, so the divider belongs to the second of each pair only. */
+  @media (max-width: 40rem) {
+    .counts {
+      grid-template-columns: repeat(2, max-content);
+    }
+    .count:nth-child(odd) {
+      padding-inline-start: 0;
+      border-inline-start: none;
+    }
   }
 
   .count dd {
