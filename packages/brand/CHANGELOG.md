@@ -1,5 +1,11 @@
 # @rxova/brand
 
+## 1.6.0
+
+### Minor Changes
+
+- [#184](https://github.com/rxova/rxova-website/pull/184) [`1418ec3`](https://github.com/rxova/rxova-website/commit/1418ec36dfb0f0db27e78eb02268c5e37fb685db) - Add NX LinkConnect to `REPOS`, so an update entry can be about the app and the updates page can filter by it. Its entry carries `page: "/apps/nx-link/"` instead of `repo`, because the app's source is private: a consumer reading `REPOS` must handle an entry with no GitHub URL and send the reader to the page instead.
+
 ## 1.5.0
 
 ### Minor Changes
