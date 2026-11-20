@@ -1,5 +1,11 @@
 # @rxova/astro-ui
 
+## 0.7.1
+
+### Patch Changes
+
+- [#186](https://github.com/rxova/rxova-website/pull/186) [`b8e4f2e`](https://github.com/rxova/rxova-website/commit/b8e4f2e22acf5c2d3e05769949ac34aeaa13ccaf) - Widen the footer blurb to cover apps: rxova.dev now ships an iPhone app as well as libraries and developer tools, and the MIT claim is scoped to the libraries, whose source is the part that is public.
+
 ## 0.7.0
 
 ### Minor Changes
