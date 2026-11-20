@@ -53,10 +53,10 @@ describe("buildScreenshots", () => {
 });
 
 describe("the page's own facts", () => {
-  // Until Apple approves the listing the hero has to offer something else, and
-  // the page decides that from this being null.
-  it("has no App Store link while the listing is in review", () => {
-    expect(APP_STORE_URL).toBeNull();
+  // Every download button on the site derives from this one constant, and it stays
+  // storefront-agnostic: a `/pe/` path sends everyone else to the wrong country's store.
+  it("links the App Store listing without pinning a storefront or a language", () => {
+    expect(APP_STORE_URL).toBe("https://apps.apple.com/app/nx-linkconnect/id6832550713");
   });
 
   it("points support at a reachable place", () => {
