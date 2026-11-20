@@ -1,5 +1,13 @@
 # @rxova/brand
 
+## 1.5.0
+
+### Minor Changes
+
+- [#180](https://github.com/rxova/rxova-website/pull/180) [`e02d886`](https://github.com/rxova/rxova-website/commit/e02d88602f3b3553736eb202e3df3a307cbd697f) - Add Apps to `SECTIONS`, first in the menu: rxova.dev now has an `/apps/` section beside Projects, Blog and Updates, and every surface that reads `SECTIONS` — the site header, the docs header and the shared footer — picks it up.
+
+- [#181](https://github.com/rxova/rxova-website/pull/181) [`8078647`](https://github.com/rxova/rxova-website/commit/80786475c45e342d9414cc726767751f7cefd4d5) - Add NX LinkConnect to `REPOS`, so an update entry can be about the app and the updates page can filter by it. Its entry carries `page: "/apps/nx-link/"` instead of `repo`, because the app's source is private: a consumer reading `REPOS` must handle an entry with no GitHub URL and send the reader to the page instead.
+
 ## 1.4.0
 
 ### Minor Changes
