@@ -99,6 +99,14 @@ export function getProject(id: ProjectId): Project {
 export const REPOS = [
   ...PROJECTS.map((p) => ({ id: p.id, label: p.label, repo: p.repo, project: true as const })),
   {
+    id: "nx-link",
+    label: "NX LinkConnect",
+    // No `repo`: the iPhone app's source is private, so the app's own page is where a
+    // reader is sent instead of a GitHub URL that would 404 for everyone.
+    page: "/apps/nx-link/",
+    project: false as const,
+  },
+  {
     id: "rxova-website",
     label: "Website",
     repo: "https://github.com/rxova/rxova-website",

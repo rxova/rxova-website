@@ -31,6 +31,13 @@ const { repo, entries } = Astro.props;
 const ogImage = repo.project ? siteUrl(`/og/${repo.id}.png`) : undefined;
 const feedUrl = `${canonicalUrl("/updates")}rss.xml`;
 
+/** Where this repo's reader is sent: its GitHub URL, or the app's own page when the
+ * source is private. See REPOS in @rxova/brand. */
+const source =
+  "repo" in repo
+    ? { href: repo.repo, label: "the repository ↗", tail: "for commits and releases.", out: true }
+    : { href: repo.page, label: "the app's page", tail: "for what it does.", out: false };
+
 const items: StreamItem[] = await Promise.all(
   entries.map(async (entry) => ({
     entry,
@@ -49,10 +56,14 @@ const items: StreamItem[] = await Promise.all(
 >
   <PageHeader title={repo.label} back={{ href: href(), label: "All repos" }} variant="detail">
     Updates mentioning {repo.label}. See{" "}
-    <a href={repo.repo} target="_blank" rel="noopener noreferrer">
-      the repository ↗
+    <a
+      href={source.href}
+      target={source.out ? "_blank" : undefined}
+      rel={source.out ? "noopener noreferrer" : undefined}
+    >
+      {source.label}
     </a>{" "}
-    for commits and releases.
+    {source.tail}
   </PageHeader>
 
   {items.length === 0 ? (

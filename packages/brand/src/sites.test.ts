@@ -62,7 +62,11 @@ describe("REPOS", () => {
 
   it("marks which entries are projects", () => {
     expect(REPOS.filter((r) => r.project).map((r) => r.id)).toEqual(PROJECTS.map((p) => p.id));
-    expect(REPOS.filter((r) => !r.project).map((r) => r.id)).toEqual(["rxova-website", "brand"]);
+    expect(REPOS.filter((r) => !r.project).map((r) => r.id)).toEqual([
+      "nx-link",
+      "rxova-website",
+      "brand",
+    ]);
   });
 
   it("lists projects first, which is the order the repo filter renders", () => {
@@ -70,11 +74,14 @@ describe("REPOS", () => {
     expect(REPOS.slice(0, firstNonProject).every((r) => r.project)).toBe(true);
   });
 
-  it("has no duplicate ids and a label and repo for each", () => {
+  // Somewhere to send a reader: a GitHub URL, or a page on this site for a repo that
+  // is private (see nx-link in REPOS).
+  it("has no duplicate ids and a label and a destination for each", () => {
     expect(new Set(REPO_IDS).size).toBe(REPOS.length);
     for (const r of REPOS) {
       expect(r.label.length).toBeGreaterThan(0);
-      expect(r.repo).toMatch(/^https:\/\/github\.com\//);
+      if ("repo" in r) expect(r.repo).toMatch(/^https:\/\/github\.com\//);
+      else expect(r.page).toMatch(/^\/.*\/$/);
     }
   });
 
