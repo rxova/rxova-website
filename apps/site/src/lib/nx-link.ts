@@ -4,8 +4,10 @@
 import { existsSync } from "node:fs";
 import type { ImageMetadata } from "astro";
 
-/** The listing, once Apple has one. `null` until then. */
-export const APP_STORE_URL: string | null = null;
+/** The listing, once Apple has one. `null` until then. Storefront-agnostic on purpose:
+ * Apple redirects `/app/<slug>/id<n>` to whichever country the visitor buys from. */
+export const APP_STORE_URL: string | null =
+  "https://apps.apple.com/app/nx-linkconnect/id6832550713";
 
 export const SUPPORT_EMAIL = "jonyk@rxova.dev";
 
