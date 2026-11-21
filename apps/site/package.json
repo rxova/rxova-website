@@ -21,7 +21,7 @@
     "@rxova/astro-ui": "workspace:^",
     "@rxova/brand": "workspace:^",
     "@rxova/website-schemas": "workspace:^",
-    "astro": "^7.4.2",
+    "astro": "^7.4.13",
     "astro-expressive-code": "^0.44.3",
     "sharp": "^0.35.5",
     "zod": "^4.6.7"

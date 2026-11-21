@@ -9,6 +9,9 @@ overrides:
   # Not a security pin: one satteri version keeps `pnpm dedupe --check` stable across OSes; drop when @astrojs/mdx uses the 0.4 line
   satteri: "0.10.5"
 
+  # Not a security pin: @astrojs/astro2tsx accepts `^1.7.1 || 2.0.0-beta.2 || 2.0.0-beta.3` and pnpm takes the highest, pairing a 2.0 prerelease runtime with @emnapi/core 1.11.3, which makes `astro check` die on `this.bridge.setLastError is not a function`; drop when astro2tsx stops offering the prereleases
+  "@emnapi/runtime": "^1.11.3"
+
   # GHSA-rgw5-rvv9-x895, GHSA-6j4f-fj2g-mc7p, GHSA-qhr7-859c-m2p7, GHSA-q2hr-2g5m-vwhr: brace-expansion <5.0.12 DoS; arrives via minimatch many ways, so no direct bump reaches it
   brace-expansion: ">=5.0.12"
 
