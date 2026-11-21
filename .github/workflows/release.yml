@@ -16,9 +16,34 @@ permissions:
   contents: read
 
 jobs:
-  release:
+  # Two merges in quick succession each finish CI and each ask for a release; the second then
+  # tries to publish what the first already did, and npm answers 409. Only the newest may run.
+  current:
     # workflow_run fires on failure as well, so the conclusion is checked.
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      head: ${{ steps.check.outputs.head }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 1
+      - id: check
+        env:
+          TRIGGER_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          head=$(git rev-parse HEAD)
+          if [ -z "$TRIGGER_SHA" ] || [ "$head" = "$TRIGGER_SHA" ]; then
+            echo "head=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::main is at $head, this run was triggered by $TRIGGER_SHA — skipping."
+            echo "head=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  release:
+    needs: current
+    if: needs.current.outputs.head == 'true'
     # The version commit and tags, the version pull request, and npm trusted publishing (OIDC).
     permissions:
       contents: write

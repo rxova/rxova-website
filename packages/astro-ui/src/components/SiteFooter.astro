@@ -140,7 +140,8 @@ const surfaces: readonly SiteLink[] =
   </div>
 
   <div class="rx-footer__legal">
-    <p>© {year} Rxova · MIT licensed</p>
+    {/* Scoped to the packages: the iPhone app ships from a repo that is not public. */}
+    <p>© {year} Rxova · Packages MIT licensed</p>
     <div class="rx-footer__legal-links">
       <a href={`${origin}/privacy/`}>Privacy</a>
       <a href={`${origin}/terms/`}>Terms</a>
