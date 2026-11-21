@@ -51,11 +51,13 @@
   line-height: 1.6;
 }
 
-/* 8rem: the widest track that still fits two columns on a 360px phone. */
+/* Exactly two tracks, so an even number of columns reads as a block rather than a full
+   row and a lone orphan. Two 8rem tracks still fit a 360px phone, so it holds everywhere. */
 .rx-footer__columns {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
-  gap: 2rem 1.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 2.25rem 2.5rem;
 }
 
 .rx-footer__title {
