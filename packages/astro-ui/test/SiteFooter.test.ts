@@ -12,12 +12,23 @@ describe("SiteFooter", () => {
     expect(links).toContain("https://rxova.dev/blog/");
     expect(links).toContain("https://rxova.dev/privacy/");
     expect(links).toContain("https://rxova.dev/packages/journey/");
+    expect(links).toContain("https://rxova.dev/apps/nx-link/");
+  });
+
+  // The app is the one thing on the site with no repo and no package, so nothing else
+  // in the footer would reach it: without this column it is navigable only via /apps.
+  it("names every app in an Apps column", async () => {
+    const html = await render(SiteFooter);
+    expect(html).toContain(">Apps</h2>");
+    expect(html).toContain("NX LinkConnect");
   });
 
   it("links root-relative when origin is '', so a preview links to itself", async () => {
     const html = await render(SiteFooter, { props: { origin: "" } });
     const own = hrefs(html).filter((h) => !/^(https?:|mailto:)/.test(h ?? ""));
-    expect(own).toEqual(expect.arrayContaining(["/", "/projects/", "/blog/", "/terms/"]));
+    expect(own).toEqual(
+      expect.arrayContaining(["/", "/projects/", "/blog/", "/terms/", "/apps/nx-link/"]),
+    );
     expect(html).not.toContain("https://rxova.dev");
     expect(html).toContain('src="/rxova-logo-256.png"');
   });
