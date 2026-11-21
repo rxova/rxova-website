@@ -1,5 +1,21 @@
 # @rxova/astro-ui
 
+## 0.8.0
+
+### Minor Changes
+
+- [#191](https://github.com/rxova/rxova-website/pull/191) [`94f5e07`](https://github.com/rxova/rxova-website/commit/94f5e0721644a3ed6215d171cea23d1ef430471b) - List the shipped apps in the footer, from a new `APPS` export
+
+### Patch Changes
+
+- [#191](https://github.com/rxova/rxova-website/pull/191) [`94f5e07`](https://github.com/rxova/rxova-website/commit/94f5e0721644a3ed6215d171cea23d1ef430471b) - Rewrite the footer blurb so apps are part of the sentence, not appended to it
+
+- [#189](https://github.com/rxova/rxova-website/pull/189) [`72cd0d8`](https://github.com/rxova/rxova-website/commit/72cd0d830f8b8a673b914a0c002d45806213929e) - Scope the footer's licence line to the packages: it read "MIT licensed" under every surface, which the iPhone app, whose source is private, is not.
+
+- [#192](https://github.com/rxova/rxova-website/pull/192) [`fa5b4d3`](https://github.com/rxova/rxova-website/commit/fa5b4d380f2ce655e119104d83fa8fa4f9e834f8) - Lay the footer link columns out two per row, so four columns read as a block
+- Updated dependencies [[`94f5e07`](https://github.com/rxova/rxova-website/commit/94f5e0721644a3ed6215d171cea23d1ef430471b)]:
+  - @rxova/brand@1.7.0
+
 ## 0.7.1
 
 ### Patch Changes

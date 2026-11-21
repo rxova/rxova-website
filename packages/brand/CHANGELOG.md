@@ -1,5 +1,11 @@
 # @rxova/brand
 
+## 1.7.0
+
+### Minor Changes
+
+- [#191](https://github.com/rxova/rxova-website/pull/191) [`94f5e07`](https://github.com/rxova/rxova-website/commit/94f5e0721644a3ed6215d171cea23d1ef430471b) - List the shipped apps in the footer, from a new `APPS` export
+
 ## 1.6.0
 
 ### Minor Changes
