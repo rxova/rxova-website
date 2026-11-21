@@ -6,6 +6,7 @@
 import { siteUrl } from "@rxova/brand";
 import AboutIntro from "../components/about/AboutIntro.astro";
 import AboutPrinciples from "../components/about/AboutPrinciples.astro";
+import AppsBanner from "../components/about/AppsBanner.astro";
 import Contributing from "../components/about/Contributing.astro";
 import FollowLinks from "../components/about/FollowLinks.astro";
 import Maintenance from "../components/about/Maintenance.astro";
@@ -42,6 +43,7 @@ const description = `Rxova is built and maintained by ${MAINTAINER.name} — sma
   <main>
     <AboutIntro />
     <div class="gradient-rule" aria-hidden="true"></div>
+    <AppsBanner />
     <Origins />
     <AboutPrinciples />
     <Maintenance />

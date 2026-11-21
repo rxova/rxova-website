@@ -2,6 +2,7 @@
 
 export {
   RXOVA_ORIGIN,
+  APPS,
   PROJECTS,
   REPOS,
   REPO_IDS,
@@ -12,6 +13,8 @@ export {
   siteUrl,
   canonicalUrl,
   projectFromBase,
+  type App,
+  type AppId,
   type Project,
   type ProjectId,
   type RepoId,

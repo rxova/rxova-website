@@ -11,6 +11,7 @@ import {
   REPOS,
   REPO_IDS,
   SECTIONS,
+  APPS,
   getProject,
   getRepo,
   docsUrl,
@@ -160,6 +161,26 @@ describe("SECTIONS", () => {
     expect(SECTIONS.map((s) => s.label)).toEqual(["Apps", "Projects", "Blog", "Updates"]);
     for (const section of SECTIONS) {
       expect(section.path).toBe(`/${section.id}/`);
+    }
+  });
+});
+
+describe("APPS", () => {
+  it("gives every app a label and its own page path on this site", () => {
+    expect(APPS.length).toBeGreaterThan(0);
+    for (const app of APPS) {
+      expect(app.label.length).toBeGreaterThan(0);
+      expect(app.page).toBe(`/apps/${app.id}/`);
+    }
+  });
+
+  // One list, two readers: the footer column and the changelog repo filter. A second
+  // literal for nx-link is how the two drifted apart before.
+  it("is the source REPOS derives its app entries from", () => {
+    for (const app of APPS) {
+      const repo = getRepo(app.id);
+      expect(repo.label).toBe(app.label);
+      expect(repo.project).toBe(false);
     }
   });
 });
