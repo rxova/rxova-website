@@ -60,7 +60,7 @@
     "@astrojs/starlight": "^0.42.6",
     "@types/node": "^26.6.5",
     "@vitest/coverage-v8": "^5.0.5",
-    "astro": "^7.4.2",
+    "astro": "^7.4.13",
     "happy-dom": "^21.0.4",
     "publint": "^0.3.25",
     "typescript": "6.0.3",
